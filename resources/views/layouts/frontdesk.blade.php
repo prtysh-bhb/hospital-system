@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Front Desk') - MediCare HMS</title>
+    <title>@yield('title', 'Front Desk') - {{ env('APP_NAME') }} HMS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -16,7 +16,7 @@
     <div class="flex h-screen overflow-hidden">
         <aside class="w-64 bg-white shadow-lg">
             <div class="p-6 border-b">
-                <h1 class="text-2xl font-bold text-sky-700">MediCare HMS</h1>
+                <h1 class="text-2xl font-bold text-sky-700">{{ env('APP_NAME') }} HMS</h1>
                 <p class="text-sm text-gray-500">Front Desk</p>
             </div>
             <nav class="p-4">

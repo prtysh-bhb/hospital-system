@@ -1,7 +1,7 @@
     <!-- Header -->
     <header class="bg-white shadow-sm">
         <div class="max-w-4xl mx-auto px-4 py-6">
-            <h1 class="text-2xl font-bold text-sky-700">MediCare Hospital</h1>
+            <h1 class="text-2xl font-bold text-sky-700">{{ env('APP_NAME') }} Hospital</h1>
             <p class="text-sm text-gray-600">Book Your Appointment</p>
         </div>
     </header>
