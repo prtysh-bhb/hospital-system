@@ -1,0 +1,102 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+// Home/Welcome Page - Role Selection
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
+// Authentication Routes
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+// Public Booking Route (Single route with ?step=1,2,3,4 parameter)
+Route::get('/booking', function () {
+    return view('public.booking');
+})->name('booking');
+
+// Admin Routes
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
+
+    Route::get('/appointments', function () {
+        return view('admin.appointments');
+    })->name('appointments');
+
+    Route::get('/appointments/add', function () {
+        return view('admin.add-appointment');
+    })->name('add-appointment');
+
+    Route::get('/doctors', function () {
+        return view('admin.doctors');
+    })->name('doctors');
+
+    Route::get('/doctors/add', function () {
+        return view('admin.doctor-add');
+    })->name('doctor-add');
+
+    Route::get('/patients', function () {
+        return view('admin.patients');
+    })->name('patients');
+
+    Route::get('/calendar', function () {
+        return view('admin.calendar');
+    })->name('calendar');
+});
+
+// Doctor Routes
+Route::prefix('doctor')->name('doctor.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('doctor.dashboard');
+    })->name('dashboard');
+
+    Route::get('/appointments', function () {
+        return view('doctor.appointments');
+    })->name('appointments');
+
+    Route::get('/appointments/{id}', function () {
+        return view('doctor.appointment-details');
+    })->name('appointment-details');
+
+    Route::get('/calendar', function () {
+        return view('doctor.calendar');
+    })->name('calendar');
+});
+
+// Front Desk Routes
+Route::prefix('frontdesk')->name('frontdesk.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('frontdesk.dashboard');
+    })->name('dashboard');
+
+    Route::get('/add-appointment', function () {
+        return view('frontdesk.add-appointment');
+    })->name('add-appointment');
+
+    Route::get('/doctor-schedule', function () {
+        return view('frontdesk.doctor-schedule');
+    })->name('doctor-schedule');
+
+    Route::get('/patients', function () {
+        return view('frontdesk.patients');
+    })->name('patients');
+
+    Route::get('/history', function () {
+        return view('frontdesk.history');
+    })->name('history');
+});
