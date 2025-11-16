@@ -7,13 +7,13 @@
 @section('content')
 <form class="max-w-4xl mx-auto">
     <!-- Personal Details -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-6">Personal Details</h3>
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">Personal Details</h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-                <input type="text" placeholder="Dr. John Doe" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                <input type="text" placeholder="Dr. John Doe" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
             </div>
 
             <div>
@@ -62,8 +62,8 @@
     </div>
 
     <!-- Professional Details -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-6">Professional Details</h3>
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">Professional Details</h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -128,8 +128,8 @@
     </div>
 
     <!-- Availability Schedule -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-6">Availability Schedule</h3>
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">Availability Schedule</h3>
 
         <div class="space-y-4">
             <div class="flex items-center space-x-4">
@@ -191,9 +191,9 @@
     </div>
 
     <!-- Form Actions -->
-    <div class="flex justify-end space-x-4">
-        <button type="button" class="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">Cancel</button>
-        <button type="submit" class="px-6 py-3 text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium">Add Doctor</button>
+    <div class="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4">
+        <button type="button" class="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-center">Cancel</button>
+        <button type="submit" class="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium">Add Doctor</button>
     </div>
 </form>
 @endsection

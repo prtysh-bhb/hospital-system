@@ -16,34 +16,34 @@
 
 @section('content')
 <!-- Calendar Controls -->
-<div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
-    <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
+<div class="bg-white p-3 sm:p-4 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
+        <div class="flex items-center space-x-2 sm:space-x-4">
             <button class="p-2 hover:bg-gray-100 rounded-lg">
                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
-            <h3 class="text-lg font-semibold text-gray-800">December 2024</h3>
+            <h3 class="text-base sm:text-lg font-semibold text-gray-800">December 2025</h3>
             <button class="p-2 hover:bg-gray-100 rounded-lg">
                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
             </button>
         </div>
-        <div class="flex space-x-2">
-            <button class="px-4 py-2 text-sm text-white bg-sky-600 rounded-lg">Month</button>
-            <button class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Week</button>
-            <button class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Day</button>
+        <div class="flex gap-2">
+            <button class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-white bg-sky-600 rounded-lg">Month</button>
+            <button class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Week</button>
+            <button class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Day</button>
         </div>
     </div>
 </div>
 
 <!-- Month Calendar View -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100">
+<div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
     <!-- Calendar Header -->
     <div class="grid grid-cols-7 border-b border-gray-200">
-        <div class="p-4 text-center">
+        <div class="p-2 sm:p-4 text-center">
             <p class="text-xs font-semibold text-gray-600 uppercase">Sun</p>
         </div>
         <div class="p-4 text-center">

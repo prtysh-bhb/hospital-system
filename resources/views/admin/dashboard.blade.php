@@ -6,12 +6,12 @@
 
 @section('content')
 <!-- Stats Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+    <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-500">Total Patients</p>
-                <p class="text-3xl font-bold text-gray-800 mt-2">1,234</p>
+                <p class="text-xs sm:text-sm text-gray-500">Total Patients</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-800 mt-2">1,234</p>
             </div>
             <div class="w-12 h-12 bg-sky-100 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,11 +22,11 @@
         <p class="text-sm text-green-600 mt-4">↑ 12% from last month</p>
     </div>
 
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+    <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-500">Today's Appointments</p>
-                <p class="text-3xl font-bold text-gray-800 mt-2">42</p>
+                <p class="text-xs sm:text-sm text-gray-500">Today's Appointments</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-800 mt-2">42</p>
             </div>
             <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,11 +37,11 @@
         <p class="text-sm text-gray-600 mt-4">8 pending confirmation</p>
     </div>
 
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+    <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-500">Total Doctors</p>
-                <p class="text-3xl font-bold text-gray-800 mt-2">28</p>
+                <p class="text-xs sm:text-sm text-gray-500">Total Doctors</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-800 mt-2">28</p>
             </div>
             <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,11 +52,11 @@
         <p class="text-sm text-green-600 mt-4">24 active today</p>
     </div>
 
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+    <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-500">Revenue (Today)</p>
-                <p class="text-3xl font-bold text-gray-800 mt-2">₹45,200</p>
+                <p class="text-xs sm:text-sm text-gray-500">Revenue (Today)</p>
+                <p class="text-2xl sm:text-3xl font-bold text-gray-800 mt-2">₹45,200</p>
             </div>
             <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,13 +69,13 @@
 </div>
 
 <!-- Recent Appointments & Active Doctors -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
     <!-- Recent Appointments -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="p-6 border-b border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-800">Recent Appointments</h3>
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
+        <div class="p-4 sm:p-6 border-b border-gray-100">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-800">Recent Appointments</h3>
         </div>
-        <div class="p-6">
+        <div class="p-4 sm:p-6">
             <div class="space-y-4">
                 <div class="flex items-center justify-between pb-4 border-b border-gray-100">
                     <div class="flex items-center">
@@ -133,11 +133,11 @@
     </div>
 
     <!-- Active Doctors -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="p-6 border-b border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-800">Active Doctors Today</h3>
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
+        <div class="p-4 sm:p-6 border-b border-gray-100">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-800">Active Doctors Today</h3>
         </div>
-        <div class="p-6">
+        <div class="p-4 sm:p-6">
             <div class="space-y-4">
                 <div class="flex items-center justify-between pb-4 border-b border-gray-100">
                     <div class="flex items-center">
@@ -200,11 +200,11 @@
 </div>
 
 <!-- Recent Activity -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100">
-    <div class="p-6 border-b border-gray-100">
-        <h3 class="text-lg font-semibold text-gray-800">Recent Activity</h3>
+<div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
+    <div class="p-4 sm:p-6 border-b border-gray-100">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800">Recent Activity</h3>
     </div>
-    <div class="p-6">
+    <div class="p-4 sm:p-6">
         <div class="space-y-6">
             <div class="flex">
                 <div class="flex-shrink-0">
