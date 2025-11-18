@@ -26,6 +26,17 @@ class CheckRole
         }
 
         $user = auth()->user();
+        // this will not let user to login who's role is petient 
+        
+        // if($user->role == 'patient'){
+        //     if ($request->expectsJson()) {
+        //         return response()->json([
+        //             'success' => false,
+        //             'message' => 'You can not login'
+        //         ], 403);
+        //     }
+        //     return redirect()->route('login')->with('error', 'You can not login');
+        // }
 
         // Check if user has any of the allowed roles
         if (!in_array($user->role, $roles)) {
@@ -39,7 +50,8 @@ class CheckRole
             // Redirect to appropriate dashboard based on user's actual role
             return redirect()->route($user->role . '.dashboard')
                 ->with('error', 'You do not have permission to access this page.');
-        }
+                }
+                
 
         return $next($request);
     }

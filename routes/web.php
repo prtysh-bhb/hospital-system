@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\admin\docktorsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +22,7 @@ Route::get('/', function () {
 
 // Authentication Routes
 Route::controller(AuthController::class)->group(function () {
-    Route::get('/login', 'showLoginForm')->name('login');
+    Route::get('/login', 'showLoginForm')->name('login')->middleware('redirect.to.dashboard');
     Route::post('/login', 'login')->name('login.post');
     Route::post('/logout', 'logout')->name('logout');
     Route::get('/check-auth', 'checkAuth')->name('check.auth');
@@ -46,9 +47,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         return view('admin.add-appointment');
     })->name('add-appointment');
 
-    Route::get('/doctors', function () {
-        return view('admin.doctors');
-    })->name('doctors');
+    // Route::get('/doctors', function () {
+    //     return view('admin.doctors');
+    // })->name('doctors');
+
+    Route::get('/doctors', [docktorsController::class, 'index'])->name('doctors');
 
     Route::get('/doctors/add', function () {
         return view('admin.doctor-add');
