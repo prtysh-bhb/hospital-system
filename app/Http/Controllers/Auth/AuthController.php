@@ -76,23 +76,23 @@ class AuthController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function logout(Request $request): JsonResponse
+    public function logout(Request $request)
     {
         try {
-            $this->authService->logout();
+            // Logout user
+            auth()->logout();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Logged out successfully',
-                'redirect_url' => route('login')
-            ], 200);
+            // Clear session
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Redirect to login page
+            return redirect()->route('login')->with('success', 'Logged out successfully');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred during logout.',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+
+            // Redirect back with normal error message
+            return redirect()->back()->with('error', 'Something went wrong during logout.');
         }
     }
 
