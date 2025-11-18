@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,9 +20,12 @@ Route::get('/', function () {
 })->name('home');
 
 // Authentication Routes
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+Route::controller(AuthController::class)->group(function () {
+    Route::get('/login', 'showLoginForm')->name('login');
+    Route::post('/login', 'login')->name('login.post');
+    Route::post('/logout', 'logout')->name('logout');
+    Route::get('/check-auth', 'checkAuth')->name('check.auth');
+});
 
 // Public Booking Route (Single route with ?step=1,2,3,4 parameter)
 Route::get('/booking', function () {
@@ -29,7 +33,7 @@ Route::get('/booking', function () {
 })->name('booking');
 
 // Admin Routes
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
@@ -60,7 +64,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // Doctor Routes
-Route::prefix('doctor')->name('doctor.')->group(function () {
+Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->group(function () {
     Route::get('/dashboard', function () {
         return view('doctor.dashboard');
     })->name('dashboard');
@@ -79,7 +83,7 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
 });
 
 // Front Desk Routes
-Route::prefix('frontdesk')->name('frontdesk.')->group(function () {
+Route::prefix('frontdesk')->name('frontdesk.')->middleware(['auth', 'role:frontdesk'])->group(function () {
     Route::get('/dashboard', function () {
         return view('frontdesk.dashboard');
     })->name('dashboard');
@@ -99,4 +103,11 @@ Route::prefix('frontdesk')->name('frontdesk.')->group(function () {
     Route::get('/history', function () {
         return view('frontdesk.history');
     })->name('history');
+});
+
+// Patient Routes
+Route::prefix('patient')->name('patient.')->middleware(['auth', 'role:patient'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('patient.dashboard');
+    })->name('dashboard');
 });
