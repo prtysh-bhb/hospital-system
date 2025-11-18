@@ -49,8 +49,7 @@
             <div class="p-4 sm:p-6 hover:bg-gray-50">
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1">
-                        <div
-                            class="w-16 h-16 bg-sky-100 rounded-lg flex flex-col items-center justify-center flex-shrink-0">
+                        <div class="w-16 h-16 bg-sky-100 rounded-lg flex flex-col items-center justify-center shrink-0">
                             <span class="text-xs text-sky-600 font-medium">09:00</span>
                             <span class="text-xs text-gray-500">AM</span>
                         </div>
@@ -95,8 +94,7 @@
             <div class="p-4 sm:p-6 hover:bg-gray-50">
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1">
-                        <div
-                            class="w-16 h-16 bg-sky-100 rounded-lg flex flex-col items-center justify-center flex-shrink-0">
+                        <div class="w-16 h-16 bg-sky-100 rounded-lg flex flex-col items-center justify-center shrink-0">
                             <span class="text-xs text-sky-600 font-medium">10:30</span>
                             <span class="text-xs text-gray-500">AM</span>
                         </div>
@@ -124,7 +122,7 @@
                             Scheduled
                         </span>
                         <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-2">
-                            <a href="{{ route('doctor.appointment-details', ['id' => 2]) }}"
+                            <a href="{{ route('doctor.appointment-details', ['id' => 1]) }}"
                                 class="px-3 sm:px-4 py-2 bg-sky-600 text-white text-xs sm:text-sm rounded-lg hover:bg-sky-700 text-center">
                                 View Details
                             </a>
@@ -141,8 +139,7 @@
             <div class="p-4 sm:p-6 hover:bg-gray-50">
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1">
-                        <div
-                            class="w-16 h-16 bg-sky-100 rounded-lg flex flex-col items-center justify-center flex-shrink-0">
+                        <div class="w-16 h-16 bg-sky-100 rounded-lg flex flex-col items-center justify-center shrink-0">
                             <span class="text-xs text-sky-600 font-medium">02:00</span>
                             <span class="text-xs text-gray-500">PM</span>
                         </div>
@@ -170,7 +167,7 @@
                             Scheduled
                         </span>
                         <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-2">
-                            <a href="{{ route('doctor.appointment-details', ['id' => 3]) }}"
+                            <a href="{{ route('doctor.appointment-details', ['id' => 1]) }}"
                                 class="px-3 sm:px-4 py-2 bg-sky-600 text-white text-xs sm:text-sm rounded-lg hover:bg-sky-700 text-center">
                                 View Details
                             </a>
@@ -187,8 +184,7 @@
             <div class="p-4 sm:p-6 hover:bg-gray-50 opacity-60">
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1">
-                        <div
-                            class="w-16 h-16 bg-gray-100 rounded-lg flex flex-col items-center justify-center flex-shrink-0">
+                        <div class="w-16 h-16 bg-gray-100 rounded-lg flex flex-col items-center justify-center shrink-0">
                             <span class="text-xs text-gray-600 font-medium">03:30</span>
                             <span class="text-xs text-gray-500">PM</span>
                         </div>
@@ -214,7 +210,7 @@
                             Completed
                         </span>
                         <div class="flex gap-2 w-full lg:w-auto mt-2">
-                            <a href="{{ route('doctor.appointment-details', ['id' => 4]) }}"
+                            <a href="{{ route('doctor.appointment-details', ['id' => 1]) }}"
                                 class="px-3 sm:px-4 py-2 bg-gray-600 text-white text-xs sm:text-sm rounded-lg hover:bg-gray-700 text-center">
                                 View Details
                             </a>
