@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-
 class AuthController extends Controller
 {
     protected AuthService $authService;
@@ -74,13 +74,13 @@ class AuthController extends Controller
      * Handle logout request.
      *
      * @param Request $request
-     * @return JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function logout(Request $request)
     {
         try {
             // Logout user
-            auth()->logout();
+            Auth::logout();
 
             // Clear session
             $request->session()->invalidate();
@@ -95,8 +95,7 @@ class AuthController extends Controller
             return redirect()->back()->with('error', 'Something went wrong during logout.');
         }
     }
-
-    /**
+   /**
      * Check authentication status.
      *
      * @return JsonResponse

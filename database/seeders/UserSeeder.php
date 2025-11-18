@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -19,8 +18,8 @@ class UserSeeder extends Seeder
         // Admin Users
         $users[] = [
             'role' => 'admin',
-            'email' => 'admin@medicare.com',
-            'password' => Hash::make('admin123'),
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('admin@123'),
             'first_name' => 'System',
             'last_name' => 'Administrator',
             'phone' => '+1-555-0100',
@@ -37,7 +36,7 @@ class UserSeeder extends Seeder
         $users[] = [
             'role' => 'frontdesk',
             'email' => 'frontdesk@medicare.com',
-            'password' => Hash::make('frontdesk123'),
+            'password' => Hash::make('admin@123'),
             'first_name' => 'Sarah',
             'last_name' => 'Johnson',
             'phone' => '+1-555-0101',
@@ -53,7 +52,7 @@ class UserSeeder extends Seeder
         $users[] = [
             'role' => 'frontdesk',
             'email' => 'reception@medicare.com',
-            'password' => Hash::make('reception123'),
+            'password' => Hash::make('admin@123'),
             'first_name' => 'Michael',
             'last_name' => 'Brown',
             'phone' => '+1-555-0102',
@@ -119,13 +118,13 @@ class UserSeeder extends Seeder
             $users[] = [
                 'role' => 'doctor',
                 'email' => $doctor['email'],
-                'password' => Hash::make('doctor123'),
+                'password' => Hash::make('admin@123'),
                 'first_name' => $doctor['first_name'],
                 'last_name' => $doctor['last_name'],
-                'phone' => '+1-555-01' . rand(10, 99),
-                'date_of_birth' => '197' . rand(5, 9) . '-' . rand(1, 12) . '-' . rand(1, 28),
+                'phone' => '+1-555-01'.rand(10, 99),
+                'date_of_birth' => '197'.rand(5, 9).'-'.rand(1, 12).'-'.rand(1, 28),
                 'gender' => rand(0, 1) ? 'male' : 'female',
-                'address' => rand(100, 999) . ' Doctor Lane, Medical City',
+                'address' => rand(100, 999).' Doctor Lane, Medical City',
                 'status' => 'active',
                 'email_verified_at' => now(),
                 'created_at' => now(),
@@ -146,20 +145,20 @@ class UserSeeder extends Seeder
             ['Meera', 'Iyer'],
             ['Rohan', 'Chopra'],
             ['Anjali', 'Bose'],
-            ['Suresh', 'Nair']
+            ['Suresh', 'Nair'],
         ];
 
         foreach ($patientNames as $index => $name) {
             $users[] = [
                 'role' => 'patient',
-                'email' => strtolower($name[0]) . '.' . strtolower($name[1]) . '@patient.com',
-                'password' => Hash::make('patient123'),
+                'email' => strtolower($name[0]).'.'.strtolower($name[1]).'@patient.com',
+                'password' => Hash::make('admin@123'),
                 'first_name' => $name[0],
                 'last_name' => $name[1],
-                'phone' => '+1-555-02' . str_pad($index, 2, '0', STR_PAD_LEFT),
-                'date_of_birth' => '19' . rand(80, 99) . '-' . rand(1, 12) . '-' . rand(1, 28),
+                'phone' => '+1-555-02'.str_pad($index, 2, '0', STR_PAD_LEFT),
+                'date_of_birth' => '19'.rand(80, 99).'-'.rand(1, 12).'-'.rand(1, 28),
                 'gender' => rand(0, 1) ? 'male' : 'female',
-                'address' => rand(100, 999) . ' Patient Street, Medical City',
+                'address' => rand(100, 999).' Patient Street, Medical City',
                 'status' => 'active',
                 'email_verified_at' => now(),
                 'created_at' => now(),
