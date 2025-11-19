@@ -61,10 +61,11 @@ class User extends Authenticatable
     /**
      * Get the doctor profile for the user.
      */
-    public function doctorProfile(): HasOne
+    public function doctorProfile()
     {
-        return $this->hasOne(DoctorProfile::class);
+        return $this->hasOne(DoctorProfile::class, 'user_id');
     }
+
 
     /**
      * Get the patient profile for the user.
@@ -196,6 +197,6 @@ class User extends Authenticatable
 
     public function specialty()
     {
-        return $this->belongsTo(Specialty::class);
+        return $this->belongsTo(Specialty::class, 'specialty_id');
     }
 }
