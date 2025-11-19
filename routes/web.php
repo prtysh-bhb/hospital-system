@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\admin\docktorsController;
 use App\Http\Controllers\admin\AppointmentController;
+use App\Http\Controllers\admin\docktorsController;
+use App\Http\Controllers\admin\PetientController;
+use App\Http\Controllers\Auth\AuthController;
 
 /*
 |--------------------------------------------------------------------------
