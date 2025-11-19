@@ -314,7 +314,7 @@
                   class="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-gray-100 text-gray-700 font-medium sm:font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base text-center">
                   Book Another Appointment
               </a>
-              <a href="#"
+              <a href="{{ route('home') }}"
                   class="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-sky-600 text-white font-medium sm:font-semibold rounded-lg hover:bg-sky-700 transition-colors text-sm sm:text-base text-center">
                   Go to Homepage
               </a>
