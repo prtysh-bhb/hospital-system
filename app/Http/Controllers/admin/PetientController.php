@@ -5,7 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Services\admin\PetientService;
 use Illuminate\Http\Request;
-
+use \Illuminate\Validation\ValidationException;
 class PetientController extends Controller
 {
     protected PetientService $petientService;
@@ -68,7 +68,7 @@ class PetientController extends Controller
             return response()->json(['html' => $html]);
         }
 
-        return view('admin.patient-edit', compact('patient'));
+        return view('admin.partials.patient-edit', compact('patient'));
     }
 
     public function update(Request $request, $id)
@@ -114,7 +114,7 @@ class PetientController extends Controller
                 $result ? 'success' : 'error',
                 $result ? 'Patient updated successfully' : 'Failed to update patient'
             );
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -136,4 +136,35 @@ class PetientController extends Controller
             return redirect()->back()->with('error', 'An error occurred while updating the patient');
         }
     }
+
+    public function destroy(Request $request, $id)
+    {
+        try {
+            $result = $this->petientService->deletePatient($id);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => $result,
+                    'message' => $result ? 'Patient deleted successfully' : 'Failed to delete patient'
+                ]);
+            }
+
+            return redirect()->route('admin.patients')->with(
+                $result ? 'success' : 'error',
+                $result ? 'Patient deleted successfully' : 'Failed to delete patient'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Error deleting patient: ' . $e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while deleting the patient'
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'An error occurred while deleting the patient');
+        }
+    }
+
 }

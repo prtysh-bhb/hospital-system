@@ -100,4 +100,40 @@ class PetientService
             throw $e;
         }
     }
+
+    public function deletePatient($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Find user by ID
+            $user = User::findOrFail($id);
+
+            // Find associated patient profile
+            $patient = PatientProfile::where('user_id', $user->id)->first();
+
+            if (! $patient) {
+                throw new \Exception('Patient profile not found for user');
+            }
+
+            // Soft delete patient profile
+            $patient->delete();
+
+            // Soft delete user
+            $user->delete();
+
+            DB::commit();
+
+            \Log::info('Patient deleted successfully', ['user_id' => $id]);
+
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error deleting patient: '.$e->getMessage(), [
+                'id' => $id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
+    }
 }

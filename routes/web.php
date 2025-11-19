@@ -64,6 +64,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/patients/{id}', [PetientController::class, 'show'])->name('patient-view');
     Route::get('/patients/{id}/edit', [PetientController::class, 'edit'])->name('patient-edit');
     Route::post('/patients/{id}', [PetientController::class, 'update'])->name('patient-update');
+    Route::delete('/patients/{id}', [PetientController::class, 'destroy'])->name('patient-delete');
 
     Route::get('/calendar', function () {
         return view('admin.calendar');
