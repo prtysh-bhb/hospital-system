@@ -36,12 +36,14 @@ class Appointment extends Model
         'duration_minutes' => 'integer',
         'reminder_sent' => 'boolean',
     ];
+
     protected $appends = ['formatted_date', 'formatted_time'];
 
     public function getFormattedDateAttribute()
     {
         return $this->appointment_date->format('d-m-Y');
     }
+
     public function getFormattedTimeAttribute()
     {
         return \Carbon\Carbon::parse($this->appointment_time)->format('h:i A');
@@ -62,6 +64,7 @@ class Appointment extends Model
     {
         return $this->belongsTo(User::class, 'doctor_id');
     }
+
     /**
      * Get the user who booked the appointment.
      */
