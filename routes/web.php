@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\admin\docktorsController;
+use App\Http\Controllers\admin\AppointmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,9 +40,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         return view('admin.dashboard');
     })->name('dashboard');
 
-    Route::get('/appointments', function () {
-        return view('admin.appointments');
-    })->name('appointments');
+    route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
+    Route::get('/appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments.list');
 
     Route::get('/appointments/add', function () {
         return view('admin.add-appointment');
