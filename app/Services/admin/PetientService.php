@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\admin;
 
-use App\Models\DoctorProfile;
+use App\Models\PatientProfile;
 
-class DoctoreServices
+class PetientService
 {
     /**
      * Create a new class instance.
      */
     public function __construct() {}
 
-    public function getDoctors($filters = [])
+    public function getPatients($filters = [])
     {
-        $query = DoctorProfile::with('specialty', 'user');
+        $query = PatientProfile::with('user');
 
         // Search by name, email, or phone
         if (!empty($filters['search'])) {
@@ -23,14 +23,12 @@ class DoctoreServices
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%");
-            })->orWhereHas('specialty', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
             });
         }
 
-        // Filter by specialty
-        if (!empty($filters['specialty_id'])) {
-            $query->where('specialty_id', $filters['specialty_id']);
+        // Filter by blood group
+        if (!empty($filters['blood_group'])) {
+            $query->where('blood_group', $filters['blood_group']);
         }
 
         // Filter by status
@@ -40,6 +38,6 @@ class DoctoreServices
             });
         }
 
-        return $query->get();
+        return $query->paginate(10);
     }
 }

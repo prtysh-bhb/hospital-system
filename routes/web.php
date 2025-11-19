@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\admin\docktorsController;
+use App\Http\Controllers\admin\PetientController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,9 +58,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         return view('admin.doctor-add');
     })->name('doctor-add');
 
-    Route::get('/patients', function () {
-        return view('admin.patients');
-    })->name('patients');
+    Route::get('/patients', [PetientController::class, 'index'])->name('patients');
 
     Route::get('/calendar', function () {
         return view('admin.calendar');

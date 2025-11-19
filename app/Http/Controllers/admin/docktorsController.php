@@ -4,7 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Specialty;
-use App\Services\DoctoreServices;
+use App\Services\admin\DoctoreServices;
 use Illuminate\Http\Request;
 
 class docktorsController extends Controller
