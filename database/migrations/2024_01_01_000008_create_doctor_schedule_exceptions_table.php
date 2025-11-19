@@ -20,9 +20,9 @@ return new class extends Migration
             $table->time('end_time')->nullable();
             $table->string('reason')->nullable();
             $table->timestamps();
-
             $table->unique(['doctor_id', 'exception_date']);
             $table->index('exception_date');
+            $table->softDeletes();
         });
     }
 

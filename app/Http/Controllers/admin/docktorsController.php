@@ -40,6 +40,11 @@ class docktorsController extends Controller
     public function create(Request $request)
     {
         $specialties = Specialty::where('status', 'active')->get();
+        
+        if ($request->ajax()) {
+            return view('admin.doctor-add', compact('specialties'));
+        }
+        
         return view('admin.doctor-add', compact('specialties'));
     }
 
@@ -78,19 +83,38 @@ class docktorsController extends Controller
         try {
             $doctor = $this->doctoreServices->createDoctor($validated);
             
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Doctor added successfully!',
+                    'doctor' => $doctor
+                ]);
+            }
+            
             return redirect()->route('admin.doctors')
                 ->with('success', 'Doctor added successfully!');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to add doctor. Please try again.',
+                    'error' => $e->getMessage()
+                ], 422);
+            }
+            
             return back()->withInput()
                 ->with('error', 'Failed to add doctor. Please try again.');
         }
     }
 
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         $doctor = $this->doctoreServices->getDoctorById($id);
         
         if (!$doctor) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Doctor not found.'], 404);
+            }
             return redirect()->route('admin.doctors')
                 ->with('error', 'Doctor not found.');
         }
@@ -139,24 +163,67 @@ class docktorsController extends Controller
         try {
             $doctor = $this->doctoreServices->updateDoctor($id, $validated);
             
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Doctor updated successfully!',
+                    'doctor' => $doctor
+                ]);
+            }
+            
             return redirect()->route('admin.doctors')
                 ->with('success', 'Doctor updated successfully!');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to update doctor. Please try again.',
+                    'error' => $e->getMessage()
+                ], 422);
+            }
+            
             return back()->withInput()
                 ->with('error', 'Failed to update doctor. Please try again.');
         }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $User = $this->doctoreServices->deleteDoctor($id);
+        try {
+            $User = $this->doctoreServices->deleteDoctor($id);
 
-        if ($User) {
+            if ($User) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Doctor deleted successfully!'
+                    ]);
+                }
+                
+                return redirect()->route('admin.doctors')
+                    ->with('success', 'Doctor deleted successfully!');
+            } else {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to delete doctor. Please try again.'
+                    ], 422);
+                }
+                
+                return redirect()->route('admin.doctors')
+                    ->with('error', 'Failed to delete doctor. Please try again.');
+            }
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while deleting the doctor.',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+            
             return redirect()->route('admin.doctors')
-                ->with('success', 'Doctor deleted successfully!');
-        } else {
-            return redirect()->route('admin.doctors')
-                ->with('error', 'Failed to delete doctor. Please try again.');
+                ->with('error', 'An error occurred while deleting the doctor.');
         }
     }
 }

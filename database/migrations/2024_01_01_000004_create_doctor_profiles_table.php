@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('license_number', 50)->nullable();
             $table->boolean('available_for_booking')->default(true);
             $table->timestamps();
-
             $table->index('specialty_id');
+            $table->softDeletes();
         });
     }
 

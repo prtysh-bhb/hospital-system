@@ -5,29 +5,6 @@
 @section('page-title', isset($doctor) ? 'Edit Doctor' : 'Add New Doctor')
 
 @section('content')
-    <!-- Success/Error Messages -->
-    @if (session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
-            <ul class="list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <form action="{{ isset($doctor) ? route('admin.doctor-update', $doctor->user->id) : route('admin.doctor-store') }}"
         method="POST" enctype="multipart/form-data" class="max-w-4xl mx-auto">
         @csrf
@@ -39,7 +16,7 @@
             <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">Personal Details</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                
+
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name *</label>
                     <input type="text" name="first_name" value="{{ old('first_name', $doctor->user->first_name ?? '') }}"
@@ -62,9 +39,11 @@
                         <option value="male" {{ old('gender', $doctor->user->gender ?? '') == 'male' ? 'selected' : '' }}>
                             Male</option>
                         <option value="female"
-                            {{ old('gender', $doctor->user->gender ?? '') == 'female' ? 'selected' : '' }}>Female</option>
+                            {{ old('gender', $doctor->user->gender ?? '') == 'female' ? 'selected' : '' }}>
+                            Female</option>
                         <option value="other"
-                            {{ old('gender', $doctor->user->gender ?? '') == 'other' ? 'selected' : '' }}>Other</option>
+                            {{ old('gender', $doctor->user->gender ?? '') == 'other' ? 'selected' : '' }}>
+                            Other</option>
                     </select>
                 </div>
 
@@ -86,7 +65,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
                     <input type="date" name="date_of_birth"
-                        value="{{ old('date_of_birth', isset($doctor) && $doctor->user->date_of_birth && strtotime($doctor->user->date_of_birth) ? date('Y-m-d', strtotime($doctor->user->date_of_birth)) : '') }}" required
+                        value="{{ old('date_of_birth', isset($doctor) && $doctor->user->date_of_birth && strtotime($doctor->user->date_of_birth) ? date('Y-m-d', strtotime($doctor->user->date_of_birth)) : '') }}"
+                        required
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
                 </div>
 

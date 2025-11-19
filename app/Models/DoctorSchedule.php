@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DoctorSchedule extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'doctor_id',
@@ -19,6 +20,7 @@ class DoctorSchedule extends Model
         'max_patients',
         'is_available',
         'notes',
+        'deleted_at',
     ];
 
     protected $casts = [

@@ -22,9 +22,9 @@ return new class extends Migration
             $table->boolean('is_available')->default(true);
             $table->text('notes')->nullable();
             $table->timestamps();
-
             $table->unique(['doctor_id', 'day_of_week']);
             $table->index(['doctor_id', 'is_available']);
+            $table->softDeletes();
         });
     }
 

@@ -3,8 +3,8 @@
 namespace App\Services\admin;
 
 use App\Models\DoctorProfile;
-use App\Models\User;
 use App\Models\DoctorSchedule;
+use App\Models\User;
 
 class DoctoreServices
 {
@@ -19,7 +19,7 @@ class DoctoreServices
             ->whereHas('user'); // Only include doctors with non-deleted users
 
         // Search by name, email, or phone
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
@@ -32,12 +32,12 @@ class DoctoreServices
         }
 
         // Filter by specialty
-        if (!empty($filters['specialty_id'])) {
+        if (! empty($filters['specialty_id'])) {
             $query->where('specialty_id', $filters['specialty_id']);
         }
 
         // Filter by status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->whereHas('user', function ($q) use ($filters) {
                 $q->where('status', $filters['status']);
             });
@@ -49,7 +49,7 @@ class DoctoreServices
     public function createDoctor($data)
     {
         \DB::beginTransaction();
-        
+
         try {
             // Create user with phone as password
             $user = User::create([
@@ -79,9 +79,9 @@ class DoctoreServices
             ]);
 
             // Create schedules if provided
-            if (!empty($data['schedules'])) {
+            if (! empty($data['schedules'])) {
                 foreach ($data['schedules'] as $dayOfWeek => $schedule) {
-                    if (!empty($schedule['enabled'])) {
+                    if (! empty($schedule['enabled'])) {
                         DoctorSchedule::create([
                             'doctor_id' => $user->id,
                             'day_of_week' => $dayOfWeek,
@@ -96,8 +96,9 @@ class DoctoreServices
             }
 
             \DB::commit();
+
             return $doctorProfile;
-            
+
         } catch (\Exception $e) {
             \DB::rollBack();
             throw $e;
@@ -114,7 +115,7 @@ class DoctoreServices
     public function updateDoctor($id, $data)
     {
         \DB::beginTransaction();
-        
+
         try {
             // Update user
             $user = User::findOrFail($id);
@@ -128,11 +129,11 @@ class DoctoreServices
                 'address' => $data['address'],
                 'status' => $data['status'],
             ];
-            
+
             if (isset($data['profile_image'])) {
                 $updateData['profile_image'] = $data['profile_image'];
             }
-            
+
             $user->update($updateData);
 
             // Update doctor profile
@@ -149,10 +150,10 @@ class DoctoreServices
 
             // Delete existing schedules and recreate
             DoctorSchedule::where('doctor_id', $id)->delete();
-            
-            if (!empty($data['schedules'])) {
+
+            if (! empty($data['schedules'])) {
                 foreach ($data['schedules'] as $dayOfWeek => $schedule) {
-                    if (!empty($schedule['enabled'])) {
+                    if (! empty($schedule['enabled'])) {
                         DoctorSchedule::create([
                             'doctor_id' => $id,
                             'day_of_week' => $dayOfWeek,
@@ -167,8 +168,9 @@ class DoctoreServices
             }
 
             \DB::commit();
+
             return $doctorProfile;
-            
+
         } catch (\Exception $e) {
             \DB::rollBack();
             throw $e;
@@ -177,10 +179,38 @@ class DoctoreServices
 
     public function deleteDoctor($id)
     {
-        $user = User::find($id);
-        if ($user && $user->role === 'doctor') {
-            return $user->delete();
+        \DB::beginTransaction();
+
+        try {
+            $user = User::find($id);
+
+            if (! $user || $user->role !== 'doctor') {
+                \Log::warning("Delete failed: User not found or not a doctor. ID: {$id}");
+                return false;
+            }
+
+            // Soft delete doctor schedules
+            $schedulesDeleted = DoctorSchedule::where('doctor_id', $id)->delete();
+            \Log::info("Deleted {$schedulesDeleted} schedules for doctor {$id}");
+
+            // Soft delete doctor profile
+            $profileDeleted = DoctorProfile::where('user_id', $id)->delete();
+            \Log::info("Deleted {$profileDeleted} profile for doctor {$id}");
+
+            // Soft delete user
+            $userDeleted = $user->delete();
+            \Log::info("Deleted user {$id}: " . ($userDeleted ? 'success' : 'failed'));
+
+            \DB::commit();
+
+            return true;
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error deleting doctor: '.$e->getMessage());
+            \Log::error('Stack trace: '.$e->getTraceAsString());
+
+            return false;
         }
-        return false;
     }
 }

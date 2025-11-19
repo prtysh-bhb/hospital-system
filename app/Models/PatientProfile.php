@@ -21,6 +21,7 @@ class PatientProfile extends Model
         'current_medications',
         'insurance_provider',
         'insurance_number',
+        'deleted_at',
     ];
 
     /**

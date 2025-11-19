@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('icon', 50)->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active')->index();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('insurance_provider', 100)->nullable();
             $table->string('insurance_number', 50)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
