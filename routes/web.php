@@ -100,9 +100,11 @@ Route::prefix('frontdesk')->name('frontdesk.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\frontend\FrontEndDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/stats', [\App\Http\Controllers\frontend\FrontEndDashboardController::class, 'getDashboardStats'])->name('dashboard.stats');
 
-    Route::get('/add-appointment', function () {
-        return view('frontdesk.add-appointment');
-    })->name('add-appointment');
+    Route::get('/add-appointment', [\App\Http\Controllers\admin\AddApoimnetController::class, 'index'])->name('add-appointment');
+    Route::get('/add-appointment/search-patient', [\App\Http\Controllers\admin\AddApoimnetController::class, 'searchPatient'])->name('add-appointment.search-patient');
+    Route::get('/add-appointment/doctors', [\App\Http\Controllers\admin\AddApoimnetController::class, 'getDoctors'])->name('add-appointment.doctors');
+    Route::get('/add-appointment/available-slots', [\App\Http\Controllers\admin\AddApoimnetController::class, 'getAvailableSlots'])->name('add-appointment.available-slots');
+    Route::post('/add-appointment/store', [\App\Http\Controllers\admin\AddApoimnetController::class, 'store'])->name('add-appointment.store');
 
     Route::get('/doctor-schedule', function () {
         return view('frontdesk.doctor-schedule');

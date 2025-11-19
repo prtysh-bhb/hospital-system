@@ -74,10 +74,11 @@ class BookAppointmentService
                 'appointment_time' => $appointmentDateTime->format('H:i:s'),
                 'duration_minutes' => 30, // Default duration
                 'status' => 'pending',
-                'appointment_type' => 'consultation',
+                'appointment_type' => $data['appointment_type'] ?? 'consultation',
                 'reason_for_visit' => $data['reason_for_visit'],
                 'symptoms' => $data['allergies'] ?? null,
-                'booked_via' => 'online',
+                'notes' => $data['notes'] ?? null,
+                'booked_via' => $data['booked_via'] ?? 'online',
                 'reminder_sent' => false,
             ]);
 
