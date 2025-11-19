@@ -96,10 +96,9 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
 });
 
 // Front Desk Routes
-Route::prefix('frontdesk')->name('frontdesk.')->middleware(['auth', 'role:frontdesk'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('frontdesk.dashboard');
-    })->name('dashboard');
+Route::prefix('frontdesk')->name('frontdesk.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\frontend\FrontEndDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/stats', [\App\Http\Controllers\frontend\FrontEndDashboardController::class, 'getDashboardStats'])->name('dashboard.stats');
 
     Route::get('/add-appointment', function () {
         return view('frontdesk.add-appointment');
