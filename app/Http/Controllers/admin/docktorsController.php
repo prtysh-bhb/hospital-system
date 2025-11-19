@@ -51,25 +51,38 @@ class docktorsController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
+            'first_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
+            'last_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
             'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:20|unique:users,phone',
-            'date_of_birth' => 'required|date',
+            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone', 'not_regex:/^0+$/'],
+            'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|in:male,female,other',
-            'address' => 'required|string',
+            'address' => 'required|string|min:10|max:500',
             'profile_image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
             'specialty_id' => 'required|exists:specialties,id',
-            'qualification' => 'required|string|max:255',
-            'experience_years' => 'required|integer|min:0',
-            'license_number' => 'required|string|max:50',
-            'consultation_fee' => 'required|numeric|min:0',
+            'qualification' => 'required|string|min:2|max:255',
+            'experience_years' => 'required|integer|min:0|max:70',
+            'license_number' => 'required|string|min:3|max:50',
+            'consultation_fee' => 'required|numeric|min:0|max:100000',
             'slot_duration' => 'required|integer|in:15,30,45,60',
-            'languages' => 'nullable|string',
+            'languages' => 'nullable|string|max:255',
             'schedules' => 'nullable|array',
             'schedules.*.enabled' => 'boolean',
             'schedules.*.start_time' => 'required_if:schedules.*.enabled,true|date_format:H:i',
             'schedules.*.end_time' => 'required_if:schedules.*.enabled,true|date_format:H:i|after:schedules.*.start_time',
+        ], [
+            'first_name.regex' => 'First name can only contain letters and spaces.',
+            'first_name.min' => 'First name must be at least 2 characters.',
+            'last_name.regex' => 'Last name can only contain letters and spaces.',
+            'last_name.min' => 'Last name must be at least 2 characters.',
+            'phone.regex' => 'Phone number must be between 10-15 digits.',
+            'phone.not_regex' => 'Phone number cannot be all zeros.',
+            'date_of_birth.before' => 'Date of birth must be before today.',
+            'address.min' => 'Address must be at least 10 characters.',
+            'qualification.min' => 'Qualification must be at least 2 characters.',
+            'license_number.min' => 'License number must be at least 3 characters.',
+            'experience_years.max' => 'Experience years cannot exceed 70.',
+            'consultation_fee.max' => 'Consultation fee cannot exceed ₹100,000.',
         ]);
 
         // Handle profile image upload
@@ -127,21 +140,21 @@ class docktorsController extends Controller
     {
         // Build validation rules dynamically
         $rules = [
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
+            'first_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
+            'last_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
             'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'required|string|max:20|unique:users,phone,' . $id,
-            'date_of_birth' => 'required|date',
+            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,' . $id, 'not_regex:/^0+$/'],
+            'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|in:male,female,other',
-            'address' => 'required|string',
+            'address' => 'required|string|min:10|max:500',
             'profile_image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
             'specialty_id' => 'required|exists:specialties,id',
-            'qualification' => 'required|string|max:255',
-            'experience_years' => 'required|integer|min:0',
-            'license_number' => 'required|string|max:50',
-            'consultation_fee' => 'required|numeric|min:0',
+            'qualification' => 'required|string|min:2|max:255',
+            'experience_years' => 'required|integer|min:0|max:70',
+            'license_number' => 'required|string|min:3|max:50',
+            'consultation_fee' => 'required|numeric|min:0|max:100000',
             'slot_duration' => 'required|integer|in:15,30,45,60',
-            'languages' => 'nullable|string',
+            'languages' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive',
             'available_for_booking' => 'required|boolean',
             'schedules' => 'nullable|array',
@@ -150,7 +163,22 @@ class docktorsController extends Controller
             'schedules.*.end_time' => 'required_if:schedules.*.enabled,true|date_format:H:i|after:schedules.*.start_time',
         ];
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'first_name.regex' => 'First name can only contain letters and spaces.',
+            'first_name.min' => 'First name must be at least 2 characters.',
+            'last_name.regex' => 'Last name can only contain letters and spaces.',
+            'last_name.min' => 'Last name must be at least 2 characters.',
+            'phone.regex' => 'Phone number must be between 10-15 digits.',
+            'phone.not_regex' => 'Phone number cannot be all zeros.',
+            'date_of_birth.before' => 'Date of birth must be before today.',
+            'address.min' => 'Address must be at least 10 characters.',
+            'qualification.min' => 'Qualification must be at least 2 characters.',
+            'license_number.min' => 'License number must be at least 3 characters.',
+            'experience_years.max' => 'Experience years cannot exceed 70.',
+            'consultation_fee.max' => 'Consultation fee cannot exceed ₹100,000.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
         // Handle profile image upload
         if ($request->hasFile('profile_image')) {

@@ -1,14 +1,14 @@
 @if ($patients->isEmpty())
-<tr>
-    <td colspan="8" class="px-6 py-12 text-center">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">No patients found</h3>
-        <p class="mt-1 text-sm text-gray-500">Try adjusting your search.</p>
-    </td>
-</tr>
+    <tr>
+        <td colspan="8" class="px-6 py-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No patients found</h3>
+            <p class="mt-1 text-sm text-gray-500">Try adjusting your search.</p>
+        </td>
+    </tr>
 @else
     @php
         $avatarColors = [
@@ -38,7 +38,8 @@
 
             <td class="px-6 py-4">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 {{ $color }} rounded-full flex items-center justify-center font-semibold text-sm">
+                    <div
+                        class="w-10 h-10 {{ $color }} rounded-full flex items-center justify-center font-semibold text-sm">
                         {{ $initials }}
                     </div>
                     <div class="ml-3">
@@ -49,7 +50,8 @@
             </td>
 
             <td class="px-6 py-4 hidden lg:table-cell">
-                <p class="text-sm text-gray-800">{{ $age }} / {{ ucfirst($patient->user->gender ?? 'N/A') }}</p>
+                <p class="text-sm text-gray-800">{{ $age }} / {{ ucfirst($patient->user->gender ?? 'N/A') }}
+                </p>
             </td>
 
             <td class="px-6 py-4 hidden md:table-cell">
@@ -76,7 +78,8 @@
             </td>
 
             <td class="px-6 py-4">
-                <span class="px-3 py-1 text-xs font-medium rounded-full
+                <span
+                    class="px-3 py-1 text-xs font-medium rounded-full
                     @if ($patient->user->status === 'active') bg-green-100 text-green-700
                     @elseif ($patient->user->status === 'inactive') bg-gray-100 text-gray-700
                     @else bg-amber-100 text-amber-700 @endif">
@@ -84,9 +87,10 @@
                 </span>
             </td>
 
-             <td class="px-6 py-4">
+            <td class="px-6 py-4">
                 <div class="flex space-x-2">
-                    <button class="text-sky-600 hover:text-sky-800">
+                    <button onclick="viewPatient({{ $patient->id }})" class="text-sky-600 hover:text-sky-800"
+                        title="View Details">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -94,7 +98,8 @@
                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                     </button>
-                    <button class="text-amber-600 hover:text-amber-800">
+                    <button onclick="editPatient({{ $patient->id }})" class="text-amber-600 hover:text-amber-800"
+                        title="Edit Patient">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

@@ -14,8 +14,10 @@ class PatientProfile extends Model
     protected $fillable = [
         'user_id',
         'emergency_contact_name',
+        'emergency_contact',
         'emergency_contact_phone',
         'blood_group',
+        'address',
         'allergies',
         'medical_history',
         'current_medications',

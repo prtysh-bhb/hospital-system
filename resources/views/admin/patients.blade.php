@@ -153,7 +153,8 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex space-x-2">
-                                    <button class="text-sky-600 hover:text-sky-800">
+                                    <button onclick="viewPatient({{ $patient->id }})"
+                                        class="text-sky-600 hover:text-sky-800" title="View Details">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -161,7 +162,8 @@
                                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
                                     </button>
-                                    <button class="text-amber-600 hover:text-amber-800">
+                                    <button onclick="editPatient({{ $patient->id }})"
+                                        class="text-amber-600 hover:text-amber-800" title="Edit Patient">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -227,6 +229,46 @@
     </div>
     </div>
 
+    <!-- View Patient Modal -->
+    <div id="viewPatientModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-gray-800">Patient Details</h3>
+                <button onclick="closeViewModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div id="viewPatientContent" class="p-6">
+                <div class="flex items-center justify-center py-8">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Patient Modal -->
+    <div id="editPatientModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-gray-800">Edit Patient</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div id="editPatientContent" class="p-6">
+                <div class="flex items-center justify-center py-8">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let searchTimeout;
         let currentPage = 1;
@@ -234,6 +276,156 @@
         function goToPage(page) {
             currentPage = page;
             fetchPatients();
+        }
+
+        // View Patient Details
+        function viewPatient(patientId) {
+            const modal = document.getElementById('viewPatientModal');
+            modal.classList.remove('hidden');
+
+            fetch(`/admin/patients/${patientId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('viewPatientContent').innerHTML = data.html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('viewPatientContent').innerHTML =
+                        '<div class="text-center py-8 text-red-600">Failed to load patient details</div>';
+                });
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewPatientModal').classList.add('hidden');
+        }
+
+        // Edit Patient
+        function editPatient(patientId) {
+            const modal = document.getElementById('editPatientModal');
+            modal.classList.remove('hidden');
+
+            fetch(`/admin/patients/${patientId}/edit`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('editPatientContent').innerHTML = data.html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('editPatientContent').innerHTML =
+                        '<div class="text-center py-8 text-red-600">Failed to load edit form</div>';
+                });
+        }
+
+        function closeEditModal() {
+            document.getElementById('editPatientModal').classList.add('hidden');
+        }
+
+        // Save edited patient
+        function savePatient(patientId) {
+            const formData = new FormData(document.getElementById('editPatientForm'));
+
+            // Clear all previous errors
+            clearFormErrors();
+
+            fetch(`/admin/patients/${patientId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw {
+                                status: response.status,
+                                data: data
+                            };
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        closeEditModal();
+                        fetchPatients();
+                        showSuccessMessage('Patient updated successfully!');
+                    } else {
+                        alert(data.message || 'Failed to update patient');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+
+                    if (error.status === 422 && error.data.errors) {
+                        // Display inline validation errors
+                        displayFormErrors(error.data.errors);
+                    } else if (error.data && error.data.message) {
+                        alert(error.data.message);
+                    } else {
+                        alert('An error occurred while saving. Please try again.');
+                    }
+                });
+        }
+
+        function clearFormErrors() {
+            // Remove error styling from all inputs
+            const inputs = document.querySelectorAll(
+                '#editPatientForm input, #editPatientForm select, #editPatientForm textarea');
+            inputs.forEach(input => {
+                input.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+                input.classList.add('border-gray-300', 'focus:ring-sky-500', 'focus:border-transparent');
+            });
+
+            // Hide all error messages
+            const errorMessages = document.querySelectorAll('#editPatientForm .error-message');
+            errorMessages.forEach(msg => {
+                msg.classList.add('hidden');
+                msg.textContent = '';
+            });
+        }
+
+        function displayFormErrors(errors) {
+            Object.keys(errors).forEach(fieldName => {
+                const input = document.querySelector(`#editPatientForm [name="${fieldName}"]`);
+                if (input) {
+                    // Add error styling to input
+                    input.classList.remove('border-gray-300', 'focus:ring-sky-500', 'focus:border-transparent');
+                    input.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+
+                    // Show error message below input
+                    const errorContainer = input.parentElement.querySelector('.error-message');
+                    if (errorContainer) {
+                        errorContainer.textContent = errors[fieldName][0]; // Show first error message
+                        errorContainer.classList.remove('hidden');
+                    }
+
+                    // Scroll to first error
+                    if (Object.keys(errors)[0] === fieldName) {
+                        input.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                }
+            });
+        }
+
+        function showSuccessMessage(message) {
+            alert(message);
         }
 
         function fetchPatients() {
