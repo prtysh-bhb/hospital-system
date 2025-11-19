@@ -59,12 +59,17 @@
                 </svg>
                 <span class="ml-2">History</span>
             </a>
-            <a href="{{ route('login') }}" class="flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 mt-8 text-red-600 hover:bg-red-50 rounded-lg text-sm sm:text-base">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                <span class="ml-2">Logout</span>
-            </a>
+            <form action="{{ route('logout') }}" method="POST"
+                class=" px-3 sm:px-4 py-2 sm:py-3 mb-2 mt-8 text-red-600 hover:bg-red-50 rounded-lg text-sm sm:text-base ">
+                @csrf
+                <button type="submit" class="flex items-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span class="ml-2">Logout</span>
+                </button>
+            </form>
         </nav>
     </aside>
 

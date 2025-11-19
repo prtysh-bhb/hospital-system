@@ -57,8 +57,19 @@
         <div class="h-24 sm:h-32 bg-gradient-to-r {{ $color['gradient'] }}"></div>
         <div class="p-4 sm:p-6 -mt-12 sm:-mt-16">
             <div class="flex justify-center mb-4">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode($doctor->user->full_name) }}&background={{ $color['avatar'] }}&color=fff&size=128"
-                    class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg" alt="Doctor">
+                @if ($doctor->user->profile_image)
+                    <img src="{{ asset($doctor->user->profile_image) }}"
+                        class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg object-cover"
+                        alt="{{ $doctor->user->full_name }}"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($doctor->user->full_name) }}&background={{ $color['avatar'] }}&color=fff&size=128"
+                        class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg hidden"
+                        alt="{{ $doctor->user->full_name }}" style="display:none;">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($doctor->user->full_name) }}&background={{ $color['avatar'] }}&color=fff&size=128"
+                        class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg"
+                        alt="{{ $doctor->user->full_name }}">
+                @endif
             </div>
             <div class="text-center">
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800">{{ $doctor->user->full_name }}</h3>
@@ -115,9 +126,18 @@
                 <button
                     class="flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm {{ $color['text'] }} border {{ $color['border'] }} rounded-lg {{ $color['hover-light'] }} font-medium">View
                     Details</button>
-                <button
-                    class="flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white {{ $color['bg'] }} rounded-lg {{ $color['hover-bg'] }} font-medium">Edit</button>
+                <a href="{{ route('admin.doctor-edit', $doctor->user->id) }}"
+                    class="flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white {{ $color['bg'] }} rounded-lg {{ $color['hover-bg'] }} font-medium text-center">Edit</a>
             </div>
+            <form action="{{ route('admin.doctor-delete', $doctor->user->id) }}" method="POST" class="mt-2"
+                onsubmit="return confirm('Are you sure you want to delete this doctor? This action cannot be undone.');">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                    class="w-full px-3 sm:px-4 py-2 text-xs sm:text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 font-medium">
+                    Delete Doctor
+                </button>
+            </form>
         </div>
     </div>
 @endforeach

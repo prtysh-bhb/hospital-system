@@ -53,9 +53,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::get('/doctors', [docktorsController::class, 'index'])->name('doctors');
 
-    Route::get('/doctors/add', function () {
-        return view('admin.doctor-add');
-    })->name('doctor-add');
+    Route::get('/doctors/add', [docktorsController::class, 'create'])->name('doctor-add');
+    Route::post('/doctors/add', [docktorsController::class, 'store'])->name('doctor-store');
+    
+    Route::get('/doctors/{id}/edit', [docktorsController::class, 'edit'])->name('doctor-edit');
+    Route::put('/doctors/{id}', [docktorsController::class, 'update'])->name('doctor-update');
+    Route::delete('/doctors/{id}', [docktorsController::class, 'destroy'])->name('doctor-delete');
 
     Route::get('/patients', [PetientController::class, 'index'])->name('patients');
 
