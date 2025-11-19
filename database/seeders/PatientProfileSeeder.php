@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -28,14 +27,14 @@ class PatientProfileSeeder extends Seeder
 
             $patientProfiles[] = [
                 'user_id' => $patient->id,
-                'emergency_contact_name' => 'Emergency Contact ' . $patient->last_name,
-                'emergency_contact_phone' => '+1-555-EMER-' . rand(100, 999),
+                'emergency_contact_name' => 'Emergency Contact '.$patient->last_name,
+                'emergency_contact_phone' => '+1-555-EMER-'.rand(100, 999),
                 'blood_group' => $bloodGroups[array_rand($bloodGroups)],
                 'allergies' => $hasAllergies ? $allergies[array_rand($allergies)] : 'None',
                 'medical_history' => $this->generateMedicalHistory(),
                 'current_medications' => $hasMeds ? $medications[array_rand($medications)] : 'None',
                 'insurance_provider' => $insuranceProviders[array_rand($insuranceProviders)],
-                'insurance_number' => 'INS-' . rand(100000, 999999),
+                'insurance_number' => 'INS-'.rand(100000, 999999),
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -54,7 +53,7 @@ class PatientProfileSeeder extends Seeder
         }
 
         if (rand(0, 1)) {
-            $history[] = 'Previous surgery in ' . (2010 + rand(0, 12));
+            $history[] = 'Previous surgery in '.(2010 + rand(0, 12));
         }
 
         return empty($history) ? 'No significant medical history' : implode(', ', $history);

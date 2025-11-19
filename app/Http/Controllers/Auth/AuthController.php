@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+
 class AuthController extends Controller
 {
     protected AuthService $authService;
@@ -20,8 +21,6 @@ class AuthController extends Controller
 
     /**
      * Show the login form.
-     *
-     * @return View
      */
     public function showLoginForm(): View
     {
@@ -30,9 +29,6 @@ class AuthController extends Controller
 
     /**
      * Handle login request via AJAX.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function login(Request $request): JsonResponse
     {
@@ -51,21 +47,21 @@ class AuthController extends Controller
                     'name' => $result['user']->full_name,
                     'email' => $result['user']->email,
                     'role' => $result['user']->role,
-                ]
+                ],
             ], 200);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred during login. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ], 500);
         }
     }
@@ -73,7 +69,6 @@ class AuthController extends Controller
     /**
      * Handle logout request.
      *
-     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function logout(Request $request)
@@ -95,27 +90,27 @@ class AuthController extends Controller
             return redirect()->back()->with('error', 'Something went wrong during logout.');
         }
     }
-   /**
+
+    /**
      * Check authentication status.
-     *
-     * @return JsonResponse
      */
     public function checkAuth(): JsonResponse
     {
         if (auth()->check()) {
             $user = auth()->user();
+
             return response()->json([
                 'authenticated' => true,
                 'user' => [
                     'name' => $user->full_name,
                     'email' => $user->email,
                     'role' => $user->role,
-                ]
+                ],
             ], 200);
         }
 
         return response()->json([
-            'authenticated' => false
+            'authenticated' => false,
         ], 200);
     }
 }

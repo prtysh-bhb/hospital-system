@@ -1,4 +1,5 @@
 <?php
+
 // database/seeders/PrescriptionSeeder.php
 
 namespace Database\Seeders;
@@ -22,7 +23,7 @@ class PrescriptionSeeder extends Seeder
         foreach ($appointments as $appointment) {
             if (rand(0, 1)) { // 50% chance of prescription
                 $prescriptions[] = [
-                    'prescription_number' => 'RX-' . date('Y') . '-' . str_pad($this->prescriptionCounter++, 4, '0', STR_PAD_LEFT),
+                    'prescription_number' => 'RX-'.date('Y').'-'.str_pad($this->prescriptionCounter++, 4, '0', STR_PAD_LEFT),
                     'appointment_id' => $appointment->id,
                     'patient_id' => $appointment->patient_id,
                     'doctor_id' => $appointment->doctor_id,
@@ -49,8 +50,9 @@ class PrescriptionSeeder extends Seeder
             'Migraine without aura',
             'Allergic rhinitis',
             'Gastroesophageal reflux disease',
-            'Musculoskeletal strain'
+            'Musculoskeletal strain',
         ];
+
         return $diagnoses[array_rand($diagnoses)];
     }
 
@@ -72,7 +74,7 @@ class PrescriptionSeeder extends Seeder
 
         for ($i = 0; $i < $numMeds; $i++) {
             $med = $commonMeds[$i];
-            $med['instructions'] = 'Take with food' . (rand(0, 1) ? ', avoid alcohol' : '');
+            $med['instructions'] = 'Take with food'.(rand(0, 1) ? ', avoid alcohol' : '');
             $medications[] = $med;
         }
 
@@ -87,8 +89,9 @@ class PrescriptionSeeder extends Seeder
             'Follow up in 2 weeks',
             'Maintain regular exercise and diet',
             'Avoid strenuous activities',
-            'Get adequate rest and hydration'
+            'Get adequate rest and hydration',
         ];
+
         return $instructions[array_rand($instructions)];
     }
 }

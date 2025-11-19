@@ -15,9 +15,10 @@ class RedirectIfAuthenticatedToDashboard
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(auth()->check()){
-            return redirect()->route(auth()->user()->role . '.dashboard');
+        if (auth()->check()) {
+            return redirect()->route(auth()->user()->role.'.dashboard');
         }
+
         return $next($request);
     }
 }

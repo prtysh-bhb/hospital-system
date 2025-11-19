@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Specialty;
 
 class User extends Authenticatable
 {
@@ -195,7 +194,7 @@ class User extends Authenticatable
         return $this->role === 'patient';
     }
 
-     public function specialty()
+    public function specialty()
     {
         return $this->belongsTo(Specialty::class);
     }

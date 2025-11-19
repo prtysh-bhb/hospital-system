@@ -1,4 +1,5 @@
 <?php
+
 // database/seeders/AppointmentSeeder.php
 
 namespace Database\Seeders;
@@ -27,7 +28,7 @@ class AppointmentSeeder extends Seeder
                 $appointmentDate = now()->subDays(rand(1, 30))->addHours(rand(9, 16));
 
                 $appointments[] = [
-                    'appointment_number' => 'APT-' . date('Y') . '-' . str_pad($this->appointmentCounter++, 4, '0', STR_PAD_LEFT),
+                    'appointment_number' => 'APT-'.date('Y').'-'.str_pad($this->appointmentCounter++, 4, '0', STR_PAD_LEFT),
                     'patient_id' => $patient->id,
                     'doctor_id' => $doctor->id,
                     'appointment_date' => $appointmentDate->format('Y-m-d'),
@@ -69,6 +70,7 @@ class AppointmentSeeder extends Seeder
     private function getRandomAppointmentType()
     {
         $types = ['consultation', 'follow_up', 'check_up', 'emergency'];
+
         return $types[array_rand($types)];
     }
 
@@ -80,8 +82,9 @@ class AppointmentSeeder extends Seeder
             'Pain management',
             'Test results discussion',
             'New symptoms evaluation',
-            'Prescription renewal'
+            'Prescription renewal',
         ];
+
         return $reasons[array_rand($reasons)];
     }
 
@@ -94,14 +97,16 @@ class AppointmentSeeder extends Seeder
             'Chest discomfort',
             'Skin rash',
             'Digestive issues',
-            'Fatigue and weakness'
+            'Fatigue and weakness',
         ];
+
         return $symptoms[array_rand($symptoms)];
     }
 
     private function getRandomBookingMethod()
     {
         $methods = ['online', 'frontdesk', 'phone'];
+
         return $methods[array_rand($methods)];
     }
 }

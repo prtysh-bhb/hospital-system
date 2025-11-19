@@ -83,7 +83,7 @@ class Appointment extends Model
     public function scopeUpcoming($query)
     {
         return $query->where('appointment_date', '>=', now()->toDateString())
-                     ->whereIn('status', ['pending', 'confirmed']);
+            ->whereIn('status', ['pending', 'confirmed']);
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -25,7 +24,7 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 15,
                 'consultation_fee' => 1500.00,
                 'bio' => 'Senior Cardiologist with 15 years of experience in interventional cardiology.',
-                'license_number' => 'MED-CARD-' . rand(10000, 99999),
+                'license_number' => 'MED-CARD-'.rand(10000, 99999),
             ],
             'dr.mehta@medicare.com' => [
                 'specialty' => 'Pediatrics',
@@ -33,7 +32,7 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 12,
                 'consultation_fee' => 1200.00,
                 'bio' => 'Pediatric specialist focused on child healthcare and development.',
-                'license_number' => 'MED-PED-' . rand(10000, 99999),
+                'license_number' => 'MED-PED-'.rand(10000, 99999),
             ],
             'dr.verma@medicare.com' => [
                 'specialty' => 'Orthopedics',
@@ -41,7 +40,7 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 10,
                 'consultation_fee' => 1300.00,
                 'bio' => 'Orthopedic surgeon specializing in joint replacement and sports injuries.',
-                'license_number' => 'MED-ORT-' . rand(10000, 99999),
+                'license_number' => 'MED-ORT-'.rand(10000, 99999),
             ],
             'dr.desai@medicare.com' => [
                 'specialty' => 'Dermatology',
@@ -49,7 +48,7 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 8,
                 'consultation_fee' => 1100.00,
                 'bio' => 'Dermatologist with expertise in cosmetic and medical dermatology.',
-                'license_number' => 'MED-DER-' . rand(10000, 99999),
+                'license_number' => 'MED-DER-'.rand(10000, 99999),
             ],
             'dr.patel@medicare.com' => [
                 'specialty' => 'Neurology',
@@ -57,7 +56,7 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 14,
                 'consultation_fee' => 1600.00,
                 'bio' => 'Neurologist specializing in stroke management and neurological disorders.',
-                'license_number' => 'MED-NEU-' . rand(10000, 99999),
+                'license_number' => 'MED-NEU-'.rand(10000, 99999),
             ],
         ];
 

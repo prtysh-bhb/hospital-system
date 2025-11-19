@@ -22,7 +22,7 @@ class Setting extends Model
      */
     public function getValueAttribute($value)
     {
-        return match($this->type) {
+        return match ($this->type) {
             'integer' => (int) $value,
             'boolean' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
             'json' => json_decode($value, true),
@@ -35,7 +35,7 @@ class Setting extends Model
      */
     public function setValueAttribute($value)
     {
-        $this->attributes['value'] = match($this->type) {
+        $this->attributes['value'] = match ($this->type) {
             'json' => json_encode($value),
             'boolean' => $value ? '1' : '0',
             default => (string) $value,
@@ -56,6 +56,7 @@ class Setting extends Model
     public static function getValue($key, $default = null)
     {
         $setting = static::where('key', $key)->first();
+
         return $setting ? $setting->value : $default;
     }
 

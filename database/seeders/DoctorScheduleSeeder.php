@@ -1,4 +1,5 @@
 <?php
+
 // database/seeders/DoctorScheduleSeeder.php
 
 namespace Database\Seeders;
@@ -43,6 +44,7 @@ class DoctorScheduleSeeder extends Seeder
     {
         $days = range(1, 5); // Monday to Friday
         shuffle($days);
+
         return array_slice($days, 0, $count);
     }
 
@@ -62,8 +64,9 @@ class DoctorScheduleSeeder extends Seeder
             'Morning consultations only',
             'Afternoon sessions available',
             'Full day availability',
-            'Emergency cases prioritized'
+            'Emergency cases prioritized',
         ];
+
         return $notes[array_rand($notes)];
     }
 }

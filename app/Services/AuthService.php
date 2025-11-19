@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
@@ -12,18 +11,16 @@ class AuthService
     /**
      * Attempt to authenticate a user.
      *
-     * @param array $credentials
-     * @return array
      * @throws ValidationException
      */
     public function login(array $credentials): array
     {
         $remember = $credentials['remember'] ?? false;
-        
+
         // Attempt to authenticate
-        if (!Auth::attempt([
+        if (! Auth::attempt([
             'email' => $credentials['email'],
-            'password' => $credentials['password']
+            'password' => $credentials['password'],
         ], $remember)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
@@ -51,8 +48,6 @@ class AuthService
 
     /**
      * Log the user out.
-     *
-     * @return void
      */
     public function logout(): void
     {
@@ -63,13 +58,10 @@ class AuthService
 
     /**
      * Get the redirect URL based on user role.
-     *
-     * @param string $role
-     * @return string
      */
     protected function getRedirectUrl(string $role): string
     {
-        return match($role) {
+        return match ($role) {
             'admin' => route('admin.dashboard'),
             'doctor' => route('doctor.dashboard'),
             'frontdesk' => route('frontdesk.dashboard'),
@@ -80,9 +72,6 @@ class AuthService
 
     /**
      * Validate login credentials.
-     *
-     * @param array $data
-     * @return array
      */
     public function validateLoginData(array $data): array
     {
@@ -95,9 +84,6 @@ class AuthService
 
     /**
      * Get user by email.
-     *
-     * @param string $email
-     * @return User|null
      */
     public function getUserByEmail(string $email): ?User
     {
@@ -106,13 +92,11 @@ class AuthService
 
     /**
      * Check if user exists and is active.
-     *
-     * @param string $email
-     * @return bool
      */
     public function isUserActive(string $email): bool
     {
         $user = $this->getUserByEmail($email);
+
         return $user && $user->status === 'active';
     }
 }
