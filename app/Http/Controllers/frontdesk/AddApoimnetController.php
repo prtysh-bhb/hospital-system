@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\frontdesk;
 
 use App\Http\Controllers\Controller;
 use App\Models\DoctorSchedule;
@@ -149,6 +149,7 @@ class AddApoimnetController extends Controller
                 'phone' => $patient->phone,
                 'date_of_birth' => $patient->date_of_birth,
                 'gender' => $patient->gender,
+                'address' => $patient->address,
             ]);
         } else {
             // Create new patient
@@ -159,6 +160,7 @@ class AddApoimnetController extends Controller
                 'phone' => $validated['phone'],
                 'date_of_birth' => $validated['date_of_birth'],
                 'gender' => $validated['gender'],
+                'address' => $validated['address'] ?? null,
             ]);
         }
 

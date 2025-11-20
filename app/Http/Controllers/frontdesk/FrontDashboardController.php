@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\frontend;
+namespace App\Http\Controllers\frontdesk;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
@@ -8,7 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class FrontEndDashboardController extends Controller
+class FrontDashboardController extends Controller
 {
     public function index()
     {

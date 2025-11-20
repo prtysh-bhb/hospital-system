@@ -4,9 +4,12 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\admin\PetientController;
 use App\Http\Controllers\admin\docktorsController;
 use App\Http\Controllers\admin\AppointmentController;
-use App\Http\Controllers\frontend\AddApoimnetController;
+use App\Http\Controllers\frontdesk\AddApoimnetController;
 use App\Http\Controllers\public\BookAppointmentController;
-use App\Http\Controllers\frontend\FrontEndDashboardController;
+use App\Http\Controllers\frontdesk\FrontDashboardController;
+use App\Http\Controllers\frontdesk\PatientController;
+use App\Http\Controllers\frontdesk\HistoryController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,8 +95,8 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
 
 // Front Desk Routes
 Route::prefix('frontdesk')->name('frontdesk.')->group(function () {
-    Route::get('/dashboard', [FrontEndDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/stats', [FrontEndDashboardController::class, 'getDashboardStats'])->name('dashboard.stats');
+    Route::get('/dashboard', [FrontDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/stats', [FrontDashboardController::class, 'getDashboardStats'])->name('dashboard.stats');
 
     Route::get('/add-appointment', [AddApoimnetController::class, 'index'])->name('add-appointment');
     Route::get('/add-appointment/search-patient', [AddApoimnetController::class, 'searchPatient'])->name('add-appointment.search-patient');
@@ -105,13 +108,13 @@ Route::prefix('frontdesk')->name('frontdesk.')->group(function () {
         return view('frontdesk.doctor-schedule');
     })->name('doctor-schedule');
 
-    Route::get('/patients', function () {
-        return view('frontdesk.patients');
-    })->name('patients');
+    Route::get('/patients', [PatientController::class, 'index'])->name('patients');
+    Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients.show');
+    Route::put('/patients/{id}', [PatientController::class, 'update'])->name('patients.update');
+    Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->name('patients.destroy');
 
-    Route::get('/history', function () {
-        return view('frontdesk.history');
-    })->name('history');
+    Route::get('/history', [HistoryController::class, 'index'])->name('history');
+    Route::get('/history/{id}', [HistoryController::class, 'show'])->name('history.show');
 });
 
 // Patient Routes

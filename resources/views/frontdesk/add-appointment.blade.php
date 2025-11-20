@@ -45,23 +45,32 @@
                     </div>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                        <input type="text" name="first_name" id="first_name" required
+                        <input type="text" name="first_name" id="first_name" required pattern="[A-Za-z\s]{2,100}"
+                            title="First name should only contain letters and spaces (2-100 characters)"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                        <span id="first_name_error" class="text-xs text-red-500 hidden">First name should only contain
+                            letters</span>
                     </div>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                        <input type="text" name="last_name" id="last_name" required
+                        <input type="text" name="last_name" id="last_name" required pattern="[A-Za-z\s]{2,100}"
+                            title="Last name should only contain letters and spaces (2-100 characters)"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                        <span id="last_name_error" class="text-xs text-red-500 hidden">Last name should only contain
+                            letters</span>
                     </div>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email *</label>
                         <input type="email" name="email" id="email" required
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                        <span id="email_error" class="text-xs text-red-500 hidden">Please enter a valid email address</span>
                     </div>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Phone *</label>
-                        <input type="tel" name="phone" id="phone" required
+                        <input type="tel" name="phone" id="phone" required pattern="[0-9]{10,15}"
+                            title="Phone number must be 10-15 digits only" maxlength="15"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                        <span id="phone_error" class="text-xs text-red-500 hidden">Phone must be 10-15 digits only</span>
                     </div>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
@@ -212,9 +221,86 @@
                 }
             });
 
+            // Add real-time validation listeners
+            document.getElementById('first_name').addEventListener('input', validateFirstName);
+            document.getElementById('last_name').addEventListener('input', validateLastName);
+            document.getElementById('phone').addEventListener('input', validatePhone);
+            document.getElementById('email').addEventListener('blur', validateEmail);
+
             // Form submission
             document.getElementById('appointmentForm').addEventListener('submit', handleFormSubmit);
         });
+
+        // Validation functions
+        function validateFirstName() {
+            const input = document.getElementById('first_name');
+            const error = document.getElementById('first_name_error');
+            const value = input.value;
+
+            // Remove any numbers or special characters (except spaces)
+            input.value = value.replace(/[^A-Za-z\s]/g, '');
+
+            if (value !== input.value) {
+                error.classList.remove('hidden');
+                input.classList.add('border-red-500');
+            } else if (input.value.length >= 2) {
+                error.classList.add('hidden');
+                input.classList.remove('border-red-500');
+            }
+        }
+
+        function validateLastName() {
+            const input = document.getElementById('last_name');
+            const error = document.getElementById('last_name_error');
+            const value = input.value;
+
+            // Remove any numbers or special characters (except spaces)
+            input.value = value.replace(/[^A-Za-z\s]/g, '');
+
+            if (value !== input.value) {
+                error.classList.remove('hidden');
+                input.classList.add('border-red-500');
+            } else if (input.value.length >= 2) {
+                error.classList.add('hidden');
+                input.classList.remove('border-red-500');
+            }
+        }
+
+        function validatePhone() {
+            const input = document.getElementById('phone');
+            const error = document.getElementById('phone_error');
+            const value = input.value;
+
+            // Remove any non-numeric characters
+            input.value = value.replace(/[^0-9]/g, '');
+
+            if (value !== input.value) {
+                error.textContent = 'Phone must contain only numbers';
+                error.classList.remove('hidden');
+                input.classList.add('border-red-500');
+            } else if (input.value.length > 0 && (input.value.length < 10 || input.value.length > 15)) {
+                error.textContent = 'Phone must be 10-15 digits';
+                error.classList.remove('hidden');
+                input.classList.add('border-red-500');
+            } else if (input.value.length >= 10 && input.value.length <= 15) {
+                error.classList.add('hidden');
+                input.classList.remove('border-red-500');
+            }
+        }
+
+        function validateEmail() {
+            const input = document.getElementById('email');
+            const error = document.getElementById('email_error');
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (input.value && !emailPattern.test(input.value)) {
+                error.classList.remove('hidden');
+                input.classList.add('border-red-500');
+            } else {
+                error.classList.add('hidden');
+                input.classList.remove('border-red-500');
+            }
+        }
 
         // Load doctors from API
         function loadDoctors() {
@@ -400,7 +486,7 @@
             const fieldsToDisable = ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'gender', 'address'];
             fieldsToDisable.forEach(field => {
                 const element = document.getElementById(field);
-                if (element) element.disabled = true;   
+                if (element) element.disabled = true;
             });
         }
 
@@ -424,23 +510,59 @@
         function handleFormSubmit(e) {
             e.preventDefault();
 
+            // Clear all previous error states
+            document.querySelectorAll('.border-red-500').forEach(el => el.classList.remove('border-red-500'));
+            document.querySelectorAll('.text-red-500').forEach(el => el.classList.add('hidden'));
+
+            let hasErrors = false;
+
             // If no patient selected, validate the patient form fields
             if (!selectedPatientId) {
                 const patientFields = ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'gender'];
-                let hasErrors = false;
 
                 patientFields.forEach(field => {
                     const input = document.getElementById(field);
                     if (!input.value.trim()) {
                         input.classList.add('border-red-500');
                         hasErrors = true;
-                    } else {
-                        input.classList.remove('border-red-500');
                     }
                 });
 
+                // Validate first name (only letters and spaces)
+                const firstName = document.getElementById('first_name').value;
+                if (firstName && !/^[A-Za-z\s]{2,100}$/.test(firstName)) {
+                    document.getElementById('first_name').classList.add('border-red-500');
+                    document.getElementById('first_name_error').classList.remove('hidden');
+                    hasErrors = true;
+                }
+
+                // Validate last name (only letters and spaces)
+                const lastName = document.getElementById('last_name').value;
+                if (lastName && !/^[A-Za-z\s]{2,100}$/.test(lastName)) {
+                    document.getElementById('last_name').classList.add('border-red-500');
+                    document.getElementById('last_name_error').classList.remove('hidden');
+                    hasErrors = true;
+                }
+
+                // Validate email
+                const email = document.getElementById('email').value;
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    document.getElementById('email').classList.add('border-red-500');
+                    document.getElementById('email_error').classList.remove('hidden');
+                    hasErrors = true;
+                }
+
+                // Validate phone (10-15 digits only)
+                const phone = document.getElementById('phone').value;
+                if (phone && !/^[0-9]{10,15}$/.test(phone)) {
+                    document.getElementById('phone').classList.add('border-red-500');
+                    document.getElementById('phone_error').textContent = 'Phone must be 10-15 digits only';
+                    document.getElementById('phone_error').classList.remove('hidden');
+                    hasErrors = true;
+                }
+
                 if (hasErrors) {
-                    alert('Please fill in all required patient fields (marked with *)');
+                    alert('Please correct the errors in patient information');
                     return;
                 }
             }
