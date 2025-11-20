@@ -10,6 +10,7 @@ use App\Http\Controllers\frontdesk\FrontDashboardController;
 use App\Http\Controllers\frontdesk\HistoryController;
 use App\Http\Controllers\frontdesk\PatientController;
 use App\Http\Controllers\public\BookAppointmentController;
+use App\Http\Controllers\doctor\DoctorDashboarController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -83,9 +84,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
 // Doctor Routes
 Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('doctor.dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [DoctorDashboarController::class, 'index'])->name('dashboard');
 
     Route::get('/appointments', function () {
         return view('doctor.appointments');

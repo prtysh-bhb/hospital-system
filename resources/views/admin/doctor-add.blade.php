@@ -14,15 +14,15 @@
         <!-- Personal Details -->
         <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
             <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">Personal Details</h3>
-            @if($errors->any())
-            <div class="p-4 bg-red-100 text-red-700 rounded-lg mb-4">
-                <strong>Validation failed:</strong>
-                <ul class="mt-2 text-sm">
-                    @foreach($errors->all() as $error)
-                        <li>- {{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
+            @if ($errors->any())
+                <div class="p-4 bg-red-100 text-red-700 rounded-lg mb-4">
+                    <strong>Validation failed:</strong>
+                    <ul class="mt-2 text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>- {{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -304,6 +304,8 @@
                                 : '17:00');
                     @endphp
                     <div class="flex items-center space-x-4">
+                        <!-- Hidden input to ensure day is always sent, even when unchecked -->
+                        <input type="hidden" name="schedules[{{ $dayNum }}][enabled]" value="0">
                         <input type="checkbox" name="schedules[{{ $dayNum }}][enabled]"
                             id="day{{ $dayNum }}" value="1" {{ $isChecked ? 'checked' : '' }}
                             class="w-5 h-5 text-sky-600 rounded">
@@ -337,7 +339,7 @@
             const form = document.getElementById('doctorForm');
 
             // Define required fields
-           const requiredFields = [
+            const requiredFields = [
                 'first_name', 'last_name', 'gender', 'email', 'phone',
                 'date_of_birth', 'address', 'specialty_id', 'qualification',
                 'experience_years', 'license_number', 'consultation_fee', 'slot_duration'
@@ -424,7 +426,7 @@
                     }
                 }
                 // Check for select fields
-               else if (field.tagName === 'SELECT' && (value === "" || value === null)) {
+                else if (field.tagName === 'SELECT' && (value === "" || value === null)) {
                     errorMessage = `Please select ${getFieldLabel(field)}`;
                 }
                 // Check email format

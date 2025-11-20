@@ -159,41 +159,32 @@ class DoctoreServices
             $doctorProfile->update($profileData);
 
             // Update or create schedules
-            if (! empty($data['schedules'])) {
-                // Get existing schedule days
-                $existingSchedules = DoctorSchedule::where('doctor_id', $id)
-                    ->pluck('day_of_week')
-                    ->toArray();
+            // Always process schedules, even if array is empty (to handle deletions)
+            // Track which days should be kept
+            $updatedDays = [];
 
-                // Track which days are being updated
-                $updatedDays = [];
-
+            if (isset($data['schedules']) && is_array($data['schedules'])) {
+                // First, delete all existing schedules to avoid duplicate issues
+                DoctorSchedule::where('doctor_id', $id)->forceDelete();
+                
                 foreach ($data['schedules'] as $dayOfWeek => $schedule) {
-                    if (! empty($schedule['enabled'])) {
-                        DoctorSchedule::updateOrCreate(
-                            [
-                                'doctor_id' => $id,
-                                'day_of_week' => $dayOfWeek,
-                            ],
-                            [
-                                'start_time' => $schedule['start_time'],
-                                'end_time' => $schedule['end_time'],
-                                'slot_duration' => $data['slot_duration'],
-                                'max_patients' => 20,
-                                'is_available' => true,
-                            ]
-                        );
-                        $updatedDays[] = $dayOfWeek;
+                    // Only create schedules where enabled is true
+                    if (! empty($schedule['enabled']) && $schedule['enabled'] == '1' && isset($schedule['start_time']) && isset($schedule['end_time'])) {
+                        DoctorSchedule::create([
+                            'doctor_id' => $id,
+                            'day_of_week' => (int)$dayOfWeek,
+                            'start_time' => $schedule['start_time'],
+                            'end_time' => $schedule['end_time'],
+                            'slot_duration' => $data['slot_duration'],
+                            'max_patients' => 20,
+                            'is_available' => true,
+                        ]);
+                        $updatedDays[] = (int)$dayOfWeek;
                     }
                 }
-
-                // Delete schedules for days that were disabled
-                DoctorSchedule::where('doctor_id', $id)
-                    ->whereNotIn('day_of_week', $updatedDays)
-                    ->delete();
             } else {
                 // If no schedules provided, delete all
-                DoctorSchedule::where('doctor_id', $id)->delete();
+                DoctorSchedule::where('doctor_id', $id)->forceDelete();
             }
 
             \DB::commit();

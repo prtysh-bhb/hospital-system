@@ -171,9 +171,9 @@ class docktorsController extends Controller
             'slot_duration' => 'required|integer|in:15,30,45,60',
             'languages' => 'nullable|string|max:255',
             'status' => 'nullable|in:active,inactive',
-            'available_for_booking' => 'nullable|boolean',
+            'available_for_booking' => 'nullable|in:0,1',
             'schedules' => 'nullable|array',
-            'schedules.*.enabled' => 'boolean',
+            'schedules.*.enabled' => 'nullable|in:0,1',
             'schedules.*.start_time' => 'nullable|date_format:H:i',
             'schedules.*.end_time' => 'nullable|date_format:H:i',
         ];
@@ -191,13 +191,19 @@ class docktorsController extends Controller
             'experience_years.max' => 'Experience years cannot exceed 70.',
             'consultation_fee.max' => 'Consultation fee cannot exceed ₹100,000.',
         ];
-        
-        $validated = $request->validate($rules, $messages);
-        
+
+        try {
+            $validated = $request->validate($rules, $messages);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed: ', $e->errors());
+
+            return back()->withErrors($e->errors())->withInput();
+        }
+
         // Custom validation for schedule times
         if (! empty($validated['schedules'])) {
             foreach ($validated['schedules'] as $day => $schedule) {
-                if (! empty($schedule['enabled']) && isset($schedule['start_time']) && isset($schedule['end_time'])) {
+                if (! empty($schedule['enabled']) && $schedule['enabled'] == '1' && isset($schedule['start_time']) && isset($schedule['end_time'])) {
                     if (strtotime($schedule['end_time']) <= strtotime($schedule['start_time'])) {
                         return back()->withInput()->withErrors([
                             "schedules.{$day}.end_time" => 'End time must be after start time for this day.',
@@ -209,18 +215,23 @@ class docktorsController extends Controller
 
         try {
             $doctor = $this->doctoreServices->updateDoctor($id, $validated);
-            
+
+            \Log::info('Doctor updated successfully: '.$id);
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Doctor updated successfully!',
                     'doctor' => $doctor,
                 ]);
-            }        
+            }
+
             return redirect()->route('admin.doctors')
                 ->with('success', 'Doctor updated successfully!');
         } catch (\Exception $e) {
-            \Log::error('Doctor update failed: ' . $e->getMessage());
+            \Log::error('Doctor update failed: '.$e->getMessage());
+            \Log::error('Stack trace: '.$e->getTraceAsString());
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -230,7 +241,7 @@ class docktorsController extends Controller
             }
 
             return back()->withInput()
-                ->with('error', 'Failed to update doctor. Please try again.');
+                ->withErrors(['error' => 'Failed to update doctor: '.$e->getMessage()]);
         }
     }
 
