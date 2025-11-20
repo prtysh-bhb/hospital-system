@@ -38,19 +38,39 @@ class CalendarService
         $currentDate = $calendarStart->copy();
 
         while ($currentDate <= $calendarEnd) {
+
             $dateKey = $currentDate->format('Y-m-d');
+
             $isCurrentMonth = $currentDate->month == $month;
 
             $dayAppointments = [];
+
             if ($isCurrentMonth && isset($appointments[$dateKey])) {
+
                 $dayAppointments = $appointments[$dateKey]->map(function ($apt) {
+
+                    // Skip appointments without patients
+
+                    if (! $apt->patient) {
+
+                        return null;
+
+                    }
+
                     return [
+
                         'id' => $apt->id,
+
                         'time' => Carbon::parse($apt->appointment_time)->format('g:i A'),
+
                         'status' => $apt->status,
+
                         'patient_name' => $apt->patient->first_name.' '.$apt->patient->last_name,
+
                     ];
-                })->toArray();
+
+                })->filter()->values()->toArray();
+
             }
 
             $calendarDays[] = [
@@ -120,6 +140,39 @@ class CalendarService
         }
 
         return $weeklySchedule;
+    }
+
+    /**
+     * Update weekly schedule
+     */
+    public function updateSchedule($schedules)
+    {
+        $doctorId = Auth::id();
+
+        foreach ($schedules as $scheduleData) {
+            // If day is unavailable, keep dummy times to satisfy NOT NULL constraint
+            $startTime = $scheduleData['is_available'] && $scheduleData['start_time']
+                ? $scheduleData['start_time']
+                : '09:00';
+            $endTime = $scheduleData['is_available'] && $scheduleData['end_time']
+                ? $scheduleData['end_time']
+                : '17:00';
+
+            DoctorSchedule::updateOrCreate(
+                [
+                    'doctor_id' => $doctorId,
+                    'day_of_week' => $scheduleData['day_of_week'],
+                ],
+                [
+                    'is_available' => $scheduleData['is_available'],
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'slot_duration' => $scheduleData['slot_duration'] ?? 30,
+                ]
+            );
+        }
+
+        return $this->getWeeklySchedule();
     }
 
     /**

@@ -65,15 +65,9 @@
 
     <!-- Weekly Availability Settings -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="p-4 sm:p-6 border-b flex justify-between items-center">
-            <div>
-                <h3 class="text-base sm:text-lg font-semibold text-gray-800">Weekly Availability Schedule</h3>
-                <p class="text-xs sm:text-sm text-gray-500 mt-1">Your regular working hours for each day</p>
-            </div>
-            <a href="{{ route('admin.doctors.edit', auth()->id()) }}"
-                class="px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700">
-                Edit Schedule
-            </a>
+        <div class="p-4 sm:p-6 border-b">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-800">Weekly Availability Schedule</h3>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Set your regular working hours for each day</p>
         </div>
         <div class="p-4 sm:p-6">
             <div id="weeklySchedule">
@@ -91,7 +85,6 @@
         <pre id="debugContent" class="text-xs mt-2"></pre>
     </div>
 @endsection
-
 @push('scripts')
     <script>
         let currentMonth = '{{ date('Y-m') }}';
@@ -178,7 +171,7 @@
 
             $('#currentMonth').text(
                 `Week of ${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-                );
+            );
 
             showLoading('#calendarDays', 'Loading week view...');
 
@@ -417,38 +410,214 @@
                 return;
             }
 
-            let html = '';
+            let html = '<div class="space-y-3 sm:space-y-4">';
 
             schedule.forEach(function(day) {
                 const isAvailable = day.is_available;
                 const bgClass = isAvailable ? '' : 'bg-gray-50';
+                const dayNum = day.day_of_week;
 
                 html +=
-                    `<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg ${bgClass} mb-3">`;
+                    `<div class="schedule-day flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg ${bgClass}" data-day="${dayNum}">`;
                 html += `<div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">`;
                 html += `<div class="flex items-center gap-3 sm:gap-4">`;
                 html +=
-                    `<span class="font-medium text-gray-800 text-sm sm:text-base sm:w-24">${day.day_name}</span>`;
+                    `<input type="checkbox" class="day-checkbox w-4 h-4 sm:w-5 sm:h-5 text-sky-600 rounded" ${isAvailable ? 'checked' : ''}>`;
+                html +=
+                    `<span class="font-medium ${isAvailable ? 'text-gray-800' : 'text-gray-500'} text-sm sm:text-base sm:w-24">${day.day_name}</span>`;
                 html += `</div>`;
 
                 if (isAvailable) {
+                    // Convert time format (e.g., "9:00 AM" to "09:00")
+                    const startTime = convertTo24Hour(day.start_time);
+                    const endTime = convertTo24Hour(day.end_time);
+
                     html += `<div class="flex items-center gap-2 flex-1">`;
-                    html += `<span class="text-sm">${day.start_time}</span>`;
+                    html +=
+                        `<input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="${startTime}">`;
                     html += `<span class="text-gray-500 text-xs sm:text-sm">to</span>`;
-                    html += `<span class="text-sm">${day.end_time}</span>`;
-                    if (day.slot_duration) {
-                        html += `<span class="text-xs text-gray-500 ml-2">(${day.slot_duration} min slots)</span>`;
-                    }
+                    html +=
+                        `<input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="${endTime}">`;
                     html += `</div>`;
                 } else {
-                    html += `<span class="text-sm text-gray-500">Not Available</span>`;
+                    html += `<span class="text-gray-400 text-sm sm:text-base unavailable-text">Unavailable</span>`;
                 }
 
                 html += `</div>`;
                 html += `</div>`;
             });
 
+            html += '</div>';
+
+            html += `
+            <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-end gap-3">
+                <button id="cancelSchedule" class="px-4 sm:px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm sm:text-base">
+                    Cancel
+                </button>
+                <button id="saveSchedule" class="px-4 sm:px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 text-sm sm:text-base">
+                    Save Changes
+                </button>
+            </div>
+        `;
+
             $('#weeklySchedule').html(html);
+
+            // Attach event handlers
+            attachScheduleHandlers();
+        }
+
+        function convertTo24Hour(time12h) {
+            if (!time12h) return '09:00';
+
+            const [time, modifier] = time12h.split(' ');
+            let [hours, minutes] = time.split(':');
+
+            hours = parseInt(hours, 10);
+
+            if (modifier === 'PM' && hours !== 12) {
+                hours = hours + 12;
+            } else if (modifier === 'AM' && hours === 12) {
+                hours = 0;
+            }
+
+            return `${String(hours).padStart(2, '0')}:${minutes}`;
+        }
+
+        function attachScheduleHandlers() {
+            // Handle checkbox changes
+            $('.day-checkbox').on('change', function() {
+                const $dayRow = $(this).closest('.schedule-day');
+                const isChecked = $(this).is(':checked');
+                const $container = $dayRow.find('.flex-col').first();
+
+                if (isChecked) {
+                    // Enable the day
+                    $dayRow.removeClass('bg-gray-50');
+                    $container.find('span').first().removeClass('text-gray-500').addClass('text-gray-800');
+
+                    // Remove unavailable text
+                    $container.find('.unavailable-text').remove();
+
+                    // Add time inputs
+                    const timeInputsHtml = `
+                        <div class="flex items-center gap-2 flex-1">
+                            <input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="09:00">
+                            <span class="text-gray-500 text-xs sm:text-sm">to</span>
+                            <input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="17:00">
+                        </div>
+                    `;
+                    $container.append(timeInputsHtml);
+                } else {
+                    // Disable the day
+                    $dayRow.addClass('bg-gray-50');
+                    $container.find('span').first().removeClass('text-gray-800').addClass('text-gray-500');
+
+                    // Remove time inputs div
+                    $container.find('.flex.items-center.gap-2').remove();
+
+                    // Add unavailable text
+                    $container.append(
+                        '<span class="text-gray-400 text-sm sm:text-base unavailable-text">Unavailable</span>');
+                }
+            });
+
+            // Save schedule
+            $('#saveSchedule').on('click', function() {
+                saveSchedule();
+            });
+
+            // Cancel changes
+            $('#cancelSchedule').on('click', function() {
+                loadWeeklySchedule();
+            });
+        }
+
+        function saveSchedule() {
+            const schedules = [];
+            let hasError = false;
+
+            $('.schedule-day').each(function() {
+                const dayNum = parseInt($(this).data('day'));
+                const isAvailable = $(this).find('.day-checkbox').is(':checked');
+                const startTime = $(this).find('.start-time').val();
+                const endTime = $(this).find('.end-time').val();
+
+                if (isAvailable && (!startTime || !endTime)) {
+                    alert('Please set both start and end times for all available days');
+                    hasError = true;
+                    return false;
+                }
+
+                if (isAvailable && startTime >= endTime) {
+                    alert('End time must be after start time for all days');
+                    hasError = true;
+                    return false;
+                }
+
+                schedules.push({
+                    day_of_week: dayNum,
+                    is_available: isAvailable ? true : false,
+                    start_time: startTime || null,
+                    end_time: endTime || null,
+                    slot_duration: 30
+                });
+            });
+
+            if (hasError) return;
+
+            console.log('Sending schedules:', schedules);
+
+            // Show loading
+            $('#saveSchedule').prop('disabled', true).html(
+                '<span class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>Saving...'
+            );
+
+            $.ajax({
+                url: '{{ route('doctor.calendar.schedule.update') }}',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({
+                    schedules: schedules
+                }),
+                success: function(response) {
+                    console.log('Save response:', response);
+                    if (response.success) {
+                        // Show success message
+                        const successMsg = $(
+                            '<div class="fixed top-4 right-4 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">Schedule updated successfully!</div>'
+                        );
+                        $('body').append(successMsg);
+                        setTimeout(function() {
+                            successMsg.fadeOut(function() {
+                                $(this).remove();
+                            });
+                        }, 3000);
+
+                        // Reload schedule
+                        renderWeeklySchedule(response.schedule);
+                    } else {
+                        alert('Failed to update schedule: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Schedule update error:', xhr);
+                    console.error('Response:', xhr.responseText);
+                    let errorMsg = 'Failed to update schedule. Please try again.';
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+
+                    alert(errorMsg);
+                },
+                complete: function() {
+                    $('#saveSchedule').prop('disabled', false).html('Save Changes');
+                }
+            });
         }
 
         function showDayAppointments(date) {
@@ -491,23 +660,23 @@
                     <div class="p-6">
                         ${data.appointments && data.appointments.length > 0 ? 
                             data.appointments.map(apt => `
-                                    <div class="border border-gray-200 rounded-lg p-4 mb-4">
-                                        <div class="flex justify-between items-start mb-2">
-                                            <div>
-                                                <p class="font-medium">${apt.patient_name}</p>
-                                                <p class="text-sm text-gray-500">${apt.patient_age} years</p>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="font-medium text-sky-600">${apt.time}</p>
-                                                <span class="px-2 py-1 text-xs ${getStatusBadgeClass(apt.status)} rounded-full">
-                                                    ${apt.status}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason}</p>
-                                        <p class="text-xs text-gray-400 mt-1">${apt.appointment_number}</p>
-                                    </div>
-                                `).join('') : 
+                                                    <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                                                        <div class="flex justify-between items-start mb-2">
+                                                            <div>
+                                                                <p class="font-medium">${apt.patient_name}</p>
+                                                                <p class="text-sm text-gray-500">${apt.patient_age} years</p>
+                                                            </div>
+                                                            <div class="text-right">
+                                                                <p class="font-medium text-sky-600">${apt.time}</p>
+                                                                <span class="px-2 py-1 text-xs ${getStatusBadgeClass(apt.status)} rounded-full">
+                                                                    ${apt.status}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason}</p>
+                                                        <p class="text-xs text-gray-400 mt-1">${apt.appointment_number}</p>
+                                                    </div>
+                                                `).join('') : 
                             '<p class="text-center text-gray-500 py-8">No appointments scheduled for this date</p>'
                         }
                     </div>

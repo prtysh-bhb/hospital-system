@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\doctor;
 
 use App\Http\Controllers\Controller;
-use App\Services\doctore\CalenderService;
+use App\Services\Doctor\CalendarService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CalendarController extends Controller
 {
-    protected CalenderService $calendarService;
+    protected CalendarService $calendarService;
 
-    public function __construct(CalenderService $calendarService)
+    public function __construct(CalendarService $calendarService)
     {
         $this->calendarService = $calendarService;
     }
@@ -95,5 +95,46 @@ class CalendarController extends Controller
             'date' => Carbon::parse($date)->format('F d, Y'),
             'appointments' => $appointments,
         ]);
+    }
+
+    /**
+     * Update weekly schedule (AJAX)
+     */
+    public function updateSchedule(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'schedules' => 'required|array',
+                'schedules.*.day_of_week' => 'required|integer|between:0,6',
+                'schedules.*.is_available' => 'required|boolean',
+                'schedules.*.start_time' => 'nullable|date_format:H:i',
+                'schedules.*.end_time' => 'nullable|date_format:H:i',
+                'schedules.*.slot_duration' => 'nullable|integer|min:5',
+            ]);
+
+            $result = $this->calendarService->updateSchedule($validated['schedules']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Schedule updated successfully',
+                'schedule' => $result,
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Schedule update error: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update schedule',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
     }
 }
