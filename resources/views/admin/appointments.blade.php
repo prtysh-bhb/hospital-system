@@ -98,8 +98,6 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     @push('scripts')
         <script>
             document.addEventListener("DOMContentLoaded", function() {
@@ -188,18 +186,20 @@
                                 </td>
                                 <td class="px-4 sm:px-6 py-3 sm:py-4">
                                     <div class="flex space-x-1 sm:space-x-2">
-                                        <button class="text-sky-600 hover:text-sky-800">
+                                        <button class="text-sky-600 hover:text-sky-800 view-appointment-btn" data-id="${app.id}">
                                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </button>
-                                        <button class="text-amber-600 hover:text-amber-800">
+                                        <button class="text-amber-600 hover:text-amber-800 edit-appointment-btn" 
+                                            href="javascript:;" 
+                                            data-id="${app.id}">
                                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
-                                        <button class="text-red-600 hover:text-red-800">
+                                        <button class="text-red-600 hover:text-red-800 delete-appointment-btn" data-id="${app.id}">
                                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
@@ -285,6 +285,319 @@
                 document.querySelector("#paginationContainer").innerHTML = paginationHTML;
                 document.querySelector("#paginationInfo").innerHTML =
                     `Showing <span class="font-medium">${data.from}</span> to <span class="font-medium">${data.to}</span> of <span class="font-medium">${data.total}</span> results`;
+            }
+        </script>
+        <script>
+            // Handling the click event for the View button
+            $('body').on('click', '.view-appointment-btn', function() {
+                var appointmentId = $(this).data('id');
+                $.ajax({
+                    url: "{{ route('admin.view-appointment', ['id' => 'ID_PLACEHOLDER']) }}".replace(
+                        'ID_PLACEHOLDER', appointmentId),
+                    type: 'GET',
+                    success: function(response) {
+                        if (response.data) {
+                            // Load view template
+                            loadViewAppointmentTemplate(response.data);
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Error: ", error);
+                        toastr.error('Failed to load appointment details');
+                    }
+                });
+            });
+
+            // Handling the click event for the Edit button
+            $('body').on('click', '.edit-appointment-btn', function() {
+                var appointmentId = $(this).data('id');
+                $.ajax({
+                    url: "{{ route('admin.getappointment-modal') }}",
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    data: {
+                        appointment_id: appointmentId
+                    },
+                    success: function(data) {
+                        $('.addmodalbody').html(data);
+                        $('.add_modal').removeClass('hidden');
+
+                        // Initialize Select2 for the edit form
+                        initializeEditFormSelects();
+
+                        // Handle form submission
+                        $('#editAppointmentForm').on('submit', function(e) {
+                            e.preventDefault();
+                            submitEditAppointmentForm();
+                        });
+                    },
+                    error: function(error) {
+                        console.error("Error: ", error);
+                        toastr.error('Failed to load appointment details');
+                    }
+                });
+            });
+
+            // Handling the click event for the Delete button
+            $('body').on('click', '.delete-appointment-btn', function() {
+                var appointmentId = $(this).data('id');
+
+                if (confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
+                    $.ajax({
+                        url: "{{ route('admin.delete-appointment') }}",
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        data: {
+                            appointment_id: appointmentId
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                toastr.success(response.msg);
+                                setTimeout(function() {
+                                    loadAppointments(1);
+                                }, 500);
+                            } else {
+                                toastr.error(response.msg);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            try {
+                                if (xhr.status === 422) {
+                                    let errors = xhr.responseJSON.errors;
+                                    Object.keys(errors).forEach(function(key) {
+                                        toastr.error(errors[key][0]);
+                                    });
+                                } else {
+                                    toastr.error("An error occurred: " + error);
+                                }
+                            } catch (e) {
+                                toastr.error("A server error occurred.");
+                                console.error(e);
+                            }
+                        }
+                    });
+                }
+            });
+
+            function loadViewAppointmentTemplate(appointment) {
+                var html = `
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Appointment ID</label>
+                                <p class="text-sm sm:text-base font-semibold text-gray-800">${appointment.appointment_number}</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Status</label>
+                                <p class="text-sm sm:text-base">
+                                    <span class="px-3 py-1 text-xs font-medium ${getStatusColor(appointment.status)} rounded-full">
+                                        ${formatLabel(appointment.status)}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-4">
+                            <h4 class="font-semibold text-gray-700 mb-3">Patient Information</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Patient Name</label>
+                                    <p class="text-sm sm:text-base text-gray-800">${appointment.patient.first_name} ${appointment.patient.last_name}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Phone</label>
+                                    <p class="text-sm sm:text-base text-gray-800">${appointment.patient.phone || 'N/A'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-4">
+                            <h4 class="font-semibold text-gray-700 mb-3">Doctor Information</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Doctor Name</label>
+                                    <p class="text-sm sm:text-base text-gray-800">Dr. ${appointment.doctor.first_name} ${appointment.doctor.last_name}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Specialty</label>
+                                    <p class="text-sm sm:text-base text-gray-800">${appointment.doctor.doctor_profile.specialty.name}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-4">
+                            <h4 class="font-semibold text-gray-700 mb-3">Appointment Details</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Date</label>
+                                    <p class="text-sm sm:text-base text-gray-800">${appointment.formatted_date}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Time</label>
+                                    <p class="text-sm sm:text-base text-gray-800">${appointment.formatted_time}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Type</label>
+                                    <p class="text-sm sm:text-base">
+                                        <span class="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                                            ${formatLabel(appointment.appointment_type)}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-4">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Reason for Visit</label>
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                <p class="text-sm text-gray-700">${appointment.reason_for_visit}</p>
+                            </div>
+                        </div>
+
+                        ${appointment.notes ? `
+                                                <div class="border-t pt-4">
+                                                    <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Additional Notes</label>
+                                                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                                        <p class="text-sm text-gray-700">${appointment.notes}</p>
+                                                    </div>
+                                                </div>
+                                                ` : ''}
+
+                        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                            <button type="button" onclick="closeEditModal()"
+                                class="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                                Close
+                            </button>
+                            <button type="button" onclick="editAppointmentFromView(${appointment.id})"
+                                class="px-6 py-2 text-white bg-sky-600 rounded-lg hover:bg-sky-700">
+                                Edit Appointment
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                $('.addmodalbody').html(html);
+                $('.add_modal').removeClass('hidden');
+            }
+
+            function editAppointmentFromView(appointmentId) {
+                $.ajax({
+                    url: "{{ route('admin.getappointment-modal') }}",
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    data: {
+                        appointment_id: appointmentId
+                    },
+                    success: function(data) {
+                        $('.addmodalbody').html(data);
+
+                        // Initialize Select2 for the edit form
+                        initializeEditFormSelects();
+
+                        // Handle form submission
+                        $('#editAppointmentForm').on('submit', function(e) {
+                            e.preventDefault();
+                            submitEditAppointmentForm();
+                        });
+                    },
+                    error: function(error) {
+                        console.error("Error: ", error);
+                        toastr.error('Failed to load appointment details');
+                    }
+                });
+            }
+
+            function initializeEditFormSelects() {
+                // Initialize Select2 for edit form fields
+                $('#edit_doctor_select').select2({
+                    placeholder: 'Search or select doctor...',
+                    allowClear: false,
+                    width: '100%'
+                });
+
+                $('#edit_type_select').select2({
+                    placeholder: 'Select type...',
+                    allowClear: false,
+                    width: '100%'
+                });
+
+                $('#edit_select_patient').select2({
+                    placeholder: 'Select Patient',
+                    allowClear: false,
+                    width: '100%'
+                });
+            }
+
+            function submitEditAppointmentForm() {
+                var formData = {
+                    appointment_id: $('#appointment_id').val(),
+                    patient_id: $('#edit_select_patient').val(),
+                    doctor_id: $('#edit_doctor_select').val(),
+                    appointment_date: $('#edit_appointment_date').val(),
+                    appointment_time: $('#edit_appointment_time').val(),
+                    appointment_type: $('#edit_type_select').val(),
+                    reason_for_visit: $('#edit_reason_for_visit').val(),
+                    notes: $('#edit_notes').val(),
+                    status: $('#edit_status').val()
+                };
+
+                const submitBtn = $('#editAppointmentForm').find('button[type="submit"]');
+                const originalText = submitBtn.html();
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Updating...');
+
+                $.ajax({
+                    url: "{{ route('admin.update-appointment') }}",
+                    type: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    data: formData,
+                    success: function(response) {
+                        try {
+                            if (response.status == 200) {
+                                toastr.success(response.msg);
+                                closeEditModal();
+                                setTimeout(function() {
+                                    loadAppointments(1);
+                                }, 500);
+                            } else {
+                                toastr.error(response.msg);
+                                submitBtn.prop('disabled', false).html(originalText);
+                            }
+                        } catch (e) {
+                            toastr.error("An error occurred while processing the response.");
+                            console.error(e);
+                            submitBtn.prop('disabled', false).html(originalText);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        try {
+                            if (xhr.status === 422) {
+                                let errors = xhr.responseJSON.errors;
+                                Object.keys(errors).forEach(function(key) {
+                                    toastr.error(errors[key][0]);
+                                });
+                            } else {
+                                toastr.error("An error occurred: " + error);
+                            }
+                        } catch (e) {
+                            toastr.error("A server error occurred.");
+                            console.error(e);
+                        }
+                        submitBtn.prop('disabled', false).html(originalText);
+                    }
+                });
+            }
+
+            function closeEditModal() {
+                $('.add_modal').addClass('hidden');
+                $('.addmodalbody').html('');
             }
         </script>
     @endpush
