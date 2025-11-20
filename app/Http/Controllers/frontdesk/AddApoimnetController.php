@@ -91,6 +91,7 @@ class AddApoimnetController extends Controller
 
     public function store(Request $request)
     {
+     
         $validated = $request->validate([
             'patient_id' => 'nullable|exists:users,id',
             'first_name' => 'required_without:patient_id|string|min:2|max:255',
@@ -116,7 +117,7 @@ class AddApoimnetController extends Controller
             'notes' => $validated['notes'] ?? null,
             'booked_via' => 'frontdesk',
         ];
-
+       
         // If patient_id exists, use existing patient
         if (! empty($validated['patient_id'])) {
             $patient = User::find($validated['patient_id']);
@@ -141,8 +142,7 @@ class AddApoimnetController extends Controller
                 'address' => $validated['address'] ?? null,
             ]);
         }
-
-        $result = $this->bookingService->createAppointment($appointmentData);
+        $result = $this->bookingService->createAppointment($appointmentData); 
 
         if ($result['success']) {
             return response()->json([
@@ -152,7 +152,6 @@ class AddApoimnetController extends Controller
                 'appointment_number' => $result['appointment_number'],
             ]);
         }
-
         return response()->json([
             'success' => false,
             'message' => 'Failed to create appointment',
