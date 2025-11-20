@@ -6,16 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\DoctorSchedule;
 use App\Models\User;
 use App\Services\public\BookAppointmentService;
+use App\Services\AppointmentSlotService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AddApoimnetController extends Controller
 {
     protected $bookingService;
+    protected $slotService;
 
-    public function __construct(BookAppointmentService $bookingService)
+    public function __construct(BookAppointmentService $bookingService, AppointmentSlotService $slotService)
     {
         $this->bookingService = $bookingService;
+        $this->slotService = $slotService;
     }
 
     public function index()
@@ -81,34 +84,9 @@ class AddApoimnetController extends Controller
         $doctorId = $request->get('doctor_id');
         $date = $request->get('date');
 
-        if (! $doctorId || ! $date) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Doctor and date are required',
-            ]);
-        }
+        $result = $this->slotService->getAvailableSlots($doctorId, $date);
 
-        $weekday = Carbon::parse($date)->dayOfWeek;
-
-        $schedule = DoctorSchedule::where('doctor_id', $doctorId)
-            ->where('day_of_week', $weekday)
-            ->first();
-
-        $slots = [];
-        if ($schedule) {
-            $start = Carbon::parse($schedule->start_time);
-            $end = Carbon::parse($schedule->end_time);
-
-            while ($start < $end) {
-                $slots[] = $start->format('h:i A');
-                $start->addMinutes($schedule->slot_duration);
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'slots' => $slots,
-        ]);
+        return response()->json($result);
     }
 
     public function store(Request $request)

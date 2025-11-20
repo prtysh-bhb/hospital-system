@@ -10,14 +10,18 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\public\BookAppointmentService;
+use App\Services\AppointmentSlotService;
 
 
 class BookAppointmentController extends Controller
 {
     protected $service;
-    public function __construct(BookAppointmentService $service)
+    protected $slotService;
+
+    public function __construct(BookAppointmentService $service, AppointmentSlotService $slotService)
     {
         $this->service = $service;
+        $this->slotService = $slotService;
     }
     public function index(Request $request)
     {
@@ -150,30 +154,10 @@ class BookAppointmentController extends Controller
         $doctor_id = session('doctor_id');
         $date = $request->date;
 
-        if (!$doctor_id || !$date) {
-            return response()->json(['slots' => []]);
-        }
-
-        $weekday = Carbon::parse($date)->dayOfWeek;
-
-        $schedule = DoctorSchedule::where('doctor_id', $doctor_id)
-            ->where('day_of_week', $weekday)
-            ->first();
-
-        $slots = [];
-
-        if ($schedule) {
-            $start = Carbon::parse($schedule->start_time);
-            $end = Carbon::parse($schedule->end_time);
-
-            while ($start < $end) {
-                $slots[] = $start->format('h:i A');
-                $start->addMinutes($schedule->slot_duration);
-            }
-        }
+        $result = $this->slotService->getAvailableSlots($doctor_id, $date);
 
         return response()->json([
-            'slots' => $slots
+            'slots' => $result['slots']
         ]);
     }
     public function store(Request $request)

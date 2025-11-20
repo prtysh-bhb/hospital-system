@@ -82,10 +82,12 @@
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
                             placeholder="Enter full address..."></textarea>
                     </div>
+                </div>
 
-
-                    <!-- Appointment fields (kept outside patientForm so hiding patientForm won't hide them) -->
-                    <div id="appointmentFields" class="mt-4">
+                <!-- Appointment Details Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mt-6">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Appointment Details</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         <!-- Doctor Selection -->
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Select Doctor *</label>
@@ -102,27 +104,27 @@
                             </select>
                         </div>
 
-                        <!-- Date & Time -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mt-4">
-                            <div>
-                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Date
-                                    *</label>
-                                <input type="date" name="appointment_date" id="appointment_date" required
-                                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
-                            </div>
-                            <div>
-                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Time
-                                    *</label>
-                                <input type="time" name="appointment_time" id="appointment_time" required
-                                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
-                            </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Date
+                                *</label>
+                            <input type="date" name="appointment_date" id="appointment_date" required
+                                min="{{ date('Y-m-d') }}"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         </div>
 
-                        <!-- Appointment Type -->
-                        <div class="mt-4">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Time
+                                *</label>
+                            <select name="appointment_time" id="appointment_time" required
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                                <option value="">Select date first</option>
+                            </select>
+                        </div>
+
+                        <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Type
                                 *</label>
-                            <select id="type_select" name="appointment_type"
+                            <select id="type_select" name="appointment_type" required
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                                 <option value="">Select type...</option>
                                 <option value="consultation">Consultation</option>
@@ -132,44 +134,41 @@
                             </select>
                         </div>
 
-                        <!-- Reason -->
-                        <div class="mt-4">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status *</label>
+                            <select name="status" id="status" required
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                            </select>
+                        </div>
+
+                        <div class="col-span-1 md:col-span-2">
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason for Visit
                                 *</label>
                             <textarea name="reason_for_visit" id="reason_for_visit" rows="3" required
-                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"></textarea>
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
+                                placeholder="Enter reason for visit..."></textarea>
                         </div>
 
-                        <!-- Notes -->
-                        <div class="mt-4">
+                        <div class="col-span-1 md:col-span-2">
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
                             <textarea name="notes" id="notes" rows="2"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
                                 placeholder="Enter any additional notes..."></textarea>
                         </div>
-
-                        <!-- Payment Status -->
-                        <div class="mt-4">
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Payment Status</label>
-                            <select name="payment_status" id="payment_status"
-                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
-                                <option value="unpaid">Unpaid</option>
-                                <option value="paid">Paid</option>
-                            </select>
-                        </div>
                     </div>
                 </div>
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4 pt-4">
+                    <a href="{{ route('admin.appointments') }}"
+                        class="px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 text-center">Cancel</a>
+                    <button type="submit"
+                        class="px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700">Create
+                        Appointment</button>
+                </div>
+            </form>
         </div>
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4 pt-4">
-            <a href="{{ route('admin.appointments') }}"
-                class="px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 text-center">Cancel</a>
-            <button type="submit"
-                class="px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700">Create
-                Appointment</button>
-        </div>
-        </form>
-    </div>
     </div>
 
     @push('scripts')
@@ -180,8 +179,12 @@
                     var pid = $('#select_patient').val();
                     if (pid && pid !== '') {
                         $('#patientForm').hide();
+                        // Remove required attribute from hidden fields to prevent validation errors
+                        $('#patientForm input, #patientForm select, #patientForm textarea').prop('required', false);
                     } else {
                         $('#patientForm').show();
+                        // Add back required attribute when showing the form
+                        $('#first_name, #last_name, #email, #phone, #date_of_birth, #gender').prop('required', true);
                     }
                 }
 
@@ -218,6 +221,92 @@
                 $('#createNewPatientBtn').on('click', function() {
                     $('#select_patient').val(null).trigger('change');
                     $('#patientForm').show();
+                });
+
+                // Load available time slots when doctor and date are selected
+                function loadAvailableSlots() {
+                    const doctorId = $('#doctor_select').val();
+                    const date = $('#appointment_date').val();
+                    const timeSelect = $('#appointment_time');
+
+                    if (!doctorId || !date) {
+                        timeSelect.html('<option value="">Select doctor and date first</option>');
+                        return;
+                    }
+
+                    timeSelect.html('<option value="">Loading slots...</option>').prop('disabled', true);
+
+                    $.ajax({
+                        url: '{{ route('admin.get-available-slots') }}',
+                        method: 'GET',
+                        data: {
+                            doctor_id: doctorId,
+                            date: date
+                        },
+                        success: function(response) {
+                            timeSelect.prop('disabled', false);
+                            if (response.success && response.slots && response.slots.length > 0) {
+                                let options = '<option value="">Select Time</option>';
+                                const selectedDate = new Date(date);
+                                const today = new Date();
+                                const isToday = selectedDate.toDateString() === today.toDateString();
+                                const currentTime = today.getHours() * 60 + today.getMinutes();
+
+                                response.slots.forEach(function(slot) {
+                                    let isPast = false;
+
+                                    if (isToday) {
+                                        // Parse time from slot (format: "HH:MM AM/PM" or "HH:MM")
+                                        const timeMatch = slot.match(
+                                            /(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+                                        if (timeMatch) {
+                                            let hours = parseInt(timeMatch[1]);
+                                            const minutes = parseInt(timeMatch[2]);
+                                            const meridiem = timeMatch[3];
+
+                                            // Convert to 24-hour format if AM/PM present
+                                            if (meridiem) {
+                                                if (meridiem.toUpperCase() === 'PM' && hours !==
+                                                    12) {
+                                                    hours += 12;
+                                                } else if (meridiem.toUpperCase() === 'AM' &&
+                                                    hours === 12) {
+                                                    hours = 0;
+                                                }
+                                            }
+
+                                            const slotTime = hours * 60 + minutes;
+                                            isPast = slotTime <= currentTime;
+                                        }
+                                    }
+
+                                    if (!isPast) {
+                                        options += `<option value="${slot}">${slot}</option>`;
+                                    }
+                                });
+
+                                if (options === '<option value="">Select Time</option>') {
+                                    timeSelect.html(
+                                        '<option value="">No available slots remaining for today</option>'
+                                        );
+                                } else {
+                                    timeSelect.html(options);
+                                }
+                            } else {
+                                timeSelect.html(
+                                    '<option value="">No slots available for this date</option>');
+                            }
+                        },
+                        error: function() {
+                            timeSelect.html('<option value="">Error loading slots</option>').prop(
+                                'disabled', false);
+                        }
+                    });
+                }
+
+                // Trigger slot loading when doctor or date changes
+                $('#doctor_select, #appointment_date').on('change', function() {
+                    loadAvailableSlots();
                 });
 
                 $('#appointmentForm').on('submit', function(e) {

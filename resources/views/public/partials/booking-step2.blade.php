@@ -127,8 +127,44 @@
                 {{-- TIME SLOTS --}}
                 <label class="block text-sm font-medium text-gray-700 mb-3">Available Time Slots</label>
 
+                @php
+                    $now = \Carbon\Carbon::now();
+                    $isToday = $selectedDate === \Carbon\Carbon::today()->format('Y-m-d');
+                    $currentTime = $now->hour * 60 + $now->minute;
+                    $availableSlots = [];
+
+                    foreach ($slots as $slot) {
+                        $isPast = false;
+
+                        if ($isToday) {
+                            // Parse time from slot
+                            if (preg_match('/(\d{1,2}):(\d{2})\s*(AM|PM)?/i', $slot, $matches)) {
+                                $hours = (int) $matches[1];
+                                $minutes = (int) $matches[2];
+                                $meridiem = $matches[3] ?? null;
+
+                                // Convert to 24-hour format if AM/PM present
+                                if ($meridiem) {
+                                    if (strtoupper($meridiem) === 'PM' && $hours !== 12) {
+                                        $hours += 12;
+                                    } elseif (strtoupper($meridiem) === 'AM' && $hours === 12) {
+                                        $hours = 0;
+                                    }
+                                }
+
+                                $slotTime = $hours * 60 + $minutes;
+                                $isPast = $slotTime <= $currentTime;
+                            }
+                        }
+
+                        if (!$isPast) {
+                            $availableSlots[] = $slot;
+                        }
+                    }
+                @endphp
+
                 <div class="grid grid-cols-3 md:grid-cols-4 gap-2">
-                    @forelse ($slots as $slot)
+                    @forelse ($availableSlots as $slot)
                         <label class="cursor-pointer slot-option">
                             <input type="radio" name="slot" value="{{ $slot }}"
                                 class="hidden peer slot-radio">
@@ -141,7 +177,8 @@
                             </div>
                         </label>
                     @empty
-                        <p class="text-red-500 text-sm">No slots available</p>
+                        <p class="text-red-500 text-sm">
+                            {{ $isToday ? 'No available slots remaining for today' : 'No slots available' }}</p>
                     @endforelse
                 </div>
 

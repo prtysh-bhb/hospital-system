@@ -5,16 +5,38 @@ namespace App\Services\public;
 use App\Models\Appointment;
 use App\Models\PatientProfile;
 use App\Models\User;
+use App\Services\AppointmentSlotService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class BookAppointmentService
 {
+    protected $slotService;
+
+    public function __construct(AppointmentSlotService $slotService)
+    {
+        $this->slotService = $slotService;
+    }
+
     public function createAppointment(array $data)
     {
         try {
             DB::beginTransaction();
+
+            // Validate if the time slot is available before creating appointment
+            $slotValidation = $this->slotService->validateAppointmentTime(
+                $data['doctor_id'],
+                $data['appointment_date'],
+                $data['appointment_time']
+            );
+
+            if (! $slotValidation['valid']) {
+                return [
+                    'success' => false,
+                    'message' => $slotValidation['message'],
+                ];
+            }
 
             // Check if user exists by email or phone
             $user = User::where('email', $data['email'])

@@ -384,13 +384,51 @@
                     timeSelect.disabled = false;
 
                     if (data.success && data.slots && data.slots.length > 0) {
+                        const selectedDate = new Date(date);
+                        const today = new Date();
+                        const isToday = selectedDate.toDateString() === today.toDateString();
+                        const currentTime = today.getHours() * 60 + today.getMinutes();
+
                         timeSelect.innerHTML = '<option value="">Select Time</option>';
+                        let availableSlots = 0;
+
                         data.slots.forEach(slot => {
-                            const option = document.createElement('option');
-                            option.value = slot;
-                            option.textContent = slot;
-                            timeSelect.appendChild(option);
+                            let isPast = false;
+
+                            if (isToday) {
+                                // Parse time from slot (format: "HH:MM AM/PM" or "HH:MM")
+                                const timeMatch = slot.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+                                if (timeMatch) {
+                                    let hours = parseInt(timeMatch[1]);
+                                    const minutes = parseInt(timeMatch[2]);
+                                    const meridiem = timeMatch[3];
+
+                                    // Convert to 24-hour format if AM/PM present
+                                    if (meridiem) {
+                                        if (meridiem.toUpperCase() === 'PM' && hours !== 12) {
+                                            hours += 12;
+                                        } else if (meridiem.toUpperCase() === 'AM' && hours === 12) {
+                                            hours = 0;
+                                        }
+                                    }
+
+                                    const slotTime = hours * 60 + minutes;
+                                    isPast = slotTime <= currentTime;
+                                }
+                            }
+
+                            if (!isPast) {
+                                const option = document.createElement('option');
+                                option.value = slot;
+                                option.textContent = slot;
+                                timeSelect.appendChild(option);
+                                availableSlots++;
+                            }
                         });
+
+                        if (availableSlots === 0) {
+                            timeSelect.innerHTML = '<option value="">No available slots remaining for today</option>';
+                        }
                     } else {
                         timeSelect.innerHTML = '<option value="">No slots available for this date</option>';
                     }
