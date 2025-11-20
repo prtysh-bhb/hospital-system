@@ -8,9 +8,51 @@
     <title>@yield('title', 'Admin Dashboard') - MediCare HMS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom styles to match the design */
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            height: 2.5rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #6b7280;
+            line-height: 1.5rem;
+            padding-left: 0;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 2.5rem;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #6b7280;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .select2-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Hide clear button for patient select */
+        #patient-select+.select2-container .select2-selection__clear {
+            display: none;
         }
     </style>
     @stack('styles')
@@ -125,6 +167,38 @@
             @yield('content')
         </div>
     </main>
+
+    <!-- Modal for Add/Edit Appointment -->
+    <div class="add_modal hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <!-- Modal Overlay -->
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onclick="closeEditModal()"></div>
+
+            <!-- Modal Container -->
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full relative z-50 max-h-[90vh] overflow-y-auto">
+                <!-- Modal Header -->
+                <div
+                    class="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-800">Appointment Details</h3>
+                    <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="addmodalbody p-4 sm:p-6">
+                    <!-- Form will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
         // Mobile menu toggle

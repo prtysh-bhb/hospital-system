@@ -49,7 +49,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
     Route::get('/appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments.list');
-    Route::get('/add-appointment', [AppointmentController::class, 'addAppointments'])->name('add-appointment');
+    Route::get('/appointments-add', [AppointmentController::class, 'addAppointments'])->name('add-appointment');
+    Route::post('/appointments/store', [AppointmentController::class, 'storeAppointment'])->name('store-appointment');
+    Route::post('/appointments-modal', [AppointmentController::class, 'getAppointmentsmodal'])->name('getappointment-modal');
+    Route::put('/appointments/update', [AppointmentController::class, 'updateAppointment'])->name('update-appointment');
+    Route::delete('/appointments/delete', [AppointmentController::class, 'deleteAppointment'])->name('delete-appointment');
+    Route::get('/appointments/{id}', [AppointmentController::class, 'viewAppointment'])->name('view-appointment');
+
 
     // Route::get('/appointments/add', function () {
     //     return view('admin.add-appointment');
