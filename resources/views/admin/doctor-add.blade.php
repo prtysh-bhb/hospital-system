@@ -5,7 +5,7 @@
 @section('page-title', isset($doctor) ? 'Edit Doctor' : 'Add New Doctor')
 
 @section('content')
-    <form action="{{ isset($doctor) ? route('admin.doctor-update', $doctor->user->id) : route('admin.doctor-store') }}"
+    <form action="{{ isset($doctor) ? route('admin.doctors.update', $doctor->user->id) : route('admin.doctors.store') }}"
         method="POST" enctype="multipart/form-data" class="max-w-4xl mx-auto" id="doctorForm">
         @csrf
         @if (isset($doctor))
@@ -14,6 +14,16 @@
         <!-- Personal Details -->
         <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
             <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6">Personal Details</h3>
+            @if($errors->any())
+            <div class="p-4 bg-red-100 text-red-700 rounded-lg mb-4">
+                <strong>Validation failed:</strong>
+                <ul class="mt-2 text-sm">
+                    @foreach($errors->all() as $error)
+                        <li>- {{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
 
@@ -200,8 +210,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">License Number *</label>
                     <input type="text" name="license_number"
-                        value="{{ old('license_number', $doctor->license_number ?? '') }}"
-                        placeholder="MCI12345" minlength="3" maxlength="50"
+                        value="{{ old('license_number', $doctor->license_number ?? '') }}" placeholder="MCI12345"
+                        minlength="3" maxlength="50"
                         class="w-full px-4 py-2 border {{ $errors->has('license_number') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
                     @error('license_number')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -325,10 +335,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('doctorForm');
-            
+
             // Define required fields
-            const requiredFields = [
-                'first_name', 'last_name', 'gender', 'email', 'phone', 
+           const requiredFields = [
+                'first_name', 'last_name', 'gender', 'email', 'phone',
                 'date_of_birth', 'address', 'specialty_id', 'qualification',
                 'experience_years', 'license_number', 'consultation_fee', 'slot_duration'
             ];
@@ -397,7 +407,8 @@
                     errorMessage = `${getFieldLabel(field)} is required`;
                 }
                 // Check minlength for text inputs
-                else if (field.hasAttribute('minlength') && value.length < parseInt(field.getAttribute('minlength'))) {
+                else if (field.hasAttribute('minlength') && value.length < parseInt(field.getAttribute(
+                        'minlength'))) {
                     errorMessage =
                         `${getFieldLabel(field)} must be at least ${field.getAttribute('minlength')} characters`;
                 }
@@ -413,7 +424,7 @@
                     }
                 }
                 // Check for select fields
-                else if (field.tagName === 'SELECT' && !value) {
+               else if (field.tagName === 'SELECT' && (value === "" || value === null)) {
                     errorMessage = `Please select ${getFieldLabel(field)}`;
                 }
                 // Check email format

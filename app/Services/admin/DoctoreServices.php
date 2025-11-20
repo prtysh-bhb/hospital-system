@@ -127,44 +127,73 @@ class DoctoreServices
                 'date_of_birth' => $data['date_of_birth'],
                 'gender' => $data['gender'],
                 'address' => $data['address'],
-                'status' => $data['status'],
             ];
 
-            if (isset($data['profile_image'])) {
-                $updateData['profile_image'] = $data['profile_image'];
+            // Only update status if provided
+            if (isset($data['status'])) {
+                $updateData['status'] = $data['status'];
             }
+
+            // if (isset($data['profile_image'])) {
+            //     $updateData['profile_image'] = $data['profile_image'];
+            // }
 
             $user->update($updateData);
 
             // Update doctor profile
             $doctorProfile = DoctorProfile::where('user_id', $id)->firstOrFail();
-            $doctorProfile->update([
+            $profileData = [
                 'specialty_id' => $data['specialty_id'],
                 'qualification' => $data['qualification'],
                 'experience_years' => $data['experience_years'],
                 'license_number' => $data['license_number'],
                 'consultation_fee' => $data['consultation_fee'],
                 'bio' => $data['languages'] ?? null,
-                'available_for_booking' => $data['available_for_booking'],
-            ]);
+            ];
 
-            // Delete existing schedules and recreate
-            DoctorSchedule::where('doctor_id', $id)->delete();
+            // Only update available_for_booking if provided
+            if (isset($data['available_for_booking'])) {
+                $profileData['available_for_booking'] = $data['available_for_booking'];
+            }
 
+            $doctorProfile->update($profileData);
+
+            // Update or create schedules
             if (! empty($data['schedules'])) {
+                // Get existing schedule days
+                $existingSchedules = DoctorSchedule::where('doctor_id', $id)
+                    ->pluck('day_of_week')
+                    ->toArray();
+
+                // Track which days are being updated
+                $updatedDays = [];
+
                 foreach ($data['schedules'] as $dayOfWeek => $schedule) {
                     if (! empty($schedule['enabled'])) {
-                        DoctorSchedule::create([
-                            'doctor_id' => $id,
-                            'day_of_week' => $dayOfWeek,
-                            'start_time' => $schedule['start_time'],
-                            'end_time' => $schedule['end_time'],
-                            'slot_duration' => $data['slot_duration'],
-                            'max_patients' => 20,
-                            'is_available' => true,
-                        ]);
+                        DoctorSchedule::updateOrCreate(
+                            [
+                                'doctor_id' => $id,
+                                'day_of_week' => $dayOfWeek,
+                            ],
+                            [
+                                'start_time' => $schedule['start_time'],
+                                'end_time' => $schedule['end_time'],
+                                'slot_duration' => $data['slot_duration'],
+                                'max_patients' => 20,
+                                'is_available' => true,
+                            ]
+                        );
+                        $updatedDays[] = $dayOfWeek;
                     }
                 }
+
+                // Delete schedules for days that were disabled
+                DoctorSchedule::where('doctor_id', $id)
+                    ->whereNotIn('day_of_week', $updatedDays)
+                    ->delete();
+            } else {
+                // If no schedules provided, delete all
+                DoctorSchedule::where('doctor_id', $id)->delete();
             }
 
             \DB::commit();
@@ -186,6 +215,7 @@ class DoctoreServices
 
             if (! $user || $user->role !== 'doctor') {
                 \Log::warning("Delete failed: User not found or not a doctor. ID: {$id}");
+
                 return false;
             }
 
@@ -199,7 +229,7 @@ class DoctoreServices
 
             // Soft delete user
             $userDeleted = $user->delete();
-            \Log::info("Deleted user {$id}: " . ($userDeleted ? 'success' : 'failed'));
+            \Log::info("Deleted user {$id}: ".($userDeleted ? 'success' : 'failed'));
 
             \DB::commit();
 

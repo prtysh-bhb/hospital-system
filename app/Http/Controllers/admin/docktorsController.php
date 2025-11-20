@@ -40,11 +40,11 @@ class docktorsController extends Controller
     public function create(Request $request)
     {
         $specialties = Specialty::where('status', 'active')->get();
-        
+
         if ($request->ajax()) {
             return view('admin.doctor-add', compact('specialties'));
         }
-        
+
         return view('admin.doctor-add', compact('specialties'));
     }
 
@@ -68,8 +68,8 @@ class docktorsController extends Controller
             'languages' => 'nullable|string|max:255',
             'schedules' => 'nullable|array',
             'schedules.*.enabled' => 'boolean',
-            'schedules.*.start_time' => 'required_if:schedules.*.enabled,true|date_format:H:i',
-            'schedules.*.end_time' => 'required_if:schedules.*.enabled,true|date_format:H:i|after:schedules.*.start_time',
+            'schedules.*.start_time' => 'nullable|date_format:H:i',
+            'schedules.*.end_time' => 'nullable|date_format:H:i',
         ], [
             'first_name.regex' => 'First name can only contain letters and spaces.',
             'first_name.min' => 'First name must be at least 2 characters.',
@@ -85,25 +85,38 @@ class docktorsController extends Controller
             'consultation_fee.max' => 'Consultation fee cannot exceed ₹100,000.',
         ]);
 
+        // Custom validation for schedule times
+        if (! empty($validated['schedules'])) {
+            foreach ($validated['schedules'] as $day => $schedule) {
+                if (! empty($schedule['enabled']) && isset($schedule['start_time']) && isset($schedule['end_time'])) {
+                    if (strtotime($schedule['end_time']) <= strtotime($schedule['start_time'])) {
+                        return back()->withInput()->withErrors([
+                            "schedules.{$day}.end_time" => 'End time must be after start time for this day.',
+                        ]);
+                    }
+                }
+            }
+        }
+
         // Handle profile image upload
         if ($request->hasFile('profile_image')) {
             $image = $request->file('profile_image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/doctors'), $imageName);
-            $validated['profile_image'] = 'uploads/doctors/' . $imageName;
+            $validated['profile_image'] = 'uploads/doctors/'.$imageName;
         }
 
         try {
             $doctor = $this->doctoreServices->createDoctor($validated);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Doctor added successfully!',
-                    'doctor' => $doctor
+                    'doctor' => $doctor,
                 ]);
             }
-            
+
             return redirect()->route('admin.doctors')
                 ->with('success', 'Doctor added successfully!');
         } catch (\Exception $e) {
@@ -111,10 +124,10 @@ class docktorsController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to add doctor. Please try again.',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ], 422);
             }
-            
+
             return back()->withInput()
                 ->with('error', 'Failed to add doctor. Please try again.');
         }
@@ -123,16 +136,18 @@ class docktorsController extends Controller
     public function edit(Request $request, $id)
     {
         $doctor = $this->doctoreServices->getDoctorById($id);
-        
-        if (!$doctor) {
+
+        if (! $doctor) {
             if ($request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Doctor not found.'], 404);
             }
+
             return redirect()->route('admin.doctors')
                 ->with('error', 'Doctor not found.');
         }
-        
+
         $specialties = Specialty::where('status', 'active')->get();
+
         return view('admin.doctor-add', compact('doctor', 'specialties'));
     }
 
@@ -142,8 +157,8 @@ class docktorsController extends Controller
         $rules = [
             'first_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
             'last_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,' . $id, 'not_regex:/^0+$/'],
+            'email' => 'required|email|unique:users,email,'.$id,
+            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,'.$id, 'not_regex:/^0+$/'],
             'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|in:male,female,other',
             'address' => 'required|string|min:10|max:500',
@@ -155,14 +170,13 @@ class docktorsController extends Controller
             'consultation_fee' => 'required|numeric|min:0|max:100000',
             'slot_duration' => 'required|integer|in:15,30,45,60',
             'languages' => 'nullable|string|max:255',
-            'status' => 'required|in:active,inactive',
-            'available_for_booking' => 'required|boolean',
+            'status' => 'nullable|in:active,inactive',
+            'available_for_booking' => 'nullable|boolean',
             'schedules' => 'nullable|array',
             'schedules.*.enabled' => 'boolean',
-            'schedules.*.start_time' => 'required_if:schedules.*.enabled,true|date_format:H:i',
-            'schedules.*.end_time' => 'required_if:schedules.*.enabled,true|date_format:H:i|after:schedules.*.start_time',
+            'schedules.*.start_time' => 'nullable|date_format:H:i',
+            'schedules.*.end_time' => 'nullable|date_format:H:i',
         ];
-
         $messages = [
             'first_name.regex' => 'First name can only contain letters and spaces.',
             'first_name.min' => 'First name must be at least 2 characters.',
@@ -177,15 +191,20 @@ class docktorsController extends Controller
             'experience_years.max' => 'Experience years cannot exceed 70.',
             'consultation_fee.max' => 'Consultation fee cannot exceed ₹100,000.',
         ];
-
+        
         $validated = $request->validate($rules, $messages);
-
-        // Handle profile image upload
-        if ($request->hasFile('profile_image')) {
-            $image = $request->file('profile_image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/doctors'), $imageName);
-            $validated['profile_image'] = 'uploads/doctors/' . $imageName;
+        
+        // Custom validation for schedule times
+        if (! empty($validated['schedules'])) {
+            foreach ($validated['schedules'] as $day => $schedule) {
+                if (! empty($schedule['enabled']) && isset($schedule['start_time']) && isset($schedule['end_time'])) {
+                    if (strtotime($schedule['end_time']) <= strtotime($schedule['start_time'])) {
+                        return back()->withInput()->withErrors([
+                            "schedules.{$day}.end_time" => 'End time must be after start time for this day.',
+                        ]);
+                    }
+                }
+            }
         }
 
         try {
@@ -195,21 +214,21 @@ class docktorsController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Doctor updated successfully!',
-                    'doctor' => $doctor
+                    'doctor' => $doctor,
                 ]);
-            }
-            
+            }        
             return redirect()->route('admin.doctors')
                 ->with('success', 'Doctor updated successfully!');
         } catch (\Exception $e) {
+            \Log::error('Doctor update failed: ' . $e->getMessage());
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to update doctor. Please try again.',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ], 422);
             }
-            
+
             return back()->withInput()
                 ->with('error', 'Failed to update doctor. Please try again.');
         }
@@ -224,20 +243,20 @@ class docktorsController extends Controller
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => true,
-                        'message' => 'Doctor deleted successfully!'
+                        'message' => 'Doctor deleted successfully!',
                     ]);
                 }
-                
+
                 return redirect()->route('admin.doctors')
                     ->with('success', 'Doctor deleted successfully!');
             } else {
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Failed to delete doctor. Please try again.'
+                        'message' => 'Failed to delete doctor. Please try again.',
                     ], 422);
                 }
-                
+
                 return redirect()->route('admin.doctors')
                     ->with('error', 'Failed to delete doctor. Please try again.');
             }
@@ -246,10 +265,10 @@ class docktorsController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'An error occurred while deleting the doctor.',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ], 500);
             }
-            
+
             return redirect()->route('admin.doctors')
                 ->with('error', 'An error occurred while deleting the doctor.');
         }

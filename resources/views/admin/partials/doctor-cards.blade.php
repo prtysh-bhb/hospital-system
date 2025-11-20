@@ -130,7 +130,7 @@
                     <button
                         class="flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm {{ $color['text'] }} border {{ $color['border'] }} rounded-lg {{ $color['hover-light'] }} font-medium">View
                         Details</button>
-                    <a href="{{ route('admin.doctor-edit', $doctor->user->id) }}"
+                    <a href="{{ route('admin.doctors.edit', $doctor->user->id) }}"
                         class="flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white {{ $color['bg'] }} rounded-lg {{ $color['hover-bg'] }} font-medium text-center">Edit</a>
                 </div>
                 <button data-doctor-id="{{ $doctor->user->id }}"

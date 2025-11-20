@@ -5,7 +5,7 @@
 @section('page-title', 'Doctors Management')
 
 @section('header-actions')
-    <a href="{{ route('admin.doctor-add') }}"
+    <a href="{{ route('admin.doctors.add') }}"
         class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium">+ Add
         Doctor</a>
 @endsection
