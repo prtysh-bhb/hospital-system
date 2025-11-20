@@ -1,18 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\admin\PetientController;
-use App\Http\Controllers\admin\docktorsController;
-use App\Http\Controllers\doctor\DoctorDashboarController;
-use App\Http\Controllers\public\BookAppointmentController;
-use App\Http\Controllers\admin\AppointmentController;
-use App\Http\Controllers\frontdesk\HistoryController;
-use App\Http\Controllers\frontdesk\PatientController;
 use App\Http\Controllers\admin\AdminDashboardController;
+use App\Http\Controllers\admin\AppointmentController;
+use App\Http\Controllers\admin\docktorsController;
+use App\Http\Controllers\admin\PetientController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\doctor\CalendarController;
+use App\Http\Controllers\doctor\DoctorDashboarController;
 use App\Http\Controllers\frontdesk\AddApoimnetController;
 use App\Http\Controllers\frontdesk\DoctoreScheduleController;
 use App\Http\Controllers\frontdesk\FrontDashboardController;
+use App\Http\Controllers\frontdesk\HistoryController;
+use App\Http\Controllers\frontdesk\PatientController;
+use App\Http\Controllers\public\BookAppointmentController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +48,7 @@ Route::get('/get-time-slots', [BookAppointmentController::class, 'getSlots'])->n
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-details', [AdminDashboardController::class, 'getDashboardDetails'])->name('dashboard.details');
-    
+
     // Route::get('/dashboard', function () {
     //     return view('admin.dashboard');
     // })->name('dashboard');
@@ -98,9 +99,10 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
         return view('doctor.appointment-details');
     })->name('appointment-details');
 
-    Route::get('/calendar', function () {
-        return view('doctor.calendar');
-    })->name('calendar');
+     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
+    Route::get('/calendar/data', [CalendarController::class, 'getCalendarData'])->name('calendar.data');
+    Route::get('/calendar/schedule', [CalendarController::class, 'getWeeklySchedule'])->name('calendar.schedule');
+    Route::get('/calendar/appointments', [CalendarController::class, 'getDateAppointments'])->name('calendar.appointments');
 });
 
 // Front Desk Routes

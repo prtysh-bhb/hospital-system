@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\doctore;
+namespace App\Services\Doctor;
 
 use App\Models\Appointment;
 use App\Models\User;
