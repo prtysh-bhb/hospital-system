@@ -19,7 +19,6 @@ class BookAppointmentController extends Controller
     {
         $this->service = $service;
     }
-
     public function index(Request $request)
     {
         $step = $request->get('step', 1);
@@ -146,9 +145,6 @@ class BookAppointmentController extends Controller
 
         return view('public.booking', compact('step', 'specialties', 'doctors', 'specialty_id'));
     }
-
-
-
     public function getSlots(Request $request)
     {
         $doctor_id = session('doctor_id');
@@ -180,10 +176,6 @@ class BookAppointmentController extends Controller
             'slots' => $slots
         ]);
     }
-
-
-
-
     public function store(Request $request)
     {
         if ($request->step == 1) {

@@ -35,10 +35,6 @@ Route::get('booking', [BookAppointmentController::class, 'index'])->name('bookin
 Route::post('booking', [BookAppointmentController::class, 'store'])->name('booking.store');
 Route::get('/get-time-slots', [BookAppointmentController::class, 'getSlots'])->name('get.time.slots');
 
-// Route::get('/booking', function () {
-//     return view('public.booking');
-// })->name('booking');
-
 // Admin Routes
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', function () {
