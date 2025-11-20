@@ -482,6 +482,10 @@
             document.getElementById('gender').value = patient.gender || '';
             document.getElementById('address').value = patient.address || '';
             console.log(patient.address);
+
+            // Hide patient form when existing patient is selected
+            document.getElementById('patientForm').classList.add('hidden');
+
             // Disable fields when existing patient is selected
             const fieldsToDisable = ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'gender', 'address'];
             fieldsToDisable.forEach(field => {
@@ -494,6 +498,9 @@
             selectedPatientId = null;
             document.getElementById('patient_id').value = '';
             document.getElementById('selectedPatientInfo').classList.add('hidden');
+
+            // Show patient form again
+            document.getElementById('patientForm').classList.remove('hidden');
 
             // Clear and enable all fields
             const fieldsToClear = ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'gender', 'address'];

@@ -9,6 +9,7 @@ use App\Http\Controllers\public\BookAppointmentController;
 use App\Http\Controllers\frontdesk\FrontDashboardController;
 use App\Http\Controllers\frontdesk\PatientController;
 use App\Http\Controllers\frontdesk\HistoryController;
+use App\Http\Controllers\frontdesk\DoctoreScheduleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -104,9 +105,7 @@ Route::prefix('frontdesk')->name('frontdesk.')->group(function () {
     Route::get('/add-appointment/available-slots', [AddApoimnetController::class, 'getAvailableSlots'])->name('add-appointment.available-slots');
     Route::post('/add-appointment/store', [AddApoimnetController::class, 'store'])->name('add-appointment.store');
 
-    Route::get('/doctor-schedule', function () {
-        return view('frontdesk.doctor-schedule');
-    })->name('doctor-schedule');
+    Route::get('/doctor-schedule', [DoctoreScheduleController::class, 'index'])->name('doctor-schedule');
 
     Route::get('/patients', [PatientController::class, 'index'])->name('patients');
     Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients.show');
