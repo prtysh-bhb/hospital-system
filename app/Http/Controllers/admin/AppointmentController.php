@@ -14,6 +14,11 @@ class AppointmentController extends Controller
         $doctors = User::where('role', 'doctor')->get();
         return view('admin.appointments', compact('doctors'));
     }
+    public function addAppointments()
+    {
+        $patients = User::where('role', 'patient')->get();
+        return view('admin.add-appointment', compact('patients'));
+    }
     public function getAppointments(Request $request)
     {
         $query = Appointment::with(['patient', 'doctor.doctorProfile.specialty']);
@@ -52,7 +57,4 @@ class AppointmentController extends Controller
             'data' => $appointments
         ]);
     }
-
-
-
 }
