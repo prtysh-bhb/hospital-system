@@ -12,20 +12,13 @@ class AppointmentController extends Controller
     public function index()
     {
         $doctors = User::where('role', 'doctor')->get();
-        // dd($doctors);
         return view('admin.appointments', compact('doctors'));
     }
-    // public function getAppointments()
-    // {
-    //     $appointments = Appointment::with(['patient', 'doctor.doctorProfile.specialty',  ])->orderBy('id', 'desc')->paginate(10);
-        
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => $appointments
-    //     ]);
-    // }
-
-
+    public function addAppointments()
+    {
+        $patients = User::where('role', 'patient')->get();
+        return view('admin.add-appointment', compact('patients'));
+    }
     public function getAppointments(Request $request)
     {
         $query = Appointment::with(['patient', 'doctor.doctorProfile.specialty']);
@@ -59,13 +52,9 @@ class AppointmentController extends Controller
         }
 
         $appointments = $query->orderBy('id', 'desc')->paginate(10);
-
         return response()->json([
             'success' => true,
             'data' => $appointments
         ]);
     }
-
-
-
 }

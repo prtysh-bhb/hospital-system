@@ -1,10 +1,12 @@
 <?php
 
-use App\Http\Controllers\admin\AppointmentController;
-use App\Http\Controllers\admin\docktorsController;
-use App\Http\Controllers\admin\PetientController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\admin\PetientController;
+use App\Http\Controllers\admin\docktorsController;
+use App\Http\Controllers\admin\AppointmentController;
+use App\Http\Controllers\frontend\AddApoimnetController;
 use App\Http\Controllers\public\BookAppointmentController;
+use App\Http\Controllers\frontend\FrontEndDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,26 +37,19 @@ Route::get('booking', [BookAppointmentController::class, 'index'])->name('bookin
 Route::post('booking', [BookAppointmentController::class, 'store'])->name('booking.store');
 Route::get('/get-time-slots', [BookAppointmentController::class, 'getSlots'])->name('get.time.slots');
 
-// Route::get('/booking', function () {
-//     return view('public.booking');
-// })->name('booking');
-
 // Admin Routes
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
 
-    route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
+    Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
     Route::get('/appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments.list');
+    Route::get('/add-appointment', [AppointmentController::class, 'addAppointments'])->name('add-appointment');
 
-    Route::get('/appointments/add', function () {
-        return view('admin.add-appointment');
-    })->name('add-appointment');
-
-    // Route::get('/doctors', function () {
-    //     return view('admin.doctors');
-    // })->name('doctors');
+    // Route::get('/appointments/add', function () {
+    //     return view('admin.add-appointment');
+    // })->name('add-appointment');
 
     Route::get('/doctors', [docktorsController::class, 'index'])->name('doctors');
 
@@ -97,14 +92,14 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
 
 // Front Desk Routes
 Route::prefix('frontdesk')->name('frontdesk.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\frontend\FrontEndDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/stats', [\App\Http\Controllers\frontend\FrontEndDashboardController::class, 'getDashboardStats'])->name('dashboard.stats');
+    Route::get('/dashboard', [FrontEndDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/stats', [FrontEndDashboardController::class, 'getDashboardStats'])->name('dashboard.stats');
 
-    Route::get('/add-appointment', [\App\Http\Controllers\admin\AddApoimnetController::class, 'index'])->name('add-appointment');
-    Route::get('/add-appointment/search-patient', [\App\Http\Controllers\admin\AddApoimnetController::class, 'searchPatient'])->name('add-appointment.search-patient');
-    Route::get('/add-appointment/doctors', [\App\Http\Controllers\admin\AddApoimnetController::class, 'getDoctors'])->name('add-appointment.doctors');
-    Route::get('/add-appointment/available-slots', [\App\Http\Controllers\admin\AddApoimnetController::class, 'getAvailableSlots'])->name('add-appointment.available-slots');
-    Route::post('/add-appointment/store', [\App\Http\Controllers\admin\AddApoimnetController::class, 'store'])->name('add-appointment.store');
+    Route::get('/add-appointment', [AddApoimnetController::class, 'index'])->name('add-appointment');
+    Route::get('/add-appointment/search-patient', [AddApoimnetController::class, 'searchPatient'])->name('add-appointment.search-patient');
+    Route::get('/add-appointment/doctors', [AddApoimnetController::class, 'getDoctors'])->name('add-appointment.doctors');
+    Route::get('/add-appointment/available-slots', [AddApoimnetController::class, 'getAvailableSlots'])->name('add-appointment.available-slots');
+    Route::post('/add-appointment/store', [AddApoimnetController::class, 'store'])->name('add-appointment.store');
 
     Route::get('/doctor-schedule', function () {
         return view('frontdesk.doctor-schedule');

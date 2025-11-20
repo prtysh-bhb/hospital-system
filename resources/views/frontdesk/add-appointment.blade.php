@@ -66,7 +66,7 @@
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
                         <input type="date" name="date_of_birth" id="date_of_birth" required
-                            max="{{ date('Y-m-d', strtotime('-1 day')) }}"
+                            max="{{ now()->subDay()->format('Y-m-d') }}"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                     </div>
                     <div>
@@ -388,19 +388,19 @@
             document.getElementById('last_name').value = lastName;
             document.getElementById('email').value = patient.email || '';
             document.getElementById('phone').value = patient.phone || '';
-
             if (patient.date_of_birth) {
-                document.getElementById('date_of_birth').value = patient.date_of_birth;
-            }
-            if (patient.gender) {
-                document.getElementById('gender').value = patient.gender;
+                const dob = patient.date_of_birth.split('T')[0]; // Extract only YYYY-MM-DD
+                document.getElementById('date_of_birth').value = dob;
             }
 
+            document.getElementById('gender').value = patient.gender || '';
+            document.getElementById('address').value = patient.address || '';
+            console.log(patient.address);
             // Disable fields when existing patient is selected
-            const fieldsToDisable = ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'gender'];
+            const fieldsToDisable = ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'gender', 'address'];
             fieldsToDisable.forEach(field => {
                 const element = document.getElementById(field);
-                if (element) element.disabled = true;
+                if (element) element.disabled = true;   
             });
         }
 

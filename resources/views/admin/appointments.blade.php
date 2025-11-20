@@ -129,87 +129,89 @@
                 if (filters.date) query += `&date=${filters.date}`;
                 if (filters.status) query += `&status=${filters.status}`;
 
-                fetch("{{ route('admin.appointments.list') }}" + query)
-                    .then(response => response.json())
-                    .then(res => {
-                        let data = res.data;
-                        let tbody = document.getElementById("appointmentsTableBody");
-                        tbody.innerHTML = "";
+                fetch("{{ route('admin.appointments.list') }}" + query).then(response => response.json()).then(res => {
+                    let data = res.data;
+                    let tbody = document.getElementById("appointmentsTableBody");
+                    tbody.innerHTML = "";
 
-                        if (data.data.length === 0) {
-                            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="text-center py-6 text-gray-500">No Appointments Found</td>
-                </tr>`;
-                            document.querySelector("#paginationContainer").innerHTML = '';
-                            document.querySelector("#paginationInfo").innerHTML = '';
-                            return;
-                        }
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="text-center py-6 text-gray-500">No Appointments Found</td>
+                            </tr>`;
+                        document.querySelector("#paginationContainer").innerHTML = '';
+                        document.querySelector("#paginationInfo").innerHTML = '';
+                        return;
+                    }
 
-                        data.data.forEach(app => {
-                            let row = `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3"><span class="text-sm font-medium text-sky-600">#APT${app.appointment_number}</span></td>
-                    <td class="px-4 py-3">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 font-semibold">
-                                ${app.patient.last_name.substring(0,2).toUpperCase()}
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-800">${app.patient.first_name} ${app.patient.last_name}</p>
-                                <p class="text-xs text-gray-500">${app.patient.phone}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-4 py-3 hidden md:table-cell">
-                        <p class="text-sm font-medium text-gray-800">${app.doctor.first_name} ${app.doctor.last_name}</p>
-                        <p class="text-xs text-gray-500">
-                            ${app.doctor.doctor_profile && app.doctor.doctor_profile.specialty 
-                                ? app.doctor.doctor_profile.specialty.name 
-                                : 'N/A'}
-                        </p>
-                    </td>
-                    <td class="px-4 py-3">
-                        <p class="text-sm text-gray-800">${app.formatted_date} , ${app.formatted_time}</p>
-                    </td>
-                    <td class="px-4 py-3 hidden lg:table-cell">
-                        <span class="px-3 py-1 text-xs font-medium ${getTypeColor(app.appointment_type)} rounded-full">
-                            ${formatLabel(app.appointment_type)}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3">
-                        <span class="px-3 py-1 text-xs font-medium ${getStatusColor(app.status)} rounded-full">
-                            ${formatLabel(app.status)}
-                        </span>
-                    </td>
-                    <td class="px-4 sm:px-6 py-3 sm:py-4">
-                        <div class="flex space-x-1 sm:space-x-2">
-                            <button class="text-sky-600 hover:text-sky-800">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                            </button>
-                            <button class="text-amber-600 hover:text-amber-800">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </button>
-                            <button class="text-red-600 hover:text-red-800">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>`;
-                            tbody.innerHTML += row;
-                        });
+                    data.data.forEach(app => {
+                        let patientFirstName = app.patient && app.patient.first_name ? app.patient.first_name :
+                            '';
+                        let patientLastName = app.patient && app.patient.last_name ? app.patient.last_name : '';
+                        let patientPhone = app.patient && app.patient.phone ? app.patient.phone : '';
 
-                        updatePagination(data);
+                        let doctorFirstName = app.doctor && app.doctor.first_name ? app.doctor.first_name : '';
+                        let doctorLastName = app.doctor && app.doctor.last_name ? app.doctor.last_name : '';
+                        let doctorSpecialty = app.doctor && app.doctor.doctor_profile && app.doctor
+                            .doctor_profile.specialty ? app.doctor.doctor_profile.specialty.name : 'N/A';
+
+                        let row = `
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3"><span class="text-sm font-medium text-sky-600">#APT${app.appointment_number}</span></td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 font-semibold">
+                                            ${patientLastName.substring(0, 2).toUpperCase()}
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-800">${patientFirstName} ${patientLastName}</p>
+                                            <p class="text-xs text-gray-500">${patientPhone}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 hidden md:table-cell">
+                                    <p class="text-sm font-medium text-gray-800">${doctorFirstName} ${doctorLastName}</p>
+                                    <p class="text-xs text-gray-500">${doctorSpecialty}</p>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <p class="text-sm text-gray-800">${app.formatted_date} , ${app.formatted_time}</p>
+                                </td>
+                                <td class="px-4 py-3 hidden lg:table-cell">
+                                    <span class="px-3 py-1 text-xs font-medium ${getTypeColor(app.appointment_type)} rounded-full">
+                                        ${formatLabel(app.appointment_type)}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-3 py-1 text-xs font-medium ${getStatusColor(app.status)} rounded-full">
+                                        ${formatLabel(app.status)}
+                                    </span>
+                                </td>
+                                <td class="px-4 sm:px-6 py-3 sm:py-4">
+                                    <div class="flex space-x-1 sm:space-x-2">
+                                        <button class="text-sky-600 hover:text-sky-800">
+                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                        <button class="text-amber-600 hover:text-amber-800">
+                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>`;
+                        tbody.innerHTML += row;
                     });
+                    updatePagination(data);
+                });
             }
-
 
             // Helper Functions
             function formatLabel(text) {
