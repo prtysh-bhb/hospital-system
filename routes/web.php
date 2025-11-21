@@ -4,15 +4,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\admin\PetientController;
 use App\Http\Controllers\admin\docktorsController;
-use App\Http\Controllers\doctor\DoctorDashboarController;
-use App\Http\Controllers\public\BookAppointmentController;
 use App\Http\Controllers\admin\AppointmentController;
 use App\Http\Controllers\frontdesk\HistoryController;
 use App\Http\Controllers\frontdesk\PatientController;
 use App\Http\Controllers\admin\AdminDashboardController;
+use App\Http\Controllers\doctor\DoctorDashboarController;
 use App\Http\Controllers\frontdesk\AddApoimnetController;
-use App\Http\Controllers\frontdesk\DoctoreScheduleController;
+use App\Http\Controllers\public\BookAppointmentController;
+use App\Http\Controllers\doctor\DoctorAppointmentController;
 use App\Http\Controllers\frontdesk\FrontDashboardController;
+use App\Http\Controllers\frontdesk\DoctoreScheduleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,9 +95,11 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
         return view('doctor.appointments');
     })->name('appointments');
 
-    Route::get('/appointments/{id}', function () {
-        return view('doctor.appointment-details');
-    })->name('appointment-details');
+    Route::get('appointments', [DoctorAppointmentController::class, 'index'])->name('appointments');
+    Route::get('appointment-details/{id}', [DoctorAppointmentController::class, 'doctorAppointmentDetails'])->name('appointment-details');
+    Route::get('appointment-data', [DoctorAppointmentController::class, 'doctorAppointmentData'])->name('appointments.data');
+    Route::post('appointments/{id}/complete', [DoctorAppointmentController::class, 'completeAppointment'])->name('appointments.complete');
+
 
     Route::get('/calendar', function () {
         return view('doctor.calendar');
