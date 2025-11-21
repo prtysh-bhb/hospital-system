@@ -49,13 +49,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-details', [AdminDashboardController::class, 'getDashboardDetails'])->name('dashboard.details');
 
-    // Route::get('/dashboard', function () {
-    //     return view('admin.dashboard');
-    // })->name('dashboard');
-
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
     Route::get('/appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments.list');
-    Route::get('/appointments-add', [AppointmentController::class, 'addAppointments'])->name('add-appointment');
+    Route::get('/appointments/add', [AppointmentController::class, 'addAppointments'])->name('add-appointment');
     Route::get('/appointments/available-slots', [AppointmentController::class, 'getAvailableSlots'])->name('get-available-slots');
     Route::post('/appointments/store', [AppointmentController::class, 'storeAppointment'])->name('store-appointment');
     Route::post('/appointments-modal', [AppointmentController::class, 'getAppointmentsmodal'])->name('getappointment-modal');
@@ -63,15 +59,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/appointments/delete', [AppointmentController::class, 'deleteAppointment'])->name('delete-appointment');
     Route::get('/appointments/{id}', [AppointmentController::class, 'viewAppointment'])->name('view-appointment');
 
-    // Route::get('/appointments/add', function () {
-    //     return view('admin.add-appointment');
-    // })->name('add-appointment');
-
     Route::get('/doctors', [docktorsController::class, 'index'])->name('doctors');
-
     Route::get('/doctors/add', [docktorsController::class, 'create'])->name('doctors.add');
     Route::post('/doctors/add', [docktorsController::class, 'store'])->name('doctors.store');
-
     Route::get('/doctors/{id}/edit', [docktorsController::class, 'edit'])->name('doctors.edit');
     Route::put('/doctors/{id}', [docktorsController::class, 'update'])->name('doctors.update');
     Route::delete('/doctors/{id}', [docktorsController::class, 'destroy'])->name('doctors.destroy');
