@@ -160,36 +160,113 @@ class BookAppointmentController extends Controller
             'slots' => $result['slots']
         ]);
     }
+    // public function store(Request $request)
+    // {
+    //     if ($request->step == 1) {
+    //         session(['doctor_id' => $request->doctor_id]);
+    //         return redirect()->route('booking', ['step' => 2]);
+    //     }
+
+    //     if ($request->step == 2) {
+    //         // If only date is provided (user clicked a calendar day), reload step 2 with new date
+    //         if ($request->has('date') && !$request->has('slot')) {
+    //             return redirect()->route('booking', ['step' => 2, 'date' => $request->date]);
+    //         }
+            
+    //         // If both date and slot are provided, proceed to step 3
+    //         if ($request->has('date') && $request->has('slot')) {
+    //             session([
+    //                 'selectedDate' => $request->date,
+    //                 'selectedSlot' => $request->slot
+    //             ]);
+                
+    //             if ($request->ajax()) {
+    //                 return response()->json(['success' => true]);
+    //             }
+    //             return redirect()->route('booking', ['step' => 3]);
+    //         }
+            
+    //         // If neither provided, go back to step 2
+    //         return redirect()->route('booking', ['step' => 2]);
+    //     }
+
+    //     if ($request->step == 3) {
+    //         // Validate patient details
+    //         $validated = $request->validate([
+    //             'first_name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s]+$/',
+    //             'last_name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s]+$/',
+    //             'email' => 'required|email|max:255',
+    //             'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'not_regex:/^0+$/'],
+    //             'date_of_birth' => 'required|date|before:today',
+    //             'gender' => 'required|in:male,female,other',
+    //             'address' => 'nullable|string|min:10|max:500',
+    //             'reason_for_visit' => 'required|string|min:10|max:1000',
+    //             'allergies' => 'nullable|string|max:500',
+    //         ]);
+
+    //         \Log::info('Step 3 validation passed', ['data' => $validated]);
+
+    //         // Create appointment via service
+    //         $appointmentData = array_merge($validated, [
+    //             'doctor_id' => session('doctor_id'),
+    //             'appointment_date' => session('selectedDate'),
+    //             'appointment_time' => session('selectedSlot'),
+    //         ]);
+
+    //         \Log::info('Calling createAppointment service', ['appointmentData' => $appointmentData]);
+
+    //         $result = $this->service->createAppointment($appointmentData);
+
+    //         \Log::info('Service result', ['result' => $result]);
+
+    //         if ($result['success']) {
+    //             session(['appointment_id' => $result['appointment_id']]);
+    //             \Log::info('Redirecting to step 4', ['appointment_id' => $result['appointment_id']]);
+    //             return redirect()->route('booking', ['step' => 4]);
+    //         }
+    //         // dd($result);
+    //         \Log::error('Failed to create appointment', ['result' => $result]);
+    //         return back()->withErrors(['error' => 'Failed to create appointment. Please try again.']);
+    //     }
+
+    //     return redirect()->route('booking', ['step' => 1]);
+    // }
+
+
     public function store(Request $request)
     {
+        // Step 1: Select doctor
         if ($request->step == 1) {
             session(['doctor_id' => $request->doctor_id]);
             return redirect()->route('booking', ['step' => 2]);
         }
 
+        // Step 2: Select date and slot
         if ($request->step == 2) {
-            // If only date is provided (user clicked a calendar day), reload step 2 with new date
+            // Only date provided (calendar click)
             if ($request->has('date') && !$request->has('slot')) {
                 return redirect()->route('booking', ['step' => 2, 'date' => $request->date]);
             }
-            
-            // If both date and slot are provided, proceed to step 3
+
+            // Date and slot selected, proceed to step 3
             if ($request->has('date') && $request->has('slot')) {
                 session([
                     'selectedDate' => $request->date,
                     'selectedSlot' => $request->slot
                 ]);
-                
+
                 if ($request->ajax()) {
                     return response()->json(['success' => true]);
                 }
+
                 return redirect()->route('booking', ['step' => 3]);
             }
-            
-            // If neither provided, go back to step 2
+
+            // Neither date nor slot provided, reload step 2
             return redirect()->route('booking', ['step' => 2]);
         }
 
+        // Step 3: Patient details and appointment creation
         if ($request->step == 3) {
             // Validate patient details
             $validated = $request->validate([
@@ -206,29 +283,35 @@ class BookAppointmentController extends Controller
 
             \Log::info('Step 3 validation passed', ['data' => $validated]);
 
-            // Create appointment via service
+            // Prepare appointment data
             $appointmentData = array_merge($validated, [
                 'doctor_id' => session('doctor_id'),
                 'appointment_date' => session('selectedDate'),
                 'appointment_time' => session('selectedSlot'),
+                'booked_via' => 'online', // default
             ]);
 
             \Log::info('Calling createAppointment service', ['appointmentData' => $appointmentData]);
 
+            // Call service
             $result = $this->service->createAppointment($appointmentData);
 
             \Log::info('Service result', ['result' => $result]);
 
+            // If appointment created successfully
             if ($result['success']) {
                 session(['appointment_id' => $result['appointment_id']]);
                 \Log::info('Redirecting to step 4', ['appointment_id' => $result['appointment_id']]);
                 return redirect()->route('booking', ['step' => 4]);
             }
 
-            \Log::error('Failed to create appointment', ['result' => $result]);
-            return back()->withErrors(['error' => 'Failed to create appointment. Please try again.']);
+            // Return detailed error message from service
+            $errorMessage = $result['message'] ?? 'Failed to create appointment. Please try again.';
+            \Log::error('Failed to create appointment', ['error' => $errorMessage, 'result' => $result]);
+            return back()->withErrors(['error' => $errorMessage]);
         }
 
+        // Default: redirect to step 1
         return redirect()->route('booking', ['step' => 1]);
     }
 

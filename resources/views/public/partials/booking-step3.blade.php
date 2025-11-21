@@ -66,90 +66,80 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
                 <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6">Patient Details</h2>
 
-                <!-- Error Messages -->
-                @if ($errors->any())
-                    <div class="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div class="flex items-start">
-                            <svg class="w-5 h-5 text-red-500 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <div>
-                                <h3 class="text-sm font-semibold text-red-800">Please correct the following errors:</h3>
-                                <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                @endif
+                <div class="space-y-4">
 
-                <div class="space-y-3 sm:space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <!-- First & Last Name -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                            <input type="text" name="first_name" value="{{ old('first_name') }}" required
-                                minlength="2" pattern="[a-zA-Z\s]+"
-                                oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
-                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent text-sm @error('first_name') border-red-500 @enderror"
-                                placeholder="Enter first name">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">First Name <span
+                                    class="text-red-600">*</span></label>
+                            <input type="text" name="first_name" value="{{ old('first_name') }}"
+                                oninput="removeError(this)"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('first_name') border-red-500 @else border-gray-300 @enderror"
+                                placeholder="Enter last name">
                             @error('first_name')
-                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                             @enderror
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                            <input type="text" name="last_name" value="{{ old('last_name') }}" required
-                                minlength="2" pattern="[a-zA-Z\s]+"
-                                oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
-                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent text-sm @error('last_name') border-red-500 @enderror"
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Last Name <span
+                                    class="text-red-600">*</span></label>
+                            <input type="text" name="last_name" value="{{ old('last_name') }}"
+                                oninput="removeError(this)"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('last_name') border-red-500 @else border-gray-300 @enderror"
                                 placeholder="Enter last name">
                             @error('last_name')
-                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <!-- Email & Phone -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                            <input type="email" name="email" value="{{ old('email') }}" required
-                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent text-sm @error('email') border-red-500 @enderror"
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email <span
+                                    class="text-red-600">*</span></label>
+                            <input type="email" name="email" value="{{ old('email') }}"
+                                oninput="removeError(this)"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('email') border-red-500 @else border-gray-300 @enderror"
                                 placeholder="Enter email">
                             @error('email')
-                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                             @enderror
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
-                            <input type="tel" name="phone" value="{{ old('phone') }}" required minlength="10"
-                                maxlength="15" pattern="[0-9]{10,15}"
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 15)"
-                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent text-sm @error('phone') border-red-500 @enderror"
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone <span
+                                    class="text-red-600">*</span></label>
+                            <input type="tel" name="phone" value="{{ old('phone') }}"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,15); removeError(this);"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('phone') border-red-500 @else border-gray-300 @enderror"
                                 placeholder="Enter phone number">
                             @error('phone')
-                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <!-- DOB & Gender -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
-                            <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required
-                                max="{{ date('Y-m-d') }}"
-                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent text-sm @error('date_of_birth') border-red-500 @enderror">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth <span
+                                    class="text-red-600">*</span></label>
+                            <input type="date" name="date_of_birth" max="{{ date('Y-m-d') }}"
+                                value="{{ old('date_of_birth') }}" oninput="removeError(this)"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('date_of_birth') border-red-500 @else border-gray-300 @enderror">
                             @error('date_of_birth')
-                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                             @enderror
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Gender *</label>
-                            <select name="gender" required
-                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent text-sm @error('gender') border-red-500 @enderror">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gender <span
+                                    class="text-red-600">*</span></label>
+                            <select name="gender" oninput="removeError(this)"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('gender') border-red-500 @else border-gray-300 @enderror">
                                 <option value="">Select gender</option>
                                 <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
                                 <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female
@@ -157,40 +147,46 @@
                                 <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
                             </select>
                             @error('gender')
-                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
+                    <!-- Address -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                        <textarea name="address" minlength="10"
-                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent text-sm @error('address') border-red-500 @enderror"
-                            rows="3" placeholder="Enter address">{{ old('address') }}</textarea>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <textarea name="address" rows="3" oninput="removeError(this)"
+                            class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('address') border-red-500 @else border-gray-300 @enderror"
+                            placeholder="Enter address">{{ old('address') }}</textarea>
                         @error('address')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                         @enderror
                     </div>
 
+                    <!-- Reason for Visit -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Visit *</label>
-                        <textarea name="reason_for_visit" required minlength="10"
-                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent text-sm @error('reason_for_visit') border-red-500 @enderror"
-                            rows="3" placeholder="Describe your symptoms or reason for visit">{{ old('reason_for_visit') }}</textarea>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Visit <span
+                                class="text-red-600">*</span></label>
+                        <textarea name="reason_for_visit" rows="3" oninput="removeError(this)"
+                            class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('reason_for_visit') border-red-500 @else border-gray-300 @enderror"
+                            placeholder="Describe your symptoms">{{ old('reason_for_visit') }}</textarea>
                         @error('reason_for_visit')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                         @enderror
                     </div>
 
+                    <!-- Allergies -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Do you have any allergies?</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Allergies</label>
                         <input type="text" name="allergies" value="{{ old('allergies') }}"
-                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent text-sm @error('allergies') border-red-500 @enderror"
-                            placeholder="List any allergies (optional)">
+                            oninput="removeError(this)"
+                            class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('allergies') border-red-500 @else border-gray-300 @enderror"
+                            placeholder="List allergies (optional)">
                         @error('allergies')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                         @enderror
                     </div>
+
                 </div>
             </div>
 
@@ -204,3 +200,11 @@
             </div>
         </div>
     </form>
+    <script>
+        function removeError(input) {
+            input.classList.remove('border-red-500');
+            input.classList.add('border-gray-300');
+            const error = input.parentNode.querySelector('.error-msg');
+            if (error) error.remove();
+        }
+    </script>

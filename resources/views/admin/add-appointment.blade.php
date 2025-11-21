@@ -32,43 +32,51 @@
                         <p class="text-xs sm:text-sm font-medium text-gray-800 mb-3">Patient Details</p>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                        <input type="text" name="first_name" id="first_name" required pattern="[A-Za-z\s]{2,100}"
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name <span
+                                class="text-red-600">*</span></label>
+                        <input type="text" name="first_name" id="first_name" pattern="[A-Za-z\s]{2,100}"
+                            placeholder="Enter first name"
                             title="First name should only contain letters and spaces (2-100 characters)"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         <span id="first_name_error" class="text-xs text-red-500 hidden">First name should only contain
                             letters</span>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                        <input type="text" name="last_name" id="last_name" required pattern="[A-Za-z\s]{2,100}"
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name <span
+                                class="text-red-600">*</span></label>
+                        <input type="text" name="last_name" id="last_name" pattern="[A-Za-z\s]{2,100}"
+                            placeholder="Enter last name"
                             title="Last name should only contain letters and spaces (2-100 characters)"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         <span id="last_name_error" class="text-xs text-red-500 hidden">Last name should only contain
                             letters</span>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email *</label>
-                        <input type="email" name="email" id="email" required
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email <span
+                                class="text-red-600">*</span></label>
+                        <input type="email" name="email" id="email" placeholder="Enter email"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         <span id="email_error" class="text-xs text-red-500 hidden">Please enter a valid email address</span>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Phone *</label>
-                        <input type="tel" name="phone" id="phone" required pattern="[0-9]{10,15}"
-                            title="Phone number must be 10-15 digits only" maxlength="15"
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Phone <span
+                                class="text-red-600">*</span></label>
+                        <input type="tel" name="phone" id="phone" pattern="[0-9]{10,15}"
+                            placeholder="Enter phone number" title="Phone number must be 10-15 digits only" maxlength="15"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         <span id="phone_error" class="text-xs text-red-500 hidden">Phone must be 10-15 digits only</span>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
-                        <input type="date" name="date_of_birth" id="date_of_birth" required
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date of Birth <span
+                                class="text-red-600">*</span></label>
+                        <input type="date" name="date_of_birth" id="date_of_birth"
                             max="{{ now()->subDay()->format('Y-m-d') }}"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Gender *</label>
-                        <select name="gender" id="gender" required
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Gender <span
+                                class="text-red-600">*</span></label>
+                        <select name="gender" id="gender"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                             <option value="">Select Gender</option>
                             <option value="male">Male</option>
@@ -90,7 +98,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         <!-- Doctor Selection -->
                         <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Select Doctor *</label>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Select Doctor <span
+                                    class="text-red-600">*</span></label>
                             <select id="doctor_select" name="doctor_id"
                                 class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
                                 <option value="">Search or select doctor...</option>
@@ -106,16 +115,15 @@
 
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Date
-                                *</label>
-                            <input type="date" name="appointment_date" id="appointment_date" required
-                                min="{{ date('Y-m-d') }}"
+                                <span class="text-red-600">*</span></label>
+                            <input type="date" name="appointment_date" id="appointment_date" min="{{ date('Y-m-d') }}"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         </div>
 
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Time
-                                *</label>
-                            <select name="appointment_time" id="appointment_time" required
+                                <span class="text-red-600">*</span></label>
+                            <select name="appointment_time" id="appointment_time"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                                 <option value="">Select date first</option>
                             </select>
@@ -123,8 +131,8 @@
 
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Type
-                                *</label>
-                            <select id="type_select" name="appointment_type" required
+                                <span class="text-red-600">*</span></label>
+                            <select id="type_select" name="appointment_type"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                                 <option value="">Select type...</option>
                                 <option value="consultation">Consultation</option>
@@ -135,8 +143,9 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status *</label>
-                            <select name="status" id="status" required
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status <span
+                                    class="text-red-600">*</span></label>
+                            <select name="status" id="status"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
@@ -145,8 +154,8 @@
 
                         <div class="col-span-1 md:col-span-2">
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason for Visit
-                                *</label>
-                            <textarea name="reason_for_visit" id="reason_for_visit" rows="3" required
+                                <span class="text-red-600">*</span></label>
+                            <textarea name="reason_for_visit" id="reason_for_visit" rows="3"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
                                 placeholder="Enter reason for visit..."></textarea>
                         </div>
@@ -288,7 +297,7 @@
                                 if (options === '<option value="">Select Time</option>') {
                                     timeSelect.html(
                                         '<option value="">No available slots remaining for today</option>'
-                                        );
+                                    );
                                 } else {
                                     timeSelect.html(options);
                                 }
