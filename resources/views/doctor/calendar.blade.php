@@ -4,366 +4,736 @@
 
 @section('page-title', 'My Schedule & Availability')
 
-@section('header-actions')
-<button class="px-3 sm:px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 text-sm sm:text-base">
-    + Set Availability
-</button>
-@endsection
-
 @section('content')
-<!-- Calendar Header -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
-    <div class="p-4 sm:p-6 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-3 sm:gap-4">
-            <button class="px-2 sm:px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            <h3 class="text-lg sm:text-xl font-semibold text-gray-800">November 2025</h3>
-            <button class="px-2 sm:px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
+    <!-- Calendar Header -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
+        <div class="p-4 sm:p-6 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button id="prevMonth" class="px-2 sm:px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h3 id="currentMonth" class="text-lg sm:text-xl font-semibold text-gray-800">
+                    {{ date('F Y') }}
+                </h3>
+                <button id="nextMonth" class="px-2 sm:px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <button id="viewMonth"
+                    class="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-sky-600 text-white rounded-lg text-xs sm:text-sm">
+                    Month
+                </button>
+                <button id="viewWeek"
+                    class="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-xs sm:text-sm">
+                    Week
+                </button>
+                <button id="viewDay"
+                    class="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-xs sm:text-sm">
+                    Day
+                </button>
+            </div>
         </div>
-        <div class="flex gap-2 w-full sm:w-auto">
-            <button class="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-sky-600 text-white rounded-lg text-xs sm:text-sm">Month</button>
-            <button class="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-xs sm:text-sm hover:bg-gray-50">Week</button>
-            <button class="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-xs sm:text-sm hover:bg-gray-50">Day</button>
-        </div>
-    </div>
 
-    <!-- Calendar Grid -->
-    <div class="p-3 sm:p-6">
-        <!-- Days Header -->
-        <div class="grid grid-cols-7 gap-2 sm:gap-4 mb-3 sm:mb-4">
-            <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Sun</div>
-            <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Mon</div>
-            <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Tue</div>
-            <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Wed</div>
-            <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Thu</div>
-            <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Fri</div>
-            <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Sat</div>
-        </div>
-
-        <!-- Calendar Days -->
-        <div class="grid grid-cols-7 gap-1 sm:gap-2 md:gap-4">
-            <!-- Previous month days -->
-            <div class="aspect-square border border-gray-200 rounded-lg p-1 sm:p-2 bg-gray-50">
-                <div class="text-xs sm:text-sm text-gray-400">27</div>
-            </div>
-            <div class="aspect-square border border-gray-200 rounded-lg p-1 sm:p-2 bg-gray-50">
-                <div class="text-xs sm:text-sm text-gray-400">28</div>
-            </div>
-            <div class="aspect-square border border-gray-200 rounded-lg p-1 sm:p-2 bg-gray-50">
-                <div class="text-xs sm:text-sm text-gray-400">29</div>
-            </div>
-            <div class="aspect-square border border-gray-200 rounded-lg p-1 sm:p-2 bg-gray-50">
-                <div class="text-xs sm:text-sm text-gray-400">30</div>
-            </div>
-            <div class="aspect-square border border-gray-200 rounded-lg p-1 sm:p-2 bg-gray-50">
-                <div class="text-xs sm:text-sm text-gray-400">31</div>
+        <!-- Calendar Grid -->
+        <div class="p-3 sm:p-6">
+            <!-- Days Header -->
+            <div class="grid grid-cols-7 gap-2 sm:gap-4 mb-3 sm:mb-4">
+                <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Sun</div>
+                <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Mon</div>
+                <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Tue</div>
+                <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Wed</div>
+                <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Thu</div>
+                <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Fri</div>
+                <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Sat</div>
             </div>
 
-            <!-- November days -->
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">1</div>
-                <div class="mt-1 space-y-0.5 sm:space-y-1 hidden sm:block">
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">9 AM</div>
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">2 PM</div>
+            <!-- Calendar Days Container -->
+            <div id="calendarDays" class="grid grid-cols-7 gap-1 sm:gap-2 md:gap-4">
+                <div class="col-span-7 text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
+                    <p class="mt-2 text-gray-500">Loading calendar...</p>
                 </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">2</div>
-            </div>
-
-            <!-- Week 2 -->
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 bg-red-50">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">3</div>
-                <div class="mt-1 hidden sm:block">
-                    <div class="text-xs bg-red-100 text-red-700 px-1 py-0.5 rounded">Unavailable</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">4</div>
-                <div class="mt-1 space-y-0.5 sm:space-y-1 hidden sm:block">
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">9 AM</div>
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">11 AM</div>
-                    <div class="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">3 PM</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">5</div>
-                <div class="mt-1 hidden sm:block">
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">10 AM</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">6</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">7</div>
-                <div class="mt-1 space-y-0.5 sm:space-y-1 hidden sm:block">
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">9 AM</div>
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">1 PM</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">8</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">9</div>
-            </div>
-
-            <!-- Week 3 -->
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 bg-red-50">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">10</div>
-                <div class="mt-1 hidden sm:block">
-                    <div class="text-xs bg-red-100 text-red-700 px-1 py-0.5 rounded">Leave</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">11</div>
-                <div class="mt-1 space-y-0.5 sm:space-y-1 hidden sm:block">
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">9 AM</div>
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">11 AM</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">12</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">13</div>
-                <div class="mt-1 hidden sm:block">
-                    <div class="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">2 PM</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">14</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">15</div>
-                <div class="mt-1 space-y-0.5 sm:space-y-1 hidden sm:block">
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">10 AM</div>
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">3 PM</div>
-                </div>
-            </div>
-            <div class="aspect-square border-2 border-sky-600 bg-sky-50 rounded-lg p-1 sm:p-2">
-                <div class="text-xs sm:text-sm font-bold text-sky-700">16</div>
-                <div class="mt-1 space-y-0.5 sm:space-y-1 hidden sm:block">
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">9 AM</div>
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">10:30 AM</div>
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">2 PM</div>
-                </div>
-            </div>
-
-            <!-- Week 4 -->
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">17</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">18</div>
-                <div class="mt-1 hidden sm:block">
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">11 AM</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">19</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">20</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">21</div>
-                <div class="mt-1 space-y-0.5 sm:space-y-1 hidden sm:block">
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">9 AM</div>
-                    <div class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">2 PM</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">22</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">23</div>
-            </div>
-
-            <!-- Week 5 -->
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">24</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">25</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">26</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 bg-red-50">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">27</div>
-                <div class="mt-1 hidden sm:block">
-                    <div class="text-xs bg-red-100 text-red-700 px-1 py-0.5 rounded">Holiday</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 bg-red-50">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">28</div>
-                <div class="mt-1 hidden sm:block">
-                    <div class="text-xs bg-red-100 text-red-700 px-1 py-0.5 rounded">Holiday</div>
-                </div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">29</div>
-            </div>
-            <div class="aspect-square border border-gray-300 rounded-lg p-1 sm:p-2 hover:border-sky-500 cursor-pointer">
-                <div class="text-xs sm:text-sm font-medium text-gray-800">30</div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Weekly Availability Settings -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100">
-    <div class="p-4 sm:p-6 border-b">
-        <h3 class="text-base sm:text-lg font-semibold text-gray-800">Weekly Availability Schedule</h3>
-        <p class="text-xs sm:text-sm text-gray-500 mt-1">Set your regular working hours for each day</p>
-    </div>
-    <div class="p-4 sm:p-6">
-        <div class="space-y-3 sm:space-y-4">
-            <!-- Monday -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <input type="checkbox" checked class="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 rounded">
-                        <span class="font-medium text-gray-800 text-sm sm:text-base sm:w-24">Monday</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-1">
-                        <input type="time" value="09:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                        <span class="text-gray-500 text-xs sm:text-sm">to</span>
-                        <input type="time" value="17:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                    </div>
-                </div>
-                <button class="px-3 sm:px-4 py-2 text-sky-600 hover:bg-sky-50 rounded-lg text-sm sm:text-base">Edit</button>
-            </div>
-
-            <!-- Tuesday -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <input type="checkbox" checked class="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 rounded">
-                        <span class="font-medium text-gray-800 text-sm sm:text-base sm:w-24">Tuesday</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-1">
-                        <input type="time" value="09:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                        <span class="text-gray-500 text-xs sm:text-sm">to</span>
-                        <input type="time" value="17:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                    </div>
-                </div>
-                <button class="px-3 sm:px-4 py-2 text-sky-600 hover:bg-sky-50 rounded-lg text-sm sm:text-base">Edit</button>
-            </div>
-
-            <!-- Wednesday -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <input type="checkbox" checked class="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 rounded">
-                        <span class="font-medium text-gray-800 text-sm sm:text-base sm:w-24">Wednesday</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-1">
-                        <input type="time" value="09:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                        <span class="text-gray-500 text-xs sm:text-sm">to</span>
-                        <input type="time" value="17:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                    </div>
-                </div>
-                <button class="px-3 sm:px-4 py-2 text-sky-600 hover:bg-sky-50 rounded-lg text-sm sm:text-base">Edit</button>
-            </div>
-
-            <!-- Thursday -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <input type="checkbox" checked class="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 rounded">
-                        <span class="font-medium text-gray-800 text-sm sm:text-base sm:w-24">Thursday</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-1">
-                        <input type="time" value="09:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                        <span class="text-gray-500 text-xs sm:text-sm">to</span>
-                        <input type="time" value="17:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                    </div>
-                </div>
-                <button class="px-3 sm:px-4 py-2 text-sky-600 hover:bg-sky-50 rounded-lg text-sm sm:text-base">Edit</button>
-            </div>
-
-            <!-- Friday -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <input type="checkbox" checked class="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 rounded">
-                        <span class="font-medium text-gray-800 text-sm sm:text-base sm:w-24">Friday</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-1">
-                        <input type="time" value="09:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                        <span class="text-gray-500 text-xs sm:text-sm">to</span>
-                        <input type="time" value="13:00" class="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none">
-                    </div>
-                </div>
-                <button class="px-3 sm:px-4 py-2 text-sky-600 hover:bg-sky-50 rounded-lg text-sm sm:text-base">Edit</button>
-            </div>
-
-            <!-- Saturday -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <input type="checkbox" class="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 rounded">
-                        <span class="font-medium text-gray-500 text-sm sm:text-base sm:w-24">Saturday</span>
-                    </div>
-                    <span class="text-gray-400 text-sm sm:text-base">Unavailable</span>
-                </div>
-                <button class="px-3 sm:px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm sm:text-base">Enable</button>
-            </div>
-
-            <!-- Sunday -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <input type="checkbox" class="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 rounded">
-                        <span class="font-medium text-gray-500 text-sm sm:text-base sm:w-24">Sunday</span>
-                    </div>
-                    <span class="text-gray-400 text-sm sm:text-base">Unavailable</span>
-                </div>
-                <button class="px-3 sm:px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm sm:text-base">Enable</button>
-            </div>
+    <!-- Weekly Availability Settings -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div class="p-4 sm:p-6 border-b">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-800">Weekly Availability Schedule</h3>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Set your regular working hours for each day</p>
         </div>
-
-        <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-end gap-3">
-            <button class="px-4 sm:px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm sm:text-base">
-                Cancel
-            </button>
-            <button class="px-4 sm:px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 text-sm sm:text-base">
-                Save Changes
-            </button>
+        <div class="p-4 sm:p-6">
+            <div id="weeklySchedule">
+                <div class="text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
+                    <p class="mt-2 text-gray-500">Loading schedule...</p>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Legend -->
-<div class="mt-4 sm:mt-6 bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-    <h4 class="text-xs sm:text-sm font-semibold text-gray-800 mb-3">Legend</h4>
-    <div class="flex flex-wrap gap-3 sm:gap-4">
-        <div class="flex items-center gap-2">
-            <div class="w-3 h-3 sm:w-4 sm:h-4 bg-green-100 border border-green-200 rounded"></div>
-            <span class="text-xs sm:text-sm text-gray-600">Scheduled Appointment</span>
-        </div>
-        <div class="flex items-center gap-2">
-            <div class="w-3 h-3 sm:w-4 sm:h-4 bg-blue-100 border border-blue-200 rounded"></div>
-            <span class="text-xs sm:text-sm text-gray-600">Completed</span>
-        </div>
-        <div class="flex items-center gap-2">
-            <div class="w-3 h-3 sm:w-4 sm:h-4 bg-red-100 border border-red-200 rounded"></div>
-            <span class="text-xs sm:text-sm text-gray-600">Unavailable/Leave</span>
-        </div>
-        <div class="flex items-center gap-2">
-            <div class="w-3 h-3 sm:w-4 sm:h-4 bg-sky-100 border-2 border-sky-600 rounded"></div>
-            <span class="text-xs sm:text-sm text-gray-600">Today</span>
-        </div>
+    <!-- Debug Info (Remove in production) -->
+    <div id="debugInfo" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
+        <h4 class="font-semibold text-yellow-800">Debug Information</h4>
+        <pre id="debugContent" class="text-xs mt-2"></pre>
     </div>
-</div>
 @endsection
+@push('scripts')
+    <script>
+        let currentMonth = '{{ date('Y-m') }}';
+        let currentView = 'month'; // month, week, day
+        let currentDate = new Date();
+
+        $(document).ready(function() {
+            console.log('Document ready, loading calendar for:', currentMonth);
+            loadCalendar(currentMonth);
+            loadWeeklySchedule();
+
+            // View switchers
+            $('#viewMonth').on('click', function() {
+                switchView('month');
+            });
+
+            $('#viewWeek').on('click', function() {
+                switchView('week');
+            });
+
+            $('#viewDay').on('click', function() {
+                switchView('day');
+            });
+
+            $('#prevMonth').on('click', function() {
+                if (currentView === 'month') {
+                    const [year, month] = currentMonth.split('-');
+                    const date = new Date(year, month - 1, 1);
+                    date.setMonth(date.getMonth() - 1);
+                    currentMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    console.log('Loading previous month:', currentMonth);
+                    loadCalendar(currentMonth);
+                } else if (currentView === 'week') {
+                    currentDate.setDate(currentDate.getDate() - 7);
+                    loadWeekView();
+                } else if (currentView === 'day') {
+                    currentDate.setDate(currentDate.getDate() - 1);
+                    loadDayView();
+                }
+            });
+
+            $('#nextMonth').on('click', function() {
+                if (currentView === 'month') {
+                    const [year, month] = currentMonth.split('-');
+                    const date = new Date(year, month - 1, 1);
+                    date.setMonth(date.getMonth() + 1);
+                    currentMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    console.log('Loading next month:', currentMonth);
+                    loadCalendar(currentMonth);
+                } else if (currentView === 'week') {
+                    currentDate.setDate(currentDate.getDate() + 7);
+                    loadWeekView();
+                } else if (currentView === 'day') {
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    loadDayView();
+                }
+            });
+        });
+
+        function switchView(view) {
+            currentView = view;
+
+            // Update button styles
+            $('#viewMonth, #viewWeek, #viewDay').removeClass('bg-sky-600 text-white').addClass(
+                'border border-gray-300 text-gray-700');
+            if (view === 'month') {
+                $('#viewMonth').removeClass('border border-gray-300 text-gray-700').addClass('bg-sky-600 text-white');
+                loadCalendar(currentMonth);
+            } else if (view === 'week') {
+                $('#viewWeek').removeClass('border border-gray-300 text-gray-700').addClass('bg-sky-600 text-white');
+                loadWeekView();
+            } else if (view === 'day') {
+                $('#viewDay').removeClass('border border-gray-300 text-gray-700').addClass('bg-sky-600 text-white');
+                loadDayView();
+            }
+        }
+
+        function loadWeekView() {
+            const startOfWeek = new Date(currentDate);
+            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+            $('#currentMonth').text(
+                `Week of ${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+            );
+
+            showLoading('#calendarDays', 'Loading week view...');
+
+            // Load appointments for the week
+            const weekDates = [];
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(startOfWeek);
+                day.setDate(startOfWeek.getDate() + i);
+                weekDates.push(day.toISOString().split('T')[0]);
+            }
+
+            // For simplicity, we'll show a week grid
+            let html = '';
+            weekDates.forEach(function(dateStr) {
+                const date = new Date(dateStr);
+                const dayName = date.toLocaleDateString('en-US', {
+                    weekday: 'short'
+                });
+                const dayNum = date.getDate();
+                const isToday = dateStr === new Date().toISOString().split('T')[0];
+
+                html +=
+                    `<div class="col-span-1 border ${isToday ? 'border-sky-600 bg-sky-50' : 'border-gray-300'} rounded-lg p-2 min-h-[150px] cursor-pointer" data-date="${dateStr}">`;
+                html +=
+                    `<div class="text-center font-semibold ${isToday ? 'text-sky-700' : 'text-gray-800'}">${dayName}</div>`;
+                html +=
+                    `<div class="text-center text-2xl ${isToday ? 'text-sky-700' : 'text-gray-600'}">${dayNum}</div>`;
+                html += `<div class="mt-2 text-xs text-gray-500 text-center">Click to view</div>`;
+                html += `</div>`;
+            });
+
+            $('#calendarDays').html(html);
+
+            $('#calendarDays > div').on('click', function() {
+                const date = $(this).data('date');
+                showDayAppointments(date);
+            });
+        }
+
+        function loadDayView() {
+            const dateStr = currentDate.toISOString().split('T')[0];
+            $('#currentMonth').text(currentDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }));
+
+            showLoading('#calendarDays', 'Loading day view...');
+
+            $.ajax({
+                url: '{{ route('doctor.calendar.appointments') }}',
+                method: 'GET',
+                data: {
+                    date: dateStr
+                },
+                success: function(response) {
+                    if (response.success) {
+                        renderDayView(response.appointments, response.date);
+                    } else {
+                        showError('#calendarDays', 'Failed to load appointments');
+                    }
+                },
+                error: function() {
+                    showError('#calendarDays', 'Failed to load day view');
+                }
+            });
+        }
+
+        function renderDayView(appointments, dateTitle) {
+            let html = '<div class="col-span-7">';
+            html += `<h3 class="text-lg font-semibold mb-4 text-gray-800">${dateTitle}</h3>`;
+
+            if (appointments && appointments.length > 0) {
+                html += '<div class="space-y-3">';
+                appointments.forEach(function(apt) {
+                    let statusBadge = getStatusBadgeClass(apt.status);
+                    html += `<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">`;
+                    html += `<div class="flex justify-between items-start">`;
+                    html += `<div class="flex-1">`;
+                    html += `<div class="flex items-center gap-3 mb-2">`;
+                    html += `<p class="font-semibold text-lg">${apt.time}</p>`;
+                    html += `<span class="px-3 py-1 text-xs ${statusBadge} rounded-full">${apt.status}</span>`;
+                    html += `</div>`;
+                    html +=
+                        `<p class="font-medium text-gray-800">${apt.patient_name} <span class="text-sm text-gray-500">(${apt.patient_age} years)</span></p>`;
+                    html += `<p class="text-sm text-gray-600 mt-1"><strong>Reason:</strong> ${apt.reason}</p>`;
+                    html += `<p class="text-xs text-gray-400 mt-1">${apt.appointment_number}</p>`;
+                    html += `</div>`;
+                    html += `</div>`;
+                    html += `</div>`;
+                });
+                html += '</div>';
+            } else {
+                html += '<div class="text-center py-12">';
+                html +=
+                    '<svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">';
+                html +=
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />';
+                html += '</svg>';
+                html += '<p class="text-gray-500">No appointments scheduled for this day</p>';
+                html += '</div>';
+            }
+
+            html += '</div>';
+            $('#calendarDays').html(html);
+        }
+
+        function loadCalendar(month) {
+            console.log('Loading calendar for month:', month);
+
+            showLoading('#calendarDays', 'Loading calendar...');
+
+            $.ajax({
+                url: '{{ route('doctor.calendar.data') }}',
+                method: 'GET',
+                data: {
+                    month: month
+                },
+                success: function(response) {
+                    console.log('Calendar response:', response);
+
+                    if (response.success) {
+                        $('#currentMonth').text(response.data.month_name);
+                        renderCalendar(response.data.days);
+                    } else {
+                        showError('#calendarDays', response.message || 'Failed to load calendar');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Calendar AJAX error:', error);
+                    console.log('XHR response:', xhr.responseText);
+                    showError('#calendarDays', 'Failed to load calendar. Please check console for details.');
+                }
+            });
+        }
+
+        function renderCalendar(days) {
+            console.log('Rendering calendar days:', days);
+
+            if (!days || !Array.isArray(days)) {
+                showError('#calendarDays', 'Invalid calendar data received');
+                return;
+            }
+
+            let html = '';
+
+            days.forEach(function(day) {
+                const isCurrentMonth = day.is_current_month;
+                const isToday = day.is_today;
+                const hasAppointments = day.appointments && day.appointments.length > 0;
+
+                let classes = 'aspect-square border rounded-lg p-1 sm:p-2 min-h-[60px] sm:min-h-[80px]';
+
+                if (isCurrentMonth) {
+                    classes += ' cursor-pointer';
+                }
+
+                if (!isCurrentMonth) {
+                    classes += ' bg-gray-50 border-gray-200';
+                } else if (isToday) {
+                    classes += ' border-2 border-sky-600 bg-sky-50';
+                } else {
+                    classes += ' border-gray-300 hover:border-gray-400';
+                }
+
+                html += `<div class="${classes}" data-date="${day.date}">`;
+                html +=
+                    `<div class="text-xs sm:text-sm font-medium ${isCurrentMonth ? (isToday ? 'text-sky-700 font-bold' : 'text-gray-800') : 'text-gray-400'}">${day.day}</div>`;
+
+                if (hasAppointments && isCurrentMonth) {
+                    html += '<div class="mt-1 space-y-0.5 sm:space-y-1">';
+                    day.appointments.slice(0, 2).forEach(function(apt) {
+                        let badgeClass = 'bg-gray-100 text-gray-700';
+                        if (apt.status === 'completed') {
+                            badgeClass = 'bg-emerald-100 text-emerald-700';
+                        } else if (apt.status === 'confirmed' || apt.status === 'checked_in' || apt
+                            .status === 'in_progress') {
+                            badgeClass = 'bg-sky-100 text-sky-700';
+                        } else if (apt.status === 'pending') {
+                            badgeClass = 'bg-amber-100 text-amber-700';
+                        }
+                        html +=
+                            `<div class="text-xs ${badgeClass} px-1 py-0.5 rounded truncate hidden sm:block">${apt.time}</div>`;
+                    });
+                    if (day.appointments.length > 2) {
+                        html +=
+                            `<div class="text-xs text-gray-500 px-1 hidden sm:block">+${day.appointments.length - 2} more</div>`;
+                    }
+                    html += '</div>';
+                }
+
+                html += '</div>';
+            });
+
+            $('#calendarDays').html(html);
+
+            // Add click handlers
+            $('#calendarDays > div').on('click', function() {
+                const date = $(this).data('date');
+                const isCurrentMonth = !$(this).hasClass('bg-gray-50');
+
+                if (date && isCurrentMonth) {
+                    showDayAppointments(date);
+                }
+            });
+        }
+
+        function loadWeeklySchedule() {
+            console.log('Loading weekly schedule...');
+
+            $.ajax({
+                url: '{{ route('doctor.calendar.schedule') }}',
+                method: 'GET',
+                success: function(response) {
+                    console.log('Schedule response:', response);
+
+                    if (response.success) {
+                        renderWeeklySchedule(response.schedule);
+                    } else {
+                        showError('#weeklySchedule', response.message || 'Failed to load schedule');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Schedule AJAX error:', error);
+                    showError('#weeklySchedule', 'Failed to load schedule');
+                }
+            });
+        }
+
+        function renderWeeklySchedule(schedule) {
+            console.log('Rendering schedule:', schedule);
+
+            if (!schedule || !Array.isArray(schedule)) {
+                showError('#weeklySchedule', 'Invalid schedule data');
+                return;
+            }
+
+            let html = '<div class="space-y-3 sm:space-y-4">';
+
+            schedule.forEach(function(day) {
+                const isAvailable = day.is_available;
+                const bgClass = isAvailable ? '' : 'bg-gray-50';
+                const dayNum = day.day_of_week;
+
+                html +=
+                    `<div class="schedule-day flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg ${bgClass}" data-day="${dayNum}">`;
+                html += `<div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">`;
+                html += `<div class="flex items-center gap-3 sm:gap-4">`;
+                html +=
+                    `<input type="checkbox" class="day-checkbox w-4 h-4 sm:w-5 sm:h-5 text-sky-600 rounded" ${isAvailable ? 'checked' : ''}>`;
+                html +=
+                    `<span class="font-medium ${isAvailable ? 'text-gray-800' : 'text-gray-500'} text-sm sm:text-base sm:w-24">${day.day_name}</span>`;
+                html += `</div>`;
+
+                if (isAvailable) {
+                    // Convert time format (e.g., "9:00 AM" to "09:00")
+                    const startTime = convertTo24Hour(day.start_time);
+                    const endTime = convertTo24Hour(day.end_time);
+
+                    html += `<div class="flex items-center gap-2 flex-1">`;
+                    html +=
+                        `<input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="${startTime}">`;
+                    html += `<span class="text-gray-500 text-xs sm:text-sm">to</span>`;
+                    html +=
+                        `<input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="${endTime}">`;
+                    html += `</div>`;
+                } else {
+                    html += `<span class="text-gray-400 text-sm sm:text-base unavailable-text">Unavailable</span>`;
+                }
+
+                html += `</div>`;
+                html += `</div>`;
+            });
+
+            html += '</div>';
+
+            html += `
+            <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-end gap-3">
+                <button id="cancelSchedule" class="px-4 sm:px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm sm:text-base">
+                    Cancel
+                </button>
+                <button id="saveSchedule" class="px-4 sm:px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 text-sm sm:text-base">
+                    Save Changes
+                </button>
+            </div>
+        `;
+
+            $('#weeklySchedule').html(html);
+
+            // Attach event handlers
+            attachScheduleHandlers();
+        }
+
+        function convertTo24Hour(time12h) {
+            if (!time12h) return '09:00';
+
+            const [time, modifier] = time12h.split(' ');
+            let [hours, minutes] = time.split(':');
+
+            hours = parseInt(hours, 10);
+
+            if (modifier === 'PM' && hours !== 12) {
+                hours = hours + 12;
+            } else if (modifier === 'AM' && hours === 12) {
+                hours = 0;
+            }
+
+            return `${String(hours).padStart(2, '0')}:${minutes}`;
+        }
+
+        function attachScheduleHandlers() {
+            // Handle checkbox changes
+            $('.day-checkbox').on('change', function() {
+                const $dayRow = $(this).closest('.schedule-day');
+                const isChecked = $(this).is(':checked');
+                const $container = $dayRow.find('.flex-col').first();
+
+                if (isChecked) {
+                    // Enable the day
+                    $dayRow.removeClass('bg-gray-50');
+                    $container.find('span').first().removeClass('text-gray-500').addClass('text-gray-800');
+
+                    // Remove unavailable text
+                    $container.find('.unavailable-text').remove();
+
+                    // Add time inputs
+                    const timeInputsHtml = `
+                        <div class="flex items-center gap-2 flex-1">
+                            <input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="09:00">
+                            <span class="text-gray-500 text-xs sm:text-sm">to</span>
+                            <input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="17:00">
+                        </div>
+                    `;
+                    $container.append(timeInputsHtml);
+                } else {
+                    // Disable the day
+                    $dayRow.addClass('bg-gray-50');
+                    $container.find('span').first().removeClass('text-gray-800').addClass('text-gray-500');
+
+                    // Remove time inputs div
+                    $container.find('.flex.items-center.gap-2').remove();
+
+                    // Add unavailable text
+                    $container.append(
+                        '<span class="text-gray-400 text-sm sm:text-base unavailable-text">Unavailable</span>');
+                }
+            });
+
+            // Save schedule
+            $('#saveSchedule').on('click', function() {
+                saveSchedule();
+            });
+
+            // Cancel changes
+            $('#cancelSchedule').on('click', function() {
+                loadWeeklySchedule();
+            });
+        }
+
+        function saveSchedule() {
+            const schedules = [];
+            let hasError = false;
+
+            $('.schedule-day').each(function() {
+                const dayNum = parseInt($(this).data('day'));
+                const isAvailable = $(this).find('.day-checkbox').is(':checked');
+                const startTime = $(this).find('.start-time').val();
+                const endTime = $(this).find('.end-time').val();
+
+                if (isAvailable && (!startTime || !endTime)) {
+                    alert('Please set both start and end times for all available days');
+                    hasError = true;
+                    return false;
+                }
+
+                if (isAvailable && startTime >= endTime) {
+                    alert('End time must be after start time for all days');
+                    hasError = true;
+                    return false;
+                }
+
+                schedules.push({
+                    day_of_week: dayNum,
+                    is_available: isAvailable ? true : false,
+                    start_time: startTime || null,
+                    end_time: endTime || null,
+                    slot_duration: 30
+                });
+            });
+
+            if (hasError) return;
+
+            console.log('Sending schedules:', schedules);
+
+            // Show loading
+            $('#saveSchedule').prop('disabled', true).html(
+                '<span class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>Saving...'
+            );
+
+            $.ajax({
+                url: '{{ route('doctor.calendar.schedule.update') }}',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({
+                    schedules: schedules
+                }),
+                success: function(response) {
+                    console.log('Save response:', response);
+                    if (response.success) {
+                        // Show success message
+                        const successMsg = $(
+                            '<div class="fixed top-4 right-4 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">Schedule updated successfully!</div>'
+                        );
+                        $('body').append(successMsg);
+                        setTimeout(function() {
+                            successMsg.fadeOut(function() {
+                                $(this).remove();
+                            });
+                        }, 3000);
+
+                        // Reload schedule
+                        renderWeeklySchedule(response.schedule);
+                    } else {
+                        alert('Failed to update schedule: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Schedule update error:', xhr);
+                    console.error('Response:', xhr.responseText);
+                    let errorMsg = 'Failed to update schedule. Please try again.';
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+
+                    alert(errorMsg);
+                },
+                complete: function() {
+                    $('#saveSchedule').prop('disabled', false).html('Save Changes');
+                }
+            });
+        }
+
+        function showDayAppointments(date) {
+            console.log('Loading appointments for:', date);
+
+            $.ajax({
+                url: '{{ route('doctor.calendar.appointments') }}',
+                method: 'GET',
+                data: {
+                    date: date
+                },
+                success: function(response) {
+                    console.log('Appointments response:', response);
+
+                    if (response.success) {
+                        showAppointmentsModal(response);
+                    } else {
+                        alert('Failed to load appointments: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Appointments AJAX error:', error);
+                    alert('Failed to load appointments. Please try again.');
+                }
+            });
+        }
+
+        function showAppointmentsModal(data) {
+            const modalHtml = `
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                    <div class="flex justify-between items-center p-6 border-b">
+                        <h3 class="text-lg font-semibold">Appointments for ${data.date}</h3>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        ${data.appointments && data.appointments.length > 0 ? 
+                            data.appointments.map(apt => `
+                                                    <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                                                        <div class="flex justify-between items-start mb-2">
+                                                            <div>
+                                                                <p class="font-medium">${apt.patient_name}</p>
+                                                                <p class="text-sm text-gray-500">${apt.patient_age} years</p>
+                                                            </div>
+                                                            <div class="text-right">
+                                                                <p class="font-medium text-sky-600">${apt.time}</p>
+                                                                <span class="px-2 py-1 text-xs ${getStatusBadgeClass(apt.status)} rounded-full">
+                                                                    ${apt.status}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason}</p>
+                                                        <p class="text-xs text-gray-400 mt-1">${apt.appointment_number}</p>
+                                                    </div>
+                                                `).join('') : 
+                            '<p class="text-center text-gray-500 py-8">No appointments scheduled for this date</p>'
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+
+            $('body').append(modalHtml);
+        }
+
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'completed':
+                    return 'bg-emerald-100 text-emerald-700';
+                case 'confirmed':
+                    return 'bg-sky-100 text-sky-700';
+                case 'pending':
+                    return 'bg-amber-100 text-amber-700';
+                default:
+                    return 'bg-gray-100 text-gray-700';
+            }
+        }
+
+        function closeModal() {
+            $('.fixed.inset-0').remove();
+        }
+
+        function showLoading(selector, message) {
+            $(selector).html(`
+            <div class="col-span-7 text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
+                <p class="mt-2 text-gray-500">${message}</p>
+            </div>
+        `);
+        }
+
+        function showError(selector, message) {
+            $(selector).html(`
+            <div class="col-span-7 text-center py-8">
+                <div class="text-red-500 mb-2">
+                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <p class="text-gray-600">${message}</p>
+                <button onclick="location.reload()" class="mt-3 px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700">
+                    Retry
+                </button>
+            </div>
+        `);
+        }
+
+        // Close modal when clicking outside
+        $(document).on('click', function(event) {
+            if ($(event.target).hasClass('fixed') && $(event.target).hasClass('inset-0')) {
+                closeModal();
+            }
+        });
+    </script>
+@endpush

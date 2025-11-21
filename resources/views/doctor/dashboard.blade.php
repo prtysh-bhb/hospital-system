@@ -63,7 +63,7 @@
     <!-- Quick Actions -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
         <h3 class="font-semibold text-gray-800 mb-3 sm:mb-4 text-base sm:text-lg">Quick Actions</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <a href="{{ route('doctor.calendar') }}"
                 class="px-3 sm:px-4 py-2 sm:py-3 bg-sky-50 text-sky-700 rounded-lg font-medium hover:bg-sky-100 text-sm sm:text-base text-center">
                 <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

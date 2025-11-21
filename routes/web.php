@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\admin\PetientController;
+use App\Http\Controllers\admin\AdminDashboardController;
+use App\Http\Controllers\admin\AppointmentController;
 use App\Http\Controllers\admin\docktorsController;
 use App\Http\Controllers\admin\AppointmentController;
 use App\Http\Controllers\frontdesk\HistoryController;
@@ -48,7 +47,7 @@ Route::get('/get-time-slots', [BookAppointmentController::class, 'getSlots'])->n
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-details', [AdminDashboardController::class, 'getDashboardDetails'])->name('dashboard.details');
-    
+
     // Route::get('/dashboard', function () {
     //     return view('admin.dashboard');
     // })->name('dashboard');
