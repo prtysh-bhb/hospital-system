@@ -50,7 +50,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/dashboard-details', [AdminDashboardController::class, 'getDashboardDetails'])->name('dashboard.details');
 
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
-    Route::get('/appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments.list');
+    Route::get('/appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments-list');
     Route::get('/appointments/add', [AppointmentController::class, 'addAppointments'])->name('add-appointment');
     Route::get('/appointments/available-slots', [AppointmentController::class, 'getAvailableSlots'])->name('get-available-slots');
     Route::post('/appointments/store', [AppointmentController::class, 'storeAppointment'])->name('store-appointment');

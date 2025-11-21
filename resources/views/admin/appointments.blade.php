@@ -5,7 +5,8 @@
 
 @section('header-actions')
     <a href="{{ route('admin.add-appointment') }}"
-        class="px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium">+
+        class="px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium"
+        {{ request()->routeIs('admin.appointments*') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }}>+
         Add Appointment</a>
 @endsection
 
@@ -127,7 +128,7 @@
                 if (filters.date) query += `&date=${filters.date}`;
                 if (filters.status) query += `&status=${filters.status}`;
 
-                fetch("{{ route('admin.appointments.list') }}" + query).then(response => response.json()).then(res => {
+                fetch("{{ route('admin.appointments-list') }}" + query).then(response => response.json()).then(res => {
                     let data = res.data;
                     let tbody = document.getElementById("appointmentsTableBody");
                     tbody.innerHTML = "";
@@ -459,13 +460,13 @@
                         </div>
 
                         ${appointment.notes ? `
-                                                <div class="border-t pt-4">
-                                                    <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Additional Notes</label>
-                                                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                                        <p class="text-sm text-gray-700">${appointment.notes}</p>
-                                                    </div>
-                                                </div>
-                                                ` : ''}
+                                                                        <div class="border-t pt-4">
+                                                                            <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Additional Notes</label>
+                                                                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                                                                <p class="text-sm text-gray-700">${appointment.notes}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        ` : ''}
 
                         <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
                             <button type="button" onclick="closeEditModal()"

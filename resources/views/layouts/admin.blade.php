@@ -86,13 +86,14 @@
                 <span class="ml-2">Dashboard</span>
             </a>
             <a href="{{ route('admin.appointments') }}"
-                class="flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 {{ request()->routeIs('admin.appointments') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg text-sm sm:text-base">
+                class="flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 {{ request()->routeIs('admin.appointments*') || request()->routeIs('admin.add-appointment') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }}  rounded-lg text-sm sm:text-base">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 <span class="ml-2">Appointments</span>
             </a>
+
             <a href="{{ route('admin.doctors') }}"
                 class="flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 {{ request()->routeIs('admin.doctors*') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg text-sm sm:text-base">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,10 +119,10 @@
                 <span class="ml-2">Calendar</span>
             </a>
 
-            <form action="{{ route('logout') }}" method="POST"
-                class=" px-3 sm:px-4 py-2 sm:py-3 mb-2 mt-8 text-red-600 hover:bg-red-50 rounded-lg text-sm sm:text-base ">
+            <form action="{{ route('logout') }}" method="POST" class="mt-8">
                 @csrf
-                <button type="submit" class="flex items-center">
+                <button type="submit"
+                    class="w-full flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 text-red-600 hover:bg-red-50 rounded-lg text-sm sm:text-base">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -129,6 +130,7 @@
                     <span class="ml-2">Logout</span>
                 </button>
             </form>
+
         </nav>
     </aside>
 
