@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\admin\PetientController;
 use App\Http\Controllers\admin\docktorsController;
 use App\Http\Controllers\doctor\CalendarController;
