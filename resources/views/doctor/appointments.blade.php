@@ -217,41 +217,39 @@
 
                     $container.html('<div class="p-6 text-center text-sm text-gray-500">Loading appointments…</div>');
 
-                    $.get("{{ route('doctor.appointments.data') }}", params)
-                        .done(function(res) {
-                            const items = res.data || [];
-                            $container.empty();
+                    $.get("{{ route('doctor.appointments.data') }}", params).done(function(res) {
+                        const items = res.data || [];
+                        $container.empty();
 
-                            if (!items.length) {
-                                $container.append(
-                                    '<div class="p-6 text-center text-sm text-gray-500">No appointments found.</div>'
-                                );
-                                renderPagination(res);
-                                return;
-                            }
-
-                            if (params.date) {
-                                const d = params.date.split('-');
-                                if (d.length === 3) $headerDate.text(`${d[2]}-${d[1]}-${d[0]}`);
-                            } else if (items[0].date) {
-                                $headerDate.text(items[0].date);
-                            }
-
-                            items.forEach(function(a) {
-                                $container.append(renderCard(a));
-                            });
-                            renderPagination(res);
-                        }).fail(function() {
-                            $container.html(
-                                '<div class="p-6 text-center text-sm text-red-500">Failed to load appointments.</div>'
+                        if (!items.length) {
+                            $container.append(
+                                '<div class="p-6 text-center text-sm text-gray-500">No appointments found.</div>'
                             );
-                            if (window.toastr && typeof window.toastr.error === 'function') {
-                                window.toastr.error('Failed to load appointments.');
-                            }
-                        });
-                }
+                            renderPagination(res);
+                            return;
+                        }
 
-                // Initial load
+                        if (params.date) {
+                            const d = params.date.split('-');
+                            if (d.length === 3) $headerDate.text(`${d[2]}-${d[1]}-${d[0]}`);
+                        } else if (items[0].date) {
+                            $headerDate.text(items[0].date);
+                        }
+
+                        items.forEach(function(a) {
+                            $container.append(renderCard(a));
+                        });
+                        renderPagination(res);
+                    }).fail(function() {
+                        $container.html(
+                            '<div class="p-6 text-center text-sm text-red-500">Failed to load appointments.</div>'
+                        );
+
+                        if (window.toastr && typeof window.toastr.error === 'function') {
+                            window.toastr.error('Failed to load appointments.');
+                        }
+                    });
+                }
                 loadAppointments();
 
                 $('#filterBtn').on('click', function() {
@@ -286,26 +284,76 @@
 
                 $confirmBtn.on('click', function() {
                     if (!__appointmentToComplete) return;
+                    let id = __appointmentToComplete;
                     $confirmBtn.prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
-                    $.post(`/doctor/appointments/${__appointmentToComplete}/complete`)
-                        .done(function(res) {
-                            hideConfirmModal();
-                            const successMsg = (res && (res.msg || res.message)) ? (res.msg || res.message) :
-                                'Appointment completed';
-                            if (window.toastr && typeof window.toastr.success === 'function') {
-                                window.toastr.success(successMsg);
+
+                    $.ajax({
+                        url: `/doctor/appointments/${id}/complete`,
+                        type: "POST",
+                        data: {},
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            try {
+                                hideConfirmModal();
+
+                                // SUCCESS
+                                if (response.status == 200 || response.success || response.msg) {
+                                    toastr.success(response.msg ?? "Appointment completed", "", {
+                                        closeButton: false
+                                    });
+
+                                    // Reload appointments
+                                    loadAppointments();
+
+                                } else {
+                                    toastr.error(response.msg || "Something went wrong.", "", {
+                                        closeButton: false
+                                    });
+                                }
+
+                            } catch (e) {
+                                toastr.error("An error occurred while processing the response.", "", {
+                                    closeButton: false
+                                });
+                                console.error(e);
                             }
-                            loadAppointments();
-                        })
-                        .fail(function(xhr) {
+                            $confirmBtn.prop('disabled', false).removeClass(
+                                'opacity-50 cursor-not-allowed');
+                        },
+
+                        error: function(xhr, status, error) {
                             hideConfirmModal();
-                            const msg = xhr && xhr.responseJSON && (xhr.responseJSON.msg || xhr.responseJSON
-                                    .message) ? (xhr.responseJSON.msg || xhr.responseJSON.message) :
-                                'Failed to complete appointment.';
-                            if (window.toastr && typeof window.toastr.error === 'function') {
-                                window.toastr.error(msg);
+
+                            try {
+                                if (xhr.status === 422) {
+                                    let errors = xhr.responseJSON.errors;
+                                    Object.keys(errors).forEach(function(key) {
+                                        toastr.error(errors[key][0], "", {
+                                            closeButton: false
+                                        });
+                                    });
+                                } else {
+                                    toastr.error(
+                                        (xhr.responseJSON && (xhr.responseJSON.msg || xhr
+                                            .responseJSON.message)) ||
+                                        ("Error: " + error),
+                                        "", {
+                                            closeButton: false
+                                        }
+                                    );
+                                }
+                            } catch (e) {
+                                toastr.error("A server error occurred.", "", {
+                                    closeButton: false
+                                });
+                                console.error(e);
                             }
-                        });
+                            $confirmBtn.prop('disabled', false)
+                                .removeClass('opacity-50 cursor-not-allowed');
+                        }
+                    });
                 });
 
                 $container.on('click', '.btn-reschedule', function() {
@@ -313,21 +361,18 @@
                     const newDate = prompt('Enter new date (YYYY-MM-DD):');
                     if (!newDate) return;
                     $.post(`/doctor/appointments/${id}/reschedule`, {
-                            date: newDate
-                        })
-                        .done(function() {
-                            if (window.toastr && typeof window.toastr.success === 'function') {
-                                window.toastr.success('Appointment rescheduled');
-                            }
-                            loadAppointments();
-                        })
-                        .fail(function() {
-                            if (window.toastr && typeof window.toastr.error === 'function') {
-                                window.toastr.error('Failed to reschedule appointment.');
-                            }
-                        });
+                        date: newDate
+                    }).done(function() {
+                        if (window.toastr && typeof window.toastr.success === 'function') {
+                            window.toastr.success('Appointment rescheduled');
+                        }
+                        loadAppointments();
+                    }).fail(function() {
+                        if (window.toastr && typeof window.toastr.error === 'function') {
+                            window.toastr.error('Failed to reschedule appointment.');
+                        }
+                    });
                 });
-
             })();
         </script>
     @endpush
