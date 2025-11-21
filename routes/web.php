@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\admin\AdminDashboardController;
-use App\Http\Controllers\admin\AppointmentController;
+use App\Http\Controllers\admin\PetientController;
 use App\Http\Controllers\admin\docktorsController;
+use App\Http\Controllers\doctor\CalendarController;
 use App\Http\Controllers\admin\AppointmentController;
 use App\Http\Controllers\frontdesk\HistoryController;
 use App\Http\Controllers\frontdesk\PatientController;
@@ -90,19 +90,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->group(function () {
     Route::get('dashboard', [DoctorDashboarController::class, 'index'])->name('dashboard');
 
-    Route::get('/appointments', function () {
-        return view('doctor.appointments');
-    })->name('appointments');
-
     Route::get('appointments', [DoctorAppointmentController::class, 'index'])->name('appointments');
     Route::get('appointment-details/{id}', [DoctorAppointmentController::class, 'doctorAppointmentDetails'])->name('appointment-details');
     Route::get('appointment-data', [DoctorAppointmentController::class, 'doctorAppointmentData'])->name('appointments.data');
     Route::post('appointments/{id}/complete', [DoctorAppointmentController::class, 'completeAppointment'])->name('appointments.complete');
 
-
-    Route::get('/calendar', function () {
-        return view('doctor.calendar');
-    })->name('calendar');
+      Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
+    Route::get('/calendar/data', [CalendarController::class, 'getCalendarData'])->name('calendar.data');
+    Route::get('/calendar/schedule', [CalendarController::class, 'getWeeklySchedule'])->name('calendar.schedule');
+    Route::get('/calendar/appointments', [CalendarController::class, 'getDateAppointments'])->name('calendar.appointments');
+    Route::post('/calendar/schedule/update', [CalendarController::class, 'updateSchedule'])->name('calendar.schedule.update');
 });
 
 // Front Desk Routes
