@@ -141,7 +141,7 @@ class AppointmentController extends Controller
                     'last_name' => 'required|string|regex:/^[A-Za-z\s]+$/|min:2|max:100',
                     'email' => 'required|email|unique:users,email',
                     'phone' => 'required|string|regex:/^[0-9]+$/|min:10|max:15',
-                    'date_of_birth' => 'required|date|before:today',
+                    'date_of_birth' => 'required|date|before_or_equal:today',
                     'gender' => 'required|in:male,female,other',
                     'doctor_id' => ['required', Rule::exists('users', 'id')->where(function ($query) {
                         $query->where('role', 'doctor');

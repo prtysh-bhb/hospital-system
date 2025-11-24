@@ -274,7 +274,7 @@ class BookAppointmentController extends Controller
                 'last_name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s]+$/',
                 'email' => 'required|email|max:255',
                 'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'not_regex:/^0+$/'],
-                'date_of_birth' => 'required|date|before:today',
+                'date_of_birth' => 'required|date|before_or_equal:today',
                 'gender' => 'required|in:male,female,other',
                 'address' => 'nullable|string|min:10|max:500',
                 'reason_for_visit' => 'required|string|min:10|max:1000',
