@@ -417,19 +417,32 @@
 
                     // Patient Info
                     const patientName = data.patient.name;
-                    document.getElementById('patient-avatar').src = data.patient.profile_image ||
+                      const dob = data.patient.date_of_birth;
+                        console.log(dob);
+                        function calculateAge(dob) {
+                            const birth = new Date(Date.parse(dob));
+                            const today = new Date();
+                            let age = today.getFullYear() - birth.getFullYear();
+                            if (
+                                today.getMonth() < birth.getMonth() ||
+                                (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
+                            ) {
+                                age--;
+                            }
+                            return age;
+                        }
+                        const age = dob ? calculateAge(dob) : 'N/A';
+
+                        document.getElementById('patient-avatar').src = data.patient.profile_image ||
                         `https://ui-avatars.com/api/?name=${encodeURIComponent(patientName)}&background=10b981&color=fff`;
                     document.getElementById('patient-name').textContent = patientName;
                     document.getElementById('patient-id').textContent = data.patient.patient_number;
-                    document.getElementById('patient-age').textContent = `Age: ${data.patient.age || 'N/A'}`;
+                    document.getElementById('patient-age').textContent = `Age: ${age}`;
                     document.getElementById('patient-gender').textContent = data.patient.gender;
-
                     document.getElementById('patient-blood').textContent =
                         `Blood Type: ${data.patient.blood_group || 'N/A'}`;
-
                     document.getElementById('patient-email').textContent = data.patient.email || 'N/A';
                     document.getElementById('patient-phone').textContent = data.patient.phone || 'N/A';
-
                     document.getElementById('patient-address').textContent = data.patient.address || 'Not provided';
                     document.getElementById('patient-dob').textContent = data.patient.date_of_birth || 'Not provided';
                     document.getElementById('patient-emergency').textContent = data.patient.emergency_contact_name ?

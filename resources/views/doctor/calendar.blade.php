@@ -79,6 +79,28 @@
         </div>
     </div>
 
+    <!-- Appointment Details Modal -->
+    <div id="appointmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center h-full p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-800">Appointment Details</h3>
+                    <button onclick="closeAppointmentModal()" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="appointmentModalContent" class="p-6">
+                    <div class="flex justify-center items-center py-8">
+                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-600"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Debug Info (Remove in production) -->
     <div id="debugInfo" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
         <h4 class="font-semibold text-yellow-800">Debug Information</h4>
@@ -183,32 +205,64 @@
                 weekDates.push(day.toISOString().split('T')[0]);
             }
 
-            // For simplicity, we'll show a week grid
+            // Fetch appointments for all days in the week
+            Promise.all(weekDates.map(date =>
+                fetch(`{{ route('doctor.calendar.appointments') }}?date=${date}`)
+                .then(response => response.json())
+                .catch(() => ({
+                    success: false,
+                    appointments: []
+                }))
+            )).then(responses => {
+                renderWeekView(weekDates, responses);
+            });
+        }
+
+        function renderWeekView(weekDates, responses) {
+            const statusColors = {
+                'completed': 'bg-emerald-100 text-emerald-700',
+                'confirmed': 'bg-sky-100 text-sky-700',
+                'pending': 'bg-amber-100 text-amber-700',
+                'cancelled': 'bg-red-100 text-red-700'
+            };
+
             let html = '';
-            weekDates.forEach(function(dateStr) {
+            weekDates.forEach(function(dateStr, index) {
                 const date = new Date(dateStr);
                 const dayName = date.toLocaleDateString('en-US', {
                     weekday: 'short'
                 });
                 const dayNum = date.getDate();
                 const isToday = dateStr === new Date().toISOString().split('T')[0];
+                const appointments = responses[index]?.success ? responses[index].appointments : [];
 
                 html +=
-                    `<div class="col-span-1 border ${isToday ? 'border-sky-600 bg-sky-50' : 'border-gray-300'} rounded-lg p-2 min-h-[150px] cursor-pointer" data-date="${dateStr}">`;
+                    `<div class="col-span-1 border ${isToday ? 'border-2 border-sky-600 bg-sky-50' : 'border-gray-300'} rounded-lg p-2 min-h-[200px]" data-date="${dateStr}">`;
                 html +=
-                    `<div class="text-center font-semibold ${isToday ? 'text-sky-700' : 'text-gray-800'}">${dayName}</div>`;
+                    `<div class="text-center font-semibold ${isToday ? 'text-sky-700' : 'text-gray-800'} mb-2">${dayName}</div>`;
                 html +=
-                    `<div class="text-center text-2xl ${isToday ? 'text-sky-700' : 'text-gray-600'}">${dayNum}</div>`;
-                html += `<div class="mt-2 text-xs text-gray-500 text-center">Click to view</div>`;
+                    `<div class="text-center text-2xl ${isToday ? 'text-sky-700' : 'text-gray-600'} mb-3">${dayNum}</div>`;
+
+                if (appointments.length > 0) {
+                    html += '<div class="space-y-2">';
+                    appointments.forEach(apt => {
+                        const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
+                        html += `<div class="text-xs px-2 py-1.5 ${statusClass} rounded cursor-pointer hover:shadow transition" 
+                                    onclick="showAppointmentDetailsById(${apt.id})" 
+                                    title="${apt.patient_name} - ${apt.reason}">`;
+                        html += `<div class="font-semibold">${apt.time}</div>`;
+                        html += `<div class="truncate">${apt.patient_name}</div>`;
+                        html += `</div>`;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<p class="text-xs text-gray-400 text-center mt-2">No appointments</p>';
+                }
+
                 html += `</div>`;
             });
 
             $('#calendarDays').html(html);
-
-            $('#calendarDays > div').on('click', function() {
-                const date = $(this).data('date');
-                showDayAppointments(date);
-            });
         }
 
         function loadDayView() {
@@ -249,16 +303,19 @@
                 html += '<div class="space-y-3">';
                 appointments.forEach(function(apt) {
                     let statusBadge = getStatusBadgeClass(apt.status);
-                    html += `<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">`;
+                    html +=
+                        `<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onclick="showAppointmentDetailsById(${apt.id})">`;
                     html += `<div class="flex justify-between items-start">`;
                     html += `<div class="flex-1">`;
                     html += `<div class="flex items-center gap-3 mb-2">`;
                     html += `<p class="font-semibold text-lg">${apt.time}</p>`;
-                    html += `<span class="px-3 py-1 text-xs ${statusBadge} rounded-full">${apt.status}</span>`;
+                    html +=
+                        `<span class="px-3 py-1 text-xs ${statusBadge} rounded-full">${apt.status.toUpperCase()}</span>`;
                     html += `</div>`;
                     html +=
                         `<p class="font-medium text-gray-800">${apt.patient_name} <span class="text-sm text-gray-500">(${apt.patient_age} years)</span></p>`;
-                    html += `<p class="text-sm text-gray-600 mt-1"><strong>Reason:</strong> ${apt.reason}</p>`;
+                    html += `<p class="text-sm text-gray-600 mt-1"><strong>Type:</strong> ${apt.type}</p>`;
+                    html += `<p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason}</p>`;
                     html += `<p class="text-xs text-gray-400 mt-1">${apt.appointment_number}</p>`;
                     html += `</div>`;
                     html += `</div>`;
@@ -660,23 +717,23 @@
                     <div class="p-6">
                         ${data.appointments && data.appointments.length > 0 ? 
                             data.appointments.map(apt => `
-                                                    <div class="border border-gray-200 rounded-lg p-4 mb-4">
-                                                        <div class="flex justify-between items-start mb-2">
-                                                            <div>
-                                                                <p class="font-medium">${apt.patient_name}</p>
-                                                                <p class="text-sm text-gray-500">${apt.patient_age} years</p>
+                                                        <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                                                            <div class="flex justify-between items-start mb-2">
+                                                                <div>
+                                                                    <p class="font-medium">${apt.patient_name}</p>
+                                                                    <p class="text-sm text-gray-500">${apt.patient_age} years</p>
+                                                                </div>
+                                                                <div class="text-right">
+                                                                    <p class="font-medium text-sky-600">${apt.time}</p>
+                                                                    <span class="px-2 py-1 text-xs ${getStatusBadgeClass(apt.status)} rounded-full">
+                                                                        ${apt.status}
+                                                                    </span>
+                                                                </div>
                                                             </div>
-                                                            <div class="text-right">
-                                                                <p class="font-medium text-sky-600">${apt.time}</p>
-                                                                <span class="px-2 py-1 text-xs ${getStatusBadgeClass(apt.status)} rounded-full">
-                                                                    ${apt.status}
-                                                                </span>
-                                                            </div>
+                                                            <p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason}</p>
+                                                            <p class="text-xs text-gray-400 mt-1">${apt.appointment_number}</p>
                                                         </div>
-                                                        <p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason}</p>
-                                                        <p class="text-xs text-gray-400 mt-1">${apt.appointment_number}</p>
-                                                    </div>
-                                                `).join('') : 
+                                                    `).join('') : 
                             '<p class="text-center text-gray-500 py-8">No appointments scheduled for this date</p>'
                         }
                     </div>
@@ -729,7 +786,139 @@
         `);
         }
 
+        // Show appointment details by ID
+        function showAppointmentDetailsById(appointmentId) {
+            const modal = document.getElementById('appointmentModal');
+            const modalContent = document.getElementById('appointmentModalContent');
+
+            modal.classList.remove('hidden');
+
+            modalContent.innerHTML = `
+                <div class="flex justify-center items-center py-8">
+                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-600"></div>
+                </div>
+            `;
+
+            fetch(`{{ route('doctor.appointment-details', ['id' => ':id']) }}`.replace(':id', appointmentId) +
+                    '/details-json')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 200) {
+                        renderAppointmentDetails(data.data);
+                    } else {
+                        showAppointmentError('Failed to load appointment details.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAppointmentError('An error occurred while loading the appointment.');
+                });
+        }
+
+        function renderAppointmentDetails(data) {
+            const apt = data.appointment;
+            const patient = data.patient;
+
+            const statusColors = {
+                'confirmed': 'bg-green-100 text-green-800',
+                'pending': 'bg-amber-100 text-amber-800',
+                'completed': 'bg-sky-100 text-sky-800',
+                'cancelled': 'bg-red-100 text-red-800'
+            };
+
+            const modalContent = document.getElementById('appointmentModalContent');
+            modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-500">#${apt.appointment_number}</span>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusColors[apt.status] || 'bg-gray-100 text-gray-800'}">
+                            ${apt.status.toUpperCase()}
+                        </span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase mb-1">Date</p>
+                            <p class="text-sm font-semibold text-gray-800">${apt.date}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase mb-1">Time</p>
+                            <p class="text-sm font-semibold text-gray-800">${apt.time}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase mb-1">Type</p>
+                            <p class="text-sm font-semibold text-gray-800">${apt.type}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase mb-1">Duration</p>
+                            <p class="text-sm font-semibold text-gray-800">${apt.duration} minutes</p>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Patient Information
+                        </h4>
+                        <div class="space-y-2 pl-7">
+                            <p class="text-sm"><span class="font-medium text-gray-700">Name:</span> ${patient.name}</p>
+                            <p class="text-sm"><span class="font-medium text-gray-700">Age:</span> ${patient.age || 'N/A'} years</p>
+                            <p class="text-sm"><span class="font-medium text-gray-700">Gender:</span> ${patient.gender}</p>
+                            <p class="text-sm"><span class="font-medium text-gray-700">Phone:</span> ${patient.phone || 'N/A'}</p>
+                            <p class="text-sm"><span class="font-medium text-gray-700">Email:</span> ${patient.email || 'N/A'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Appointment Details</h4>
+                        <div class="space-y-2">
+                            <p class="text-sm"><span class="font-medium text-gray-700">Reason:</span> ${apt.reason || 'Not specified'}</p>
+                            ${apt.symptoms ? `<p class="text-sm"><span class="font-medium text-gray-700">Symptoms:</span> ${apt.symptoms}</p>` : ''}
+                            ${apt.notes ? `<p class="text-sm"><span class="font-medium text-gray-700">Notes:</span> ${apt.notes}</p>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4 flex gap-3">
+                        <a href="{{ route('doctor.appointment-details', ['id' => ':id']) }}".replace(':id', apt.id) 
+                           class="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 text-sm font-medium text-center">
+                            View Full Details
+                        </a>
+                        <button onclick="closeAppointmentModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showAppointmentError(message) {
+            const modalContent = document.getElementById('appointmentModalContent');
+            modalContent.innerHTML = `
+                <div class="text-center py-8">
+                    <svg class="w-16 h-16 mx-auto text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-gray-600">${message}</p>
+                    <button onclick="closeAppointmentModal()" class="mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                        Close
+                    </button>
+                </div>
+            `;
+        }
+
+        function closeAppointmentModal() {
+            document.getElementById('appointmentModal').classList.add('hidden');
+        }
+
         // Close modal when clicking outside
+        document.getElementById('appointmentModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAppointmentModal();
+            }
+        });
+
         $(document).on('click', function(event) {
             if ($(event.target).hasClass('fixed') && $(event.target).hasClass('inset-0')) {
                 closeModal();

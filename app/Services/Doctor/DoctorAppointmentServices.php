@@ -98,6 +98,7 @@ class DoctorAppointmentServices
 
         if (! $appointment) {
             \Log::error('Appointment not found for vital signs', ['appointment_id' => $appointmentId, 'doctor_id' => $doctorId]);
+
             return false;
         }
 
@@ -131,8 +132,9 @@ class DoctorAppointmentServices
             \Log::error('Failed to save vital signs', [
                 'error' => $e->getMessage(),
                 'appointment_id' => $appointmentId,
-                'vitals_data' => $vitalsData
+                'vitals_data' => $vitalsData,
             ]);
+
             return false;
         }
     }
@@ -223,26 +225,26 @@ class DoctorAppointmentServices
             'appointment_time' => $appointmentTime,
             'duration_minutes' => $followUpData['duration_minutes'] ?? 30,
             'status' => 'confirmed',
-            'appointment_type' => 'follow-up',
+            'appointment_type' => 'follow_up',
             'reason_for_visit' => $followUpData['reason'] ?? 'Follow-up appointment',
             'booked_by' => $doctorId,
-            'booked_via' => 'doctor',
+            'booked_via' => 'phone',
         ];
 
         try {
             $appointment = \App\Models\Appointment::create($data);
+
             return $appointment;
         } catch (\Exception $e) {
-            \Log::error('Failed to create follow-up appointment: ' . $e->getMessage());
-            return ['error' => 'Failed to create appointment: ' . $e->getMessage()];
+            \Log::error('Failed to create follow-up appointment: '.$e->getMessage());
+
+            return ['error' => 'Failed to create appointment: '.$e->getMessage()];
         }
     }
 
     /**
      * Get available time slots for a doctor on a specific date.
      *
-     * @param int $doctorId
-     * @param string $date
      * @return array
      */
     public function getAvailableSlots(int $doctorId, string $date)
