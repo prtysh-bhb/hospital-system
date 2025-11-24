@@ -251,8 +251,11 @@
 
           <!-- Action Buttons -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
-              <button
-                  class="flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-white border-2 border-sky-600 text-sky-600 font-medium sm:font-semibold rounded-lg hover:bg-sky-50 transition-colors text-sm sm:text-base">
+              <button id="downloadPDFAppointment" data-id="{{ $appointment->id }}"
+                  data-apt-no="{{ $appointment->appointment_number }}"
+                  class="flex
+                  items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-white border-2 border-sky-600 text-sky-600
+                  font-medium sm:font-semibold rounded-lg hover:bg-sky-50 transition-colors text-sm sm:text-base">
                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -332,3 +335,40 @@
           </div>
       </div>
   </footer>
+
+  @push('scripts')
+      <script>
+          $(document).on('click', '#downloadPDFAppointment', function(e) {
+              e.preventDefault(); // ✅ Prevent default behavior (form submit or link navigation)
+
+              let appointmentId = $(this).data('id');
+              let appointmentNo = $(this).data('apt-no');
+
+              $.ajax({
+                  url: "/download-appointment?appointment_id=" + appointmentId,
+                  type: "GET",
+                  xhrFields: {
+                      responseType: 'blob' // Important to receive PDF
+                  },
+                  success: function(data) {
+                      const blob = new Blob([data], {
+                          type: "application/pdf"
+                      });
+                      const link = document.createElement('a');
+                      link.href = URL.createObjectURL(blob);
+                      link.download = "appointment-" + appointmentNo + ".pdf";
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                  },
+                  error: function(xhr) {
+                      if (xhr.status === 404) {
+                          toastr.error('Appointment not found.');
+                      } else {
+                          toastr.error("Something went wrong. Please try again later.");
+                      }
+                  }
+              });
+          });
+      </script>
+  @endpush

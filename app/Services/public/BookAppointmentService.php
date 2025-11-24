@@ -133,7 +133,6 @@ class BookAppointmentService
 
     public function getAppointmentDetails($appointmentId)
     {
-        return Appointment::with(['patient', 'doctor.doctorProfile.specialty'])
-            ->findOrFail($appointmentId);
+        return Appointment::with(['patient', 'doctor.doctorProfile.specialty'])->findOrFail($appointmentId);
     }
 }

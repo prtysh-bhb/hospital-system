@@ -44,6 +44,7 @@ Route::controller(AuthController::class)->group(function () {
 Route::get('booking', [BookAppointmentController::class, 'index'])->name('booking');
 Route::post('booking', [BookAppointmentController::class, 'store'])->name('booking.store');
 Route::get('/get-time-slots', [BookAppointmentController::class, 'getSlots'])->name('get.time.slots');
+Route::get('/download-appointment', [BookAppointmentController::class, 'downloadPDFAppointment'])->name('download.appointment');
 
 // Admin Routes
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
