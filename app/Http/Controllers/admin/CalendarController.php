@@ -98,4 +98,50 @@ class CalendarController extends Controller
             ], 404);
         }
     }
+
+    /**
+     * Get week view data (AJAX)
+     */
+    public function getWeekView(Request $request)
+    {
+        try {
+            $startDate = $request->input('start_date', Carbon::now()->startOfWeek()->format('Y-m-d'));
+            $doctorId = $request->input('doctor_id', null);
+
+            $weekData = $this->calendarService->getWeekData($startDate, $doctorId);
+
+            return response()->json([
+                'success' => true,
+                'data' => $weekData,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load week view',
+            ], 400);
+        }
+    }
+
+    /**
+     * Get day view data (AJAX)
+     */
+    public function getDayView(Request $request)
+    {
+        try {
+            $date = $request->input('date', Carbon::today()->format('Y-m-d'));
+            $doctorId = $request->input('doctor_id', null);
+
+            $dayData = $this->calendarService->getDayData($date, $doctorId);
+
+            return response()->json([
+                'success' => true,
+                'data' => $dayData,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load day view',
+            ], 400);
+        }
+    }
 }

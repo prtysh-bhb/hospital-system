@@ -27,26 +27,25 @@
     <div class="bg-white p-3 sm:p-4 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
             <div class="flex items-center space-x-2 sm:space-x-4">
-                <a href="{{ route('admin.calendar', ['year' => explode('-', $calendarData['prev_month'])[0], 'month' => explode('-', $calendarData['prev_month'])[1], 'doctor_id' => $doctorId]) }}"
-                    class="p-2 hover:bg-gray-100 rounded-lg">
+                <button id="prevPeriod" class="p-2 hover:bg-gray-100 rounded-lg">
                     <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                </a>
-                <h3 class="text-base sm:text-lg font-semibold text-gray-800">{{ $calendarData['month_name'] }}</h3>
-                <a href="{{ route('admin.calendar', ['year' => explode('-', $calendarData['next_month'])[0], 'month' => explode('-', $calendarData['next_month'])[1], 'doctor_id' => $doctorId]) }}"
-                    class="p-2 hover:bg-gray-100 rounded-lg">
+                </button>
+                <h3 id="periodTitle" class="text-base sm:text-lg font-semibold text-gray-800">
+                    {{ $calendarData['month_name'] }}</h3>
+                <button id="nextPeriod" class="p-2 hover:bg-gray-100 rounded-lg">
                     <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
-                </a>
+                </button>
             </div>
             <div class="flex gap-2">
-                <button
+                <button id="viewMonth"
                     class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-white bg-sky-600 rounded-lg">Month</button>
-                <button
+                <button id="viewWeek"
                     class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Week</button>
-                <button
+                <button id="viewDay"
                     class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Day</button>
             </div>
         </div>
@@ -77,7 +76,7 @@
     </div>
 
     <!-- Month Calendar View -->
-    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
+    <div id="monthView" class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
         <!-- Calendar Header -->
         <div class="grid grid-cols-7 border-b border-gray-200">
             <div class="p-2 sm:p-4 text-center">
@@ -104,7 +103,7 @@
         </div>
 
         <!-- Calendar Grid -->
-        <div class="grid grid-cols-7">
+        <div class="grid grid-cols-7" id="calendarGrid">
             @foreach ($calendarData['days'] as $day)
                 @php
                     $colors = ['sky', 'purple', 'emerald', 'amber', 'rose', 'indigo', 'pink'];
@@ -154,6 +153,12 @@
         </div>
     </div>
 
+    <!-- Week View -->
+    <div id="weekView" class="hidden bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6"></div>
+
+    <!-- Day View -->
+    <div id="dayView" class="hidden bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6"></div>
+
     <!-- Appointment Details Modal -->
     <div id="appointmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
         <div class="flex items-center justify-center h-full p-4">
@@ -162,7 +167,8 @@
                     <h3 class="text-xl font-semibold text-gray-800">Appointment Details</h3>
                     <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12">
                             </path>
                         </svg>
                     </button>
@@ -257,17 +263,17 @@
                                             <span class="text-sm font-medium text-gray-800">${apt.patient_name}</span>
                                         </div>
                                         ${apt.patient_phone ? `
-                                                <div class="flex justify-between">
-                                                    <span class="text-sm text-gray-600">Phone:</span>
-                                                    <span class="text-sm font-medium text-gray-800">${apt.patient_phone}</span>
-                                                </div>
-                                                ` : ''}
+                                                    <div class="flex justify-between">
+                                                        <span class="text-sm text-gray-600">Phone:</span>
+                                                        <span class="text-sm font-medium text-gray-800">${apt.patient_phone}</span>
+                                                    </div>
+                                                    ` : ''}
                                         ${apt.patient_email ? `
-                                                <div class="flex justify-between">
-                                                    <span class="text-sm text-gray-600">Email:</span>
-                                                    <span class="text-sm font-medium text-gray-800">${apt.patient_email}</span>
-                                                </div>
-                                                ` : ''}
+                                                    <div class="flex justify-between">
+                                                        <span class="text-sm text-gray-600">Email:</span>
+                                                        <span class="text-sm font-medium text-gray-800">${apt.patient_email}</span>
+                                                    </div>
+                                                    ` : ''}
                                     </div>
                                 </div>
                                 
@@ -284,11 +290,11 @@
                                             <span class="text-sm font-medium text-gray-800">${apt.doctor_name}</span>
                                         </div>
                                         ${apt.doctor_specialty ? `
-                                                <div class="flex justify-between">
-                                                    <span class="text-sm text-gray-600">Specialty:</span>
-                                                    <span class="text-sm font-medium text-gray-800">${apt.doctor_specialty}</span>
-                                                </div>
-                                                ` : ''}
+                                                    <div class="flex justify-between">
+                                                        <span class="text-sm text-gray-600">Specialty:</span>
+                                                        <span class="text-sm font-medium text-gray-800">${apt.doctor_specialty}</span>
+                                                    </div>
+                                                    ` : ''}
                                     </div>
                                 </div>
                                 
@@ -304,23 +310,23 @@
                                             <span class="text-sm font-medium text-gray-800">${apt.duration_minutes} minutes</span>
                                         </div>
                                         ${apt.reason_for_visit ? `
-                                                <div>
-                                                    <span class="text-sm text-gray-600">Reason:</span>
-                                                    <p class="text-sm font-medium text-gray-800 mt-1">${apt.reason_for_visit}</p>
-                                                </div>
-                                                ` : ''}
+                                                    <div>
+                                                        <span class="text-sm text-gray-600">Reason:</span>
+                                                        <p class="text-sm font-medium text-gray-800 mt-1">${apt.reason_for_visit}</p>
+                                                    </div>
+                                                    ` : ''}
                                         ${apt.symptoms ? `
-                                                <div>
-                                                    <span class="text-sm text-gray-600">Symptoms:</span>
-                                                    <p class="text-sm font-medium text-gray-800 mt-1">${apt.symptoms}</p>
-                                                </div>
-                                                ` : ''}
+                                                    <div>
+                                                        <span class="text-sm text-gray-600">Symptoms:</span>
+                                                        <p class="text-sm font-medium text-gray-800 mt-1">${apt.symptoms}</p>
+                                                    </div>
+                                                    ` : ''}
                                         ${apt.notes ? `
-                                                <div>
-                                                    <span class="text-sm text-gray-600">Notes:</span>
-                                                    <p class="text-sm font-medium text-gray-800 mt-1">${apt.notes}</p>
-                                                </div>
-                                                ` : ''}
+                                                    <div>
+                                                        <span class="text-sm text-gray-600">Notes:</span>
+                                                        <p class="text-sm font-medium text-gray-800 mt-1">${apt.notes}</p>
+                                                    </div>
+                                                    ` : ''}
                                     </div>
                                 </div>
                                 
@@ -430,13 +436,13 @@
                                             ${apt.specialty ? `<span class="text-gray-500 ml-1">(${apt.specialty})</span>` : ''}
                                         </div>
                                         ${apt.reason ? `
-                                            <div class="flex items-start text-sm">
-                                                <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                                <span class="text-gray-600">${apt.reason}</span>
-                                            </div>
-                                            ` : ''}
+                                                <div class="flex items-start text-sm">
+                                                    <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                    <span class="text-gray-600">${apt.reason}</span>
+                                                </div>
+                                                ` : ''}
                                     </div>
                                 </div>
                             `).join('');
@@ -480,5 +486,260 @@
                 closeDateModal();
             }
         });
+
+        // View switching and navigation
+        let currentView = 'month';
+        let currentYear = {{ $calendarData['year'] }};
+        let currentMonth = {{ $calendarData['month'] }};
+        let currentDate = new Date();
+        let currentDoctorId = '{{ $doctorId ?? '' }}';
+
+        // Initialize calendar grid with server data
+        const calendarGrid = document.getElementById('calendarGrid');
+        calendarGrid.innerHTML = `@foreach ($calendarData['days'] as $day)
+                @php
+                    $colors = ['sky', 'purple', 'emerald', 'amber', 'rose', 'indigo', 'pink'];
+                    $borderClass = in_array($loop->index % 7, [0, 1, 2, 3, 4, 5]) ? 'border-r' : '';
+                    $bgClass = !$day['is_current_month'] ? 'bg-gray-50' : '';
+                    $todayBg = $day['is_today'] ? 'bg-sky-50' : '';
+                @endphp
+                <div
+                    class="p-4 {{ $borderClass }} border-b border-gray-100 h-32 {{ $bgClass }} {{ $todayBg }}">
+                    <p
+                        class="text-sm font-semibold mb-2 {{ !$day['is_current_month'] ? 'text-gray-400' : 'text-gray-800' }} {{ $day['is_today'] ? 'text-sky-700' : '' }}">
+                        {{ $day['day'] }}
+                        @if ($day['is_today'])
+                            <span class="text-xs"> • Today</span>
+                        @endif
+                    </p>
+                    <div class="space-y-1">
+                        @foreach ($day['appointments'] as $index => $appointment)
+                            @if ($index < 2)
+                                @php
+                                    $color = $colors[$index % count($colors)];
+                                    $statusColors = [
+                                        'confirmed' => 'emerald',
+                                        'pending' => 'amber',
+                                        'completed' => 'sky',
+                                        'cancelled' => 'red',
+                                    ];
+                                    $statusColor = $statusColors[$appointment['status']] ?? 'gray';
+                                @endphp
+                                <div class="text-xs px-2 py-1 bg-{{ $statusColor }}-100 text-{{ $statusColor }}-700 rounded truncate cursor-pointer hover:bg-{{ $statusColor }}-200"
+                                    onclick="showAppointmentDetails({{ $appointment['id'] }})"
+                                    title="{{ $appointment['time'] }} - {{ $appointment['patient_name'] }} with {{ $appointment['doctor_name'] }}">
+                                    {{ $appointment['time'] }} {{ $appointment['doctor_short'] }}
+                                </div>
+                            @endif
+                        @endforeach
+                        @if (count($day['appointments']) > 2)
+                            <div class="text-xs text-sky-600 px-2 cursor-pointer hover:text-sky-800 font-medium"
+                                onclick="showDateAppointments('{{ $day['date'] }}')"
+                                title="Click to see all appointments">
+                                +{{ count($day['appointments']) - 2 }} more
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endforeach`;
+
+        // View buttons
+        document.getElementById('viewMonth').addEventListener('click', () => switchView('month'));
+        document.getElementById('viewWeek').addEventListener('click', () => switchView('week'));
+        document.getElementById('viewDay').addEventListener('click', () => switchView('day'));
+
+        // Navigation buttons
+        document.getElementById('prevPeriod').addEventListener('click', navigatePrev);
+        document.getElementById('nextPeriod').addEventListener('click', navigateNext);
+
+        function switchView(view) {
+            currentView = view;
+
+            // Update button styles
+            document.getElementById('viewMonth').className = 'px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ' +
+                (view === 'month' ? 'text-white bg-sky-600' :
+                    'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50') + ' rounded-lg';
+            document.getElementById('viewWeek').className = 'px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ' +
+                (view === 'week' ? 'text-white bg-sky-600' :
+                    'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50') + ' rounded-lg';
+            document.getElementById('viewDay').className = 'px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ' +
+                (view === 'day' ? 'text-white bg-sky-600' :
+                    'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50') + ' rounded-lg';
+
+            // Show/hide views
+            document.getElementById('monthView').classList.toggle('hidden', view !== 'month');
+            document.getElementById('weekView').classList.toggle('hidden', view !== 'week');
+            document.getElementById('dayView').classList.toggle('hidden', view !== 'day');
+
+            // Load appropriate view
+            if (view === 'week') {
+                loadWeekView();
+            } else if (view === 'day') {
+                loadDayView();
+            }
+        }
+
+        function navigatePrev() {
+            if (currentView === 'month') {
+                currentMonth--;
+                if (currentMonth < 1) {
+                    currentMonth = 12;
+                    currentYear--;
+                }
+                window.location.href =
+                    `{{ route('admin.calendar') }}?year=${currentYear}&month=${currentMonth}${currentDoctorId ? '&doctor_id=' + currentDoctorId : ''}`;
+            } else if (currentView === 'week') {
+                currentDate.setDate(currentDate.getDate() - 7);
+                loadWeekView();
+            } else if (currentView === 'day') {
+                currentDate.setDate(currentDate.getDate() - 1);
+                loadDayView();
+            }
+        }
+
+        function navigateNext() {
+            if (currentView === 'month') {
+                currentMonth++;
+                if (currentMonth > 12) {
+                    currentMonth = 1;
+                    currentYear++;
+                }
+                window.location.href =
+                    `{{ route('admin.calendar') }}?year=${currentYear}&month=${currentMonth}${currentDoctorId ? '&doctor_id=' + currentDoctorId : ''}`;
+            } else if (currentView === 'week') {
+                currentDate.setDate(currentDate.getDate() + 7);
+                loadWeekView();
+            } else if (currentView === 'day') {
+                currentDate.setDate(currentDate.getDate() + 1);
+                loadDayView();
+            }
+        }
+
+        function loadWeekView() {
+            const startOfWeek = new Date(currentDate);
+            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+            const startDate = startOfWeek.toISOString().split('T')[0];
+
+            document.getElementById('weekView').innerHTML =
+                '<div class="text-center py-8"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-600 mx-auto"></div></div>';
+
+            fetch(
+                    `{{ route('admin.calendar.week') }}?start_date=${startDate}${currentDoctorId ? '&doctor_id=' + currentDoctorId : ''}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('periodTitle').textContent = data.data.week_title;
+                        renderWeekView(data.data.days);
+                    }
+                })
+                .catch(error => console.error('Error loading week view:', error));
+        }
+
+        function renderWeekView(days) {
+            const statusColors = {
+                'confirmed': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                'pending': 'bg-amber-100 text-amber-700 border-amber-200',
+                'completed': 'bg-sky-100 text-sky-700 border-sky-200',
+                'cancelled': 'bg-red-100 text-red-700 border-red-200'
+            };
+
+            let html = '<div class="grid grid-cols-1 md:grid-cols-7 gap-4">';
+
+            days.forEach(day => {
+                const isToday = day.is_today;
+                html +=
+                    `<div class="border ${isToday ? 'border-sky-500 border-2 bg-sky-50' : 'border-gray-200'} rounded-lg p-3">`;
+                html += `<div class="text-center mb-3">`;
+                html += `<p class="text-xs font-medium text-gray-500">${day.day_short}</p>`;
+                html +=
+                    `<p class="text-2xl font-bold ${isToday ? 'text-sky-600' : 'text-gray-800'}">${day.day_num}</p>`;
+                html += `</div>`;
+
+                if (day.appointments.length > 0) {
+                    html += '<div class="space-y-2">';
+                    day.appointments.forEach(apt => {
+                        const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
+                        html += `<div class="text-xs px-2 py-1.5 ${statusClass} rounded cursor-pointer hover:shadow" 
+                                    onclick="showAppointmentDetails(${apt.id})" 
+                                    title="${apt.patient_name} - ${apt.reason}">`;
+                        html += `<div class="font-semibold">${apt.time}</div>`;
+                        html += `<div class="truncate">${apt.patient_name}</div>`;
+                        html += `</div>`;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<p class="text-xs text-gray-400 text-center mt-2">No appointments</p>';
+                }
+
+                html += `</div>`;
+            });
+
+            html += '</div>';
+            document.getElementById('weekView').innerHTML = html;
+        }
+
+        function loadDayView() {
+            const dateStr = currentDate.toISOString().split('T')[0];
+
+            document.getElementById('dayView').innerHTML =
+                '<div class="text-center py-8"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-600 mx-auto"></div></div>';
+
+            fetch(
+                    `{{ route('admin.calendar.day') }}?date=${dateStr}${currentDoctorId ? '&doctor_id=' + currentDoctorId : ''}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('periodTitle').textContent = data.data.date_title;
+                        renderDayView(data.data);
+                    }
+                })
+                .catch(error => console.error('Error loading day view:', error));
+        }
+
+        function renderDayView(dayData) {
+            const statusColors = {
+                'confirmed': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                'pending': 'bg-amber-100 text-amber-700 border-amber-200',
+                'completed': 'bg-sky-100 text-sky-700 border-sky-200',
+                'cancelled': 'bg-red-100 text-red-700 border-red-200'
+            };
+
+            let html = '';
+
+            if (dayData.appointments.length > 0) {
+                html += '<div class="space-y-4">';
+                dayData.appointments.forEach(apt => {
+                    const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
+                    html += `<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer" 
+                                onclick="showAppointmentDetails(${apt.id})">`;
+                    html += `<div class="flex justify-between items-start mb-3">`;
+                    html += `<div class="flex-1">`;
+                    html += `<div class="flex items-center gap-3 mb-2">`;
+                    html += `<p class="text-lg font-semibold text-gray-800">${apt.time}</p>`;
+                    html +=
+                        `<span class="px-3 py-1 text-xs ${statusClass} rounded-full">${apt.status.toUpperCase()}</span>`;
+                    html += `</div>`;
+                    html +=
+                        `<p class="font-medium text-gray-800">${apt.patient_name} ${apt.patient_age ? `(${apt.patient_age} years)` : ''}</p>`;
+                    html +=
+                        `<p class="text-sm text-gray-600 mt-1"><strong>Doctor:</strong> ${apt.doctor_name} - ${apt.specialty}</p>`;
+                    html +=
+                        `<p class="text-sm text-gray-600"><strong>Type:</strong> ${apt.type} (${apt.duration} min)</p>`;
+                    html += `<p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason || 'N/A'}</p>`;
+                    html += `<p class="text-xs text-gray-400 mt-2">${apt.appointment_number}</p>`;
+                    html += `</div></div></div>`;
+                });
+                html += '</div>';
+            } else {
+                html += `<div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="text-gray-500">No appointments scheduled for this day</p>
+                </div>`;
+            }
+
+            document.getElementById('dayView').innerHTML = html;
+        }
     </script>
 @endsection

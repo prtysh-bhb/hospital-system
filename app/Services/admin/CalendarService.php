@@ -160,4 +160,121 @@ class CalendarService
             'cancelled' => $appointments->where('status', 'cancelled')->count(),
         ];
     }
+
+    /**
+     * Get week view data
+     */
+    public function getWeekData($startDate, $doctorId = null)
+    {
+        $start = Carbon::parse($startDate)->startOfWeek();
+        $end = $start->copy()->endOfWeek();
+
+        $query = Appointment::with(['patient', 'doctor.doctorProfile.specialty'])
+            ->whereBetween('appointment_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
+            ->orderBy('appointment_time');
+
+        if ($doctorId) {
+            $query->where('doctor_id', $doctorId);
+        }
+
+        $appointments = $query->get()->groupBy(function ($appointment) {
+            return Carbon::parse($appointment->appointment_date)->format('Y-m-d');
+        });
+
+        $weekDays = [];
+        $currentDate = $start->copy();
+
+        for ($i = 0; $i < 7; $i++) {
+            $dateKey = $currentDate->format('Y-m-d');
+            $dayAppointments = [];
+
+            if (isset($appointments[$dateKey])) {
+                $dayAppointments = $appointments[$dateKey]->map(function ($apt) {
+                    if (!$apt->patient || !$apt->doctor) {
+                        return null;
+                    }
+
+                    return [
+                        'id' => $apt->id,
+                        'time' => Carbon::parse($apt->appointment_time)->format('g:i A'),
+                        'status' => $apt->status,
+                        'patient_name' => $apt->patient->first_name . ' ' . $apt->patient->last_name,
+                        'doctor_name' => 'Dr. ' . $apt->doctor->last_name,
+                        'reason' => $apt->reason_for_visit,
+                        'appointment_number' => $apt->appointment_number,
+                    ];
+                })->filter()->values()->toArray();
+            }
+
+            $weekDays[] = [
+                'date' => $dateKey,
+                'day_name' => $currentDate->format('l'),
+                'day_short' => $currentDate->format('D'),
+                'day_num' => $currentDate->day,
+                'is_today' => $dateKey === Carbon::today()->format('Y-m-d'),
+                'appointments' => $dayAppointments,
+            ];
+
+            $currentDate->addDay();
+        }
+
+        return [
+            'days' => $weekDays,
+            'week_title' => $start->format('M d') . ' - ' . $end->format('M d, Y'),
+            'start_date' => $start->format('Y-m-d'),
+            'end_date' => $end->format('Y-m-d'),
+        ];
+    }
+
+    /**
+     * Get day view data with time slots
+     */
+    public function getDayData($date, $doctorId = null)
+    {
+        $dayDate = Carbon::parse($date);
+
+        $query = Appointment::with(['patient', 'doctor.doctorProfile.specialty'])
+            ->whereDate('appointment_date', $date)
+            ->orderBy('appointment_time');
+
+        if ($doctorId) {
+            $query->where('doctor_id', $doctorId);
+        }
+
+        $appointments = $query->get()->map(function ($apt) {
+            if (!$apt->patient || !$apt->doctor) {
+                return null;
+            }
+
+            $age = null;
+            if ($apt->patient->date_of_birth) {
+                try {
+                    $age = Carbon::parse($apt->patient->date_of_birth)->age;
+                } catch (\Exception $e) {
+                    $age = null;
+                }
+            }
+
+            return [
+                'id' => $apt->id,
+                'appointment_number' => $apt->appointment_number,
+                'time' => Carbon::parse($apt->appointment_time)->format('g:i A'),
+                'status' => $apt->status,
+                'patient_name' => $apt->patient->first_name . ' ' . $apt->patient->last_name,
+                'patient_age' => $age,
+                'doctor_name' => 'Dr. ' . $apt->doctor->first_name . ' ' . $apt->doctor->last_name,
+                'specialty' => $apt->doctor->doctorProfile?->specialty?->name ?? 'General',
+                'reason' => $apt->reason_for_visit,
+                'type' => ucfirst(str_replace('_', ' ', $apt->appointment_type)),
+                'duration' => $apt->duration_minutes,
+            ];
+        })->filter()->values();
+
+        return [
+            'date' => $date,
+            'date_title' => $dayDate->format('l, F d, Y'),
+            'is_today' => $date === Carbon::today()->format('Y-m-d'),
+            'appointments' => $appointments,
+        ];
+    }
 }

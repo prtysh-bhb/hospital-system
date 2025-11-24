@@ -75,6 +75,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::get('/calendar', [AdminCalendarController::class, 'index'])->name('calendar');
     Route::get('/calendar/appointments', [AdminCalendarController::class, 'getDateAppointments'])->name('calendar.appointments');
+    Route::get('/calendar/week', [AdminCalendarController::class, 'getWeekView'])->name('calendar.week');
+    Route::get('/calendar/day', [AdminCalendarController::class, 'getDayView'])->name('calendar.day');
     Route::get('/appointments/{id}/details', [AdminCalendarController::class, 'getAppointmentDetails'])->name('appointments.details');
 });
 
