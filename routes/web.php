@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\admin\PetientController;
 use App\Http\Controllers\admin\docktorsController;
 use App\Http\Controllers\doctor\CalendarController;
+use App\Http\Controllers\admin\CalendarController as AdminCalendarController;
 use App\Http\Controllers\admin\AppointmentController;
 use App\Http\Controllers\frontdesk\HistoryController;
 use App\Http\Controllers\frontdesk\PatientController;
@@ -72,9 +73,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('/patients/{id}', [PetientController::class, 'update'])->name('patient-update');
     Route::delete('/patients/{id}', [PetientController::class, 'destroy'])->name('patient-delete');
 
-    Route::get('/calendar', function () {
-        return view('admin.calendar');
-    })->name('calendar');
+    Route::get('/calendar', [AdminCalendarController::class, 'index'])->name('calendar');
+    Route::get('/calendar/appointments', [AdminCalendarController::class, 'getDateAppointments'])->name('calendar.appointments');
+    Route::get('/appointments/{id}/details', [AdminCalendarController::class, 'getAppointmentDetails'])->name('appointments.details');
 });
 
 // Doctor Routes
@@ -84,7 +85,13 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
     Route::get('appointments', [DoctorAppointmentController::class, 'index'])->name('appointments');
     Route::get('appointment-details/{id}', [DoctorAppointmentController::class, 'doctorAppointmentDetails'])->name('appointment-details');
     Route::get('appointment-data', [DoctorAppointmentController::class, 'doctorAppointmentData'])->name('appointments.data');
+    Route::get('appointments/{id}/details-json', [DoctorAppointmentController::class, 'getAppointmentDetailsJson'])->name('appointments.details.json');
     Route::post('appointments/{id}/complete', [DoctorAppointmentController::class, 'completeAppointment'])->name('appointments.complete');
+    Route::post('appointments/{id}/notes', [DoctorAppointmentController::class, 'saveConsultationNotes'])->name('appointments.notes');
+    Route::post('appointments/{id}/vital-signs', [DoctorAppointmentController::class, 'saveVitalSigns'])->name('appointments.vitals');
+    Route::post('appointments/{id}/prescription', [DoctorAppointmentController::class, 'savePrescription'])->name('appointments.prescription');
+    Route::post('appointments/{id}/follow-up', [DoctorAppointmentController::class, 'scheduleFollowUp'])->name('appointments.followup');
+    Route::get('appointments/available-slots', [DoctorAppointmentController::class, 'getAvailableSlots'])->name('appointments.available-slots');
 
       Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
     Route::get('/calendar/data', [CalendarController::class, 'getCalendarData'])->name('calendar.data');
