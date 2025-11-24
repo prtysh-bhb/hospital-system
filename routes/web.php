@@ -4,7 +4,6 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\admin\PetientController;
 use App\Http\Controllers\admin\docktorsController;
 use App\Http\Controllers\doctor\CalendarController;
-use App\Http\Controllers\admin\CalendarController as AdminCalendarController;
 use App\Http\Controllers\admin\AppointmentController;
 use App\Http\Controllers\frontdesk\HistoryController;
 use App\Http\Controllers\frontdesk\PatientController;
@@ -15,6 +14,8 @@ use App\Http\Controllers\public\BookAppointmentController;
 use App\Http\Controllers\doctor\DoctorAppointmentController;
 use App\Http\Controllers\frontdesk\FrontDashboardController;
 use App\Http\Controllers\frontdesk\DoctoreScheduleController;
+use App\Http\Controllers\admin\CalendarController as AdminCalendarController;
+use App\Http\Controllers\admin\SpecialtysController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,11 @@ Route::get('/download-appointment', [BookAppointmentController::class, 'download
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-details', [AdminDashboardController::class, 'getDashboardDetails'])->name('dashboard.details');
+
+    Route::get('/specialtys', [SpecialtysController::class, 'index'])->name('specialtys');
+    Route::get('/specialtys-list', [SpecialtysController::class, 'getList'])->name('specialtys-list');
+    Route::delete('/specialtys/{id}', [SpecialtysController::class, 'destroy'])->name('specialtys-destroy');
+
 
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
     Route::get('/appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments-list');
