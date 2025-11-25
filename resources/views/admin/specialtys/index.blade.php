@@ -4,9 +4,10 @@
 @section('page-title', 'Specialtys Management')
 
 @section('header-actions')
-    <a href=""
-        class="px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium"></a>
-    Add Specialty</a>
+    <a href="javascript:" data-toggle="modal" data-id="" data-target=".add_modal"
+        class="px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg text-decoration-none font-medium openaddmodal"
+        {{ request()->routeIs('admin.specialtys*') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }}>+
+        Add Specialty</a>
 @endsection
 
 @section('content')
@@ -77,6 +78,28 @@
             <div id="paginationInfo" class="text-xs sm:text-sm text-gray-600"></div>
             <div id="paginationContainer" class="flex flex-wrap gap-2 justify-center"></div>
         </div>
+
+        <!-- Modal -->
+        <div class="modal fade add_modal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <!-- Header -->
+                    <div class="modal-header" style="padding: 10px;">
+                        <h5 class="modal-title">Large Modal</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="modal-body addmodalbody">
+                        <!-- Your dynamic content loads here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     @push('scripts')
@@ -153,7 +176,7 @@
                             <td class="px-4 py-3 text-gray-500">${createdAt}</td>
                             <td class="px-4 py-3 text-gray-500">${updatedAt}</td>
                             <td class="px-4 py-3">
-                                <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColor}">
+                                <span class="status-badge px-3 py-1 rounded-full text-xs font-medium cursor-pointer ${statusColor}" data-id="${item.id}" data-status="${item.status}">
                                     ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                                 </span>
                             </td>
@@ -165,9 +188,8 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
                                     </button>
-                                    <button class="text-amber-600 hover:text-amber-800 edit-appointment-btn" 
-                                            href="javascript:;" 
-                                            data-id="${item.id}">
+                                    <button class="text-amber-600 hover:text-amber-800 edit-appointment-btn openaddmodal" 
+                                            href="javascript:;" data-id="${item.id}" data-toggle="modal" data-target=".add_modal">
                                             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
@@ -265,6 +287,112 @@
                         }
                     });
                 });
+
+                $('body').on('click', '.openaddmodal', function() {
+
+                    var id = $(this).data('id');
+                    if (id == '') {
+                        $('.modal-title').text("Add Specialty");
+                    } else {
+                        $('.modal-title').text("Edit Specialty");
+                    }
+
+                    $.ajax({
+                        url: "{{ route('admin.specialtys-getmodel') }}",
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        data: {
+                            id: id
+                        },
+                        success: function(data) {
+                            $('.addmodalbody').html(data);
+                        },
+                    });
+                });
+
+                $('body').on('submit', '.specialtys-formsubmit', function(e) {
+                    e.preventDefault();
+
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        data: new FormData(this),
+                        type: 'POST',
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+
+                        success: function(data) {
+
+                            // CLEAR OLD ERRORS
+                            $('.error').text('');
+                            $('input, select').removeClass('border-danger');
+
+                            if (data.status == 400) {
+
+                                $.each(data.errors, function(field, messages) {
+
+                                    $('.' + field + '_error').text(messages[
+                                        0]); // show error text
+                                    $('[name="' + field + '"]').addClass(
+                                        'border-danger'); // highlight red
+
+                                });
+
+                                return;
+                            }
+                            if (data.status == 200) {
+
+                                toastr.success(data.msg);
+
+                                // close modal
+                                $('body').removeClass('modal-open');
+                                $('.add_modal').removeClass('show');
+                                $('.modal-backdrop').remove();
+
+                                loadSpecialtys();
+                            }
+                        }
+                    });
+                });
+
+                // REMOVE ERROR WHILE TYPING
+                $('body').on('input change', 'input, select', function() {
+                    let name = $(this).attr('name');
+                    $('.' + name + '_error').text('');
+                    $(this).removeClass('border-danger');
+                });
+
+                $('body').on('click', '.status-badge', function() {
+
+                    let badge = $(this);
+                    let id = badge.data('id');
+
+                    $.ajax({
+                        url: '{{ route('admin.specialtys-toggleStatus') }}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id: id
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            if (response.status == 200) {
+
+                                toastr.success(response.msg);
+
+                                // Refresh list without page reload
+                                loadSpecialtys();
+                            }
+                        },
+                        error: function() {
+                            toastr.error('Server error. Please try again.');
+                        }
+                    });
+
+                });
+
                 // Initial page load
                 loadSpecialtys();
             });

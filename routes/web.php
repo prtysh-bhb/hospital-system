@@ -52,8 +52,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-details', [AdminDashboardController::class, 'getDashboardDetails'])->name('dashboard.details');
 
-    Route::get('/specialtys', [SpecialtysController::class, 'index'])->name('specialtys');
-    Route::get('/specialtys-list', [SpecialtysController::class, 'getList'])->name('specialtys-list');
+    Route::get('specialtys', [SpecialtysController::class, 'index'])->name('specialtys');
+    Route::get('specialtys-list', [SpecialtysController::class, 'getList'])->name('specialtys-list');
+    Route::post('getmodel', [SpecialtysController::class, 'getmodel'])->name('specialtys-getmodel');
+    Route::post('store', [SpecialtysController::class, 'store'])->name('specialtys-store');
+    Route::post('specialtys', [SpecialtysController::class, 'toggleStatus'])->name('specialtys-toggleStatus');
+
     Route::delete('/specialtys/{id}', [SpecialtysController::class, 'destroy'])->name('specialtys-destroy');
 
 
