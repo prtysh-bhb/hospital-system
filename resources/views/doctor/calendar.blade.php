@@ -9,15 +9,15 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
         <div class="p-4 sm:p-6 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3 sm:gap-4">
-                <button id="prevMonth" class="px-2 sm:px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                <button id="prevPeriod" class="px-2 sm:px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
-                <h3 id="currentMonth" class="text-lg sm:text-xl font-semibold text-gray-800">
+                <h3 id="currentPeriod" class="text-lg sm:text-xl font-semibold text-gray-800">
                     {{ date('F Y') }}
                 </h3>
-                <button id="nextMonth" class="px-2 sm:px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                <button id="nextPeriod" class="px-2 sm:px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -40,8 +40,8 @@
             </div>
         </div>
 
-        <!-- Calendar Grid -->
-        <div class="p-3 sm:p-6">
+        <!-- Month View -->
+        <div id="monthView" class="p-3 sm:p-6">
             <!-- Days Header -->
             <div class="grid grid-cols-7 gap-2 sm:gap-4 mb-3 sm:mb-4">
                 <div class="text-center text-xs sm:text-sm font-semibold text-gray-600">Sun</div>
@@ -61,6 +61,12 @@
                 </div>
             </div>
         </div>
+
+        <!-- Week View -->
+        <div id="weekView" class="hidden p-4 sm:p-6"></div>
+
+        <!-- Day View -->
+        <div id="dayView" class="hidden p-4 sm:p-6"></div>
     </div>
 
     <!-- Weekly Availability Settings -->
@@ -101,12 +107,35 @@
         </div>
     </div>
 
+    <!-- Date Appointments Modal -->
+    <div id="dateAppointmentsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center h-full p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-800" id="dateModalTitle">Appointments</h3>
+                    <button onclick="closeDateModal()" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="dateModalContent" class="p-6">
+                    <div class="flex justify-center items-center py-8">
+                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-600"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Debug Info (Remove in production) -->
     <div id="debugInfo" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
         <h4 class="font-semibold text-yellow-800">Debug Information</h4>
         <pre id="debugContent" class="text-xs mt-2"></pre>
     </div>
 @endsection
+
 @push('scripts')
     <script>
         let currentMonth = '{{ date('Y-m') }}';
@@ -131,7 +160,7 @@
                 switchView('day');
             });
 
-            $('#prevMonth').on('click', function() {
+            $('#prevPeriod').on('click', function() {
                 if (currentView === 'month') {
                     const [year, month] = currentMonth.split('-');
                     const date = new Date(year, month - 1, 1);
@@ -148,7 +177,7 @@
                 }
             });
 
-            $('#nextMonth').on('click', function() {
+            $('#nextPeriod').on('click', function() {
                 if (currentView === 'month') {
                     const [year, month] = currentMonth.split('-');
                     const date = new Date(year, month - 1, 1);
@@ -174,12 +203,21 @@
                 'border border-gray-300 text-gray-700');
             if (view === 'month') {
                 $('#viewMonth').removeClass('border border-gray-300 text-gray-700').addClass('bg-sky-600 text-white');
+                $('#monthView').removeClass('hidden');
+                $('#weekView').addClass('hidden');
+                $('#dayView').addClass('hidden');
                 loadCalendar(currentMonth);
             } else if (view === 'week') {
                 $('#viewWeek').removeClass('border border-gray-300 text-gray-700').addClass('bg-sky-600 text-white');
+                $('#monthView').addClass('hidden');
+                $('#weekView').removeClass('hidden');
+                $('#dayView').addClass('hidden');
                 loadWeekView();
             } else if (view === 'day') {
                 $('#viewDay').removeClass('border border-gray-300 text-gray-700').addClass('bg-sky-600 text-white');
+                $('#monthView').addClass('hidden');
+                $('#weekView').addClass('hidden');
+                $('#dayView').removeClass('hidden');
                 loadDayView();
             }
         }
@@ -191,11 +229,11 @@
             const endOfWeek = new Date(startOfWeek);
             endOfWeek.setDate(startOfWeek.getDate() + 6);
 
-            $('#currentMonth').text(
+            $('#currentPeriod').text(
                 `Week of ${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
             );
 
-            showLoading('#calendarDays', 'Loading week view...');
+            showLoading('#weekView', 'Loading week view...');
 
             // Load appointments for the week
             const weekDates = [];
@@ -220,61 +258,113 @@
 
         function renderWeekView(weekDates, responses) {
             const statusColors = {
-                'completed': 'bg-emerald-100 text-emerald-700',
-                'confirmed': 'bg-sky-100 text-sky-700',
-                'pending': 'bg-amber-100 text-amber-700',
-                'cancelled': 'bg-red-100 text-red-700'
+                'completed': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                'confirmed': 'bg-sky-100 text-sky-700 border-sky-200',
+                'pending': 'bg-amber-100 text-amber-700 border-amber-200',
+                'cancelled': 'bg-red-100 text-red-700 border-red-200'
             };
 
-            let html = '';
+            let html = `
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <!-- Week Header -->
+                    <div class="grid grid-cols-8 border-b border-gray-200 bg-gray-50">
+                        <div class="p-4 border-r border-gray-200">
+                            <p class="text-xs font-semibold text-gray-500 uppercase">Time</p>
+                        </div>
+            `;
+
+            // Add day headers
             weekDates.forEach(function(dateStr, index) {
                 const date = new Date(dateStr);
                 const dayName = date.toLocaleDateString('en-US', {
                     weekday: 'short'
                 });
                 const dayNum = date.getDate();
+                const monthName = date.toLocaleDateString('en-US', {
+                    month: 'short'
+                });
                 const isToday = dateStr === new Date().toISOString().split('T')[0];
-                const appointments = responses[index]?.success ? responses[index].appointments : [];
 
-                html +=
-                    `<div class="col-span-1 border ${isToday ? 'border-2 border-sky-600 bg-sky-50' : 'border-gray-300'} rounded-lg p-2 min-h-[200px]" data-date="${dateStr}">`;
-                html +=
-                    `<div class="text-center font-semibold ${isToday ? 'text-sky-700' : 'text-gray-800'} mb-2">${dayName}</div>`;
-                html +=
-                    `<div class="text-center text-2xl ${isToday ? 'text-sky-700' : 'text-gray-600'} mb-3">${dayNum}</div>`;
+                html += `
+                    <div class="p-4 text-center border-r border-gray-200 ${isToday ? 'bg-sky-50' : ''}">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">${dayName}</p>
+                        <p class="text-lg font-bold ${isToday ? 'text-sky-600' : 'text-gray-800'}">${dayNum}</p>
+                        <p class="text-xs text-gray-500">${monthName}</p>
+                    </div>
+                `;
+            });
 
-                if (appointments.length > 0) {
-                    html += '<div class="space-y-2">';
-                    appointments.forEach(apt => {
-                        const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
-                        html += `<div class="text-xs px-2 py-1.5 ${statusClass} rounded cursor-pointer hover:shadow transition" 
-                                    onclick="showAppointmentDetailsById(${apt.id})" 
-                                    title="${apt.patient_name} - ${apt.reason}">`;
-                        html += `<div class="font-semibold">${apt.time}</div>`;
-                        html += `<div class="truncate">${apt.patient_name}</div>`;
-                        html += `</div>`;
+            html += `</div>`;
+
+            // Time slots (7 AM to 7 PM)
+            const timeSlots = [
+                '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+                '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'
+            ];
+
+            timeSlots.forEach(timeSlot => {
+                html += `<div class="grid grid-cols-8 border-b border-gray-100">`;
+
+                // Time column
+                html += `
+                    <div class="p-4 border-r border-gray-200 bg-gray-50">
+                        <p class="text-sm font-medium text-gray-600">${timeSlot}</p>
+                    </div>
+                `;
+
+                // Day columns
+                weekDates.forEach(function(dateStr, index) {
+                    const date = new Date(dateStr);
+                    const isToday = dateStr === new Date().toISOString().split('T')[0];
+                    const appointments = responses[index]?.success ? responses[index].appointments : [];
+
+                    // Filter appointments for this time slot
+                    const slotAppointments = appointments.filter(apt => {
+                        return apt.time.includes(timeSlot.split(':')[0]) ||
+                            apt.time.includes(timeSlot.replace(' AM', '').replace(' PM', ''));
                     });
-                    html += '</div>';
-                } else {
-                    html += '<p class="text-xs text-gray-400 text-center mt-2">No appointments</p>';
-                }
+
+                    html += `
+                        <div class="p-2 border-r border-gray-100 min-h-20 ${isToday ? 'bg-sky-50' : ''}">
+                    `;
+
+                    if (slotAppointments.length > 0) {
+                        slotAppointments.forEach(apt => {
+                            const statusClass = statusColors[apt.status] ||
+                                'bg-gray-100 text-gray-700';
+                            html += `
+                                <div class="text-xs p-2 mb-1 ${statusClass} rounded cursor-pointer hover:shadow-sm border" 
+                                    onclick="showAppointmentDetailsById(${apt.id})" 
+                                    title="${apt.time} - ${apt.patient_name}">
+                                    <div class="font-semibold truncate">${apt.patient_name.split(' ')[0]}</div>
+                                    <div class="text-gray-600 truncate">${apt.type}</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html += `<div class="h-full min-h-16"></div>`;
+                    }
+
+                    html += `</div>`;
+                });
 
                 html += `</div>`;
             });
 
-            $('#calendarDays').html(html);
+            html += `</div>`;
+            $('#weekView').html(html);
         }
 
         function loadDayView() {
             const dateStr = currentDate.toISOString().split('T')[0];
-            $('#currentMonth').text(currentDate.toLocaleDateString('en-US', {
+            $('#currentPeriod').text(currentDate.toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             }));
 
-            showLoading('#calendarDays', 'Loading day view...');
+            showLoading('#dayView', 'Loading day view...');
 
             $.ajax({
                 url: '{{ route('doctor.calendar.appointments') }}',
@@ -286,55 +376,88 @@
                     if (response.success) {
                         renderDayView(response.appointments, response.date);
                     } else {
-                        showError('#calendarDays', 'Failed to load appointments');
+                        showError('#dayView', 'Failed to load appointments');
                     }
                 },
                 error: function() {
-                    showError('#calendarDays', 'Failed to load day view');
+                    showError('#dayView', 'Failed to load day view');
                 }
             });
         }
 
         function renderDayView(appointments, dateTitle) {
-            let html = '<div class="col-span-7">';
-            html += `<h3 class="text-lg font-semibold mb-4 text-gray-800">${dateTitle}</h3>`;
+            const statusColors = {
+                'completed': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                'confirmed': 'bg-sky-100 text-sky-700 border-sky-200',
+                'pending': 'bg-amber-100 text-amber-700 border-amber-200',
+                'cancelled': 'bg-red-100 text-red-700 border-red-200'
+            };
 
-            if (appointments && appointments.length > 0) {
-                html += '<div class="space-y-3">';
-                appointments.forEach(function(apt) {
-                    let statusBadge = getStatusBadgeClass(apt.status);
-                    html +=
-                        `<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onclick="showAppointmentDetailsById(${apt.id})">`;
-                    html += `<div class="flex justify-between items-start">`;
-                    html += `<div class="flex-1">`;
-                    html += `<div class="flex items-center gap-3 mb-2">`;
-                    html += `<p class="font-semibold text-lg">${apt.time}</p>`;
-                    html +=
-                        `<span class="px-3 py-1 text-xs ${statusBadge} rounded-full">${apt.status.toUpperCase()}</span>`;
-                    html += `</div>`;
-                    html +=
-                        `<p class="font-medium text-gray-800">${apt.patient_name} <span class="text-sm text-gray-500">(${apt.patient_age} years)</span></p>`;
-                    html += `<p class="text-sm text-gray-600 mt-1"><strong>Type:</strong> ${apt.type}</p>`;
-                    html += `<p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason}</p>`;
-                    html += `<p class="text-xs text-gray-400 mt-1">${apt.appointment_number}</p>`;
-                    html += `</div>`;
-                    html += `</div>`;
-                    html += `</div>`;
+            let html = `
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <!-- Day Header -->
+                    <div class="p-6 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-xl font-semibold text-gray-800">${dateTitle}</h3>
+                    </div>
+
+                    <!-- Time Grid -->
+                    <div class="divide-y divide-gray-100">
+            `;
+
+            // Time slots for the day (7 AM to 7 PM)
+            const timeSlots = [
+                '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+                '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'
+            ];
+
+            timeSlots.forEach(timeSlot => {
+                const slotAppointments = appointments.filter(apt => {
+                    return apt.time.includes(timeSlot.split(':')[0]) ||
+                        apt.time.includes(timeSlot.replace(' AM', '').replace(' PM', ''));
                 });
-                html += '</div>';
-            } else {
-                html += '<div class="text-center py-12">';
-                html +=
-                    '<svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">';
-                html +=
-                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />';
-                html += '</svg>';
-                html += '<p class="text-gray-500">No appointments scheduled for this day</p>';
-                html += '</div>';
-            }
 
-            html += '</div>';
-            $('#calendarDays').html(html);
+                html += `
+                    <div class="grid grid-cols-12 p-4 hover:bg-gray-50 transition-colors">
+                        <div class="col-span-2">
+                            <p class="text-sm font-medium text-gray-600">${timeSlot}</p>
+                        </div>
+                        <div class="col-span-10">
+                `;
+
+                if (slotAppointments.length > 0) {
+                    slotAppointments.forEach(apt => {
+                        const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
+                        html += `
+                            <div class="mb-3 p-4 ${statusClass} rounded-lg border cursor-pointer hover:shadow-sm transition-shadow" 
+                                onclick="showAppointmentDetailsById(${apt.id})">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="font-semibold text-gray-800">${apt.patient_name}</span>
+                                            <span class="text-xs px-2 py-1 rounded-full ${statusClass} border">${apt.status.toUpperCase()}</span>
+                                        </div>
+                                        <div class="text-sm text-gray-600">
+                                            <span class="font-medium">${apt.type}</span> • ${apt.duration} min
+                                        </div>
+                                        ${apt.reason ? `<div class="text-sm text-gray-500 mt-2">${apt.reason}</div>` : ''}
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium text-gray-800">${apt.time}</div>
+                                        <div class="text-xs text-gray-500">${apt.appointment_number}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `<p class="text-sm text-gray-400 italic">No appointments scheduled</p>`;
+                }
+
+                html += `</div></div>`;
+            });
+
+            html += `</div></div>`;
+            $('#dayView').html(html);
         }
 
         function loadCalendar(month) {
@@ -352,7 +475,7 @@
                     console.log('Calendar response:', response);
 
                     if (response.success) {
-                        $('#currentMonth').text(response.data.month_name);
+                        $('#currentPeriod').text(response.data.month_name);
                         renderCalendar(response.data.days);
                     } else {
                         showError('#calendarDays', response.message || 'Failed to load calendar');
@@ -412,11 +535,11 @@
                             badgeClass = 'bg-amber-100 text-amber-700';
                         }
                         html +=
-                            `<div class="text-xs ${badgeClass} px-1 py-0.5 rounded truncate hidden sm:block">${apt.time}</div>`;
+                            `<div class="text-xs ${badgeClass} px-1 py-0.5 rounded truncate hidden sm:block" onclick="event.stopPropagation(); showAppointmentDetailsById(${apt.id})">${apt.time}</div>`;
                     });
                     if (day.appointments.length > 2) {
                         html +=
-                            `<div class="text-xs text-gray-500 px-1 hidden sm:block">+${day.appointments.length - 2} more</div>`;
+                            `<div class="text-xs text-gray-500 px-1 hidden sm:block" onclick="event.stopPropagation(); showDateAppointments('${day.date}')">+${day.appointments.length - 2} more</div>`;
                     }
                     html += '</div>';
                 }
@@ -432,7 +555,7 @@
                 const isCurrentMonth = !$(this).hasClass('bg-gray-50');
 
                 if (date && isCurrentMonth) {
-                    showDayAppointments(date);
+                    showDateAppointments(date);
                 }
             });
         }
@@ -677,71 +800,104 @@
             });
         }
 
-        function showDayAppointments(date) {
-            console.log('Loading appointments for:', date);
+        function showDateAppointments(date) {
+            const modal = document.getElementById('dateAppointmentsModal');
+            const modalContent = document.getElementById('dateModalContent');
+            const modalTitle = document.getElementById('dateModalTitle');
 
-            $.ajax({
-                url: '{{ route('doctor.calendar.appointments') }}',
-                method: 'GET',
-                data: {
-                    date: date
-                },
-                success: function(response) {
-                    console.log('Appointments response:', response);
+            modal.classList.remove('hidden');
 
-                    if (response.success) {
-                        showAppointmentsModal(response);
+            modalContent.innerHTML = `
+                <div class="flex justify-center items-center py-8">
+                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-600"></div>
+                </div>
+            `;
+
+            fetch(`{{ route('doctor.calendar.appointments') }}?date=${date}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        modalTitle.textContent = `Appointments for ${data.date}`;
+
+                        if (data.appointments.length === 0) {
+                            modalContent.innerHTML = `
+                                <div class="text-center py-8">
+                                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="text-gray-600">No appointments found for this date.</p>
+                                </div>
+                            `;
+                        } else {
+                            const statusColors = {
+                                'confirmed': 'bg-green-100 text-green-800 border-green-200',
+                                'pending': 'bg-amber-100 text-amber-800 border-amber-200',
+                                'completed': 'bg-sky-100 text-sky-800 border-sky-200',
+                                'cancelled': 'bg-red-100 text-red-800 border-red-200'
+                            };
+
+                            const appointmentsHtml = data.appointments.map(apt => `
+                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer" onclick="closeDateModal(); showAppointmentDetailsById(${apt.id})">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-800">${apt.time}</p>
+                                            <p class="text-xs text-gray-500">#${apt.appointment_number}</p>
+                                        </div>
+                                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColors[apt.status] || 'bg-gray-100 text-gray-800 border-gray-200'} border">
+                                            ${apt.status.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center text-sm">
+                                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                            </svg>
+                                            <span class="text-gray-700 font-medium">${apt.patient_name}</span>
+                                        </div>
+                                        <div class="flex items-center text-sm">
+                                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            <span class="text-gray-700">${apt.type}</span>
+                                        </div>
+                                        ${apt.reason ? `
+                                            <div class="flex items-start text-sm">
+                                                <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <span class="text-gray-600">${apt.reason}</span>
+                                            </div>
+                                            ` : ''}
+                                    </div>
+                                </div>
+                            `).join('');
+
+                            modalContent.innerHTML = `
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    ${appointmentsHtml}
+                                </div>
+                            `;
+                        }
                     } else {
-                        alert('Failed to load appointments: ' + (response.message || 'Unknown error'));
+                        modalContent.innerHTML = `
+                            <div class="text-center py-8">
+                                <p class="text-red-600">Failed to load appointments.</p>
+                            </div>
+                        `;
                     }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Appointments AJAX error:', error);
-                    alert('Failed to load appointments. Please try again.');
-                }
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    modalContent.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-red-600">An error occurred while loading appointments.</p>
+                        </div>
+                    `;
+                });
         }
 
-        function showAppointmentsModal(data) {
-            const modalHtml = `
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-                    <div class="flex justify-between items-center p-6 border-b">
-                        <h3 class="text-lg font-semibold">Appointments for ${data.date}</h3>
-                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        ${data.appointments && data.appointments.length > 0 ? 
-                            data.appointments.map(apt => `
-                                                        <div class="border border-gray-200 rounded-lg p-4 mb-4">
-                                                            <div class="flex justify-between items-start mb-2">
-                                                                <div>
-                                                                    <p class="font-medium">${apt.patient_name}</p>
-                                                                    <p class="text-sm text-gray-500">${apt.patient_age} years</p>
-                                                                </div>
-                                                                <div class="text-right">
-                                                                    <p class="font-medium text-sky-600">${apt.time}</p>
-                                                                    <span class="px-2 py-1 text-xs ${getStatusBadgeClass(apt.status)} rounded-full">
-                                                                        ${apt.status}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason}</p>
-                                                            <p class="text-xs text-gray-400 mt-1">${apt.appointment_number}</p>
-                                                        </div>
-                                                    `).join('') : 
-                            '<p class="text-center text-gray-500 py-8">No appointments scheduled for this date</p>'
-                        }
-                    </div>
-                </div>
-            </div>
-        `;
-
-            $('body').append(modalHtml);
+        function closeDateModal() {
+            document.getElementById('dateAppointmentsModal').classList.add('hidden');
         }
 
         function getStatusBadgeClass(status) {
@@ -799,8 +955,10 @@
                 </div>
             `;
 
-            fetch(`{{ route('doctor.appointment-details', ['id' => ':id']) }}`.replace(':id', appointmentId) +
-                    '/details-json')
+            const detailsUrl = '{{ route('doctor.appointments.details.json', ['id' => 'APPOINTMENT_ID']) }}'.replace(
+                'APPOINTMENT_ID', appointmentId);
+
+            fetch(detailsUrl)
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 200) {
@@ -860,7 +1018,7 @@
                             <svg class="w-5 h-5 mr-2 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
-                            Patient Information
+                            Patient Information 
                         </h4>
                         <div class="space-y-2 pl-7">
                             <p class="text-sm"><span class="font-medium text-gray-700">Name:</span> ${patient.name}</p>
@@ -881,7 +1039,7 @@
                     </div>
                     
                     <div class="border-t pt-4 flex gap-3">
-                        <a href="{{ route('doctor.appointment-details', ['id' => ':id']) }}".replace(':id', apt.id) 
+                        <a href="/doctor/appointment-details/${apt.id}" 
                            class="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 text-sm font-medium text-center">
                             View Full Details
                         </a>
@@ -912,10 +1070,16 @@
             document.getElementById('appointmentModal').classList.add('hidden');
         }
 
-        // Close modal when clicking outside
+        // Close modals when clicking outside
         document.getElementById('appointmentModal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeAppointmentModal();
+            }
+        });
+
+        document.getElementById('dateAppointmentsModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDateModal();
             }
         });
 

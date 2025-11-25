@@ -643,38 +643,81 @@
                 'cancelled': 'bg-red-100 text-red-700 border-red-200'
             };
 
-            let html = '<div class="grid grid-cols-1 md:grid-cols-7 gap-4">';
+            let html = `
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <!-- Week Header -->
+                    <div class="grid grid-cols-8 border-b border-gray-200 bg-gray-50">
+                        <div class="p-4 border-r border-gray-200">
+                            <p class="text-xs font-semibold text-gray-500 uppercase">Time</p>
+                        </div>
+            `;
 
+            // Add day headers
             days.forEach(day => {
                 const isToday = day.is_today;
-                html +=
-                    `<div class="border ${isToday ? 'border-sky-500 border-2 bg-sky-50' : 'border-gray-200'} rounded-lg p-3">`;
-                html += `<div class="text-center mb-3">`;
-                html += `<p class="text-xs font-medium text-gray-500">${day.day_short}</p>`;
-                html +=
-                    `<p class="text-2xl font-bold ${isToday ? 'text-sky-600' : 'text-gray-800'}">${day.day_num}</p>`;
-                html += `</div>`;
+                html += `
+                    <div class="p-4 text-center border-r border-gray-200 ${isToday ? 'bg-sky-50' : ''}">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">${day.day_short}</p>
+                        <p class="text-lg font-bold ${isToday ? 'text-sky-600' : 'text-gray-800'}">${day.day_num}</p>
+                        <p class="text-xs text-gray-500">${day.month_short}</p>
+                    </div>
+                `;
+            });
 
-                if (day.appointments.length > 0) {
-                    html += '<div class="space-y-2">';
-                    day.appointments.forEach(apt => {
-                        const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
-                        html += `<div class="text-xs px-2 py-1.5 ${statusClass} rounded cursor-pointer hover:shadow" 
-                                    onclick="showAppointmentDetails(${apt.id})" 
-                                    title="${apt.patient_name} - ${apt.reason}">`;
-                        html += `<div class="font-semibold">${apt.time}</div>`;
-                        html += `<div class="truncate">${apt.patient_name}</div>`;
-                        html += `</div>`;
+            html += `</div>`;
+
+            // Time slots (7 AM to 7 PM)
+            const timeSlots = [
+                '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+                '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'
+            ];
+
+            timeSlots.forEach(timeSlot => {
+                html += `<div class="grid grid-cols-8 border-b border-gray-100">`;
+                
+                // Time column
+                html += `
+                    <div class="p-4 border-r border-gray-200 bg-gray-50">
+                        <p class="text-sm font-medium text-gray-600">${timeSlot}</p>
+                    </div>
+                `;
+
+                // Day columns
+                days.forEach(day => {
+                    const isToday = day.is_today;
+                    const dayAppointments = day.appointments.filter(apt => {
+                        // Simple time matching - you might want more sophisticated time matching
+                        return apt.time.includes(timeSlot.split(':')[0]) || 
+                               apt.time.includes(timeSlot.replace(' AM', '').replace(' PM', ''));
                     });
-                    html += '</div>';
-                } else {
-                    html += '<p class="text-xs text-gray-400 text-center mt-2">No appointments</p>';
-                }
+
+                    html += `
+                        <div class="p-2 border-r border-gray-100 min-h-20 ${isToday ? 'bg-sky-50' : ''}">
+                    `;
+
+                    if (dayAppointments.length > 0) {
+                        dayAppointments.forEach(apt => {
+                            const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
+                            html += `
+                                <div class="text-xs p-2 mb-1 ${statusClass} rounded cursor-pointer hover:shadow-sm border" 
+                                    onclick="showAppointmentDetails(${apt.id})" 
+                                    title="${apt.time} - ${apt.patient_name}">
+                                    <div class="font-semibold truncate">${apt.patient_name.split(' ')[0]}</div>
+                                    <div class="text-gray-600 truncate">${apt.doctor_short}</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html += `<div class="h-full min-h-16"></div>`;
+                    }
+
+                    html += `</div>`;
+                });
 
                 html += `</div>`;
             });
 
-            html += '</div>';
+            html += `</div>`;
             document.getElementById('weekView').innerHTML = html;
         }
 
@@ -704,42 +747,85 @@
                 'cancelled': 'bg-red-100 text-red-700 border-red-200'
             };
 
-            let html = '';
+            let html = `
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <!-- Day Header -->
+                    <div class="p-6 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-xl font-semibold text-gray-800">${dayData.date_title}</h3>
+                    </div>
 
-            if (dayData.appointments.length > 0) {
-                html += '<div class="space-y-4">';
-                dayData.appointments.forEach(apt => {
-                    const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
-                    html += `<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer" 
-                                onclick="showAppointmentDetails(${apt.id})">`;
-                    html += `<div class="flex justify-between items-start mb-3">`;
-                    html += `<div class="flex-1">`;
-                    html += `<div class="flex items-center gap-3 mb-2">`;
-                    html += `<p class="text-lg font-semibold text-gray-800">${apt.time}</p>`;
-                    html +=
-                        `<span class="px-3 py-1 text-xs ${statusClass} rounded-full">${apt.status.toUpperCase()}</span>`;
-                    html += `</div>`;
-                    html +=
-                        `<p class="font-medium text-gray-800">${apt.patient_name} ${apt.patient_age ? `(${apt.patient_age} years)` : ''}</p>`;
-                    html +=
-                        `<p class="text-sm text-gray-600 mt-1"><strong>Doctor:</strong> ${apt.doctor_name} - ${apt.specialty}</p>`;
-                    html +=
-                        `<p class="text-sm text-gray-600"><strong>Type:</strong> ${apt.type} (${apt.duration} min)</p>`;
-                    html += `<p class="text-sm text-gray-600"><strong>Reason:</strong> ${apt.reason || 'N/A'}</p>`;
-                    html += `<p class="text-xs text-gray-400 mt-2">${apt.appointment_number}</p>`;
-                    html += `</div></div></div>`;
+                    <!-- Time Grid -->
+                    <div class="divide-y divide-gray-100">
+            `;
+
+            // Time slots for the day (7 AM to 7 PM)
+            const timeSlots = [
+                '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+                '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'
+            ];
+
+            timeSlots.forEach(timeSlot => {
+                const slotAppointments = dayData.appointments.filter(apt => {
+                    // Simple time matching
+                    return apt.time.includes(timeSlot.split(':')[0]) || 
+                           apt.time.includes(timeSlot.replace(' AM', '').replace(' PM', ''));
                 });
-                html += '</div>';
-            } else {
-                html += `<div class="text-center py-12">
-                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <p class="text-gray-500">No appointments scheduled for this day</p>
-                </div>`;
-            }
 
+                html += `
+                    <div class="grid grid-cols-12 p-4 hover:bg-gray-50 transition-colors">
+                        <div class="col-span-2">
+                            <p class="text-sm font-medium text-gray-600">${timeSlot}</p>
+                        </div>
+                        <div class="col-span-10">
+                `;
+
+                if (slotAppointments.length > 0) {
+                    slotAppointments.forEach(apt => {
+                        const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
+                        html += `
+                            <div class="mb-3 p-4 ${statusClass} rounded-lg border cursor-pointer hover:shadow-sm transition-shadow" 
+                                onclick="showAppointmentDetails(${apt.id})">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="font-semibold text-gray-800">${apt.patient_name}</span>
+                                            <span class="text-xs px-2 py-1 rounded-full ${statusClass} border">${apt.status.toUpperCase()}</span>
+                                        </div>
+                                        <div class="text-sm text-gray-600">
+                                            <span class="font-medium">Dr. ${apt.doctor_name}</span> • ${apt.specialty}
+                                        </div>
+                                        ${apt.reason ? `<div class="text-sm text-gray-500 mt-2">${apt.reason}</div>` : ''}
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium text-gray-800">${apt.duration} min</div>
+                                        <div class="text-xs text-gray-500">${apt.appointment_number}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `<p class="text-sm text-gray-400 italic">No appointments scheduled</p>`;
+                }
+
+                html += `</div></div>`;
+            });
+
+            html += `</div></div>`;
             document.getElementById('dayView').innerHTML = html;
         }
+
+        // Close modals when clicking outside
+        document.getElementById('appointmentModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.getElementById('dateAppointmentsModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDateModal();
+            }
+        });
     </script>
 @endsection
