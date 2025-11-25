@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\public;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Specialty;
-use App\Models\Appointment;
-use Illuminate\Http\Request;
-use App\Models\DoctorSchedule;
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
+use App\Models\DoctorSchedule;
+use App\Models\Specialty;
+use App\Models\User;
 use App\Services\AppointmentSlotService;
 use App\Services\public\BookAppointmentService;
 use Barryvdh\DomPDF\Facade\Pdf;
-
-
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class BookAppointmentController extends Controller
 {
     protected $service;
+
     protected $slotService;
 
     public function __construct(BookAppointmentService $service, AppointmentSlotService $slotService)
@@ -25,6 +24,7 @@ class BookAppointmentController extends Controller
         $this->service = $service;
         $this->slotService = $slotService;
     }
+
     public function index(Request $request)
     {
         $step = $request->get('step', 1);
@@ -46,7 +46,7 @@ class BookAppointmentController extends Controller
         // STEP-2 — Calendar + Slots
         // -----------------------------
         if ($step == 2) {
-            if (!session()->has('doctor_id')) {
+            if (! session()->has('doctor_id')) {
                 return redirect()->route('booking', ['step' => 1]);
             }
 
@@ -67,7 +67,7 @@ class BookAppointmentController extends Controller
                     'day' => $cursor->day,
                     'weekday' => $cursor->dayOfWeek,
                     'is_available' => in_array($cursor->dayOfWeek, $availableDays),
-                    'is_today' => $cursor->isToday()
+                    'is_today' => $cursor->isToday(),
                 ];
                 $cursor->addDay();
             }
@@ -110,7 +110,7 @@ class BookAppointmentController extends Controller
         // STEP-3 — Patient Details
         // -----------------------------
         if ($step == 3) {
-            if (!session()->has('doctor_id') || !session()->has('selectedDate') || !session()->has('selectedSlot')) {
+            if (! session()->has('doctor_id') || ! session()->has('selectedDate') || ! session()->has('selectedSlot')) {
                 return redirect()->route('booking', ['step' => 2]);
             }
 
@@ -134,7 +134,7 @@ class BookAppointmentController extends Controller
         // STEP-4 — Confirmation
         // -----------------------------
         if ($step == 4) {
-            if (!session()->has('appointment_id')) {
+            if (! session()->has('appointment_id')) {
                 return redirect()->route('booking', ['step' => 1]);
             }
 
@@ -159,7 +159,7 @@ class BookAppointmentController extends Controller
 
         $appointment = $this->service->getAppointmentDetails($appointmentId);
 
-        if (!$appointment) {
+        if (! $appointment) {
             return response()->json(['msg' => 'Appointment not found.'], 404);
         }
 
@@ -179,21 +179,23 @@ class BookAppointmentController extends Controller
         $result = $this->slotService->getAvailableSlots($doctor_id, $date);
 
         return response()->json([
-            'slots' => $result['slots']
+            'slots' => $result['slots'],
         ]);
     }
+
     public function store(Request $request)
     {
         // Step 1: Select doctor
         if ($request->step == 1) {
             session(['doctor_id' => $request->doctor_id]);
+
             return redirect()->route('booking', ['step' => 2]);
         }
 
         // Step 2: Select date and slot
         if ($request->step == 2) {
             // Only date provided (calendar click)
-            if ($request->has('date') && !$request->has('slot')) {
+            if ($request->has('date') && ! $request->has('slot')) {
                 return redirect()->route('booking', ['step' => 2, 'date' => $request->date]);
             }
 
@@ -201,7 +203,7 @@ class BookAppointmentController extends Controller
             if ($request->has('date') && $request->has('slot')) {
                 session([
                     'selectedDate' => $request->date,
-                    'selectedSlot' => $request->slot
+                    'selectedSlot' => $request->slot,
                 ]);
 
                 if ($request->ajax()) {
@@ -251,17 +253,18 @@ class BookAppointmentController extends Controller
             if ($result['success']) {
                 session(['appointment_id' => $result['appointment_id']]);
                 \Log::info('Redirecting to step 4', ['appointment_id' => $result['appointment_id']]);
+
                 return redirect()->route('booking', ['step' => 4]);
             }
 
             // Return detailed error message from service
             $errorMessage = $result['message'] ?? 'Failed to create appointment. Please try again.';
             \Log::error('Failed to create appointment', ['error' => $errorMessage, 'result' => $result]);
+
             return back()->withErrors(['error' => $errorMessage]);
         }
 
         // Default: redirect to step 1
         return redirect()->route('booking', ['step' => 1]);
     }
-
 }

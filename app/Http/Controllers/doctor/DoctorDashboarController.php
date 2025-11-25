@@ -4,7 +4,6 @@ namespace App\Http\Controllers\doctor;
 
 use App\Http\Controllers\Controller;
 use App\Services\Doctor\DoctorDashboadService;
-use Illuminate\Http\Request;
 
 class DoctorDashboarController extends Controller
 {

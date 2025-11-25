@@ -1,21 +1,21 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\admin\PetientController;
-use App\Http\Controllers\admin\docktorsController;
-use App\Http\Controllers\doctor\CalendarController;
-use App\Http\Controllers\admin\AppointmentController;
-use App\Http\Controllers\frontdesk\HistoryController;
-use App\Http\Controllers\frontdesk\PatientController;
 use App\Http\Controllers\admin\AdminDashboardController;
+use App\Http\Controllers\admin\AppointmentController;
+use App\Http\Controllers\admin\CalendarController as AdminCalendarController;
+use App\Http\Controllers\admin\docktorsController;
+use App\Http\Controllers\admin\PetientController;
+use App\Http\Controllers\admin\SpecialtysController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\doctor\CalendarController;
+use App\Http\Controllers\doctor\DoctorAppointmentController;
 use App\Http\Controllers\doctor\DoctorDashboarController;
 use App\Http\Controllers\frontdesk\AddApoimnetController;
-use App\Http\Controllers\public\BookAppointmentController;
-use App\Http\Controllers\doctor\DoctorAppointmentController;
-use App\Http\Controllers\frontdesk\FrontDashboardController;
 use App\Http\Controllers\frontdesk\DoctoreScheduleController;
-use App\Http\Controllers\admin\CalendarController as AdminCalendarController;
-use App\Http\Controllers\admin\SpecialtysController;
+use App\Http\Controllers\frontdesk\FrontDashboardController;
+use App\Http\Controllers\frontdesk\HistoryController;
+use App\Http\Controllers\frontdesk\PatientController;
+use App\Http\Controllers\public\BookAppointmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,20 +58,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('getmodel', [SpecialtysController::class, 'getmodel'])->name('specialtys-getmodel');
     Route::post('store', [SpecialtysController::class, 'store'])->name('specialtys-store');
     Route::post('specialtys', [SpecialtysController::class, 'toggleStatus'])->name('specialtys-toggleStatus');
+    Route::delete('specialtys/{id}', [SpecialtysController::class, 'destroy'])->name('specialtys-destroy');
 
-    Route::delete('/specialtys/{id}', [SpecialtysController::class, 'destroy'])->name('specialtys-destroy');
-
-
-
-    Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
-    Route::get('/appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments-list');
-    Route::get('/appointments/add', [AppointmentController::class, 'addAppointments'])->name('add-appointment');
-    Route::get('/appointments/available-slots', [AppointmentController::class, 'getAvailableSlots'])->name('get-available-slots');
-    Route::post('/appointments/store', [AppointmentController::class, 'storeAppointment'])->name('store-appointment');
-    Route::post('/appointments-modal', [AppointmentController::class, 'getAppointmentsmodal'])->name('getappointment-modal');
-    Route::put('/appointments/update', [AppointmentController::class, 'updateAppointment'])->name('update-appointment');
-    Route::delete('/appointments/delete', [AppointmentController::class, 'deleteAppointment'])->name('delete-appointment');
-    Route::get('/appointments/{id}', [AppointmentController::class, 'viewAppointment'])->name('view-appointment');
+    Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments');
+    Route::get('appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments-list');
+    Route::get('appointments/add', [AppointmentController::class, 'addAppointments'])->name('add-appointment');
+    Route::get('appointments/available-slots', [AppointmentController::class, 'getAvailableSlots'])->name('get-available-slots');
+    Route::post('appointments/store', [AppointmentController::class, 'storeAppointment'])->name('store-appointment');
+    Route::post('appointments-modal', [AppointmentController::class, 'getAppointmentsmodal'])->name('getappointment-modal');
+    Route::put('appointments/update', [AppointmentController::class, 'updateAppointment'])->name('update-appointment');
+    Route::delete('appointments/delete', [AppointmentController::class, 'deleteAppointment'])->name('delete-appointment');
+    Route::get('appointments/{id}', [AppointmentController::class, 'viewAppointment'])->name('view-appointment');
 
     Route::get('/doctors', [docktorsController::class, 'index'])->name('doctors');
     Route::get('/doctors/add', [docktorsController::class, 'create'])->name('doctors.add');
@@ -108,7 +105,7 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
     Route::post('appointments/{id}/follow-up', [DoctorAppointmentController::class, 'scheduleFollowUp'])->name('appointments.followup');
     Route::get('appointments/available-slots', [DoctorAppointmentController::class, 'getAvailableSlots'])->name('appointments.available-slots');
 
-      Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
     Route::get('/calendar/data', [CalendarController::class, 'getCalendarData'])->name('calendar.data');
     Route::get('/calendar/schedule', [CalendarController::class, 'getWeeklySchedule'])->name('calendar.schedule');
     Route::get('/calendar/appointments', [CalendarController::class, 'getDateAppointments'])->name('calendar.appointments');

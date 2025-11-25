@@ -9,7 +9,8 @@
 
     <!-- Name Field -->
     <div>
-        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Name *</label>
+        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Name <span
+                class="text-red-600">*</span></label>
         <input type="text" name="name" id="name" value="{{ $data->name ?? '' }}"
             class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
             placeholder="Enter specialty name">
@@ -18,7 +19,8 @@
 
     <!-- Description Field -->
     <div>
-        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Description *</label>
+        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Description <span
+                class="text-red-600">*</span></label>
         <input type="text" name="description" id="description" value="{{ $data->description ?? '' }}"
             class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
             placeholder="Enter description">
@@ -27,7 +29,8 @@
 
     <!-- Status Field -->
     <div>
-        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status *</label>
+        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status <span
+                class="text-red-600">*</span></label>
         <select name="status" id="status"
             class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
             <option value="">Select Status</option>

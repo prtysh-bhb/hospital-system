@@ -66,7 +66,6 @@ class User extends Authenticatable
         return $this->hasOne(DoctorProfile::class, 'user_id');
     }
 
-
     /**
      * Get the patient profile for the user.
      */

@@ -3,7 +3,6 @@
 namespace App\services\frontdesk;
 
 use App\Models\Appointment;
-use Illuminate\Support\Facades\DB;
 
 class HistoryService
 {
@@ -18,11 +17,11 @@ class HistoryService
             ->whereHas('doctor');  // Only get appointments where doctor exists
 
         // Date range filter
-        if (isset($filters['from_date']) && !empty($filters['from_date'])) {
+        if (isset($filters['from_date']) && ! empty($filters['from_date'])) {
             $query->where('appointment_date', '>=', $filters['from_date']);
         }
 
-        if (isset($filters['to_date']) && !empty($filters['to_date'])) {
+        if (isset($filters['to_date']) && ! empty($filters['to_date'])) {
             $query->where('appointment_date', '<=', $filters['to_date']);
         }
 
@@ -32,7 +31,7 @@ class HistoryService
         }
 
         // Search filter (patient or doctor name)
-        if (isset($filters['search']) && !empty($filters['search'])) {
+        if (isset($filters['search']) && ! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->whereHas('patient', function ($pq) use ($search) {
@@ -40,10 +39,10 @@ class HistoryService
                         ->orWhere('last_name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
                 })
-                ->orWhereHas('doctor', function ($dq) use ($search) {
-                    $dq->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
-                });
+                    ->orWhereHas('doctor', function ($dq) use ($search) {
+                        $dq->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -92,7 +91,7 @@ class HistoryService
         return Appointment::with([
             'patient.patientProfile',
             'doctor.doctorProfile',
-            'prescriptions'
+            'prescriptions',
         ])->findOrFail($id);
     }
 }

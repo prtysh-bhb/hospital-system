@@ -4,8 +4,8 @@ namespace App\Http\Controllers\frontdesk;
 
 use App\Http\Controllers\Controller;
 use App\services\frontdesk\DoctoreScheduleService;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DoctoreScheduleController extends Controller
 {
@@ -22,7 +22,7 @@ class DoctoreScheduleController extends Controller
     public function index(Request $request)
     {
         $date = $request->date ?? now()->toDateString();
-        
+
         $filters = [
             'specialty' => $request->specialty ?? 'all',
             'availability' => $request->availability ?? 'all',
@@ -44,7 +44,7 @@ class DoctoreScheduleController extends Controller
             } catch (\Exception $e) {
                 return response()->json([
                     'success' => false,
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ], 500);
             }
         }

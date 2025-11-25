@@ -35,7 +35,7 @@ class PatientController extends Controller
                     'last_page' => $patients->lastPage(),
                     'from' => $patients->firstItem(),
                     'to' => $patients->lastItem(),
-                ]
+                ],
             ]);
         }
 
@@ -68,12 +68,12 @@ class PatientController extends Controller
                         'doctor' => $patient->patientAppointments->first()->doctor->full_name ?? 'N/A',
                     ] : null,
                     'total_appointments' => $patient->patientAppointments->count(),
-                ]
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Patient not found'
+                'message' => 'Patient not found',
             ], 404);
         }
     }
@@ -83,8 +83,8 @@ class PatientController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
             'last_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,' . $id],
+            'email' => 'required|email|unique:users,email,'.$id,
+            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,'.$id],
             'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|in:male,female,other',
             'address' => 'nullable|string|max:500',
@@ -99,13 +99,13 @@ class PatientController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Patient updated successfully',
-                'patient' => $patient
+                'patient' => $patient,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update patient',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -118,19 +118,19 @@ class PatientController extends Controller
             if ($result) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Patient deleted successfully'
+                    'message' => 'Patient deleted successfully',
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete patient'
+                'message' => 'Failed to delete patient',
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while deleting the patient',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

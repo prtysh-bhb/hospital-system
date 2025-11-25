@@ -341,18 +341,16 @@
 
                             // CLEAR OLD ERRORS
                             $('.error').text('');
-                            $('input, select').removeClass('border-danger');
+                            $('input, select').removeClass('border-red-500');
 
                             if (data.status == 400) {
 
                                 $.each(data.errors, function(field, messages) {
 
-                                    $('.' + field + '_error').text(messages[
-                                        0]); // show error text
-                                    $('[name="' + field + '"]').addClass(
-                                        'border-danger'); // highlight red
-
+                                    $('.' + field + '_error').text(messages[0]);
+                                    $('[name="' + field + '"]').addClass('border-red-500');
                                 });
+
 
                                 return;
                             }
@@ -373,7 +371,7 @@
                 $('body').on('input change', 'input, select', function() {
                     let name = $(this).attr('name');
                     $('.' + name + '_error').text('');
-                    $(this).removeClass('border-danger');
+                    $(this).removeClass('border-red-500');
                 });
 
                 $('body').on('click', '.status-badge', function() {
