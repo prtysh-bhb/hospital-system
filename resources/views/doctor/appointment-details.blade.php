@@ -417,23 +417,24 @@
 
                     // Patient Info
                     const patientName = data.patient.name;
-                      const dob = data.patient.date_of_birth;
-                        console.log(dob);
-                        function calculateAge(dob) {
-                            const birth = new Date(Date.parse(dob));
-                            const today = new Date();
-                            let age = today.getFullYear() - birth.getFullYear();
-                            if (
-                                today.getMonth() < birth.getMonth() ||
-                                (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
-                            ) {
-                                age--;
-                            }
-                            return age;
-                        }
-                        const age = dob ? calculateAge(dob) : 'N/A';
+                    const dob = data.patient.date_of_birth;
+                    console.log(dob);
 
-                        document.getElementById('patient-avatar').src = data.patient.profile_image ||
+                    function calculateAge(dob) {
+                        const birth = new Date(Date.parse(dob));
+                        const today = new Date();
+                        let age = today.getFullYear() - birth.getFullYear();
+                        if (
+                            today.getMonth() < birth.getMonth() ||
+                            (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
+                        ) {
+                            age--;
+                        }
+                        return age;
+                    }
+                    const age = dob ? calculateAge(dob) : 'N/A';
+
+                    document.getElementById('patient-avatar').src = data.patient.profile_image ||
                         `https://ui-avatars.com/api/?name=${encodeURIComponent(patientName)}&background=10b981&color=fff`;
                     document.getElementById('patient-name').textContent = patientName;
                     document.getElementById('patient-id').textContent = data.patient.patient_number;

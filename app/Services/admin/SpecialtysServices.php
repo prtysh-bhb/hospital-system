@@ -91,18 +91,22 @@ class SpecialtysServices
         $specialty = Specialty::find($request->id);
 
         if (!$specialty) {
-            return response()->json(['status' => 404, 'msg' => 'Not Found']);
+            return [
+                'status' => 404,
+                'msg' => 'Not Found'
+            ];
         }
 
         // Toggle status
         $specialty->status = ($specialty->status == 'active') ? 'inactive' : 'active';
-        $specialty->save();  // VERY IMPORTANT
+        $specialty->save();
 
-        return response()->json([
+        return [
             'status' => 200,
             'msg' => 'Status updated successfully',
-            'new_status' => $specialty->status
-        ]);
+            'new_status' => $specialty->status,
+            'specialty' => $specialty
+        ];
     }
     public function destroy($id)
     {

@@ -4,13 +4,16 @@
 @section('page-title', 'Specialtys Management')
 
 @section('header-actions')
-    <a href="javascript:" data-toggle="modal" data-id="" data-target=".add_modal"
-        class="px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg text-decoration-none font-medium openaddmodal"
-        {{ request()->routeIs('admin.specialtys*') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }}>+
-        Add Specialty</a>
+    <a href="javascript:void(0)" data-id=""
+        class="px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium openaddmodal">
+        + Add Specialty
+    </a>
 @endsection
 
 @section('content')
+
+    <!-- Message Container -->
+    <div id="messageContainer" class="hidden mb-4 p-4 rounded-lg"></div>
 
     <!-- Filters -->
     <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
@@ -78,28 +81,33 @@
             <div id="paginationInfo" class="text-xs sm:text-sm text-gray-600"></div>
             <div id="paginationContainer" class="flex flex-wrap gap-2 justify-center"></div>
         </div>
+    </div>
 
-        <!-- Modal -->
-        <div class="modal fade add_modal">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
+    <!-- View Details Modal -->
+    <div class="view_modal hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <!-- Modal Overlay -->
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onclick="closeViewModal()"></div>
 
-                    <!-- Header -->
-                    <div class="modal-header" style="padding: 10px;">
-                        <h5 class="modal-title">Large Modal</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+            <!-- Modal Container -->
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full relative z-50 max-h-[90vh] overflow-y-auto">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-800">Specialty Details</h3>
+                    <button type="button" onclick="closeViewModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
 
-                    <!-- Body -->
-                    <div class="modal-body addmodalbody">
-                        <!-- Your dynamic content loads here -->
-                    </div>
+                <!-- Modal Body -->
+                <div class="viewmodalbody p-4 sm:p-6">
+                    <!-- Dynamic content loads here -->
                 </div>
             </div>
         </div>
-
     </div>
 
     @push('scripts')
@@ -188,12 +196,11 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
                                     </button>
-                                    <button class="text-amber-600 hover:text-amber-800 edit-appointment-btn openaddmodal" 
-                                            href="javascript:;" data-id="${item.id}" data-toggle="modal" data-target=".add_modal">
-                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </button>
+                                    <button class="text-amber-600 hover:text-amber-800 openaddmodal" data-id="${item.id}">
+                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
                                     <button class="text-red-600 hover:text-red-800 specialtys-destroy" data-id="${item.id}">
                                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -291,7 +298,7 @@
                 $('body').on('click', '.openaddmodal', function() {
 
                     var id = $(this).data('id');
-                    if (id == '') {
+                    if (id == '' || id == undefined) {
                         $('.modal-title').text("Add Specialty");
                     } else {
                         $('.modal-title').text("Edit Specialty");
@@ -308,9 +315,16 @@
                         },
                         success: function(data) {
                             $('.addmodalbody').html(data);
+                            $('.add_modal').removeClass('hidden');
                         },
                     });
                 });
+
+                // Function to close specialty modal
+                window.closeSpecialtyModal = function() {
+                    $('.add_modal').addClass('hidden');
+                    $('.addmodalbody').html('');
+                };
 
                 $('body').on('submit', '.specialtys-formsubmit', function(e) {
                     e.preventDefault();
@@ -347,9 +361,7 @@
                                 toastr.success(data.msg);
 
                                 // close modal
-                                $('body').removeClass('modal-open');
-                                $('.add_modal').removeClass('show');
-                                $('.modal-backdrop').remove();
+                                closeSpecialtyModal();
 
                                 loadSpecialtys();
                             }
@@ -368,6 +380,7 @@
 
                     let badge = $(this);
                     let id = badge.data('id');
+                    let currentStatus = badge.data('status');
 
                     $.ajax({
                         url: '{{ route('admin.specialtys-toggleStatus') }}',
@@ -377,13 +390,20 @@
                             id: id
                         },
                         success: function(response) {
-                            console.log(response);
                             if (response.status == 200) {
-
                                 toastr.success(response.msg);
 
-                                // Refresh list without page reload
-                                loadSpecialtys();
+                                // Update the badge immediately without page reload
+                                let newStatus = response.new_status;
+                                let newColor = newStatus === 'active' ?
+                                    'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+                                let oldColor = currentStatus === 'active' ?
+                                    'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+
+                                badge.removeClass(oldColor);
+                                badge.addClass(newColor);
+                                badge.text(newStatus.charAt(0).toUpperCase() + newStatus.slice(1));
+                                badge.data('status', newStatus);
                             }
                         },
                         error: function() {
@@ -392,6 +412,29 @@
                     });
 
                 });
+
+                // View specialty details
+                $('body').on('click', '.view-appointment-btn', function() {
+                    let id = $(this).data('id');
+
+                    $.ajax({
+                        url: '{{ route('admin.specialtys-view', ':id') }}'.replace(':id', id),
+                        type: 'GET',
+                        success: function(response) {
+                            $('.viewmodalbody').html(response);
+                            $('.view_modal').removeClass('hidden');
+                        },
+                        error: function() {
+                            toastr.error('Failed to load specialty details.');
+                        }
+                    });
+                });
+
+                // Function to close view modal
+                window.closeViewModal = function() {
+                    $('.view_modal').addClass('hidden');
+                    $('.viewmodalbody').html('');
+                };
 
                 // Initial page load
                 loadSpecialtys();
