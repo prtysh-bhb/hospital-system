@@ -213,6 +213,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
+        function closeEditModal() {
+            $('.add_modal').addClass('hidden');
+            $('.addmodalbody').html('');
+        }
         // Mobile menu toggle
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const sidebar = document.getElementById('sidebar');

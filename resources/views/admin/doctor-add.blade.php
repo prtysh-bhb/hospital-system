@@ -30,7 +30,7 @@
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name *</label>
                     <input type="text" name="first_name" value="{{ old('first_name', $doctor->user->first_name ?? '') }}"
-                        placeholder="John" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
+                        placeholder="Enter first name" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
                         title="Name can only contain letters and spaces (minimum 2 characters)"
                         oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                         class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border {{ $errors->has('first_name') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
@@ -42,7 +42,7 @@
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name *</label>
                     <input type="text" name="last_name" value="{{ old('last_name', $doctor->user->last_name ?? '') }}"
-                        placeholder="Doe" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
+                        placeholder="Enter last name" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
                         title="Name can only contain letters and spaces (minimum 2 characters)"
                         oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                         class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border {{ $errors->has('last_name') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
@@ -73,7 +73,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                     <input type="email" name="email" value="{{ old('email', $doctor->user->email ?? '') }}"
-                        placeholder="doctor@hospital.com"
+                        placeholder="Enter email address"
                         class="w-full px-4 py-2 border {{ $errors->has('email') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
                     @error('email')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -135,7 +135,7 @@
 
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
-                    <textarea name="address" rows="3" placeholder="Complete address" minlength="10" maxlength="500"
+                    <textarea name="address" rows="3" placeholder="Enter address" minlength="10" maxlength="500"
                         title="Address must be at least 10 characters"
                         class="w-full px-4 py-2 border {{ $errors->has('address') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">{{ old('address', $doctor->user->address ?? '') }}</textarea>
                     @error('address')

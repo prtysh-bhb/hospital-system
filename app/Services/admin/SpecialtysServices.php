@@ -2,10 +2,9 @@
 
 namespace App\Services\Admin;
 
-use Exception;
 use App\Models\Specialty;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 
 class SpecialtysServices
@@ -28,9 +27,10 @@ class SpecialtysServices
         $data = $query->orderBy('id', 'DESC')->paginate(10);
 
         return [
-            'data' => $data
+            'data' => $data,
         ];
     }
+
     public function store(Request $request)
     {
         $id = $request->id ?? null;
@@ -38,7 +38,7 @@ class SpecialtysServices
         $nameRule = 'required|string|max:50|unique:specialties,name';
 
         if ($id) {
-            $nameRule = 'required|string|max:50|unique:specialties,name,' . $id;
+            $nameRule = 'required|string|max:50|unique:specialties,name,'.$id;
         }
 
         $rules = [
@@ -48,31 +48,31 @@ class SpecialtysServices
         ];
 
         $messages = [
-            'name.unique' => "This name is already taken",
-            'name.required' => "Please enter name",
-            'description.required' => "Please enter description",
-            'status.required' => "Please select status",
+            'name.unique' => 'This name is already taken',
+            'name.required' => 'Please enter name',
+            'description.required' => 'Please enter description',
+            'status.required' => 'Please select status',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return [
-                "status" => 400,
-                "errors" => $validator->errors(),
+                'status' => 400,
+                'errors' => $validator->errors(),
             ];
         }
 
         try {
             if ($id) {
                 $specialty = Specialty::find($id);
-                if (!$specialty) {
-                    return ["status" => 404, "msg" => "Specialty not found"];
+                if (! $specialty) {
+                    return ['status' => 404, 'msg' => 'Specialty not found'];
                 }
-                $msg = "Specialty has been updated successfully.";
+                $msg = 'Specialty has been updated successfully.';
             } else {
-                $specialty = new Specialty();
-                $msg = "Specialty has been added successfully.";
+                $specialty = new Specialty;
+                $msg = 'Specialty has been added successfully.';
             }
 
             $specialty->name = $request->name;
@@ -80,20 +80,21 @@ class SpecialtysServices
             $specialty->status = $request->status;
             $specialty->save();
 
-            return ["status" => 200, "msg" => $msg];
+            return ['status' => 200, 'msg' => $msg];
 
         } catch (Exception $ex) {
-            return ["status" => 400, "msg" => $ex->getMessage()];
+            return ['status' => 400, 'msg' => $ex->getMessage()];
         }
     }
+
     public function toggleStatus(Request $request)
     {
         $specialty = Specialty::find($request->id);
 
-        if (!$specialty) {
+        if (! $specialty) {
             return [
                 'status' => 404,
-                'msg' => 'Not Found'
+                'msg' => 'Not Found',
             ];
         }
 
@@ -105,15 +106,16 @@ class SpecialtysServices
             'status' => 200,
             'msg' => 'Status updated successfully',
             'new_status' => $specialty->status,
-            'specialty' => $specialty
+            'specialty' => $specialty,
         ];
     }
+
     public function destroy($id)
     {
         try {
             $specialty = Specialty::find($id);
 
-            if (!$specialty) {
+            if (! $specialty) {
                 return response()->json([
                     'status' => 404,
                     'msg' => 'Specialty not found.',
@@ -128,7 +130,7 @@ class SpecialtysServices
         } catch (Exception $ex) {
             return response()->json([
                 'status' => 400,
-                'msg' => 'Failed to delete specialty: ' . $ex->getMessage(),
+                'msg' => 'Failed to delete specialty: '.$ex->getMessage(),
             ], 400);
         }
     }

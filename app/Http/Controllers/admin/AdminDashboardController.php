@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Appointment;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
@@ -52,21 +52,21 @@ class AdminDashboardController extends Controller
                 $map = $statusMap[$status] ?? ['label' => ucfirst($status), 'class' => 'text-gray-700 bg-gray-100'];
 
                 $doctorName = optional($a->doctor)->full_name;
-                    if (empty($doctorName) && $a->doctor_id) {
-                        // include soft-deleted users in fallback lookup
-                        $doc = User::withTrashed()->find($a->doctor_id);
-                        if ($doc) {
-                            $full = trim(($doc->first_name ?? '') . ' ' . ($doc->last_name ?? ''));
-                            if (!empty($full)) {
-                                $doctorName = $full;
-                            } elseif (!empty($doc->email)) {
-                                $doctorName = $doc->email;
-                            } else {
-                                $doctorName = 'Doctor #' . $a->doctor_id;
-                            }
+                if (empty($doctorName) && $a->doctor_id) {
+                    // include soft-deleted users in fallback lookup
+                    $doc = User::withTrashed()->find($a->doctor_id);
+                    if ($doc) {
+                        $full = trim(($doc->first_name ?? '').' '.($doc->last_name ?? ''));
+                        if (! empty($full)) {
+                            $doctorName = $full;
+                        } elseif (! empty($doc->email)) {
+                            $doctorName = $doc->email;
                         } else {
-                            $doctorName = '—';
+                            $doctorName = 'Doctor #'.$a->doctor_id;
                         }
+                    } else {
+                        $doctorName = '—';
+                    }
                 }
 
                 return [
@@ -90,6 +90,7 @@ class AdminDashboardController extends Controller
 
         $activeDoctors = $activeDoctorsQuery->map(function ($row) {
             $doctor = User::find($row->doctor_id);
+
             return [
                 'id' => $doctor->id ?? null,
                 'name' => $doctor->full_name ?? '—',
@@ -105,7 +106,7 @@ class AdminDashboardController extends Controller
             ->map(function ($a) {
                 return [
                     'id' => $a->id,
-                    'title' => 'Appointment: ' . (optional($a->patient)->full_name ?? '—') . ' with ' . (optional($a->doctor)->full_name ?? '—'),
+                    'title' => 'Appointment: '.(optional($a->patient)->full_name ?? '—').' with '.(optional($a->doctor)->full_name ?? '—'),
                     'time' => optional($a->created_at) ? Carbon::parse($a->created_at)->diffForHumans() : '',
                 ];
             });

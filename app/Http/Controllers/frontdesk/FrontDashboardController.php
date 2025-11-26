@@ -18,7 +18,7 @@ class FrontDashboardController extends Controller
     public function getDashboardStats(Request $request)
     {
         $today = Carbon::today();
-        
+
         // Today's appointments
         $todayAppointments = Appointment::with(['patient', 'doctor.doctorProfile.specialty'])
             ->whereDate('appointment_date', $today)
@@ -57,7 +57,7 @@ class FrontDashboardController extends Controller
 
     private function getStatusColor($status)
     {
-        return match($status) {
+        return match ($status) {
             'confirmed' => 'green',
             'pending' => 'amber',
             'in_progress' => 'sky',

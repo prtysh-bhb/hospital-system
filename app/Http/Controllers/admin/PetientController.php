@@ -5,7 +5,8 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Services\admin\PetientService;
 use Illuminate\Http\Request;
-use \Illuminate\Validation\ValidationException;
+use Illuminate\Validation\ValidationException;
+
 class PetientController extends Controller
 {
     protected PetientService $petientService;
@@ -53,6 +54,7 @@ class PetientController extends Controller
 
         if ($request->ajax()) {
             $html = view('admin.partials.patient-view', compact('patient'))->render();
+
             return response()->json(['html' => $html]);
         }
 
@@ -65,6 +67,7 @@ class PetientController extends Controller
 
         if ($request->ajax()) {
             $html = view('admin.partials.patient-edit', compact('patient'))->render();
+
             return response()->json(['html' => $html]);
         }
 
@@ -106,7 +109,7 @@ class PetientController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => $result,
-                    'message' => $result ? 'Patient updated successfully' : 'Failed to update patient'
+                    'message' => $result ? 'Patient updated successfully' : 'Failed to update patient',
                 ]);
             }
 
@@ -119,17 +122,17 @@ class PetientController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $e->errors()
+                    'errors' => $e->errors(),
                 ], 422);
             }
             throw $e;
         } catch (\Exception $e) {
-            \Log::error('Error updating patient: ' . $e->getMessage());
-            
+            \Log::error('Error updating patient: '.$e->getMessage());
+
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'An error occurred while updating the patient: ' . $e->getMessage()
+                    'message' => 'An error occurred while updating the patient: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -145,7 +148,7 @@ class PetientController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => $result,
-                    'message' => $result ? 'Patient deleted successfully' : 'Failed to delete patient'
+                    'message' => $result ? 'Patient deleted successfully' : 'Failed to delete patient',
                 ]);
             }
 
@@ -154,17 +157,16 @@ class PetientController extends Controller
                 $result ? 'Patient deleted successfully' : 'Failed to delete patient'
             );
         } catch (\Exception $e) {
-            \Log::error('Error deleting patient: ' . $e->getMessage());
+            \Log::error('Error deleting patient: '.$e->getMessage());
 
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'An error occurred while deleting the patient'
+                    'message' => 'An error occurred while deleting the patient',
                 ], 500);
             }
 
             return redirect()->back()->with('error', 'An error occurred while deleting the patient');
         }
     }
-
 }

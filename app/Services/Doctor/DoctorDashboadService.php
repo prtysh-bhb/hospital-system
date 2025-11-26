@@ -3,7 +3,6 @@
 namespace App\Services\Doctor;
 
 use App\Models\Appointment;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -64,7 +63,7 @@ class DoctorDashboadService
                 return [
                     'id' => $appointment->id,
                     'appointment_number' => $appointment->appointment_number,
-                    'patient_name' => $appointment->patient->first_name . ' ' . $appointment->patient->last_name,
+                    'patient_name' => $appointment->patient->first_name.' '.$appointment->patient->last_name,
                     'patient_age' => $appointment->patient->date_of_birth ? Carbon::parse($appointment->patient->date_of_birth)->age : 'N/A',
                     'patient_gender' => ucfirst($appointment->patient->gender ?? 'N/A'),
                     'patient_blood_group' => $appointment->patient->patientProfile->blood_group ?? 'N/A',
@@ -108,7 +107,7 @@ class DoctorDashboadService
             ->map(function ($appointment) {
                 return [
                     'patient_id' => $appointment->patient_id,
-                    'patient_name' => $appointment->patient->first_name . ' ' . $appointment->patient->last_name,
+                    'patient_name' => $appointment->patient->first_name.' '.$appointment->patient->last_name,
                     'last_visit' => Carbon::parse($appointment->appointment_date)->format('M d, Y'),
                     'condition' => $appointment->reason_for_visit,
                 ];

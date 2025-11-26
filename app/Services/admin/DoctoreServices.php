@@ -166,20 +166,20 @@ class DoctoreServices
             if (isset($data['schedules']) && is_array($data['schedules'])) {
                 // First, delete all existing schedules to avoid duplicate issues
                 DoctorSchedule::where('doctor_id', $id)->forceDelete();
-                
+
                 foreach ($data['schedules'] as $dayOfWeek => $schedule) {
                     // Only create schedules where enabled is true
                     if (! empty($schedule['enabled']) && $schedule['enabled'] == '1' && isset($schedule['start_time']) && isset($schedule['end_time'])) {
                         DoctorSchedule::create([
                             'doctor_id' => $id,
-                            'day_of_week' => (int)$dayOfWeek,
+                            'day_of_week' => (int) $dayOfWeek,
                             'start_time' => $schedule['start_time'],
                             'end_time' => $schedule['end_time'],
                             'slot_duration' => $data['slot_duration'],
                             'max_patients' => 20,
                             'is_available' => true,
                         ]);
-                        $updatedDays[] = (int)$dayOfWeek;
+                        $updatedDays[] = (int) $dayOfWeek;
                     }
                 }
             } else {

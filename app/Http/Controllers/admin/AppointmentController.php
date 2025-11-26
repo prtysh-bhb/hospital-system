@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Models\Appointment;
-use App\Models\DoctorSchedule;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use Carbon\Carbon;
+use App\Models\User;
 use App\Services\AppointmentSlotService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class AppointmentController extends Controller
 {
@@ -25,6 +23,7 @@ class AppointmentController extends Controller
     public function index()
     {
         $doctors = User::where('role', 'doctor')->get();
+
         return view('admin.appointments', compact('doctors'));
     }
 
@@ -33,6 +32,7 @@ class AppointmentController extends Controller
     {
         $patients = User::where('role', 'patient')->get();
         $doctors = User::where('role', 'doctor')->with('doctorProfile.specialty')->get();
+
         return view('admin.add-appointment', compact('patients', 'doctors'));
     }
 
@@ -46,7 +46,7 @@ class AppointmentController extends Controller
 
         return response()->json($result);
     }
-    
+
     public function getAppointments(Request $request)
     {
         $query = Appointment::with(['patient', 'doctor.doctorProfile.specialty']);
@@ -80,9 +80,10 @@ class AppointmentController extends Controller
         }
 
         $appointments = $query->orderBy('id', 'desc')->paginate(10);
+
         return response()->json([
             'success' => true,
-            'data' => $appointments
+            'data' => $appointments,
         ]);
     }
 
@@ -95,13 +96,13 @@ class AppointmentController extends Controller
         if ($appointment) {
             return response()->json([
                 'success' => true,
-                'data' => $appointment
+                'data' => $appointment,
             ]);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'No previous appointments found.'
+            'message' => 'No previous appointments found.',
         ]);
     }
 
@@ -193,7 +194,7 @@ class AppointmentController extends Controller
             }
 
             // Generate appointment number
-            $appointmentNumber = 'APT-' . date('Y') . '-' . str_pad(Appointment::count() + 1, 6, '0', STR_PAD_LEFT);
+            $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(Appointment::count() + 1, 6, '0', STR_PAD_LEFT);
 
             // Parse appointment time (could be "09:00 AM" format or "09:00" format)
             $appointmentTime = $request->input('appointment_time');
@@ -205,11 +206,11 @@ class AppointmentController extends Controller
                 $appointmentTime
             );
 
-            if (!$slotValidation['valid']) {
+            if (! $slotValidation['valid']) {
                 return response()->json([
                     'status' => 422,
                     'msg' => $slotValidation['message'],
-                    'errors' => ['appointment_time' => [$slotValidation['message']]]
+                    'errors' => ['appointment_time' => [$slotValidation['message']]],
                 ], 422);
             }
 
@@ -224,7 +225,7 @@ class AppointmentController extends Controller
             }
 
             // Create a new appointment instance
-            $appointment = new Appointment();
+            $appointment = new Appointment;
             $appointment->appointment_number = $appointmentNumber;
             $appointment->patient_id = $patientId;
             $appointment->doctor_id = $request->input('doctor_id');
@@ -243,34 +244,35 @@ class AppointmentController extends Controller
             // Return success response
             return response()->json([
                 'status' => 200,
-                'msg' => 'Appointment created successfully.'
+                'msg' => 'Appointment created successfully.',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Return validation errors
             return response()->json([
                 'status' => 422,
                 'msg' => 'Validation failed.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             // Handle exceptions and return a response
             return response()->json([
                 'status' => 400,
                 'msg' => 'Something went wrong. Please try again later.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 400);
         }
     }
 
-    public function getAppointmentsmodal(Request $request){
+    public function getAppointmentsmodal(Request $request)
+    {
         $patients = User::where('role', 'patient')->get();
         $doctors = User::where('role', 'doctor')->with('doctorProfile.specialty')->get();
-        
+
         $appointment = null;
-        if($request->has('appointment_id')){
+        if ($request->has('appointment_id')) {
             $appointment = Appointment::with(['patient', 'doctor.doctorProfile.specialty'])->find($request->appointment_id);
         }
-        
+
         return view('admin.edit-appointment-modal', compact('patients', 'doctors', 'appointment'));
     }
 
@@ -336,11 +338,11 @@ class AppointmentController extends Controller
 
             // Find and update the appointment
             $appointment = Appointment::find($request->appointment_id);
-            
-            if (!$appointment) {
+
+            if (! $appointment) {
                 return response()->json([
                     'status' => 404,
-                    'msg' => 'Appointment not found.'
+                    'msg' => 'Appointment not found.',
                 ]);
             }
 
@@ -352,18 +354,18 @@ class AppointmentController extends Controller
             $appointment->reason_for_visit = $request->input('reason_for_visit');
             $appointment->status = $request->input('status');
             $appointment->notes = $request->input('notes', $appointment->notes);
-            
+
             $appointment->save();
 
             return response()->json([
                 'status' => 200,
-                'msg' => 'Appointment updated successfully.'
+                'msg' => 'Appointment updated successfully.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 400,
                 'msg' => 'Something went wrong. Please try again later.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -374,14 +376,14 @@ class AppointmentController extends Controller
         try {
             $validated = $request->validate([
                 'appointment_id' => 'required|exists:appointments,id',
-             ]);
+            ]);
 
             $appointment = Appointment::find($request->appointment_id);
-            
-            if (!$appointment) {
+
+            if (! $appointment) {
                 return response()->json([
                     'status' => 404,
-                    'msg' => 'Appointment not found.'
+                    'msg' => 'Appointment not found.',
                 ]);
             }
 
@@ -389,13 +391,13 @@ class AppointmentController extends Controller
 
             return response()->json([
                 'status' => 200,
-                'msg' => 'Appointment deleted successfully.'
+                'msg' => 'Appointment deleted successfully.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 400,
                 'msg' => 'Something went wrong. Please try again later.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -405,25 +407,24 @@ class AppointmentController extends Controller
     {
         try {
             $appointment = Appointment::with(['patient', 'doctor.doctorProfile.specialty'])->find($id);
-            
-            if (!$appointment) {
+
+            if (! $appointment) {
                 return response()->json([
                     'status' => 404,
-                    'msg' => 'Appointment not found.'
+                    'msg' => 'Appointment not found.',
                 ]);
             }
 
             return response()->json([
                 'status' => 200,
-                'data' => $appointment
+                'data' => $appointment,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 400,
                 'msg' => 'Something went wrong. Please try again later.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
-
 }

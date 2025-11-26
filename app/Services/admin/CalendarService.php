@@ -49,7 +49,7 @@ class CalendarService
             if ($isCurrentMonth && isset($appointments[$dateKey])) {
                 $dayAppointments = $appointments[$dateKey]->map(function ($apt) {
                     // Skip appointments without patients or doctors
-                    if (!$apt->patient || !$apt->doctor) {
+                    if (! $apt->patient || ! $apt->doctor) {
                         return null;
                     }
 
@@ -57,9 +57,9 @@ class CalendarService
                         'id' => $apt->id,
                         'time' => Carbon::parse($apt->appointment_time)->format('g:i A'),
                         'status' => $apt->status,
-                        'patient_name' => $apt->patient->first_name . ' ' . $apt->patient->last_name,
-                        'doctor_name' => 'Dr. ' . $apt->doctor->last_name,
-                        'doctor_short' => 'Dr. ' . substr($apt->doctor->last_name, 0, 1) . '.',
+                        'patient_name' => $apt->patient->first_name.' '.$apt->patient->last_name,
+                        'doctor_name' => 'Dr. '.$apt->doctor->last_name,
+                        'doctor_short' => 'Dr. '.substr($apt->doctor->last_name, 0, 1).'.',
                     ];
                 })->filter()->values()->toArray();
             }
@@ -97,7 +97,7 @@ class CalendarService
             ->map(function ($doctor) {
                 return [
                     'id' => $doctor->id,
-                    'name' => 'Dr. ' . $doctor->first_name . ' ' . $doctor->last_name,
+                    'name' => 'Dr. '.$doctor->first_name.' '.$doctor->last_name,
                     'specialty' => $doctor->doctorProfile?->specialty?->name ?? 'General',
                 ];
             });
@@ -122,8 +122,8 @@ class CalendarService
             return [
                 'id' => $appointment->id,
                 'appointment_number' => $appointment->appointment_number,
-                'patient_name' => $appointment->patient->first_name . ' ' . $appointment->patient->last_name,
-                'doctor_name' => 'Dr. ' . $appointment->doctor->first_name . ' ' . $appointment->doctor->last_name,
+                'patient_name' => $appointment->patient->first_name.' '.$appointment->patient->last_name,
+                'doctor_name' => 'Dr. '.$appointment->doctor->first_name.' '.$appointment->doctor->last_name,
                 'specialty' => $appointment->doctor->doctorProfile?->specialty?->name ?? 'General',
                 'time' => Carbon::parse($appointment->appointment_time)->format('g:i A'),
                 'status' => $appointment->status,
@@ -143,7 +143,7 @@ class CalendarService
 
         $query = Appointment::whereBetween('appointment_date', [
             $startDate->format('Y-m-d'),
-            $endDate->format('Y-m-d')
+            $endDate->format('Y-m-d'),
         ]);
 
         if ($doctorId) {
@@ -190,7 +190,7 @@ class CalendarService
 
             if (isset($appointments[$dateKey])) {
                 $dayAppointments = $appointments[$dateKey]->map(function ($apt) {
-                    if (!$apt->patient || !$apt->doctor) {
+                    if (! $apt->patient || ! $apt->doctor) {
                         return null;
                     }
 
@@ -198,8 +198,8 @@ class CalendarService
                         'id' => $apt->id,
                         'time' => Carbon::parse($apt->appointment_time)->format('g:i A'),
                         'status' => $apt->status,
-                        'patient_name' => $apt->patient->first_name . ' ' . $apt->patient->last_name,
-                        'doctor_name' => 'Dr. ' . $apt->doctor->last_name,
+                        'patient_name' => $apt->patient->first_name.' '.$apt->patient->last_name,
+                        'doctor_name' => 'Dr. '.$apt->doctor->last_name,
                         'reason' => $apt->reason_for_visit,
                         'appointment_number' => $apt->appointment_number,
                     ];
@@ -220,7 +220,7 @@ class CalendarService
 
         return [
             'days' => $weekDays,
-            'week_title' => $start->format('M d') . ' - ' . $end->format('M d, Y'),
+            'week_title' => $start->format('M d').' - '.$end->format('M d, Y'),
             'start_date' => $start->format('Y-m-d'),
             'end_date' => $end->format('Y-m-d'),
         ];
@@ -242,7 +242,7 @@ class CalendarService
         }
 
         $appointments = $query->get()->map(function ($apt) {
-            if (!$apt->patient || !$apt->doctor) {
+            if (! $apt->patient || ! $apt->doctor) {
                 return null;
             }
 
@@ -260,9 +260,9 @@ class CalendarService
                 'appointment_number' => $apt->appointment_number,
                 'time' => Carbon::parse($apt->appointment_time)->format('g:i A'),
                 'status' => $apt->status,
-                'patient_name' => $apt->patient->first_name . ' ' . $apt->patient->last_name,
+                'patient_name' => $apt->patient->first_name.' '.$apt->patient->last_name,
                 'patient_age' => $age,
-                'doctor_name' => 'Dr. ' . $apt->doctor->first_name . ' ' . $apt->doctor->last_name,
+                'doctor_name' => 'Dr. '.$apt->doctor->first_name.' '.$apt->doctor->last_name,
                 'specialty' => $apt->doctor->doctorProfile?->specialty?->name ?? 'General',
                 'reason' => $apt->reason_for_visit,
                 'type' => ucfirst(str_replace('_', ' ', $apt->appointment_type)),
