@@ -73,6 +73,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/doctors', [docktorsController::class, 'index'])->name('doctors');
     Route::get('/doctors/add', [docktorsController::class, 'create'])->name('doctors.add');
     Route::post('/doctors/add', [docktorsController::class, 'store'])->name('doctors.store');
+    Route::get('/doctors/{id}', [docktorsController::class, 'show'])->name('doctors.show');
     Route::get('/doctors/{id}/edit', [docktorsController::class, 'edit'])->name('doctors.edit');
     Route::put('/doctors/{id}', [docktorsController::class, 'update'])->name('doctors.update');
     Route::delete('/doctors/{id}', [docktorsController::class, 'destroy'])->name('doctors.destroy');

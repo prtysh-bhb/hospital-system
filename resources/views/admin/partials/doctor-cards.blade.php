@@ -127,8 +127,8 @@
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <button
-                        class="flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm {{ $color['text'] }} border {{ $color['border'] }} rounded-lg {{ $color['hover-light'] }} font-medium">View
+                    <button data-doctor-id="{{ $doctor->user->id }}"
+                        class="view-doctor-btn flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm {{ $color['text'] }} border {{ $color['border'] }} rounded-lg {{ $color['hover-light'] }} font-medium">View
                         Details</button>
                     <a href="{{ route('admin.doctors.edit', $doctor->user->id) }}"
                         class="flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white {{ $color['bg'] }} rounded-lg {{ $color['hover-bg'] }} font-medium text-center">Edit</a>

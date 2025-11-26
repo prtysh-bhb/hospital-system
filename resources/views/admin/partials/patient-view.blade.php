@@ -96,7 +96,7 @@
 
             <div>
                 <label class="text-sm font-medium text-gray-600">Registered On</label>
-                <p class="text-gray-800">{{ $patient->created_at->format('d M Y, h:i A') }}</p>
+                <p class="text-gray-800">{{ $patient->created_at->addHours(1.0)->format('d M Y, h:i A') }}</p>
             </div>
         </div>
     </div>
@@ -125,10 +125,10 @@
 
     <!-- Action Buttons -->
     <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-        <button onclick="closeViewModal()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+        <button onclick="closeModal()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
             Close
         </button>
-        <button onclick="closeViewModal(); editPatient({{ $patient->id }})"
+        <button onclick="closeModal(); editPatient({{ $patient->id }})"
             class="px-4 py-2 text-white bg-sky-600 rounded-lg hover:bg-sky-700">
             Edit Patient
         </button>

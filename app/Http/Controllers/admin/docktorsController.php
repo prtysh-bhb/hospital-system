@@ -51,9 +51,9 @@ class docktorsController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'first_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
-            'last_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
-            'email' => 'required|email|unique:users,email',
+            'first_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
+            'last_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
+            'email' => 'required|email|max:50|unique:users,email',
             'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone', 'not_regex:/^0+$/'],
             'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|in:male,female,other',
@@ -73,8 +73,11 @@ class docktorsController extends Controller
         ], [
             'first_name.regex' => 'First name can only contain letters and spaces.',
             'first_name.min' => 'First name must be at least 2 characters.',
+            'first_name.max' => 'First name cannot exceed 25 characters.',
             'last_name.regex' => 'Last name can only contain letters and spaces.',
             'last_name.min' => 'Last name must be at least 2 characters.',
+            'last_name.max' => 'Last name cannot exceed 25 characters.',
+            'email.max' => 'Email cannot exceed 50 characters.',
             'phone.regex' => 'Phone number must be between 10-15 digits.',
             'phone.not_regex' => 'Phone number cannot be all zeros.',
             'date_of_birth.before' => 'Date of birth must be before today.',
@@ -133,6 +136,81 @@ class docktorsController extends Controller
         }
     }
 
+    public function show(Request $request, $id)
+    {
+        $doctor = $this->doctoreServices->getDoctorById($id);
+
+        if (! $doctor) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Doctor not found.'], 404);
+            }
+
+            return redirect()->route('admin.doctors')
+                ->with('error', 'Doctor not found.');
+        }
+
+        // Load schedules for the doctor
+        $schedules = \App\Models\DoctorSchedule::where('doctor_id', $id)
+            ->where('is_available', true)
+            ->orderBy('day_of_week')
+            ->get();
+
+        // Get appointment statistics
+        $totalAppointments = \App\Models\Appointment::where('doctor_id', $id)->count();
+        $completedAppointments = \App\Models\Appointment::where('doctor_id', $id)
+            ->where('status', 'completed')
+            ->count();
+        $upcomingAppointments = \App\Models\Appointment::where('doctor_id', $id)
+            ->whereIn('status', ['scheduled', 'confirmed'])
+            ->where('appointment_date', '>=', now()->toDateString())
+            ->count();
+
+        $dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'doctor' => [
+                    'id' => $doctor->user->id,
+                    'full_name' => $doctor->user->full_name,
+                    'first_name' => $doctor->user->first_name,
+                    'last_name' => $doctor->user->last_name,
+                    'email' => $doctor->user->email,
+                    'phone' => $doctor->user->phone,
+                    'gender' => ucfirst($doctor->user->gender ?? 'N/A'),
+                    'date_of_birth' => $doctor->user->date_of_birth ? $doctor->user->date_of_birth->format('M d, Y') : 'N/A',
+                    'address' => $doctor->user->address ?? 'N/A',
+                    'profile_image' => $doctor->user->profile_image ? asset($doctor->user->profile_image) : null,
+                    'status' => $doctor->user->status,
+                    'specialty' => $doctor->specialty->name ?? 'N/A',
+                    'qualification' => $doctor->qualification ?? 'N/A',
+                    'experience_years' => $doctor->experience_years ?? 0,
+                    'consultation_fee' => number_format((float) $doctor->consultation_fee, 0),
+                    'license_number' => $doctor->license_number ?? 'N/A',
+                    'bio' => $doctor->bio ?? 'No bio available',
+                    'available_for_booking' => $doctor->available_for_booking,
+                    'languages' => $doctor->user->languages ?? 'N/A',
+                    'created_at' => $doctor->user->created_at->format('M d, Y'),
+                ],
+                'schedules' => $schedules->map(function ($schedule) use ($dayNames) {
+                    return [
+                        'day' => $dayNames[$schedule->day_of_week] ?? 'Unknown',
+                        'start_time' => date('h:i A', strtotime($schedule->start_time)),
+                        'end_time' => date('h:i A', strtotime($schedule->end_time)),
+                        'slot_duration' => $schedule->slot_duration,
+                    ];
+                }),
+                'statistics' => [
+                    'total_appointments' => $totalAppointments,
+                    'completed_appointments' => $completedAppointments,
+                    'upcoming_appointments' => $upcomingAppointments,
+                ],
+            ]);
+        }
+
+        return view('admin.doctor-view', compact('doctor', 'schedules', 'dayNames'));
+    }
+
     public function edit(Request $request, $id)
     {
         $doctor = $this->doctoreServices->getDoctorById($id);
@@ -155,9 +233,9 @@ class docktorsController extends Controller
     {
         // Build validation rules dynamically
         $rules = [
-            'first_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
-            'last_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
-            'email' => 'required|email|unique:users,email,'.$id,
+            'first_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
+            'last_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
+            'email' => 'required|email|max:50|unique:users,email,'.$id,
             'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,'.$id, 'not_regex:/^0+$/'],
             'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|in:male,female,other',
@@ -180,8 +258,11 @@ class docktorsController extends Controller
         $messages = [
             'first_name.regex' => 'First name can only contain letters and spaces.',
             'first_name.min' => 'First name must be at least 2 characters.',
+            'first_name.max' => 'First name cannot exceed 25 characters.',
             'last_name.regex' => 'Last name can only contain letters and spaces.',
             'last_name.min' => 'Last name must be at least 2 characters.',
+            'last_name.max' => 'Last name cannot exceed 25 characters.',
+            'email.max' => 'Email cannot exceed 50 characters.',
             'phone.regex' => 'Phone number must be between 10-15 digits.',
             'phone.not_regex' => 'Phone number cannot be all zeros.',
             'date_of_birth.before' => 'Date of birth must be before today.',
@@ -211,6 +292,14 @@ class docktorsController extends Controller
                     }
                 }
             }
+        }
+
+        // Handle profile image upload
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/doctors'), $imageName);
+            $validated['profile_image'] = 'uploads/doctors/'.$imageName;
         }
 
         try {

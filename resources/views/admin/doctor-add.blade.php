@@ -29,11 +29,13 @@
 
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                    <input type="text" name="first_name" value="{{ old('first_name', $doctor->user->first_name ?? '') }}"
-                        placeholder="Enter first name" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
-                        title="Name can only contain letters and spaces (minimum 2 characters)"
-                        oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
+                    <input type="text" name="first_name" id="first_name"
+                        value="{{ old('first_name', $doctor->user->first_name ?? '') }}" placeholder="Enter first name"
+                        minlength="2" maxlength="25" pattern="[a-zA-Z\s]+"
+                        title="Name can only contain letters and spaces (max 25 characters)"
+                        oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 25)"
                         class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border {{ $errors->has('first_name') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                    <span id="first_name_error" class="text-red-600 text-sm mt-1 hidden"></span>
                     @error('first_name')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -41,11 +43,13 @@
 
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                    <input type="text" name="last_name" value="{{ old('last_name', $doctor->user->last_name ?? '') }}"
-                        placeholder="Enter last name" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
-                        title="Name can only contain letters and spaces (minimum 2 characters)"
-                        oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
+                    <input type="text" name="last_name" id="last_name"
+                        value="{{ old('last_name', $doctor->user->last_name ?? '') }}" placeholder="Enter last name"
+                        minlength="2" maxlength="25" pattern="[a-zA-Z\s]+"
+                        title="Name can only contain letters and spaces (max 25 characters)"
+                        oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 25)"
                         class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border {{ $errors->has('last_name') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                    <span id="last_name_error" class="text-red-600 text-sm mt-1 hidden"></span>
                     @error('last_name')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -72,9 +76,11 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                    <input type="email" name="email" value="{{ old('email', $doctor->user->email ?? '') }}"
-                        placeholder="Enter email address"
+                    <input type="email" name="email" id="email"
+                        value="{{ old('email', $doctor->user->email ?? '') }}" placeholder="Enter email address"
+                        maxlength="50"
                         class="w-full px-4 py-2 border {{ $errors->has('email') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                    <span id="email_error" class="text-red-600 text-sm mt-1 hidden"></span>
                     @error('email')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -83,12 +89,13 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *
                         {{ !isset($doctor) ? '(will be used as password)' : '' }}</label>
-                    <input type="tel" name="phone" value="{{ old('phone', $doctor->user->phone ?? '') }}"
-                        placeholder="+91 98765 43210" minlength="10" maxlength="15" pattern="[0-9]{10,15}"
-                        title="Phone number must be 10-15 digits only"
+                    <input type="tel" name="phone" id="phone"
+                        value="{{ old('phone', $doctor->user->phone ?? '') }}" placeholder="9876543210" minlength="10"
+                        maxlength="15" pattern="[0-9]{10,15}"
+                        title="Phone number must be 10-15 digits only (cannot be all zeros)"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 15)"
-                        onblur="if(this.value && /^0+$/.test(this.value)) { this.value=''; }"
                         class="w-full px-4 py-2 border {{ $errors->has('phone') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                    <span id="phone_error" class="text-red-600 text-sm mt-1 hidden"></span>
                     @error('phone')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -424,6 +431,10 @@
                             errorMessage = 'Phone number must be 10-15 digits only';
                         }
                     }
+                }
+                // Check for all zeros in phone
+                else if (field.name === 'phone' && /^0+$/.test(value)) {
+                    errorMessage = 'Phone number cannot be all zeros';
                 }
                 // Check for select fields
                 else if (field.tagName === 'SELECT' && (value === "" || value === null)) {

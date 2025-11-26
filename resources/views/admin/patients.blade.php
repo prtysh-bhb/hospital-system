@@ -234,15 +234,15 @@
             </div>
         </div>
     </div>
-    </div>
 
     <!-- View Patient Modal -->
     <div id="viewPatientModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+            onclick="event.stopPropagation()">
             <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
                 <h3 class="text-xl font-semibold text-gray-800">Patient Details</h3>
-                <button onclick="closeViewModal()" class="text-gray-400 hover:text-gray-600">
+                <button onclick="closePatientViewModal()" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -259,10 +259,11 @@
     <!-- Edit Patient Modal -->
     <div id="editPatientModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+            onclick="event.stopPropagation()">
             <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
                 <h3 class="text-xl font-semibold text-gray-800">Edit Patient</h3>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                <button onclick="closePatientEditModal()" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -285,6 +286,11 @@
             fetchPatients();
         }
 
+        function closeModal() {
+            document.getElementById('viewPatientModal').classList.add('hidden');
+            document.getElementById('editPatientModal').classList.add('hidden');
+            currentPatient = null;
+        }
         // View Patient Details
         function viewPatient(patientId) {
             const modal = document.getElementById('viewPatientModal');
@@ -308,7 +314,7 @@
                 });
         }
 
-        function closeViewModal() {
+        function closePatientViewModal() {
             document.getElementById('viewPatientModal').classList.add('hidden');
         }
 
@@ -363,7 +369,7 @@
                 });
         }
 
-        function closeEditModal() {
+        function closePatientEditModal() {
             document.getElementById('editPatientModal').classList.add('hidden');
         }
 
@@ -395,7 +401,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        closeEditModal();
+                        closePatientEditModal();
                         fetchPatients();
                         showSuccessMessage('Patient updated successfully!');
                     } else {
@@ -563,6 +569,27 @@
         document.getElementById('statusFilter').addEventListener('change', function() {
             currentPage = 1; // Reset to first page on filter
             fetchPatients();
+        });
+
+        // Close modals when clicking outside (on the backdrop)
+        document.getElementById('editPatientModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePatientEditModal();
+            }
+        });
+
+        document.getElementById('viewPatientModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePatientViewModal();
+            }
+        });
+
+        // Close modals with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePatientEditModal();
+                closePatientViewModal();
+            }
         });
     </script>
 @endsection

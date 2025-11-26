@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\PatientProfile;
 use App\Models\User;
 use App\Services\AppointmentSlotService;
 use Illuminate\Http\Request;
@@ -138,12 +139,13 @@ class AppointmentController extends Controller
             } else {
                 // Validate patient details + appointment when creating new patient
                 $request->validate([
-                    'first_name' => 'required|string|regex:/^[A-Za-z\s]+$/|min:2|max:100',
-                    'last_name' => 'required|string|regex:/^[A-Za-z\s]+$/|min:2|max:100',
-                    'email' => 'required|email|unique:users,email',
+                    'first_name' => 'required|string|regex:/^[A-Za-z\s]+$/|min:2|max:25',
+                    'last_name' => 'required|string|regex:/^[A-Za-z\s]+$/|min:2|max:25',
+                    'email' => 'required|email|max:50|unique:users,email',
                     'phone' => 'required|string|regex:/^[0-9]+$/|min:10|max:15',
                     'date_of_birth' => 'required|date|before_or_equal:today',
                     'gender' => 'required|in:male,female,other',
+                    'address' => 'nullable|string|max:100',
                     'doctor_id' => ['required', Rule::exists('users', 'id')->where(function ($query) {
                         $query->where('role', 'doctor');
                     })],
@@ -151,29 +153,36 @@ class AppointmentController extends Controller
                     'appointment_time' => 'required',
                     'appointment_type' => 'required|in:consultation,follow_up,emergency,check_up',
                     'reason_for_visit' => 'required|string|max:1000',
+                    'notes' => 'nullable|string|max:500',
                 ], [
                     'first_name.required' => 'First name is required.',
                     'first_name.regex' => 'First name should only contain letters and spaces.',
                     'first_name.min' => 'First name must be at least 2 characters.',
+                    'first_name.max' => 'First name cannot exceed 25 characters.',
                     'last_name.required' => 'Last name is required.',
                     'last_name.regex' => 'Last name should only contain letters and spaces.',
                     'last_name.min' => 'Last name must be at least 2 characters.',
+                    'last_name.max' => 'Last name cannot exceed 25 characters.',
                     'email.required' => 'Email is required.',
                     'email.email' => 'Please enter a valid email address.',
+                    'email.max' => 'Email cannot exceed 50 characters.',
                     'email.unique' => 'This email is already registered.',
                     'phone.required' => 'Phone number is required.',
                     'phone.regex' => 'Phone number must contain only digits.',
                     'phone.min' => 'Phone number must be at least 10 digits.',
                     'phone.max' => 'Phone number cannot exceed 15 digits.',
                     'date_of_birth.required' => 'Date of birth is required.',
-                    'date_of_birth.before' => 'Date of birth must be in the past.',
+                    'date_of_birth.before_or_equal' => 'Date of birth must be today or in the past.',
                     'gender.required' => 'Gender is required.',
+                    'address.max' => 'Address cannot exceed 100 characters.',
                     'doctor_id.required' => 'Please select a doctor.',
                     'appointment_date.required' => 'Appointment date is required.',
                     'appointment_date.after_or_equal' => 'Appointment date must be today or in the future.',
                     'appointment_time.required' => 'Appointment time is required.',
                     'appointment_type.required' => 'Please select appointment type.',
                     'reason_for_visit.required' => 'Reason for visit is required.',
+                    'reason_for_visit.max' => 'Reason for visit cannot exceed 1000 characters.',
+                    'notes.max' => 'Notes cannot exceed 500 characters.',
                 ]);
 
                 // Create patient user
@@ -188,6 +197,14 @@ class AppointmentController extends Controller
                     'role' => 'patient',
                     'status' => 'active',
                     'password' => Hash::make(Str::random(12)),
+                ]);
+
+                // Create patient profile (address is stored in users table, not here)
+                PatientProfile::create([
+                    'user_id' => $user->id,
+                    'emergency_contact_name' => $request->input('emergency_contact_name'),
+                    'emergency_contact_phone' => $request->input('emergency_contact_phone'),
+                    'medical_history' => $request->input('medical_history'),
                 ]);
 
                 $patientId = $user->id;
@@ -254,6 +271,12 @@ class AppointmentController extends Controller
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Appointment creation failed: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except(['password']),
+            ]);
+
             // Handle exceptions and return a response
             return response()->json([
                 'status' => 400,
