@@ -4,7 +4,9 @@ namespace App\Http\Controllers\frontdesk;
 
 use App\Http\Controllers\Controller;
 use App\services\frontdesk\HistoryService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class HistoryController extends Controller
 {
@@ -58,6 +60,55 @@ class HistoryController extends Controller
     }
 
     /**
+     * Export appointment history to CSV
+     */
+    public function exportCsv(Request $request): StreamedResponse
+    {
+        $filters = [
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date,
+            'status' => $request->status,
+            'search' => $request->search,
+        ];
+
+        $appointments = $this->historyService->getAppointmentsForExport($filters);
+        $csvData = $this->historyService->generateCsvContent($appointments);
+
+        // Generate filename with date range
+        $filename = 'appointment_history';
+        if ($request->from_date) {
+            $filename .= '_from_' . $request->from_date;
+        }
+        if ($request->to_date) {
+            $filename .= '_to_' . $request->to_date;
+        }
+        $filename .= '_' . date('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($csvData) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for Excel UTF-8 compatibility
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            
+            foreach ($csvData as $row) {
+                fputcsv($file, $row);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
      * Get appointment details
      */
     public function show($id)
@@ -74,9 +125,9 @@ class HistoryController extends Controller
                     'patient_email' => $appointment->patient->email,
                     'patient_phone' => $appointment->patient->phone,
                     'doctor_name' => $appointment->doctor->full_name,
-                    'specialization' => $appointment->doctor->doctorProfile->specialization ?? 'N/A',
+                    'appointment_date' => Carbon::parse($appointment->appointment_date)->format('M d, Y'),
                     'appointment_date' => $appointment->appointment_date->format('M d, Y'),
-                    'appointment_time' => \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A'),
+                    'appointment_time' => Carbon::parse($appointment->appointment_time)->format('h:i A'),
                     'status' => $appointment->status,
                     'appointment_type' => $appointment->appointment_type,
                     'reason_for_visit' => $appointment->reason_for_visit,

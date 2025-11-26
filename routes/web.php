@@ -132,6 +132,7 @@ Route::prefix('frontdesk')->name('frontdesk.')->middleware(['auth', 'role:frontd
     Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->name('patients.destroy');
 
     Route::get('/history', [HistoryController::class, 'index'])->name('history');
+    Route::get('/history/export/csv', [HistoryController::class, 'exportCsv'])->name('history.export');
     Route::get('/history/{id}', [HistoryController::class, 'show'])->name('history.show');
 });
 
