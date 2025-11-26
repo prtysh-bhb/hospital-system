@@ -32,8 +32,18 @@
             <!-- Alert Message -->
             <div id="alert-message" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
 
-            <form id="forgot-password-form">
+            <form id="reset-password-form">
                 @csrf
+                <input type="hidden" name="token" value="{{ $token }}">
+
+                <!-- Email -->
+                <div class="mb-4 sm:mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input type="email" name="email" id="email" placeholder="Enter your registered email"
+                        class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-colors duration-200">
+                    <span class="text-red-500 text-xs mt-1 hidden" id="email-error"></span>
+                </div>
+
                 <!-- Password -->
                 <div class="mb-4 sm:mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
@@ -129,6 +139,9 @@
                 const passwordConfirmationEye = document.getElementById('password-confirmation-eye');
                 const passwordConfirmationEyeSlash = document.getElementById('password-confirmation-eye-slash');
 
+                const emailInput = document.getElementById('email');
+                const emailError = document.getElementById('email-error');
+
                 togglePassword.addEventListener('click', function() {
                     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                     passwordInput.setAttribute('type', type);
@@ -149,7 +162,7 @@
                 });
 
                 // Form validation
-                const form = document.getElementById('forgot-password-form');
+                const form = document.getElementById('reset-password-form');
                 const passwordError = document.getElementById('password-error');
                 const passwordConfirmationError = document.getElementById('password_confirmation-error');
                 const alertMessage = document.getElementById('alert-message');
@@ -157,7 +170,18 @@
                 const btnText = document.getElementById('btn-text');
                 const btnSpinner = document.getElementById('btn-spinner');
 
+                // Email validation function
+                function validateEmail(email) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return emailRegex.test(email);
+                }
+
                 // Remove error on input
+                emailInput.addEventListener('input', function() {
+                    clearError(emailInput, emailError);
+                    clearAlert();
+                });
+
                 passwordInput.addEventListener('input', function() {
                     clearError(passwordInput, passwordError);
                     clearAlert();
@@ -173,22 +197,34 @@
                     e.preventDefault();
 
                     // Reset errors
+                    clearError(emailInput, emailError);
                     clearError(passwordInput, passwordError);
                     clearError(passwordConfirmationInput, passwordConfirmationError);
                     clearAlert();
 
                     // Get form values
+                    const email = emailInput.value.trim();
                     const password = passwordInput.value.trim();
                     const passwordConfirmation = passwordConfirmationInput.value.trim();
+                    const token = document.querySelector('input[name="token"]').value;
 
                     let isValid = true;
+
+                    // Validate email
+                    if (!email) {
+                        showError(emailInput, emailError, 'Email is required');
+                        isValid = false;
+                    } else if (!validateEmail(email)) {
+                        showError(emailInput, emailError, 'Please enter a valid email address');
+                        isValid = false;
+                    }
 
                     // Validate password
                     if (!password) {
                         showError(passwordInput, passwordError, 'Password is required');
                         isValid = false;
-                    } else if (password.length < 8) {
-                        showError(passwordInput, passwordError, 'Password must be at least 8 characters');
+                    } else if (password.length < 6) {
+                        showError(passwordInput, passwordError, 'Password must be at least 6 characters');
                         isValid = false;
                     }
 
@@ -209,35 +245,50 @@
                         btnText.textContent = 'Resetting Password...';
                         btnSpinner.classList.remove('hidden');
 
-                        // Add success styling to fields
-                        passwordInput.classList.add('border-green-500', 'ring-2', 'ring-green-200');
-                        passwordConfirmationInput.classList.add('border-green-500', 'ring-2', 'ring-green-200');
+                        // Make AJAX request
+                        fetch('{{ route('password.update') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    token: token,
+                                    email: email,
+                                    password: password,
+                                    password_confirmation: passwordConfirmation
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status) {
+                                    // Show success message
+                                    showAlert(data.message, 'success');
 
-                        // Simulate API call
-                        setTimeout(() => {
-                            // Reset loading state
-                            submitBtn.disabled = false;
-                            btnText.textContent = 'Reset Password';
-                            btnSpinner.classList.add('hidden');
+                                    // Redirect to login after 2 seconds
+                                    setTimeout(() => {
+                                        window.location.href = '{{ route('login') }}';
+                                    }, 2000);
+                                } else {
+                                    // Reset loading state
+                                    submitBtn.disabled = false;
+                                    btnText.textContent = 'Reset Password';
+                                    btnSpinner.classList.add('hidden');
 
-                            // Show success message
-                            showAlert('Password has been reset successfully!', 'success');
+                                    // Show error message
+                                    showAlert(data.message, 'error');
+                                }
+                            })
+                            .catch(error => {
+                                // Reset loading state
+                                submitBtn.disabled = false;
+                                btnText.textContent = 'Reset Password';
+                                btnSpinner.classList.add('hidden');
 
-                            // Reset form
-                            form.reset();
-
-                            // Remove success styling
-                            passwordInput.classList.remove('border-green-500', 'ring-2',
-                                'ring-green-200');
-                            passwordConfirmationInput.classList.remove('border-green-500', 'ring-2',
-                                'ring-green-200');
-
-                            // Reset eye icons to default state
-                            passwordEye.classList.remove('hidden');
-                            passwordEyeSlash.classList.add('hidden');
-                            passwordConfirmationEye.classList.remove('hidden');
-                            passwordConfirmationEyeSlash.classList.add('hidden');
-                        }, 2000);
+                                // Show error message
+                                showAlert('Something went wrong. Please try again.', 'error');
+                            });
                     }
                 });
 

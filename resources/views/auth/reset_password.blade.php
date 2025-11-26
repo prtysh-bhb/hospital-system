@@ -45,8 +45,7 @@
                 <!-- Submit Button -->
                 <button type="submit" id="submit-btn"
                     class="w-full py-2.5 sm:py-3 px-4 text-sm sm:text-base bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span id="btn-text">Send Reset Link</span>
-                    <svg id="btn-spinner" class="hidden animate-spin ml-2 h-5 w-5 text-white"
+                    <svg id="btn-spinner" class="hidden animate-spin mr-2 h-5 w-5 text-white"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                             stroke-width="4"></circle>
@@ -54,6 +53,7 @@
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                         </path>
                     </svg>
+                    <span id="btn-text">Send Reset Link</span>
                 </button>
             </form>
         </div>
@@ -110,7 +110,32 @@
                 $('#forgot-password-form').on('submit', function(e) {
                     e.preventDefault();
 
-                    let email = $('#email').val();
+                    let email = $('#email').val().trim();
+                    const submitBtn = $('#submit-btn');
+                    const btnText = $('#btn-text');
+                    const btnSpinner = $('#btn-spinner');
+
+                    // Clear previous alerts
+                    alertMessage.addClass('hidden').removeClass(
+                        'bg-green-100 text-green-800 bg-red-100 text-red-800');
+
+                    // Validate email
+                    if (!email) {
+                        emailInput.addClass('error-border');
+                        emailError.removeClass('hidden').text('Please enter your email address');
+                        return;
+                    }
+
+                    if (!validateEmail(email)) {
+                        emailInput.addClass('error-border');
+                        emailError.removeClass('hidden').text('Please enter a valid email address');
+                        return;
+                    }
+
+                    // Show loading state
+                    submitBtn.prop('disabled', true);
+                    btnText.text('Sending...');
+                    btnSpinner.removeClass('hidden');
 
                     $.ajax({
                         url: "{{ route('forgot-password.send') }}",
@@ -120,16 +145,30 @@
                             _token: "{{ csrf_token() }}"
                         },
                         success: function(res) {
+                            // Reset loading state
+                            submitBtn.prop('disabled', false);
+                            btnText.text('Send Reset Link');
+                            btnSpinner.addClass('hidden');
+
                             alertMessage
-                                .removeClass('hidden')
-                                .addClass('bg-green-100 text-green-800')
+                                .removeClass('hidden bg-red-100 text-red-800')
+                                .addClass('bg-green-100 text-green-800 border border-green-200')
                                 .text(res.message);
+
+                            // Clear email field
+                            emailInput.val('').removeClass('success-border');
                         },
                         error: function(err) {
+                            // Reset loading state
+                            submitBtn.prop('disabled', false);
+                            btnText.text('Send Reset Link');
+                            btnSpinner.addClass('hidden');
+
                             alertMessage
-                                .removeClass('hidden')
-                                .addClass('bg-red-100 text-red-800')
-                                .text(err.responseJSON.message);
+                                .removeClass('hidden bg-green-100 text-green-800')
+                                .addClass('bg-red-100 text-red-800 border border-red-200')
+                                .text(err.responseJSON?.message ||
+                                    'Something went wrong. Please try again.');
                         }
                     });
                 });

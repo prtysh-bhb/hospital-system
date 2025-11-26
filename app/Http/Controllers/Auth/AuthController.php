@@ -181,17 +181,44 @@ class AuthController extends Controller
         ])->first();
 
         if (!$record) {
-            return back()->with('error', 'Invalid token or email.');
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid or expired token. Please request a new password reset link.'
+            ], 400);
+        }
+
+        // Check if token is expired (60 minutes)
+        $tokenCreatedAt = Carbon::parse($record->created_at);
+        if ($tokenCreatedAt->addMinutes(60)->isPast()) {
+            // Remove expired token
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            
+            return response()->json([
+                'status' => false,
+                'message' => 'Token has expired. Please request a new password reset link.'
+            ], 400);
+        }
+
+        // Check if user exists
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No account found with this email address.'
+            ], 404);
         }
 
         // Update Password
-        User::where('email', $request->email)->update([
+        $user->update([
             'password' => bcrypt($request->password)
         ]);
 
         // Remove used token
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return redirect()->route('login')->with('success', 'Password updated successfully!');
+        return response()->json([
+            'status' => true,
+            'message' => 'Password has been reset successfully! Redirecting to login...'
+        ], 200);
     }
 }
