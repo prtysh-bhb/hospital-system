@@ -134,9 +134,10 @@ class DoctoreServices
                 $updateData['status'] = $data['status'];
             }
 
-            // if (isset($data['profile_image'])) {
-            //     $updateData['profile_image'] = $data['profile_image'];
-            // }
+            // Update profile image if provided
+            if (isset($data['profile_image'])) {
+                $updateData['profile_image'] = $data['profile_image'];
+            }
 
             $user->update($updateData);
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\User;
+use App\Services\ActivityService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -99,17 +100,8 @@ class AdminDashboardController extends Controller
         });
         // dd($activeDoctorsQuery, $activeDoctors  );
 
-        $recentActivity = Appointment::with(['patient', 'doctor'])
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get()
-            ->map(function ($a) {
-                return [
-                    'id' => $a->id,
-                    'title' => 'Appointment: '.(optional($a->patient)->full_name ?? '—').' with '.(optional($a->doctor)->full_name ?? '—'),
-                    'time' => optional($a->created_at) ? Carbon::parse($a->created_at)->diffForHumans() : '',
-                ];
-            });
+        // Recent Activity from ActivityService (last 10)
+        $recentActivity = ActivityService::getRecentActivities(10);
 
         return response()->json([
             'totalPatients' => $totalPatients,

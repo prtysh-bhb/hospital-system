@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Appointment extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'appointment_number',
@@ -32,7 +33,6 @@ class Appointment extends Model
 
     protected $casts = [
         'appointment_date' => 'date',
-        'appointment_time' => 'datetime:H:i',
         'duration_minutes' => 'integer',
         'reminder_sent' => 'boolean',
     ];

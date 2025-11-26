@@ -162,12 +162,12 @@
                 </div>
                 <div class="flex items-center space-x-2 sm:space-x-4">
                     @yield('header-actions')
-                    <div class="flex items-center space-x-2 sm:space-x-3">
-                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=0ea5e9&color=fff"
+                  <div class="flex items-center space-x-2 sm:space-x-3">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->first_name . ' ' . auth()->user()->last_name) }}&background=0ea5e9&color=fff"
                             class="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Admin">
                         <div class="hidden sm:block">
-                            <p class="text-sm font-medium text-gray-700">Admin User</p>
-                            <p class="text-xs text-gray-500">Administrator</p>
+                            <p class="text-sm font-medium text-gray-700">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</p>
+                            <p class="text-xs text-gray-500">{{ ucfirst(auth()->user()->role) }}</p>
                         </div>
                     </div>
                 </div>

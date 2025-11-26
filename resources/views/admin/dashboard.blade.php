@@ -103,12 +103,20 @@
 
     <!-- Recent Activity -->
     <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
-        <div class="p-4 sm:p-6 border-b border-gray-100">
+        <div class="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
             <h3 class="text-base sm:text-lg font-semibold text-gray-800">Recent Activity</h3>
+            <span class="text-xs text-gray-400 flex items-center gap-1">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Live updates
+            </span>
         </div>
         <div class="p-4 sm:p-6">
-            <div id="recentActivityContainer" class="space-y-6 max-h-64 overflow-y-auto">
-
+            <div id="recentActivityContainer" class="space-y-3 max-h-80 overflow-y-auto">
+                <!-- Loading State -->
+                <div class="text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
+                    <p class="text-sm text-gray-500 mt-2">Loading recent activity...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -119,7 +127,11 @@
         (function() {
             // Load dashboard data and replace the sample items with dynamic content.
             function renderRecentAppointments(list) {
-                if (!Array.isArray(list) || list.length === 0) return;
+                if (!Array.isArray(list) || list.length === 0) {
+                    $('#recentAppointmentsContainer').html(
+                        '<p class="text-sm text-gray-500 text-center py-4">No recent appointments</p>');
+                    return;
+                }
                 var html = '';
                 list.forEach(function(a, idx) {
                     // create initials for avatar when no image available
@@ -148,7 +160,11 @@
             }
 
             function renderActiveDoctors(list) {
-                if (!Array.isArray(list) || list.length === 0) return;
+                if (!Array.isArray(list) || list.length === 0) {
+                    $('#activeDoctorsContainer').html(
+                        '<p class="text-sm text-gray-500 text-center py-4">No active doctors today</p>');
+                    return;
+                }
                 var html = '';
                 list.forEach(function(d, idx) {
                     var avatar = d.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(d.name ||
@@ -173,22 +189,58 @@
                 $('#activeDoctorsContainer').html(html);
             }
 
+            function getActivityIcon(icon, color) {
+                var icons = {
+                    'plus-circle': '<svg class="w-4 h-4 text-' + color +
+                        '-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+                    'pencil': '<svg class="w-4 h-4 text-' + color +
+                        '-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>',
+                    'trash': '<svg class="w-4 h-4 text-' + color +
+                        '-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>',
+                    'refresh': '<svg class="w-4 h-4 text-' + color +
+                        '-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>',
+                    'login': '<svg class="w-4 h-4 text-' + color +
+                        '-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" /></svg>',
+                    'logout': '<svg class="w-4 h-4 text-' + color +
+                        '-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>',
+                    'information-circle': '<svg class="w-4 h-4 text-' + color +
+                        '-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+                };
+                return icons[icon] || icons['information-circle'];
+            }
+
             function renderRecentActivity(list) {
-                if (!Array.isArray(list) || list.length === 0) return;
+                if (!Array.isArray(list) || list.length === 0) {
+                    $('#recentActivityContainer').html(
+                        '<div class="text-center py-8"><svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><p class="text-gray-500 text-sm">No recent activity</p></div>'
+                        );
+                    return;
+                }
                 var html = '';
-                list.forEach(function(it, idx) {
+                list.forEach(function(activity) {
+                    var icon = activity.icon || 'information-circle';
+                    var color = activity.color || 'gray';
                     html += '' +
-                        '<div class="flex ' + (idx < list.length - 1 ? '' : '') + '">' +
-                        '<div class="shrink-0">' +
-                        '<div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">' +
-                        '<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />' +
-                        '</svg></div></div>' +
-                        '<div class="ml-4">' +
-                        '<p class="text-sm text-gray-800"><span class="font-semibold">' + (it.title || '') +
-                        '</span></p>' +
-                        '<p class="text-xs text-gray-500 mt-1">' + (it.time || '') + '</p>' +
-                        '</div></div>';
+                        '<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">' +
+                        '<div class="w-8 h-8 bg-' + color +
+                        '-100 rounded-full flex items-center justify-center flex-shrink-0">' +
+                        getActivityIcon(icon, color) +
+                        '</div>' +
+                        '<div class="flex-1 min-w-0">' +
+                        '<p class="text-sm text-gray-800">' + (activity.description || activity.title || '') +
+                        '</p>' +
+                        '<div class="flex items-center gap-2 mt-1">' +
+                        '<span class="text-xs text-gray-500">' + (activity.time_ago || activity.time || '') +
+                        '</span>' +
+                        (activity.user_name ? '<span class="text-xs text-gray-400">by ' + activity.user_name +
+                            '</span>' : '') +
+                        '</div>' +
+                        '</div>' +
+                        '<span class="px-2 py-0.5 bg-' + color + '-100 text-' + color +
+                        '-700 text-xs font-medium rounded capitalize flex-shrink-0">' +
+                        (activity.action || '').replace('_', ' ') +
+                        '</span>' +
+                        '</div>';
                 });
                 $('#recentActivityContainer').html(html);
             }
@@ -219,8 +271,8 @@
 
             $(document).ready(function() {
                 loadStats();
-                // refresh periodically
-                setInterval(loadStats, 60000);
+                // refresh every 10 seconds
+                setInterval(loadStats, 10000);
             });
         })();
     </script>

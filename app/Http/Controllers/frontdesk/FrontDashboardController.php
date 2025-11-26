@@ -5,6 +5,7 @@ namespace App\Http\Controllers\frontdesk;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\User;
+use App\Services\ActivityService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -47,10 +48,14 @@ class FrontDashboardController extends Controller
                 ->count(),
         ];
 
+        // Recent Activities (last 10)
+        $recentActivities = ActivityService::getRecentActivities(10);
+
         return response()->json([
             'success' => true,
             'appointments' => $todayAppointments,
             'stats' => $stats,
+            'recent_activities' => $recentActivities,
             'current_date' => $today->format('F j, Y'),
         ]);
     }
