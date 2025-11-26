@@ -72,7 +72,8 @@
                             class="w-4 h-4 text-sky-600 border-gray-300 rounded focus:ring-sky-500">
                         <span class="ml-2 text-xs sm:text-sm text-gray-600">Remember me</span>
                     </label>
-                    <a href="#" class="text-xs sm:text-sm text-sky-600 hover:text-sky-700 font-medium">Forgot
+                    <a href="{{ route('forgot-password') }}"
+                        class="text-xs sm:text-sm text-sky-600 hover:text-sky-700 font-medium">Forgot
                         password?</a>
                 </div>
 

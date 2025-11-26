@@ -70,7 +70,7 @@ class SpecialtySeeder extends Seeder
                     'icon' => $spec['icon'],
                     'status' => $spec['status'],
                     'updated_at' => now(),
-                    'created_at' => now() // created_at ignored if row exists
+                    'created_at' => now(), // created_at ignored if row exists
                 ]
             );
         }

@@ -28,7 +28,8 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
 
                 <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name <span
+                            class="text-red-600">*</span></label>
                     <input type="text" name="first_name" value="{{ old('first_name', $doctor->user->first_name ?? '') }}"
                         placeholder="Enter first name" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
                         title="Name can only contain letters and spaces (minimum 2 characters)"
@@ -40,7 +41,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name <span
+                            class="text-red-600">*</span></label>
                     <input type="text" name="last_name" value="{{ old('last_name', $doctor->user->last_name ?? '') }}"
                         placeholder="Enter last name" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
                         title="Name can only contain letters and spaces (minimum 2 characters)"
@@ -52,7 +54,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Gender *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Gender <span
+                            class="text-red-600">*</span></label>
                     <select name="gender"
                         class="w-full px-4 py-2 border {{ $errors->has('gender') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
                         <option value="">Select Gender</option>
@@ -71,7 +74,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email <span
+                            class="text-red-600">*</span></label>
                     <input type="email" name="email" value="{{ old('email', $doctor->user->email ?? '') }}"
                         placeholder="Enter email address"
                         class="w-full px-4 py-2 border {{ $errors->has('email') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
@@ -81,7 +85,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number <span
+                            class="text-red-600">*</span>
                         {{ !isset($doctor) ? '(will be used as password)' : '' }}</label>
                     <input type="tel" name="phone" value="{{ old('phone', $doctor->user->phone ?? '') }}"
                         placeholder="+91 98765 43210" minlength="10" maxlength="15" pattern="[0-9]{10,15}"
@@ -95,7 +100,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth <span
+                            class="text-red-600">*</span></label>
                     <input type="date" name="date_of_birth"
                         value="{{ old('date_of_birth', isset($doctor) && $doctor->user->date_of_birth && strtotime($doctor->user->date_of_birth) ? date('Y-m-d', strtotime($doctor->user->date_of_birth)) : '') }}"
                         max="{{ date('Y-m-d') }}"
@@ -107,7 +113,8 @@
 
                 @if (isset($doctor))
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status <span
+                                class="text-red-600">*</span></label>
                         <select name="status"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
                             <option value="active"
@@ -120,7 +127,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Available for Booking *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Available for Booking <span
+                                class="text-red-600">*</span></label>
                         <select name="available_for_booking"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
                             <option value="1"
@@ -134,7 +142,8 @@
                 @endif
 
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Address <span
+                            class="text-red-600">*</span></label>
                     <textarea name="address" rows="3" placeholder="Enter address" minlength="10" maxlength="500"
                         title="Address must be at least 10 characters"
                         class="w-full px-4 py-2 border {{ $errors->has('address') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">{{ old('address', $doctor->user->address ?? '') }}</textarea>
@@ -169,7 +178,8 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Specialty *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Specialty <span
+                            class="text-red-600">*</span></label>
                     <select name="specialty_id"
                         class="w-full px-4 py-2 border {{ $errors->has('specialty_id') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
                         <option value="">Select Specialty</option>
@@ -186,7 +196,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Qualification *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Qualification <span
+                            class="text-red-600">*</span></label>
                     <input type="text" name="qualification"
                         value="{{ old('qualification', $doctor->qualification ?? '') }}" placeholder="MBBS, MD"
                         minlength="2" maxlength="255"
@@ -197,7 +208,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Experience (Years) *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Experience (Years) <span
+                            class="text-red-600">*</span></label>
                     <input type="number" name="experience_years"
                         value="{{ old('experience_years', $doctor->experience_years ?? '') }}" min="0"
                         max="70" placeholder="10"
@@ -208,7 +220,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">License Number *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">License Number <span
+                            class="text-red-600">*</span></label>
                     <input type="text" name="license_number"
                         value="{{ old('license_number', $doctor->license_number ?? '') }}" placeholder="MCI12345"
                         minlength="3" maxlength="50"
@@ -219,7 +232,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Consultation Fee (₹) *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Consultation Fee (₹) <span
+                            class="text-red-600">*</span></label>
                     <input type="number" name="consultation_fee"
                         value="{{ old('consultation_fee', $doctor->consultation_fee ?? '') }}" min="0"
                         max="100000" step="0.01" placeholder="800"
@@ -231,7 +245,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Slot Duration (Minutes) *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Slot Duration (Minutes) <span
+                            class="text-red-600">*</span></label>
                     <select name="slot_duration"
                         class="w-full px-4 py-2 border {{ $errors->has('slot_duration') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
                         @php

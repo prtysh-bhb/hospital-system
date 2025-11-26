@@ -39,6 +39,14 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/login', 'login')->name('login.post');
     Route::post('/logout', 'logout')->name('logout');
     Route::get('/check-auth', 'checkAuth')->name('check.auth');
+
+    // Forgot Password
+    Route::get('/forgot-password', 'forgot_password')->name('forgot-password');
+    Route::post('/forgot-password',  'sendResetLink')->name('forgot-password.send');
+    
+    // Reset Password
+    Route::get('/reset-password/{token}', 'reset_password_form')->name('password.reset');
+    Route::post('/reset-password', 'reset_password')->name('password.update');
 });
 
 // Public Booking Route (Single route with ?step=1,2,3,4 parameter)
