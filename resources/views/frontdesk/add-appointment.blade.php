@@ -44,43 +44,51 @@
                         <p class="text-xs sm:text-sm font-medium text-gray-800 mb-3">Patient Details</p>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                        <input type="text" name="first_name" id="first_name" required pattern="[A-Za-z\s]{2,100}"
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">First Name <span
+                                class="text-red-600">*</span></label>
+                        <input type="text" name="first_name" id="first_name" pattern="[A-Za-z\s]{2,100}"
                             title="First name should only contain letters and spaces (2-100 characters)"
+                            placeholder="First name"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         <span id="first_name_error" class="text-xs text-red-500 hidden">First name should only contain
                             letters</span>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                        <input type="text" name="last_name" id="last_name" required pattern="[A-Za-z\s]{2,100}"
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name <span
+                                class="text-red-600">*</span></label>
+                        <input type="text" name="last_name" id="last_name" pattern="[A-Za-z\s]{2,100}"
                             title="Last name should only contain letters and spaces (2-100 characters)"
+                            placeholder="Last name"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         <span id="last_name_error" class="text-xs text-red-500 hidden">Last name should only contain
                             letters</span>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email *</label>
-                        <input type="email" name="email" id="email" required
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email <span
+                                class="text-red-600">*</span></label>
+                        <input type="email" name="email" id="email" placeholder="Enter email"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         <span id="email_error" class="text-xs text-red-500 hidden">Please enter a valid email address</span>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Phone *</label>
-                        <input type="tel" name="phone" id="phone" required pattern="[0-9]{10,15}"
-                            title="Phone number must be 10-15 digits only" maxlength="15"
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Phone <span
+                                class="text-red-600">*</span></label>
+                        <input type="tel" name="phone" id="phone" pattern="[0-9]{10,15}"
+                            placeholder="Enter phone number" title="Phone number must be 10-15 digits only" maxlength="15"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                         <span id="phone_error" class="text-xs text-red-500 hidden">Phone must be 10-15 digits only</span>
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
-                        <input type="date" name="date_of_birth" id="date_of_birth" required
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date of Birth <span
+                                class="text-red-600">*</span></label>
+                        <input type="date" name="date_of_birth" id="date_of_birth"
                             max="{{ now()->subDay()->format('Y-m-d') }}"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                     </div>
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Gender *</label>
-                        <select name="gender" id="gender" required
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Gender <span
+                                class="text-red-600">*</span></label>
+                        <select name="gender" id="gender"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                             <option value="">Select Gender</option>
                             <option value="male">Male</option>
@@ -99,12 +107,13 @@
 
             <!-- Appointment Details -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Appointment Details</h3>
 
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Appointment Details</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Select Doctor *</label>
-                        <select name="doctor_id" id="doctor_id" required
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Select Doctor <span
+                                class="text-red-600">*</span></label>
+                        <select name="doctor_id" id="doctor_id"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                             <option value="">Loading doctors...</option>
                         </select>
@@ -117,23 +126,25 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Date *</label>
-                        <input type="date" name="appointment_date" id="appointment_date" required
-                            min="{{ date('Y-m-d') }}"
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Date <span
+                                class="text-red-600">*</span></label>
+                        <input type="date" name="appointment_date" id="appointment_date" min="{{ date('Y-m-d') }}"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                     </div>
 
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Time *</label>
-                        <select name="appointment_time" id="appointment_time" required
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Time <span
+                                class="text-red-600">*</span></label>
+                        <select name="appointment_time" id="appointment_time"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                             <option value="">Select date first</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Type *</label>
-                        <select name="appointment_type" id="appointment_type" required
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Type <span
+                                class="text-red-600">*</span></label>
+                        <select name="appointment_type" id="appointment_type"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
                             <option value="">Select Type</option>
                             <option value="consultation">Consultation</option>
@@ -150,8 +161,9 @@
                     </div>
 
                     <div class="col-span-1 md:col-span-2">
-                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason for Visit *</label>
-                        <textarea name="reason_for_visit" id="reason_for_visit" required rows="3"
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason for Visit <span
+                                class="text-red-600">*</span></label>
+                        <textarea name="reason_for_visit" id="reason_for_visit" rows="3"
                             class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
                             placeholder="Enter reason for visit..."></textarea>
                     </div>
@@ -555,115 +567,104 @@
         function handleFormSubmit(e) {
             e.preventDefault();
 
-            // Clear all previous error states
-            document.querySelectorAll('.border-red-500').forEach(el => el.classList.remove('border-red-500'));
-            document.querySelectorAll('.text-red-500').forEach(el => el.classList.add('hidden'));
-
-            let hasErrors = false;
-
-            // If no patient selected, validate the patient form fields
-            if (!selectedPatientId) {
-                const patientFields = ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'gender'];
-
-                patientFields.forEach(field => {
-                    const input = document.getElementById(field);
-                    if (!input.value.trim()) {
-                        input.classList.add('border-red-500');
-                        hasErrors = true;
-                    }
-                });
-
-                // Validate first name (only letters and spaces)
-                const firstName = document.getElementById('first_name').value;
-                if (firstName && !/^[A-Za-z\s]{2,100}$/.test(firstName)) {
-                    document.getElementById('first_name').classList.add('border-red-500');
-                    document.getElementById('first_name_error').classList.remove('hidden');
-                    hasErrors = true;
-                }
-
-                // Validate last name (only letters and spaces)
-                const lastName = document.getElementById('last_name').value;
-                if (lastName && !/^[A-Za-z\s]{2,100}$/.test(lastName)) {
-                    document.getElementById('last_name').classList.add('border-red-500');
-                    document.getElementById('last_name_error').classList.remove('hidden');
-                    hasErrors = true;
-                }
-
-                // Validate email
-                const email = document.getElementById('email').value;
-                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                    document.getElementById('email').classList.add('border-red-500');
-                    document.getElementById('email_error').classList.remove('hidden');
-                    hasErrors = true;
-                }
-
-                // Validate phone (10-15 digits only)
-                const phone = document.getElementById('phone').value;
-                if (phone && !/^[0-9]{10,15}$/.test(phone)) {
-                    document.getElementById('phone').classList.add('border-red-500');
-                    document.getElementById('phone_error').textContent = 'Phone must be 10-15 digits only';
-                    document.getElementById('phone_error').classList.remove('hidden');
-                    hasErrors = true;
-                }
-
-                if (hasErrors) {
-                    alert('Please correct the errors in patient information');
-                    return;
-                }
-            }
-
-            // Validate appointment fields
-            const appointmentFields = ['doctor_id', 'appointment_date', 'appointment_time', 'appointment_type',
-                'reason_for_visit'
-            ];
-            let appointmentErrors = false;
-
-            appointmentFields.forEach(field => {
-                const input = document.getElementById(field);
-                if (!input.value) {
-                    input.classList.add('border-red-500');
-                    appointmentErrors = true;
-                } else {
-                    input.classList.remove('border-red-500');
-                }
-            });
-
-            if (appointmentErrors) {
-                alert('Please fill in all required appointment fields');
-                return;
-            }
+            // Remove old error messages & borders
+            clearAllErrors();
 
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Booking...';
 
-            const formData = new FormData(this);
+            let formData = new FormData(document.getElementById("appointmentForm"));
 
             fetch('{{ route('frontdesk.add-appointment.store') }}', {
-                    method: 'POST',
+                    method: "POST",
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                        'Accept': 'application/json',
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value,
                     },
-                    body: formData
+                    body: formData,
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('appointmentNumber').textContent = data.appointment_number;
-                        document.getElementById('successModal').classList.remove('hidden');
-                    } else {
-                        alert(data.message || 'Failed to book appointment');
+                .then(async (response) => {
+                    let data = await response.json();
+
+                    // Validation error (422)
+                    if (response.status === 422) {
+                        showBackendErrors(data.errors);
+
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Book Appointment';
+                        return;
                     }
+
+                    // SUCCESS
+                    if (data.success) {
+                        // toastr.success("Appointment booked successfully!");
+
+                        // Open appointment success modal
+                        document.getElementById('appointmentNumber').textContent = data.appointment_number;
+                        document.getElementById('successModal').classList.remove('hidden');
+
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Book Appointment';
+                        return;
+                    }
+
+                    // Server-side failure
+                    toastr.error(data.message || "Something went wrong");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Book Appointment';
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while booking the appointment');
+                .catch((err) => {
+                    console.error(err);
+                    toastr.error("Server error! Please try again.");
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Book Appointment';
                 });
+        }
+
+        // --------------------------------------------------------
+        // Show Laravel Validation Errors Under Inputs
+        // --------------------------------------------------------
+        function showBackendErrors(errors) {
+            Object.keys(errors).forEach((field) => {
+                let input = document.querySelector(`[name="${field}"]`);
+                if (input) {
+                    input.classList.add("border-red-500");
+
+                    let span = document.createElement("span");
+                    span.classList.add("text-red-500", "text-xs", "error-message");
+                    span.innerText = errors[field][0];
+
+                    input.insertAdjacentElement("afterend", span);
+
+                    // Remove error & border when user types or changes field
+                    input.addEventListener("input", removeError);
+                    input.addEventListener("change", removeError);
+                }
+            });
+        }
+
+        // --------------------------------------------------------
+        // Remove single error message & border
+        // --------------------------------------------------------
+        function removeError(e) {
+            const input = e.target;
+            input.classList.remove("border-red-500");
+
+            const errorSpan = input.parentNode.querySelector(".error-message");
+            if (errorSpan) errorSpan.remove();
+
+            // Remove event listeners after clearing
+            input.removeEventListener("input", removeError);
+            input.removeEventListener("change", removeError);
+        }
+
+        // --------------------------------------------------------
+        // Clear all errors at once
+        // --------------------------------------------------------
+        function clearAllErrors() {
+            document.querySelectorAll('.error-message').forEach(el => el.remove());
+            document.querySelectorAll('.border-red-500').forEach(el => el.classList.remove('border-red-500'));
         }
     </script>
 @endpush
