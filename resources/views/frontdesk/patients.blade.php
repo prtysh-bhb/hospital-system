@@ -126,53 +126,101 @@
                 <input type="hidden" id="edit_patient_id">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- First Name -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                        <input type="text" id="edit_first_name" required pattern="[A-Za-z\s]{2,100}"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span
+                                class="text-red-600">*</span></label>
+                        <input type="text" id="edit_first_name" data-error="edit_first_name_error"
+                            placeholder="Enter first name"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
-                        <span class="text-xs text-red-500 hidden" id="edit_first_name_error">First name should only contain
-                            letters</span>
+                        <span class="text-xs text-red-500 hidden" id="edit_first_name_error"></span>
                     </div>
+
+                    <!-- Last Name -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                        <input type="text" id="edit_last_name" required pattern="[A-Za-z\s]{2,100}"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span
+                                class="text-red-600">*</span></label>
+                        <input type="text" id="edit_last_name" data-error="edit_last_name_error"
+                            placeholder="Enter last name"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
-                        <span class="text-xs text-red-500 hidden" id="edit_last_name_error">Last name should only contain
-                            letters</span>
+                        <span class="text-xs text-red-500 hidden" id="edit_last_name_error"></span>
                     </div>
+
+                    <!-- Email -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                        <input type="email" id="edit_email" required
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email <span
+                                class="text-red-600">*</span></label>
+                        <input type="email" id="edit_email" data-error="edit_email_error" placeholder="Enter email"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
-                        <span class="text-xs text-red-500 hidden" id="edit_email_error">Please enter a valid email</span>
+                        <span class="text-xs text-red-500 hidden" id="edit_email_error"></span>
                     </div>
+
+                    <!-- Phone -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
-                        <input type="tel" id="edit_phone" required pattern="[0-9]{10,15}" maxlength="15"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Phone <span
+                                class="text-red-600">*</span></label>
+                        <input type="tel" id="edit_phone" data-error="edit_phone_error"
+                            placeholder="Enter phone number"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
-                        <span class="text-xs text-red-500 hidden" id="edit_phone_error">Phone must be 10-15 digits
-                            only</span>
+                        <span class="text-xs text-red-500 hidden" id="edit_phone_error"></span>
                     </div>
+
+                    <!-- Date of Birth -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
-                        <input type="date" id="edit_date_of_birth" required
-                            max="{{ now()->subDay()->format('Y-m-d') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth <span
+                                class="text-red-600">*</span></label>
+                        <input type="date" id="edit_date_of_birth" data-error="edit_date_of_birth_error"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                        <span class="text-xs text-red-500 hidden" id="edit_date_of_birth_error"></span>
                     </div>
+
+                    <!-- Gender -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Gender *</label>
-                        <select id="edit_gender" required
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Gender <span
+                                class="text-red-600">*</span></label>
+                        <select id="edit_gender" data-error="edit_gender_error"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
                             <option value="">Select Gender</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
                             <option value="other">Other</option>
                         </select>
+                        <span class="text-xs text-red-500 hidden" id="edit_gender_error"></span>
                     </div>
+
+                    <!-- Address -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                        <textarea id="edit_address" rows="2"
+                        <textarea id="edit_address" data-error="edit_address_error" placeholder="Enter address..."
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="edit_address_error"></span>
+                    </div>
+
+                    <!-- Blood Group -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Blood Group</label>
+                        <input type="text" id="edit_blood_group" data-error="edit_blood_group_error"
+                            placeholder="Enter blood group"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                        <span class="text-xs text-red-500 hidden" id="edit_blood_group_error"></span>
+                    </div>
+
+                    <!-- Emergency Contact Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Name</label>
+                        <input type="text" id="edit_emergency_contact_name"
+                            data-error="edit_emergency_contact_name_error" placeholder="Enter emergency contact name"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                        <span class="text-xs text-red-500 hidden" id="edit_emergency_contact_name_error"></span>
+                    </div>
+
+                    <!-- Emergency Contact Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Phone</label>
+                        <input type="tel" id="edit_emergency_contact_phone"
+                            data-error="edit_emergency_contact_phone_error" placeholder="Enter emergency phone number"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                        <span class="text-xs text-red-500 hidden" id="edit_emergency_contact_phone_error"></span>
                     </div>
                 </div>
 
@@ -190,12 +238,35 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deletePatientModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+            <h3 class="text-lg font-semibold mb-4">Confirm Deletion</h3>
+            <p class="mb-6">Are you sure you want to delete this patient? This action cannot be undone.</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelDeleteBtn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
     <script>
         let currentPage = 1;
         let currentPatient = null;
+        let patientToDeleteId = null;
+
+        function deletePatient(id) {
+            patientToDeleteId = id;
+            document.getElementById('deletePatientModal').classList.remove('hidden');
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             loadPatients();
@@ -233,6 +304,40 @@
 
             // Edit form submission
             document.getElementById('editPatientForm').addEventListener('submit', handleEditSubmit);
+        });
+
+        document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+            patientToDeleteId = null;
+            document.getElementById('deletePatientModal').classList.add('hidden');
+        });
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+            if (!patientToDeleteId) return;
+
+            const id = patientToDeleteId;
+            document.getElementById('deletePatientModal').classList.add('hidden');
+            patientToDeleteId = null;
+
+            fetch(`{{ url('frontdesk/patients') }}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message);
+                        loadPatients(currentPage);
+                    } else {
+                        toastr.error(data.message || 'Failed to delete patient');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('An error occurred while deleting the patient');
+                });
         });
 
         function loadPatients(page = 1) {
@@ -301,9 +406,9 @@
                     </td>
                     <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                         ${lastVisit ? `
-                                    <p class="text-xs sm:text-sm text-gray-900">${formatDate(lastVisit.appointment_date)}</p>
-                                    <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name} ${lastVisit.doctor?.last_name}</p>
-                                ` : '<p class="text-xs sm:text-sm text-gray-500">No visits yet</p>'}
+                                                                                                                                                                                <p class="text-xs sm:text-sm text-gray-900">${formatDate(lastVisit.appointment_date)}</p>
+                                                                                                                                                                                <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name} ${lastVisit.doctor?.last_name}</p>
+                                                                                                                                                                            ` : '<p class="text-xs sm:text-sm text-gray-500">No visits yet</p>'}
                     </td>
                     <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">
                         <div class="flex gap-2">
@@ -420,12 +525,12 @@
                         <p class="text-sm text-gray-900">${patient.address || 'Not provided'}</p>
                     </div>
                     ${patient.last_appointment ? `
-                                <div class="md:col-span-2 pt-4 border-t">
-                                    <p class="text-sm font-medium text-gray-500 mb-2">Last Appointment</p>
-                                    <p class="text-sm text-gray-900">Date: ${formatDate(patient.last_appointment.date)}</p>
-                                    <p class="text-sm text-gray-900">Doctor: ${patient.last_appointment.doctor}</p>
-                                </div>
-                            ` : ''}
+                                                                                                                                                                            <div class="md:col-span-2 pt-4 border-t">
+                                                                                                                                                                                <p class="text-sm font-medium text-gray-500 mb-2">Last Appointment</p>
+                                                                                                                                                                                <p class="text-sm text-gray-900">Date: ${formatDate(patient.last_appointment.date)}</p>
+                                                                                                                                                                                <p class="text-sm text-gray-900">Doctor: ${patient.last_appointment.doctor}</p>
+                                                                                                                                                                            </div>
+                                                                                                                                                                        ` : ''}
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t">
@@ -480,10 +585,31 @@
             document.getElementById('editModal').classList.remove('hidden');
         }
 
+        const form = document.getElementById('editPatientForm');
+
+        form.addEventListener('submit', handleEditSubmit);
+
+        // Remove error messages on input/change
+        form.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('input', () => removeError(field));
+            field.addEventListener('change', () => removeError(field));
+        });
+
+        function removeError(field) {
+            const errorId = field.dataset.error;
+            const errorSpan = document.getElementById(errorId);
+            if (errorSpan) {
+                errorSpan.textContent = '';
+                errorSpan.classList.add('hidden');
+            }
+            field.classList.remove('border-red-500');
+        }
+
         function handleEditSubmit(e) {
             e.preventDefault();
 
             const id = document.getElementById('edit_patient_id').value;
+
             const formData = {
                 first_name: document.getElementById('edit_first_name').value,
                 last_name: document.getElementById('edit_last_name').value,
@@ -492,6 +618,9 @@
                 date_of_birth: document.getElementById('edit_date_of_birth').value,
                 gender: document.getElementById('edit_gender').value,
                 address: document.getElementById('edit_address').value,
+                blood_group: document.getElementById('edit_blood_group').value,
+                emergency_contact_name: document.getElementById('edit_emergency_contact_name').value,
+                emergency_contact_phone: document.getElementById('edit_emergency_contact_phone').value,
             };
 
             const saveBtn = document.getElementById('savePatientBtn');
@@ -507,51 +636,43 @@
                     },
                     body: JSON.stringify(formData)
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Patient updated successfully');
-                        closeEditModal();
-                        loadPatients(currentPage);
-                    } else {
-                        alert(data.message || 'Failed to update patient');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while updating the patient');
-                })
-                .finally(() => {
+                .then(async response => {
                     saveBtn.disabled = false;
                     saveBtn.textContent = 'Save Changes';
-                });
+
+                    if (response.status === 422) {
+                        const data = await response.json();
+                        showFieldErrors(data.errors);
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        toastr.success(data.message);
+                        closeEditModal();
+                        loadPatients(currentPage);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
         }
 
-        function deletePatient(id) {
-            if (!confirm('Are you sure you want to delete this patient? This action cannot be undone.')) {
-                return;
-            }
+        function showFieldErrors(errors) {
+            // Clear previous errors first
+            form.querySelectorAll('input, select, textarea').forEach(field => removeError(field));
 
-            fetch(`{{ url('frontdesk/patients') }}/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
+            for (const fieldName in errors) {
+                const field = document.getElementById(`edit_${fieldName}`);
+                if (field) {
+                    const errorId = field.dataset.error;
+                    const errorSpan = document.getElementById(errorId);
+                    if (errorSpan) {
+                        errorSpan.textContent = errors[fieldName][0]; // show first error
+                        errorSpan.classList.remove('hidden');
+                        field.classList.add('border-red-500');
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Patient deleted successfully');
-                        loadPatients(currentPage);
-                    } else {
-                        alert(data.message || 'Failed to delete patient');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while deleting the patient');
-                });
+                }
+            }
         }
 
         function closeViewModal() {
