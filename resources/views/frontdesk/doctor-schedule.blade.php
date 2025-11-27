@@ -114,7 +114,7 @@
                     console.log('Response status:', response.status);
                     const contentType = response.headers.get('content-type');
                     console.log('Content-Type:', contentType);
-                    
+
                     // Check if response is JSON
                     if (contentType && contentType.includes('application/json')) {
                         return response.json();
@@ -146,7 +146,9 @@
         }
 
         // Populate specializations
+
         function populateSpecializations(specializations) {
+            console.log('spacility-------', specializations);
             const select = document.getElementById('specialty_filter');
             const currentValue = select.value;
 
@@ -252,7 +254,7 @@
         // Helper function to get initials
         function getInitials(name) {
             if (!name || name === 'Unknown') return 'DR';
-            
+
             const parts = name.split(' ');
             if (parts.length >= 2) {
                 return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
