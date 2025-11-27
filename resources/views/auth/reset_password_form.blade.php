@@ -39,9 +39,18 @@
                 <!-- Email -->
                 <div class="mb-4 sm:mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                    <input type="email" name="email" id="email" placeholder="Enter your registered email"
-                        class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-colors duration-200">
-                    <span class="text-red-500 text-xs mt-1 hidden" id="email-error"></span>
+                    <div class="relative">
+                        <input type="email" name="email" id="email" value="{{ $email ?? old('email') }}"
+                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                            readonly>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">This email is verified and cannot be changed</p>
                 </div>
 
                 <!-- Password -->
@@ -140,7 +149,6 @@
                 const passwordConfirmationEyeSlash = document.getElementById('password-confirmation-eye-slash');
 
                 const emailInput = document.getElementById('email');
-                const emailError = document.getElementById('email-error');
 
                 togglePassword.addEventListener('click', function() {
                     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -170,18 +178,7 @@
                 const btnText = document.getElementById('btn-text');
                 const btnSpinner = document.getElementById('btn-spinner');
 
-                // Email validation function
-                function validateEmail(email) {
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    return emailRegex.test(email);
-                }
-
                 // Remove error on input
-                emailInput.addEventListener('input', function() {
-                    clearError(emailInput, emailError);
-                    clearAlert();
-                });
-
                 passwordInput.addEventListener('input', function() {
                     clearError(passwordInput, passwordError);
                     clearAlert();
@@ -197,7 +194,6 @@
                     e.preventDefault();
 
                     // Reset errors
-                    clearError(emailInput, emailError);
                     clearError(passwordInput, passwordError);
                     clearError(passwordConfirmationInput, passwordConfirmationError);
                     clearAlert();
@@ -209,15 +205,6 @@
                     const token = document.querySelector('input[name="token"]').value;
 
                     let isValid = true;
-
-                    // Validate email
-                    if (!email) {
-                        showError(emailInput, emailError, 'Email is required');
-                        isValid = false;
-                    } else if (!validateEmail(email)) {
-                        showError(emailInput, emailError, 'Please enter a valid email address');
-                        isValid = false;
-                    }
 
                     // Validate password
                     if (!password) {

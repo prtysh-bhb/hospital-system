@@ -137,7 +137,7 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => 'Email does not exist.'
+                'message' => 'We couldn’t find an account with that email. Please check and try again.'
             ], 404);
         }
 
@@ -183,7 +183,7 @@ class AuthController extends Controller
         if (!$record) {
             return response()->json([
                 'status' => false,
-                'message' => 'Invalid or expired token. Please request a new password reset link.'
+                'message' => 'This reset link is invalid or has expired. Please request a new one.'
             ], 400);
         }
 
@@ -195,7 +195,7 @@ class AuthController extends Controller
             
             return response()->json([
                 'status' => false,
-                'message' => 'Token has expired. Please request a new password reset link.'
+                'message' => 'Your reset link has expired. Please request a new one.'
             ], 400);
         }
 
@@ -204,7 +204,7 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => 'No account found with this email address.'
+                'message' => 'We couldn’t find an account with this email.'
             ], 404);
         }
 
@@ -218,7 +218,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Password has been reset successfully! Redirecting to login...'
+            'message' => 'Password has been reset successfully!'
         ], 200);
     }
 }
