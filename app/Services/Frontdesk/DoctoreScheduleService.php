@@ -15,7 +15,7 @@ class DoctoreScheduleService
     {
         $dayOfWeek = Carbon::parse($date)->dayOfWeek; // 0=Sunday, 1=Monday, etc.
 
-        $query = User::with(['doctorProfile', 'doctorSchedules'])
+        $query = User::with(['doctorProfile.specialty', 'doctorSchedules'])
             ->where('role', 'doctor')
             ->whereHas('doctorSchedules', function ($q) use ($dayOfWeek) {
                 $q->where('day_of_week', $dayOfWeek)
@@ -24,8 +24,8 @@ class DoctoreScheduleService
 
         // Filter by specialty
         if (isset($filters['specialty']) && $filters['specialty'] !== 'all') {
-            $query->whereHas('doctorProfile', function ($q) use ($filters) {
-                $q->where('specialization', $filters['specialty']);
+            $query->whereHas('doctorProfile.specialty', function ($q) use ($filters) {
+                $q->where('name', $filters['specialty']);
             });
         }
 
@@ -62,8 +62,8 @@ class DoctoreScheduleService
             return [
                 'id' => $doctor->id,
                 'name' => $doctor->full_name,
-                'specialization' => $doctor->doctorProfile->specialization ?? 'General',
-                'experience' => $doctor->doctorProfile->years_of_experience ?? 0,
+                'specialization' => $doctor->doctorProfile->specialty->name ?? 'General',
+                'experience' => $doctor->doctorProfile->experience_years ?? 0,
                 'room' => $doctor->doctorProfile->room_number ?? 'N/A',
                 'start_time' => Carbon::parse($schedule->start_time)->format('h:i A'),
                 'end_time' => Carbon::parse($schedule->end_time)->format('h:i A'),
@@ -170,10 +170,10 @@ class DoctoreScheduleService
     public function getSpecializations()
     {
         return User::where('role', 'doctor')
-            ->whereHas('doctorProfile')
-            ->with('doctorProfile')
+            ->whereHas('doctorProfile.specialty')
+            ->with('doctorProfile.specialty')
             ->get()
-            ->pluck('doctorProfile.specialization')
+            ->pluck('doctorProfile.specialty.name')
             ->filter()
             ->unique()
             ->values();
