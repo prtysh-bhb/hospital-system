@@ -7,7 +7,7 @@
 @section('content')
     <div class="w-full max-w-5xl">
         <!-- Logo & Title -->
-        <div class="text-center mb-8 sm:mb-12">
+        <div class="text-center mb-6 sm:mb-10">
             <div
                 class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-sky-600 rounded-2xl mb-4 sm:mb-6">
                 <svg class="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,7 +21,7 @@
         </div>
 
         <!-- Role Selection Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
             <!-- Public Booking -->
             <a href="{{ route('booking') }}"
                 class="group bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-gray-100 p-5 sm:p-8 hover:border-sky-500 hover:shadow-xl transition-all">
@@ -149,7 +149,7 @@
         </div>
 
         <!-- Footer -->
-        <p class="text-center text-xs sm:text-sm text-gray-600 mt-8 sm:mt-12">
+        <p class="text-center text-xs sm:text-sm text-gray-600 mt-5 sm:mt-8">
             © 2025 MediCare HMS. All rights reserved.
         </p>
     </div>
