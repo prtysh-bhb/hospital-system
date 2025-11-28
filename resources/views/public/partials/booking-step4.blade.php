@@ -9,7 +9,8 @@
                       </svg>
                   </div>
                   <div>
-                      <h1 class="text-lg sm:text-xl font-bold text-gray-900">City General Hospital</h1>
+                      <h1 class="text-lg sm:text-xl font-bold text-gray-900"><a href="{{ route('home') }}">City General
+                              Hospital</a></h1>
                       <p class="text-xs sm:text-sm text-gray-500">Book Your Appointment</p>
                   </div>
               </div>

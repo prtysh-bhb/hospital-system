@@ -46,7 +46,8 @@ class BookAppointmentController extends Controller
         // STEP-2 — Calendar + Slots
         // -----------------------------
         if ($step == 2) {
-            if (! session()->has('doctor_id')) {
+
+            if (!session()->has('doctor_id')) {
                 return redirect()->route('booking', ['step' => 1]);
             }
 
@@ -56,6 +57,7 @@ class BookAppointmentController extends Controller
             $schedules = DoctorSchedule::where('doctor_id', $doctor_id)->get();
             $availableDays = $schedules->pluck('day_of_week')->toArray();
 
+            // Build calendar
             $monthStart = now()->startOfMonth();
             $monthEnd = now()->endOfMonth();
 
@@ -73,26 +75,29 @@ class BookAppointmentController extends Controller
             }
 
             $selectedDate = $request->get('date', now()->format('Y-m-d'));
-            $selectedWeekday = Carbon::parse($selectedDate)->dayOfWeek;
+            $selectedDateCarbon = Carbon::parse($selectedDate);
+            $weekday = $selectedDateCarbon->dayOfWeek;
 
             $todaySchedule = DoctorSchedule::where('doctor_id', $doctor_id)
-                ->where('day_of_week', $selectedWeekday)
+                ->where('day_of_week', $weekday)
                 ->first();
 
             $slots = [];
+
             if ($todaySchedule) {
                 $start = Carbon::parse($todaySchedule->start_time);
                 $end = Carbon::parse($todaySchedule->end_time);
 
                 while ($start < $end) {
-                    $slots[] = $start->format('h:i A');
+                    $slots[] = [
+                        'time_24h' => $start->format('H:i'),
+                        'time_12h' => $start->format('h:i A')
+                    ];
                     $start->addMinutes($todaySchedule->slot_duration);
                 }
             }
 
-            // If user selected a slot
-            $selectedSlot = $request->get('slot');
-
+            // Send all variables to view
             return view('public.booking', compact(
                 'step',
                 'doctor',
@@ -101,12 +106,10 @@ class BookAppointmentController extends Controller
                 'selectedDate',
                 'specialties',
                 'doctors',
-                'specialty_id',
-                'selectedSlot'
+                'specialty_id'
             ));
         }
-
-        // -----------------------------
+     // -----------------------------
         // STEP-3 — Patient Details
         // -----------------------------
         if ($step == 3) {
@@ -148,10 +151,9 @@ class BookAppointmentController extends Controller
                 'specialty_id'
             ));
         }
-
         return view('public.booking', compact('step', 'specialties', 'doctors', 'specialty_id'));
-    }
-
+    }   
+    
     public function downloadPDFAppointment(Request $request)
     {
         // Appointment ID get from request query

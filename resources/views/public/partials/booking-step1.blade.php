@@ -1,7 +1,8 @@
     <!-- Header -->
     <header class="bg-white shadow-sm">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-            <h1 class="text-xl sm:text-2xl font-bold text-sky-700">MediCare Hospital</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-sky-700"><a href="{{ route('home') }}">MediCare Hospital</a>
+            </h1>
             <p class="text-xs sm:text-sm text-gray-600">Book Your Appointment</p>
         </div>
     </header>

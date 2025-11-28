@@ -2,7 +2,7 @@
 <!-- Header -->
 <header class="bg-white shadow-sm">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        <h1 class="text-xl sm:text-2xl font-bold text-sky-700">MediCare Hospital</h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-sky-700"><a href="{{ route('home') }}">MediCare Hospital</a></h1>
         <p class="text-xs sm:text-sm text-gray-600">Book Your Appointment</p>
     </div>
 </header>
@@ -16,24 +16,32 @@
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div class="flex items-center justify-between mb-6 sm:mb-8">
-            <!-- Progress steps remain the same -->
+            <!-- Progress steps -->
             <div class="flex flex-col items-center flex-1">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-sky-600 text-white rounded-full flex items-center justify-center font-semibold mb-1 sm:mb-2 text-sm sm:text-base">✓</div>
+                <div
+                    class="w-8 h-8 sm:w-10 sm:h-10 bg-sky-600 text-white rounded-full flex items-center justify-center font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
+                    ✓</div>
                 <span class="text-xs sm:text-xs text-sky-600 font-medium">Doctor</span>
             </div>
             <div class="flex-1 h-1 bg-sky-600 mx-1 sm:mx-2"></div>
             <div class="flex flex-col items-center flex-1">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-sky-600 text-white rounded-full flex items-center justify-center font-semibold mb-1 sm:mb-2 text-sm sm:text-base">2</div>
+                <div
+                    class="w-8 h-8 sm:w-10 sm:h-10 bg-sky-600 text-white rounded-full flex items-center justify-center font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
+                    2</div>
                 <span class="text-xs sm:text-xs text-sky-600 font-medium text-center">Date & Time</span>
             </div>
             <div class="flex-1 h-1 bg-gray-200 mx-1 sm:mx-2"></div>
             <div class="flex flex-col items-center flex-1">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-semibold mb-1 sm:mb-2 text-sm sm:text-base">3</div>
+                <div
+                    class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
+                    3</div>
                 <span class="text-xs sm:text-xs text-gray-500 text-center">Details</span>
             </div>
             <div class="flex-1 h-1 bg-gray-200 mx-1 sm:mx-2"></div>
             <div class="flex flex-col items-center flex-1">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-semibold mb-1 sm:mb-2 text-sm sm:text-base">4</div>
+                <div
+                    class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
+                    4</div>
                 <span class="text-xs sm:text-xs text-gray-500 text-center">Confirm</span>
             </div>
         </div>
@@ -81,7 +89,8 @@
             <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-6">
                 @foreach ($calendar as $day)
                     @php
-                        $classes = 'calendar-day p-2 sm:p-3 rounded-lg text-xs sm:text-sm text-center transition-colors';
+                        $classes =
+                            'calendar-day p-2 sm:p-3 rounded-lg text-xs sm:text-sm text-center transition-colors';
                         $isPast = $day['date'] < $today;
                         $isSelected = $day['date'] === $selectedDate;
                         $isToday = $day['date'] === $today;
@@ -111,44 +120,64 @@
             <label class="block text-sm font-medium text-gray-700 mb-3">Available Time Slots</label>
 
             @php
-                $now = \Carbon\Carbon::now();
+                // Get current time in India timezone (UTC+5:30)
+                $indiaTime = now()->setTimezone('Asia/Kolkata');
+                $currentTimeIndia = $indiaTime->format('H:i');
                 $isToday = $selectedDate === \Carbon\Carbon::today()->format('Y-m-d');
-                $currentTime = $now->format('H:i');
-                
-                // Filter slots to only show available ones (not past and within doctor's schedule)
+
                 $availableSlots = [];
-                
-                foreach ($slots as $slot) {
-                    $slotTime24 = \Carbon\Carbon::createFromFormat('h:i A', $slot)->format('H:i');
-                    
-                    // If it's today, check if the slot time has passed
-                    if ($isToday) {
-                        if ($slotTime24 > $currentTime) {
+                $pastSlots = [];
+
+                if (!empty($slots)) {
+                    foreach ($slots as $slot) {
+                        $slotTime24 = $slot['time_24h'];
+
+                        if ($isToday) {
+                            // Compare with India time
+                            if ($slotTime24 > $currentTimeIndia) {
+                                $availableSlots[] = $slot;
+                            } else {
+                                $pastSlots[] = $slot;
+                            }
+                        } else {
+                            // For future dates, all slots are available
                             $availableSlots[] = $slot;
                         }
-                    } else {
-                        // For future dates, show all slots
-                        $availableSlots[] = $slot;
                     }
                 }
+
+                $hasAvailableSlots = !empty($availableSlots);
             @endphp
 
             <div class="grid grid-cols-3 md:grid-cols-4 gap-2">
-                @forelse ($availableSlots as $slot)
-                    <label class="cursor-pointer slot-option">
-                        <input type="radio" name="slot" value="{{ $slot }}" 
-                               class="hidden peer slot-radio">
-                        <div class="px-3 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-xs
-                                   hover:border-sky-600 hover:text-sky-600
-                                   peer-checked:bg-sky-600 peer-checked:text-white peer-checked:border-sky-600">
-                            {{ $slot }}
-                        </div>
-                    </label>
-                @empty
+                @if (!empty($slots))
+                    {{-- Show available slots --}}
+                    @foreach ($availableSlots as $slot)
+                        <label class="cursor-pointer slot-option">
+                            <input type="radio" name="slot" value="{{ $slot['time_12h'] }}"
+                                class="hidden peer slot-radio">
+                            <div
+                                class="px-3 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-xs
+                                       hover:border-sky-600 hover:text-sky-600
+                                       peer-checked:bg-sky-600 peer-checked:text-white peer-checked:border-sky-600">
+                                {{ $slot['time_12h'] }}
+                            </div>
+                        </label>
+                    @endforeach
+
+                    {{-- Show past slots as disabled --}}
+                    @foreach ($pastSlots as $slot)
+                        <label class="cursor-not-allowed slot-option opacity-50">
+                            <div class="px-3 py-2.5 border border-gray-300 text-gray-400 rounded-lg text-xs">
+                                {{ $slot['time_12h'] }}
+                            </div>
+                        </label>
+                    @endforeach
+                @else
                     <p class="text-red-500 text-sm col-span-full">
                         {{ $isToday ? 'No available slots remaining for today' : 'No slots available for selected date' }}
                     </p>
-                @endforelse
+                @endif
             </div>
         </div>
 
@@ -156,7 +185,7 @@
         <div class="flex justify-between mb-6">
             <a href="{{ route('booking', ['step' => 1]) }}"
                 class="px-6 sm:px-8 py-2.5 sm:py-3 bg-gray-200 text-gray-700 rounded-lg text-sm sm:text-base font-medium hover:bg-gray-300">Back</a>
-            @if (!empty($availableSlots))
+            @if ($hasAvailableSlots)
                 <button type="submit" id="nextStepBtn" disabled
                     class="px-6 py-3 bg-sky-600 text-white rounded-lg text-sm font-medium hover:bg-sky-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
                     Next Step
@@ -183,15 +212,19 @@
                 if (date) {
                     // Remove previous selection styling
                     document.querySelectorAll('.calendar-day').forEach(d => {
-                        d.classList.remove('bg-sky-600', 'text-white', 'font-semibold', 'shadow-md');
-                        if (!d.classList.contains('cursor-not-allowed') && !d.classList.contains('bg-sky-100')) {
+                        d.classList.remove('bg-sky-600', 'text-white', 'font-semibold',
+                            'shadow-md');
+                        if (!d.classList.contains('cursor-not-allowed') && !d.classList
+                            .contains('bg-sky-100')) {
                             d.classList.add('text-gray-800', 'hover:bg-sky-50');
                         }
                     });
 
                     // Add selection styling to clicked date
-                    this.classList.remove('text-gray-800', 'hover:bg-sky-50', 'bg-sky-100', 'text-sky-800', 'border-2', 'border-sky-600');
-                    this.classList.add('bg-sky-600', 'text-white', 'font-semibold', 'shadow-md');
+                    this.classList.remove('text-gray-800', 'hover:bg-sky-50', 'bg-sky-100',
+                        'text-sky-800', 'border-2', 'border-sky-600');
+                    this.classList.add('bg-sky-600', 'text-white', 'font-semibold',
+                        'shadow-md');
 
                     // Update hidden date input
                     dateInput.value = date;
@@ -203,7 +236,8 @@
                         slotInput.value = '';
 
                         // Reload page with new date to get fresh slots
-                        window.location.href = `{{ route('booking', ['step' => 2, 'doctor_id' => $doctor->id]) }}&date=${date}`;
+                        window.location.href =
+                            `{{ route('booking', ['step' => 2, 'doctor_id' => $doctor->id]) }}&date=${date}`;
                     }
                 }
             });
