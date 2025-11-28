@@ -189,17 +189,24 @@
                     <p class="text-sm text-gray-500 italic">No prescriptions available</p>
                 </div>
             </div>
+            {{-- @dd($appointment->status); --}}
 
-            <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <button id="complete-appointment-btn"
-                    class="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm sm:text-base">
-                    Mark as Completed
-                </button>
+
+                @if ($appointment->status !== 'completed')
+                    <!-- Mark as Completed Button (only show when NOT completed) -->
+                    <button id="complete-appointment-btn"
+                        class="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm sm:text-base">
+                        Mark as Completed
+                    </button>
+                @endif
+
+                <!-- Back to Appointments Button (full width when completed) -->
                 <button onclick="window.location.href='{{ route('doctor.appointments') }}'"
-                    class="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm sm:text-base">
+                    class="{{ $appointment->status == 'completed' ? 'flex-1' : '' }} px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm sm:text-base">
                     Back to Appointments
                 </button>
+
             </div>
         </div>
 

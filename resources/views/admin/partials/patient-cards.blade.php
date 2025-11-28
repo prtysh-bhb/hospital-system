@@ -23,9 +23,11 @@
 
     @foreach ($patients as $index => $patient)
         @php
+            $user = $patient->user ?? null;
+
             $color = $avatarColors[$index % count($avatarColors)];
-            $initials = strtoupper(substr($patient->user->first_name, 0, 1) . substr($patient->user->last_name, 0, 1));
-            $age = $patient->user->date_of_birth ? \Carbon\Carbon::parse($patient->user->date_of_birth)->age : 'N/A';
+            $initials = $user ? strtoupper(substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1)) : 'NA';
+            $age = $user && $user->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->age : 'N/A';
             $lastVisit = $patient->appointments()->latest()->first();
         @endphp
 
@@ -43,14 +45,15 @@
                         {{ $initials }}
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-800">{{ $patient->user->full_name }}</p>
-                        <p class="text-xs text-gray-500">{{ $patient->user->email }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $user->full_name ?? 'N/A' }}</p>
+                        <p class="text-xs text-gray-500">{{ $user->email ?? 'N/A' }}</p>
                     </div>
                 </div>
             </td>
 
             <td class="px-6 py-4 hidden lg:table-cell">
-                <p class="text-sm text-gray-800">{{ $age }} / {{ ucfirst($patient->user->gender ?? 'N/A') }}
+                <p class="text-sm text-gray-800">
+                    {{ $age }} / {{ ucfirst($user->gender ?? 'N/A') }}
                 </p>
             </td>
 
@@ -65,7 +68,7 @@
             </td>
 
             <td class="px-6 py-4 hidden lg:table-cell">
-                <p class="text-sm text-gray-800">{{ $patient->user->phone }}</p>
+                <p class="text-sm text-gray-800">{{ $user->phone ?? 'N/A' }}</p>
             </td>
 
             <td class="px-6 py-4 hidden md:table-cell">
@@ -80,10 +83,10 @@
             <td class="px-6 py-4">
                 <span
                     class="px-3 py-1 text-xs font-medium rounded-full
-                    @if ($patient->user->status === 'active') bg-green-100 text-green-700
-                    @elseif ($patient->user->status === 'inactive') bg-gray-100 text-gray-700
+                    @if (($user->status ?? '') === 'active') bg-green-100 text-green-700
+                    @elseif (($user->status ?? '') === 'inactive') bg-gray-100 text-gray-700
                     @else bg-amber-100 text-amber-700 @endif">
-                    {{ ucfirst($patient->user->status) }}
+                    {{ ucfirst($user->status ?? 'N/A') }}
                 </span>
             </td>
 
@@ -98,6 +101,7 @@
                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                     </button>
+
                     <button onclick="editPatient({{ $patient->id }})" class="text-amber-600 hover:text-amber-800"
                         title="Edit Patient">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +109,8 @@
                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </button>
-                    <button onclick="deletePatient({{ $patient->user->id }})" class="text-red-600 hover:text-red-800"
+
+                    <button onclick="deletePatient({{ $user->id ?? 0 }})" class="text-red-600 hover:text-red-800"
                         title="Delete Patient">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

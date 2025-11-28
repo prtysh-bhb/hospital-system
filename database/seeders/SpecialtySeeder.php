@@ -40,6 +40,7 @@ class SpecialtySeeder extends Seeder
             ['name' => 'Emergency Medicine', 'description' => 'Emergency and critical care', 'icon' => 'emergency', 'status' => 'active'],
             ['name' => 'Internal Medicine', 'description' => 'Adult diseases and diagnosis', 'icon' => 'internal', 'status' => 'active'],
             ['name' => 'Family Medicine', 'description' => 'Primary care for all ages', 'icon' => 'family', 'status' => 'active'],
+            ['name' => 'Sexology', 'description' => 'Sexual health and wellness', 'icon' => 'sex', 'status' => 'active'],
             ['name' => 'Hematology', 'description' => 'Blood diseases and disorders', 'icon' => 'blood', 'status' => 'active'],
             ['name' => 'Infectious Disease', 'description' => 'Viral and bacterial infections', 'icon' => 'infection', 'status' => 'active'],
             ['name' => 'Allergy & Immunology', 'description' => 'Allergy and immune system disorders', 'icon' => 'allergy', 'status' => 'active'],
@@ -59,7 +60,6 @@ class SpecialtySeeder extends Seeder
             ['name' => 'Occupational Therapy', 'description' => 'Daily activity rehabilitation', 'icon' => 'occupation', 'status' => 'active'],
             ['name' => 'Audiology', 'description' => 'Hearing and balance disorders', 'icon' => 'hearing', 'status' => 'active'],
             ['name' => 'Cosmetology', 'description' => 'Beauty & skin treatments', 'icon' => 'cosmetic', 'status' => 'active'],
-            ['name' => 'Sexology', 'description' => 'Sexual health and wellness', 'icon' => 'sex', 'status' => 'active'],
         ];
 
         foreach ($specialties as $spec) {

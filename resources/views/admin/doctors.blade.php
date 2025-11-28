@@ -226,8 +226,43 @@
         @include('admin.partials.doctor-cards', ['doctors' => $doctors])
     </div>
 
+    <!-- Custom Delete Modal -->
+    <div id="customDeleteModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+            <h2 class="text-lg font-semibold mb-4">Confirm Delete</h2>
+            <p id="deleteModalText" class="text-gray-700 mb-6">Are you sure you want to delete this doctor?</p>
+
+            <div class="flex justify-end space-x-3">
+                <button id="cancelDeleteBtn" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">
+                    Cancel
+                </button>
+                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let searchTimeout;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            $(document).on('click', '.delete-doctor-btn', function() {
+                deleteDoctorId = $(this).data('doctor-id');
+                let doctorName = $(this).data('doctor-name');
+
+                document.getElementById('deleteModalText').textContent =
+                    `Are you sure you want to delete the doctor "${doctorName}"?`;
+
+                document.getElementById('customDeleteModal').classList.remove('hidden');
+            });
+
+            // Cancel button closes modal
+            document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+                document.getElementById('customDeleteModal').classList.add('hidden');
+                deleteDoctorId = null;
+            });
+        });
 
         // Notification function
         function showNotification(message, type = 'success') {
@@ -285,12 +320,9 @@
                 });
         }
 
-        function deleteDoctor(doctorId) {
-            if (!confirm('Are you sure you want to delete this doctor? This action cannot be undone.')) {
-                return;
-            }
-
-            fetch(`/admin/doctors/${doctorId}`, {
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (!deleteDoctorId) return;
+            fetch(`/admin/doctors/${deleteDoctorId}`, {
                     method: 'DELETE',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
@@ -301,26 +333,20 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showNotification(data.message, 'success');
+                        toastr.success(data.message, 'success');
                         fetchDoctors();
+                        document.getElementById('customDeleteModal').classList.add('hidden');
                     } else {
-                        showNotification(data.message || 'Failed to delete doctor', 'error');
+                        toastr.error(data.message || 'Failed to delete doctor', 'error');
                     }
                 })
                 .catch(error => {
-                    showNotification('An error occurred while deleting the doctor.', 'error');
+                    toastr.error('An error occurred while deleting the doctor.', 'error');
                 });
-        }
+
+        });
 
         function attachDeleteHandlers() {
-            document.querySelectorAll('.delete-doctor-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const doctorId = this.dataset.doctorId;
-                    deleteDoctor(doctorId);
-                });
-            });
-
             // Attach view details handlers
             document.querySelectorAll('.view-doctor-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {

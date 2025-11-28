@@ -861,13 +861,13 @@
                                             <span class="text-gray-700">${apt.type}</span>
                                         </div>
                                         ${apt.reason ? `
-                                            <div class="flex items-start text-sm">
-                                                <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                                <span class="text-gray-600">${apt.reason}</span>
-                                            </div>
-                                            ` : ''}
+                                                                                                    <div class="flex items-start text-sm">
+                                                                                                        <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                                                        </svg>
+                                                                                                        <span class="text-gray-600">${apt.reason}</span>
+                                                                                                    </div>
+                                                                                                    ` : ''}
                                     </div>
                                 </div>
                             `).join('');
@@ -985,6 +985,14 @@
             };
 
             const modalContent = document.getElementById('appointmentModalContent');
+
+            function formatType(str) {
+                return str
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+
             modalContent.innerHTML = `
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
@@ -1005,7 +1013,7 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-500 uppercase mb-1">Type</p>
-                            <p class="text-sm font-semibold text-gray-800">${apt.type}</p>
+                            <p class="text-sm font-semibold text-gray-800">${formatType(apt.type)}</p>
                         </div>
                         <div>
                             <p class="text-xs text-gray-500 uppercase mb-1">Duration</p>

@@ -182,24 +182,33 @@ class CalendarService
     {
         $doctorId = Auth::id();
 
-        $appointments = Appointment::with('patient')
+        $appointments = Appointment::with('patient', 'doctor.doctorSchedules')
             ->where('doctor_id', $doctorId)
             ->whereDate('appointment_date', $date)
             ->orderBy('appointment_time')
             ->get();
 
         return $appointments->map(function ($appointment) {
+
+            $weekday = Carbon::parse($appointment->appointment_date)->dayOfWeek; // get appointment weekday
+            $matchedSchedule = $appointment->doctor->doctorSchedules
+                ->firstWhere('day_of_week', $weekday);  // Find our weekday schedule from doctorSchedules
+
             return [
                 'id' => $appointment->id,
                 'appointment_number' => $appointment->appointment_number,
-                'patient_name' => $appointment->patient->first_name.' '.$appointment->patient->last_name,
+                'patient_name' => $appointment->patient->first_name . ' ' . $appointment->patient->last_name,
                 'patient_age' => $appointment->patient->date_of_birth ?
                     Carbon::parse($appointment->patient->date_of_birth)->age : 'N/A',
                 'time' => Carbon::parse($appointment->appointment_time)->format('g:i A'),
                 'status' => $appointment->status,
                 'reason' => $appointment->reason_for_visit,
                 'type' => ucfirst(str_replace('_', ' ', $appointment->appointment_type)),
+
+                // ⭐ Slot Duration
+                'duration' => $matchedSchedule ? $matchedSchedule->slot_duration : null,
             ];
         });
     }
+
 }

@@ -110,9 +110,47 @@
         </div>
     </div>
 
+    <!-- Custom Delete Modal -->
+    <div id="customDeleteModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+            <h2 class="text-lg font-semibold mb-4">Confirm Delete</h2>
+            <p id="deleteModalText" class="text-gray-700 mb-6">Are you sure you want to delete this specialty?</p>
+
+            <div class="flex justify-end space-x-3">
+                <button id="cancelDeleteBtn" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">
+                    Cancel
+                </button>
+                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
         <script>
             document.addEventListener("DOMContentLoaded", function() {
+                let deleteId = null;
+                let deleteName = null;
+
+                // When delete button is clicked → OPEN MODAL
+                $(document).on('click', '.specialtys-destroy', function() {
+                    deleteId = $(this).data('id');
+                    deleteName = $(this).data('name');
+
+                    // Update the modal text with the specialty name
+                    document.getElementById('deleteModalText').textContent =
+                        `Are you sure you want to delete the specialty "${deleteName}"?`;
+
+                    document.getElementById('customDeleteModal').classList.remove('hidden');
+                });
+
+                // Cancel button → CLOSE MODAL
+                document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+                    document.getElementById('customDeleteModal').classList.add('hidden');
+                    deleteId = null;
+                    deleteName = null;
+                });
 
                 // Function to get the current filter values
                 function getFilters() {
@@ -201,7 +239,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </button>
-                                    <button class="text-red-600 hover:text-red-800 specialtys-destroy" data-id="${item.id}">
+                                    <button class="text-red-600 hover:text-red-800 specialtys-destroy" data-id="${item.id}" data-name="${item.name}">
                                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
@@ -227,28 +265,28 @@
 
                     // Previous Button
                     paginationHTML += `
-                <button onclick="loadSpecialtys(${data.prev_page_url ? data.current_page - 1 : data.current_page})"
-                    class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${data.prev_page_url ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50' : 'text-gray-400 bg-gray-100 cursor-not-allowed'} rounded-lg">
-                    Previous
-                </button>
-            `;
+                        <button onclick="loadSpecialtys(${data.prev_page_url ? data.current_page - 1 : data.current_page})"
+                            class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${data.prev_page_url ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50' : 'text-gray-400 bg-gray-100 cursor-not-allowed'} rounded-lg">
+                            Previous
+                        </button>
+                    `;
 
                     // Page Numbers
                     for (let i = 1; i <= data.last_page; i++) {
                         paginationHTML += `
-                    <button onclick="loadSpecialtys(${i})"
-                        class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${i === data.current_page ? 'text-white bg-sky-600' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'} rounded-lg">
-                        ${i}
-                    </button>`;
+                            <button onclick="loadSpecialtys(${i})"
+                                class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${i === data.current_page ? 'text-white bg-sky-600' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'} rounded-lg">
+                                ${i}
+                            </button>`;
                     }
 
                     // Next Button
                     paginationHTML += `
-                <button onclick="loadSpecialtys(${data.next_page_url ? data.current_page + 1 : data.current_page})"
-                    class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${data.next_page_url ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50' : 'text-gray-400 bg-gray-100 cursor-not-allowed'} rounded-lg">
-                    Next
-                </button>
-            `;
+                        <button onclick="loadSpecialtys(${data.next_page_url ? data.current_page + 1 : data.current_page})"
+                            class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${data.next_page_url ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50' : 'text-gray-400 bg-gray-100 cursor-not-allowed'} rounded-lg">
+                            Next
+                        </button>
+                    `;
 
                     document.querySelector("#paginationContainer").innerHTML = paginationHTML;
 
@@ -257,46 +295,7 @@
                         `Showing <span class="font-medium">${data.from}</span> to <span class="font-medium">${data.to}</span> of <span class="font-medium">${data.total}</span> results`;
                 }
 
-                // Handle the delete request
-                $('body').on('click', '.specialtys-destroy', function() {
-                    var specialtyId = $(this).data('id');
-
-                    if (!confirm('Are you sure you want to delete this specialty?')) {
-                        return;
-                    }
-
-                    $.ajax({
-                        url: '{{ route('admin.specialtys-destroy', ':id') }}'.replace(':id',
-                            specialtyId),
-
-                        type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        success: function(data) {
-                            if (data.status == 200) {
-                                toastr.success(data.msg);
-
-                                // Remove the specialty from the list without reloading the page
-                                $('#specialty-' + specialtyId).fadeOut(300, function() {
-                                    $(this).remove();
-                                });
-                            } else {
-                                toastr.error(data.msg);
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            if (xhr.status === 403) {
-                                toastr.error('You are not authorized to delete this specialty.');
-                            } else {
-                                toastr.error('Failed to delete specialty. Please try again.');
-                            }
-                        }
-                    });
-                });
-
                 $('body').on('click', '.openaddmodal', function() {
-
                     var id = $(this).data('id');
                     if (id == '' || id == undefined) {
                         $('.modal-title').text("Add Specialty");
@@ -338,29 +337,21 @@
                         processData: false,
 
                         success: function(data) {
-
                             // CLEAR OLD ERRORS
                             $('.error').text('');
                             $('input, select').removeClass('border-red-500');
 
                             if (data.status == 400) {
-
                                 $.each(data.errors, function(field, messages) {
-
                                     $('.' + field + '_error').text(messages[0]);
                                     $('[name="' + field + '"]').addClass('border-red-500');
                                 });
-
-
                                 return;
                             }
                             if (data.status == 200) {
-
                                 toastr.success(data.msg);
-
                                 // close modal
                                 closeSpecialtyModal();
-
                                 loadSpecialtys();
                             }
                         }
@@ -375,7 +366,6 @@
                 });
 
                 $('body').on('click', '.status-badge', function() {
-
                     let badge = $(this);
                     let id = badge.data('id');
                     let currentStatus = badge.data('status');
@@ -408,7 +398,6 @@
                             toastr.error('Server error. Please try again.');
                         }
                     });
-
                 });
 
                 // View specialty details
@@ -424,6 +413,45 @@
                         },
                         error: function() {
                             toastr.error('Failed to load specialty details.');
+                        }
+                    });
+                });
+
+                // Confirm delete button
+                document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                    if (!deleteId) return;
+                    $.ajax({
+                        url: '{{ route('admin.specialtys-destroy', ':id') }}'.replace(':id', deleteId),
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        success: function(data) {
+                            if (data.status == 200) {
+                                toastr.success(data.msg);
+
+                                // Remove the specialty from the list without reloading the page
+                                $('#specialty-' + deleteId).fadeOut(300, function() {
+                                    $(this).remove();
+                                });
+                            } else {
+                                toastr.error(data.msg);
+                            }
+
+                            document.getElementById('customDeleteModal').classList.add('hidden');
+                            deleteId = null;
+                            deleteName = null;
+                        },
+                        error: function(xhr, status, error) {
+                            if (xhr.status === 403) {
+                                toastr.error('You are not authorized to delete this specialty.');
+                            } else {
+                                toastr.error('Failed to delete specialty. Please try again.');
+                            }
+
+                            document.getElementById('customDeleteModal').classList.add('hidden');
+                            deleteId = null;
+                            deleteName = null;
                         }
                     });
                 });
