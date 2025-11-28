@@ -200,6 +200,7 @@ class CalendarService
                         'status' => $apt->status,
                         'patient_name' => $apt->patient->first_name.' '.$apt->patient->last_name,
                         'doctor_name' => 'Dr. '.$apt->doctor->last_name,
+                        'doctor_short' => 'Dr. '.substr($apt->doctor->last_name, 0, 1).'.',
                         'reason' => $apt->reason_for_visit,
                         'appointment_number' => $apt->appointment_number,
                     ];
@@ -263,6 +264,7 @@ class CalendarService
                 'patient_name' => $apt->patient->first_name.' '.$apt->patient->last_name,
                 'patient_age' => $age,
                 'doctor_name' => 'Dr. '.$apt->doctor->first_name.' '.$apt->doctor->last_name,
+                'doctor_short' => 'Dr. '.substr($apt->doctor->last_name, 0, 1).'.',
                 'specialty' => $apt->doctor->doctorProfile?->specialty?->name ?? 'General',
                 'reason' => $apt->reason_for_visit,
                 'type' => ucfirst(str_replace('_', ' ', $apt->appointment_type)),

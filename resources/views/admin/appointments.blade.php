@@ -196,10 +196,10 @@
 
                         let row = `
                             <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3"><span class="text-sm font-medium text-sky-600">#APT${app.appointment_number}</span></td>
+                                <td class="px-4 py-3"><span class="text-sm font-medium text-sky-600">${app.appointment_number}</span></td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 font-semibold">
+                                        <div class="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 font-semibold z-10">
                                             ${patientLastName.substring(0, 2).toUpperCase()}
                                         </div>
                                         <div class="ml-3">

@@ -320,8 +320,7 @@
 
                     // Filter appointments for this time slot
                     const slotAppointments = appointments.filter(apt => {
-                        return apt.time.includes(timeSlot.split(':')[0]) ||
-                            apt.time.includes(timeSlot.replace(' AM', '').replace(' PM', ''));
+                        return apt.time === timeSlot;
                     });
 
                     html += `
@@ -337,7 +336,7 @@
                                     onclick="showAppointmentDetailsById(${apt.id})" 
                                     title="${apt.time} - ${apt.patient_name}">
                                     <div class="font-semibold truncate">${apt.patient_name.split(' ')[0]}</div>
-                                    <div class="text-gray-600 truncate">${apt.type}</div>
+                                    <div class="text-gray-600 truncate">${apt.doctor_name || apt.type}</div>
                                 </div>
                             `;
                         });
@@ -412,8 +411,7 @@
 
             timeSlots.forEach(timeSlot => {
                 const slotAppointments = appointments.filter(apt => {
-                    return apt.time.includes(timeSlot.split(':')[0]) ||
-                        apt.time.includes(timeSlot.replace(' AM', '').replace(' PM', ''));
+                    return apt.time === timeSlot;
                 });
 
                 html += `
@@ -437,7 +435,7 @@
                                             <span class="text-xs px-2 py-1 rounded-full ${statusClass} border">${apt.status.toUpperCase()}</span>
                                         </div>
                                         <div class="text-sm text-gray-600">
-                                            <span class="font-medium">${apt.type}</span> • ${apt.duration} min
+                                            <span class="font-medium">${apt.doctor_name || apt.type}</span> • ${apt.duration} min
                                         </div>
                                         ${apt.reason ? `<div class="text-sm text-gray-500 mt-2">${apt.reason}</div>` : ''}
                                     </div>

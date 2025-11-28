@@ -191,7 +191,7 @@
             <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full relative z-50 max-h-[90vh] overflow-y-auto">
                 <!-- Modal Header -->
                 <div
-                    class="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
+                    class="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
                     <h3 class="modal-title text-lg sm:text-xl font-semibold text-gray-800">Appointment Details</h3>
                     <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

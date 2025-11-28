@@ -493,6 +493,7 @@
         let currentMonth = {{ $calendarData['month'] }};
         let currentDate = new Date();
         let currentDoctorId = '{{ $doctorId ?? '' }}';
+        let originalMonthName = '{{ $calendarData['month_name'] }}';
 
         // Initialize calendar grid with server data
         const calendarGrid = document.getElementById('calendarGrid');
@@ -576,6 +577,8 @@
                 loadWeekView();
             } else if (view === 'day') {
                 loadDayView();
+            } else {
+                document.getElementById('periodTitle').textContent = originalMonthName;
             }
         }
 
@@ -686,9 +689,7 @@
                 days.forEach(day => {
                     const isToday = day.is_today;
                     const dayAppointments = day.appointments.filter(apt => {
-                        // Simple time matching - you might want more sophisticated time matching
-                        return apt.time.includes(timeSlot.split(':')[0]) || 
-                               apt.time.includes(timeSlot.replace(' AM', '').replace(' PM', ''));
+                        return apt.time === timeSlot;
                     });
 
                     html += `
@@ -766,9 +767,7 @@
 
             timeSlots.forEach(timeSlot => {
                 const slotAppointments = dayData.appointments.filter(apt => {
-                    // Simple time matching
-                    return apt.time.includes(timeSlot.split(':')[0]) || 
-                           apt.time.includes(timeSlot.replace(' AM', '').replace(' PM', ''));
+                    return apt.time === timeSlot;
                 });
 
                 html += `

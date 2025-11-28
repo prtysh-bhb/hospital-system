@@ -58,15 +58,11 @@ class CalendarService
                     }
 
                     return [
-
                         'id' => $apt->id,
-
                         'time' => Carbon::parse($apt->appointment_time)->format('g:i A'),
-
                         'status' => $apt->status,
-
                         'patient_name' => $apt->patient->first_name.' '.$apt->patient->last_name,
-
+                        'doctor_name' => 'Dr. '.Auth::user()->last_name,
                     ];
 
                 })->filter()->values()->toArray();
@@ -204,6 +200,7 @@ class CalendarService
                 'status' => $appointment->status,
                 'reason' => $appointment->reason_for_visit,
                 'type' => ucfirst(str_replace('_', ' ', $appointment->appointment_type)),
+                'doctor_name' => 'Dr. '.$appointment->doctor->last_name,
 
                 // ⭐ Slot Duration
                 'duration' => $matchedSchedule ? $matchedSchedule->slot_duration : null,
