@@ -42,8 +42,9 @@ class AppointmentController extends Controller
     {
         $doctorId = $request->get('doctor_id');
         $date = $request->get('date');
+        $excludeAppointmentId = $request->get('exclude_appointment_id');
 
-        $result = $this->slotService->getAvailableSlots($doctorId, $date);
+        $result = $this->slotService->getAvailableSlots($doctorId, $date, $excludeAppointmentId);
 
         return response()->json($result);
     }
@@ -209,9 +210,10 @@ class AppointmentController extends Controller
 
                 $patientId = $user->id;
             }
-
+ $random = random_int(100000, 999999); // 6-digit secure random number
+    $appointmentNumber = 'APT-' . date('Y') . '-' . $random;
             // Generate appointment number
-            $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(Appointment::count() + 1, 6, '0', STR_PAD_LEFT);
+            // $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(Appointment::count() + 1, 6, '0', STR_PAD_LEFT);
 
             // Parse appointment time (could be "09:00 AM" format or "09:00" format)
             $appointmentTime = $request->input('appointment_time');
@@ -375,8 +377,52 @@ class AppointmentController extends Controller
             $appointment->appointment_time = $request->input('appointment_time');
             $appointment->appointment_type = $request->input('appointment_type');
             $appointment->reason_for_visit = $request->input('reason_for_visit');
-            $appointment->status = $request->input('status');
+            
+            // Get the original status before changing
+            $originalStatus = $appointment->getOriginal('status');
+            $newStatus = $request->input('status');
+            $appointment->status = $newStatus;
             $appointment->notes = $request->input('notes', $appointment->notes);
+
+            // Check if reactivating a cancelled/no_show appointment
+            $inactiveStatuses = ['cancelled', 'no_show'];
+            $activeStatuses = ['pending', 'confirmed', 'checked_in', 'in_progress'];
+            
+            if (in_array($originalStatus, $inactiveStatuses) && in_array($newStatus, $activeStatuses)) {
+                // Validate that the slot is still available (don't exclude current appointment since it was inactive)
+                $slotValidation = $this->slotService->validateAppointmentTime(
+                    $request->input('doctor_id'),
+                    $request->input('appointment_date'),
+                    $request->input('appointment_time'),
+                    null // Don't exclude - we need to check if slot is truly available
+                );
+
+                if (! $slotValidation['valid']) {
+                    return response()->json([
+                        'status' => 422,
+                        'msg' => 'Cannot reactivate appointment: ' . $slotValidation['message'],
+                        'errors' => ['status' => ['This time slot is now taken by another appointment. Please select a different time or keep the appointment cancelled.']],
+                    ], 422);
+                }
+            }
+
+            // Validate time slot if doctor, date, or time changed (for non-cancelled appointments)
+            if ($appointment->isDirty(['doctor_id', 'appointment_date', 'appointment_time']) && !in_array($newStatus, $inactiveStatuses)) {
+                $slotValidation = $this->slotService->validateAppointmentTime(
+                    $request->input('doctor_id'),
+                    $request->input('appointment_date'),
+                    $request->input('appointment_time'),
+                    $appointment->id // Exclude current appointment
+                );
+
+                if (! $slotValidation['valid']) {
+                    return response()->json([
+                        'status' => 422,
+                        'msg' => $slotValidation['message'],
+                        'errors' => ['appointment_time' => [$slotValidation['message']]],
+                    ]);
+                }
+            }
 
             $appointment->save();
 

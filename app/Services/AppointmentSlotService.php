@@ -13,9 +13,10 @@ class AppointmentSlotService
      *
      * @param  int  $doctorId
      * @param  string  $date
+     * @param  int|null  $excludeAppointmentId  - exclude this appointment when checking (for updates)
      * @return array
      */
-    public function getAvailableSlots($doctorId, $date)
+    public function getAvailableSlots($doctorId, $date, $excludeAppointmentId = null)
     {
         if (! $doctorId || ! $date) {
             return [
@@ -42,10 +43,16 @@ class AppointmentSlotService
             $slotDuration = $schedule->slot_duration ?? 30;
 
             // Get booked appointments for this doctor on this date
-            $bookedSlots = Appointment::where('doctor_id', $doctorId)
+            $bookedQuery = Appointment::where('doctor_id', $doctorId)
                 ->where('appointment_date', $date)
-                ->whereIn('status', ['pending', 'confirmed', 'checked_in', 'in_progress'])
-                ->pluck('appointment_time')
+                ->whereIn('status', ['pending', 'confirmed', 'checked_in', 'in_progress']);
+
+            // Exclude specific appointment (for updates)
+            if ($excludeAppointmentId) {
+                $bookedQuery->where('id', '!=', $excludeAppointmentId);
+            }
+
+            $bookedSlots = $bookedQuery->pluck('appointment_time')
                 ->map(function ($time) {
                     try {
                         return Carbon::parse($time)->format('H:i');
