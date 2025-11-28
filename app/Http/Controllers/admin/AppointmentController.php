@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\Appointment;
-use App\Models\PatientProfile;
 use App\Models\User;
-use App\Services\AppointmentSlotService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Appointment;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\PatientProfile;
 use Illuminate\Validation\Rule;
+use Symfony\Component\Clock\now;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+use App\Services\AppointmentSlotService;
 
 class AppointmentController extends Controller
 {
@@ -210,10 +211,15 @@ class AppointmentController extends Controller
 
                 $patientId = $user->id;
             }
-            $random = random_int(100000, 999999); // 6-digit secure random number
-            $appointmentNumber = 'APT-'.date('Y').'-'.$random;
+
             // Generate appointment number
             // $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(Appointment::count() + 1, 6, '0', STR_PAD_LEFT);
+            
+            $date = now()->format('Ymd');
+            $random = random_int(0, 999999);
+            $randomPadded = str_pad($random, 6, '0', STR_PAD_LEFT);
+            $appointmentNumber = 'APT-' . $date . '-' . $randomPadded;
+            
 
             // Parse appointment time (could be "09:00 AM" format or "09:00" format)
             $appointmentTime = $request->input('appointment_time');

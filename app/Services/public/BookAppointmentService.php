@@ -82,7 +82,11 @@ class BookAppointmentService
             }
 
             // Generate unique appointment number
-            $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(Appointment::count() + 1, 6, '0', STR_PAD_LEFT);
+            $date = now()->format('Ymd');
+            $random = random_int(0, 999999);
+            $randomPadded = str_pad($random, 6, '0', STR_PAD_LEFT);
+            $appointmentNumber = 'APT-' . $date . '-' . $randomPadded;
+            // $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(Appointment::count() + 1, 6, '0', STR_PAD_LEFT);
 
             // Parse appointment time (format: "09:00 AM")
             $appointmentDateTime = Carbon::parse($data['appointment_date'].' '.$data['appointment_time']);
