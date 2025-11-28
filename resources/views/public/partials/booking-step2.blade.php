@@ -70,6 +70,24 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
             <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6">Select Date</h2>
 
+            {{-- MONTH NAVIGATION --}}
+            <div class="flex items-center justify-between mb-4">
+                <button type="button" id="prevMonthBtn"
+                    class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                        </path>
+                    </svg>
+                </button>
+                <h3 id="currentMonthLabel" class="text-lg font-semibold text-gray-800"></h3>
+                <button type="button" id="nextMonthBtn"
+                    class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+
             {{-- CALENDAR HEADER --}}
             <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
                 <div class="text-center text-xs font-medium text-gray-500 py-2">Sun</div>
@@ -81,103 +99,30 @@
                 <div class="text-center text-xs font-medium text-gray-500 py-2">Sat</div>
             </div>
 
-            {{-- CALENDAR DAYS --}}
-            @php
-                $today = \Carbon\Carbon::today()->format('Y-m-d');
-            @endphp
-
-            <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-6">
-                @foreach ($calendar as $day)
-                    @php
-                        $classes =
-                            'calendar-day p-2 sm:p-3 rounded-lg text-xs sm:text-sm text-center transition-colors';
-                        $isPast = $day['date'] < $today;
-                        $isSelected = $day['date'] === $selectedDate;
-                        $isToday = $day['date'] === $today;
-
-                        if ($isPast) {
-                            $classes .= ' text-gray-300 bg-gray-100 cursor-not-allowed';
-                        } elseif ($isSelected) {
-                            $classes .= ' bg-sky-600 text-white font-semibold shadow-md';
-                        } elseif ($isToday) {
-                            $classes .= ' bg-sky-100 text-sky-800 font-semibold cursor-pointer border-2 border-sky-600';
-                        } else {
-                            $classes .= ' text-gray-800 hover:bg-sky-50 cursor-pointer border border-transparent';
-                        }
-                    @endphp
-
-                    @if (!$isPast)
-                        <div class="{{ $classes }}" data-date="{{ $day['date'] }}">
-                            {{ $day['day'] }}
-                        </div>
-                    @else
-                        <div class="{{ $classes }}">{{ $day['day'] }}</div>
-                    @endif
-                @endforeach
+            {{-- CALENDAR DAYS (Dynamic) --}}
+            <div id="calendarDays" class="grid grid-cols-7 gap-1 sm:gap-2 mb-6">
+                <!-- Calendar days will be rendered by JavaScript -->
             </div>
 
             {{-- TIME SLOTS --}}
             <label class="block text-sm font-medium text-gray-700 mb-3">Available Time Slots</label>
 
-            @php
-                // Get current time in India timezone (UTC+5:30)
-                $indiaTime = now()->setTimezone('Asia/Kolkata');
-                $currentTimeIndia = $indiaTime->format('H:i');
-                $isToday = $selectedDate === \Carbon\Carbon::today()->format('Y-m-d');
+            <div id="slotsContainer" class="grid grid-cols-3 md:grid-cols-4 gap-2">
+                <div class="col-span-full text-center py-4">
+                    <p class="text-gray-500 text-sm">Select a date to view available slots</p>
+                </div>
+            </div>
 
-                $availableSlots = [];
-                $pastSlots = [];
-
-                if (!empty($slots)) {
-                    foreach ($slots as $slot) {
-                        $slotTime24 = $slot['time_24h'];
-
-                        if ($isToday) {
-                            // Compare with India time
-                            if ($slotTime24 > $currentTimeIndia) {
-                                $availableSlots[] = $slot;
-                            } else {
-                                $pastSlots[] = $slot;
-                            }
-                        } else {
-                            // For future dates, all slots are available
-                            $availableSlots[] = $slot;
-                        }
-                    }
-                }
-
-                $hasAvailableSlots = !empty($availableSlots);
-            @endphp
-
-            <div class="grid grid-cols-3 md:grid-cols-4 gap-2">
-                @if (!empty($slots))
-                    {{-- Show available slots --}}
-                    @foreach ($availableSlots as $slot)
-                        <label class="cursor-pointer slot-option">
-                            <input type="radio" name="slot" value="{{ $slot['time_12h'] }}"
-                                class="hidden peer slot-radio">
-                            <div
-                                class="px-3 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-xs
-                                       hover:border-sky-600 hover:text-sky-600
-                                       peer-checked:bg-sky-600 peer-checked:text-white peer-checked:border-sky-600">
-                                {{ $slot['time_12h'] }}
-                            </div>
-                        </label>
-                    @endforeach
-
-                    {{-- Show past slots as disabled --}}
-                    @foreach ($pastSlots as $slot)
-                        <label class="cursor-not-allowed slot-option opacity-50">
-                            <div class="px-3 py-2.5 border border-gray-300 text-gray-400 rounded-lg text-xs">
-                                {{ $slot['time_12h'] }}
-                            </div>
-                        </label>
-                    @endforeach
-                @else
-                    <p class="text-red-500 text-sm col-span-full">
-                        {{ $isToday ? 'No available slots remaining for today' : 'No slots available for selected date' }}
-                    </p>
-                @endif
+            <div id="slotsLoading" class="hidden col-span-full text-center py-4">
+                <svg class="animate-spin h-6 w-6 text-sky-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                        stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                <p class="text-gray-500 text-sm mt-2">Loading available slots...</p>
             </div>
         </div>
 
@@ -185,12 +130,10 @@
         <div class="flex justify-between mb-6">
             <a href="{{ route('booking', ['step' => 1]) }}"
                 class="px-6 sm:px-8 py-2.5 sm:py-3 bg-gray-200 text-gray-700 rounded-lg text-sm sm:text-base font-medium hover:bg-gray-300">Back</a>
-            @if ($hasAvailableSlots)
-                <button type="submit" id="nextStepBtn" disabled
-                    class="px-6 py-3 bg-sky-600 text-white rounded-lg text-sm font-medium hover:bg-sky-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                    Next Step
-                </button>
-            @endif
+            <button type="submit" id="nextStepBtn" disabled
+                class="px-6 py-3 bg-sky-600 text-white rounded-lg text-sm font-medium hover:bg-sky-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                Next Step
+            </button>
         </div>
     </div>
 </form>
@@ -201,81 +144,211 @@
         const nextBtn = document.getElementById('nextStepBtn');
         const dateInput = document.getElementById('selectedDateInput');
         const slotInput = document.getElementById('selectedSlotInput');
-        let selectedDate = dateInput.value;
+        const calendarDays = document.getElementById('calendarDays');
+        const slotsContainer = document.getElementById('slotsContainer');
+        const slotsLoading = document.getElementById('slotsLoading');
+        const prevMonthBtn = document.getElementById('prevMonthBtn');
+        const nextMonthBtn = document.getElementById('nextMonthBtn');
+        const currentMonthLabel = document.getElementById('currentMonthLabel');
 
-        // Handle date selection
-        document.querySelectorAll('.calendar-day').forEach(day => {
-            day.addEventListener('click', function() {
-                if (this.classList.contains('cursor-not-allowed')) return;
+        // Date configuration
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-                const date = this.dataset.date;
-                if (date) {
-                    // Remove previous selection styling
-                    document.querySelectorAll('.calendar-day').forEach(d => {
-                        d.classList.remove('bg-sky-600', 'text-white', 'font-semibold',
-                            'shadow-md');
-                        if (!d.classList.contains('cursor-not-allowed') && !d.classList
-                            .contains('bg-sky-100')) {
-                            d.classList.add('text-gray-800', 'hover:bg-sky-50');
-                        }
-                    });
+        const minDate = new Date(today);
+        const maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 60); // 60 days from today
 
-                    // Add selection styling to clicked date
-                    this.classList.remove('text-gray-800', 'hover:bg-sky-50', 'bg-sky-100',
-                        'text-sky-800', 'border-2', 'border-sky-600');
-                    this.classList.add('bg-sky-600', 'text-white', 'font-semibold',
-                        'shadow-md');
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        let selectedDate = dateInput.value || null;
 
-                    // Update hidden date input
-                    dateInput.value = date;
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        // Initialize calendar
+        renderCalendar();
+        updateNavigationButtons();
+
+        // If there's a pre-selected date, load its slots
+        if (selectedDate) {
+            fetchSlots(selectedDate);
+        }
+
+        // Month navigation
+        prevMonthBtn.addEventListener('click', function() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+            updateNavigationButtons();
+        });
+
+        nextMonthBtn.addEventListener('click', function() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+            updateNavigationButtons();
+        });
+
+        function updateNavigationButtons() {
+            // Disable prev button if showing current month
+            const currentMonthStart = new Date(currentYear, currentMonth, 1);
+            const todayMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            prevMonthBtn.disabled = currentMonthStart <= todayMonth;
+
+            // Disable next button if showing max month
+            const maxMonth = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+            const displayMonth = new Date(currentYear, currentMonth, 1);
+            nextMonthBtn.disabled = displayMonth >= maxMonth;
+        }
+
+        function renderCalendar() {
+            // Update month label
+            currentMonthLabel.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+            // Get first day of month and total days
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const startDayOfWeek = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+
+            let html = '';
+
+            // Add empty cells for days before the first day of month
+            for (let i = 0; i < startDayOfWeek; i++) {
+                html += '<div class="p-2 sm:p-3"></div>';
+            }
+
+            // Add days
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                const dateStr = formatDate(date);
+
+                const isPast = date < today;
+                const isFuture = date > maxDate;
+                const isDisabled = isPast || isFuture;
+                const isSelected = dateStr === selectedDate;
+                const isToday = date.getTime() === today.getTime();
+
+                let classes = 'p-2 sm:p-3 rounded-lg text-xs sm:text-sm text-center transition-colors';
+
+                if (isDisabled) {
+                    classes += ' text-gray-300 bg-gray-50 cursor-not-allowed';
+                } else if (isSelected) {
+                    classes += ' bg-sky-600 text-white font-semibold shadow-md cursor-pointer';
+                } else if (isToday) {
+                    classes +=
+                        ' bg-sky-100 text-sky-800 font-semibold cursor-pointer border-2 border-sky-600 hover:bg-sky-200';
+                } else {
+                    classes += ' text-gray-800 hover:bg-sky-50 cursor-pointer border border-gray-200';
+                }
+
+                if (!isDisabled) {
+                    html += `<div class="calendar-day ${classes}" data-date="${dateStr}">${day}</div>`;
+                } else {
+                    html += `<div class="${classes}">${day}</div>`;
+                }
+            }
+
+            calendarDays.innerHTML = html;
+
+            // Re-attach event listeners for date selection
+            document.querySelectorAll('.calendar-day').forEach(dayEl => {
+                dayEl.addEventListener('click', function() {
+                    const date = this.dataset.date;
+                    if (!date) return;
+
+                    // Update selection
                     selectedDate = date;
+                    dateInput.value = date;
 
-                    // Only submit if date changed - to reload slots
-                    if (date !== '{{ $selectedDate }}') {
-                        // Clear slot selection when date changes
-                        slotInput.value = '';
+                    // Clear slot selection
+                    slotInput.value = '';
+                    nextBtn.disabled = true;
 
-                        // Reload page with new date to get fresh slots
-                        window.location.href =
-                            `{{ route('booking', ['step' => 2, 'doctor_id' => $doctor->id]) }}&date=${date}`;
-                    }
-                }
-            });
-        });
+                    // Re-render calendar to update selection
+                    renderCalendar();
 
-        // Handle slot selection
-        document.querySelectorAll('.slot-radio').forEach(radio => {
-            radio.addEventListener('change', function() {
-                // Update hidden input
-                slotInput.value = this.value;
-
-                // Enable next button
-                if (nextBtn) {
-                    nextBtn.disabled = false;
-                }
-
-                // Remove highlight from all slots
-                document.querySelectorAll('.slot-option').forEach(opt => {
-                    opt.classList.remove('ring-2', 'ring-sky-500');
+                    // Fetch slots via AJAX
+                    fetchSlots(date);
                 });
-
-                // Highlight selected slot
-                this.closest('.slot-option').classList.add('ring-2', 'ring-sky-500');
             });
-        });
+        }
 
-        // Restore selected slot on page load
-        const currentSlot = slotInput.value;
-        if (currentSlot) {
-            document.querySelectorAll('.slot-radio').forEach(radio => {
-                if (radio.value === currentSlot) {
-                    radio.checked = true;
-                    radio.closest('.slot-option').classList.add('ring-2', 'ring-sky-500');
-                    if (nextBtn) {
-                        nextBtn.disabled = false;
+        function fetchSlots(date) {
+            // Show loading
+            slotsContainer.classList.add('hidden');
+            slotsLoading.classList.remove('hidden');
+
+            fetch(`{{ route('get.time.slots') }}?date=${date}`)
+                .then(response => response.json())
+                .then(data => {
+                    slotsLoading.classList.add('hidden');
+                    slotsContainer.classList.remove('hidden');
+
+                    if (data.slots && data.slots.length > 0) {
+                        let html = '';
+                        data.slots.forEach(slot => {
+                            html += `
+                                <label class="cursor-pointer slot-option">
+                                    <input type="radio" name="slot" value="${slot}" class="hidden peer slot-radio">
+                                    <div class="px-3 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-xs text-center
+                                               hover:border-sky-600 hover:text-sky-600
+                                               peer-checked:bg-sky-600 peer-checked:text-white peer-checked:border-sky-600 transition-colors">
+                                        ${slot}
+                                    </div>
+                                </label>
+                            `;
+                        });
+                        slotsContainer.innerHTML = html;
+
+                        // Attach slot selection handlers
+                        document.querySelectorAll('.slot-radio').forEach(radio => {
+                            radio.addEventListener('change', function() {
+                                slotInput.value = this.value;
+                                nextBtn.disabled = false;
+
+                                // Highlight selected slot
+                                document.querySelectorAll('.slot-option').forEach(opt => {
+                                    opt.classList.remove('ring-2', 'ring-sky-500');
+                                });
+                                this.closest('.slot-option').classList.add('ring-2',
+                                    'ring-sky-500');
+                            });
+                        });
+                    } else {
+                        slotsContainer.innerHTML = `
+                            <p class="text-red-500 text-sm col-span-full text-center py-4">
+                                No slots available for selected date. Please choose another date.
+                            </p>
+                        `;
                     }
-                }
-            });
+                })
+                .catch(error => {
+                    console.error('Error fetching slots:', error);
+                    slotsLoading.classList.add('hidden');
+                    slotsContainer.classList.remove('hidden');
+                    slotsContainer.innerHTML = `
+                        <p class="text-red-500 text-sm col-span-full text-center py-4">
+                            Failed to load slots. Please try again.
+                        </p>
+                    `;
+                });
+        }
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
     });
 </script>

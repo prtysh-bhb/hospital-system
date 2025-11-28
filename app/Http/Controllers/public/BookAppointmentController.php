@@ -58,12 +58,19 @@ class BookAppointmentController extends Controller
             $availableDays = $schedules->pluck('day_of_week')->toArray();
 
             // Build calendar
-            $monthStart = now()->startOfMonth();
-            $monthEnd = now()->endOfMonth();
+            $startDate = now();
+            $endDate = now()->addDays(30);
 
             $calendar = [];
-            $cursor = $monthStart->copy();
-            while ($cursor <= $monthEnd) {
+            
+            // Add padding for the first week
+            $startDayOfWeek = $startDate->dayOfWeek; // 0 (Sun) to 6 (Sat)
+            for ($i = 0; $i < $startDayOfWeek; $i++) {
+                $calendar[] = null;
+            }
+
+            $cursor = $startDate->copy();
+            while ($cursor <= $endDate) {
                 $calendar[] = [
                     'date' => $cursor->format('Y-m-d'),
                     'day' => $cursor->day,
@@ -75,27 +82,10 @@ class BookAppointmentController extends Controller
             }
 
             $selectedDate = $request->get('date', now()->format('Y-m-d'));
-            $selectedDateCarbon = Carbon::parse($selectedDate);
-            $weekday = $selectedDateCarbon->dayOfWeek;
-
-            $todaySchedule = DoctorSchedule::where('doctor_id', $doctor_id)
-                ->where('day_of_week', $weekday)
-                ->first();
-
-            $slots = [];
-
-            if ($todaySchedule) {
-                $start = Carbon::parse($todaySchedule->start_time);
-                $end = Carbon::parse($todaySchedule->end_time);
-
-                while ($start < $end) {
-                    $slots[] = [
-                        'time_24h' => $start->format('H:i'),
-                        'time_12h' => $start->format('h:i A')
-                    ];
-                    $start->addMinutes($todaySchedule->slot_duration);
-                }
-            }
+            
+            // Get available slots using the service
+            $slotResult = $this->slotService->getAvailableSlots($doctor_id, $selectedDate);
+            $slots = $slotResult['success'] ? $slotResult['slots'] : [];
 
             // Send all variables to view
             return view('public.booking', compact(
