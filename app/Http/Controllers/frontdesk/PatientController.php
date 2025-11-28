@@ -116,8 +116,8 @@ class PatientController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
             'last_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
-            'email' => 'required|max:50|email|unique:users,email,' . $id,
-            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,' . $id],
+            'email' => 'required|max:50|email|unique:users,email,'.$id,
+            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,'.$id],
             'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|in:male,female,other',
             'address' => 'nullable|string|max:100',
@@ -181,7 +181,6 @@ class PatientController extends Controller
             ], 500);
         }
     }
-
 
     public function destroy(Request $request, $id)
     {

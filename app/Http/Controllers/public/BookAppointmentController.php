@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Services\AppointmentSlotService;
 use App\Services\public\BookAppointmentService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class BookAppointmentController extends Controller
@@ -47,7 +46,7 @@ class BookAppointmentController extends Controller
         // -----------------------------
         if ($step == 2) {
 
-            if (!session()->has('doctor_id')) {
+            if (! session()->has('doctor_id')) {
                 return redirect()->route('booking', ['step' => 1]);
             }
 
@@ -62,7 +61,7 @@ class BookAppointmentController extends Controller
             $endDate = now()->addDays(30);
 
             $calendar = [];
-            
+
             // Add padding for the first week
             $startDayOfWeek = $startDate->dayOfWeek; // 0 (Sun) to 6 (Sat)
             for ($i = 0; $i < $startDayOfWeek; $i++) {
@@ -82,7 +81,7 @@ class BookAppointmentController extends Controller
             }
 
             $selectedDate = $request->get('date', now()->format('Y-m-d'));
-            
+
             // Get available slots using the service
             $slotResult = $this->slotService->getAvailableSlots($doctor_id, $selectedDate);
             $slots = $slotResult['success'] ? $slotResult['slots'] : [];
@@ -99,7 +98,7 @@ class BookAppointmentController extends Controller
                 'specialty_id'
             ));
         }
-     // -----------------------------
+        // -----------------------------
         // STEP-3 — Patient Details
         // -----------------------------
         if ($step == 3) {
@@ -141,9 +140,10 @@ class BookAppointmentController extends Controller
                 'specialty_id'
             ));
         }
+
         return view('public.booking', compact('step', 'specialties', 'doctors', 'specialty_id'));
-    }   
-    
+    }
+
     public function downloadPDFAppointment(Request $request)
     {
         // Appointment ID get from request query

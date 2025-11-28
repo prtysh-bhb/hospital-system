@@ -193,7 +193,7 @@ class CalendarService
             return [
                 'id' => $appointment->id,
                 'appointment_number' => $appointment->appointment_number,
-                'patient_name' => $appointment->patient->first_name . ' ' . $appointment->patient->last_name,
+                'patient_name' => $appointment->patient->first_name.' '.$appointment->patient->last_name,
                 'patient_age' => $appointment->patient->date_of_birth ?
                     Carbon::parse($appointment->patient->date_of_birth)->age : 'N/A',
                 'time' => Carbon::parse($appointment->appointment_time)->format('g:i A'),
@@ -207,5 +207,4 @@ class CalendarService
             ];
         });
     }
-
 }

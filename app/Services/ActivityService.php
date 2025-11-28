@@ -11,13 +11,12 @@ class ActivityService
     /**
      * Log an activity
      *
-     * @param string $action - create, update, delete, status_change, etc.
-     * @param string $modelType - The model class name
-     * @param int|null $modelId - The model ID
-     * @param array $oldValues - Previous values (for updates)
-     * @param array $newValues - New values
-     * @param string|null $description - Human-readable description
-     * @return AuditLog
+     * @param  string  $action  - create, update, delete, status_change, etc.
+     * @param  string  $modelType  - The model class name
+     * @param  int|null  $modelId  - The model ID
+     * @param  array  $oldValues  - Previous values (for updates)
+     * @param  array  $newValues  - New values
+     * @param  string|null  $description  - Human-readable description
      */
     public static function log(
         string $action,
@@ -42,7 +41,6 @@ class ActivityService
     /**
      * Get recent activities for dashboard
      *
-     * @param int $limit
      * @return \Illuminate\Support\Collection
      */
     public static function getRecentActivities(int $limit = 10)
@@ -100,8 +98,8 @@ class ActivityService
         $action = $activity->action;
 
         // Try to get a name from the new_values
-        $name = $activity->new_values['name'] 
-            ?? $activity->new_values['first_name'] 
+        $name = $activity->new_values['name']
+            ?? $activity->new_values['first_name']
             ?? $activity->new_values['appointment_number']
             ?? null;
 
@@ -111,9 +109,9 @@ class ActivityService
             'create' => "New {$modelName}{$nameStr} was created",
             'update' => "{$modelName}{$nameStr} was updated",
             'delete' => "{$modelName}{$nameStr} was deleted",
-            'status_change' => "{$modelName}{$nameStr} status changed to " . ($activity->new_values['status'] ?? 'unknown'),
-            'login' => "User logged in",
-            'logout' => "User logged out",
+            'status_change' => "{$modelName}{$nameStr} status changed to ".($activity->new_values['status'] ?? 'unknown'),
+            'login' => 'User logged in',
+            'logout' => 'User logged out',
             default => "{$modelName}{$nameStr} - {$action}",
         };
     }

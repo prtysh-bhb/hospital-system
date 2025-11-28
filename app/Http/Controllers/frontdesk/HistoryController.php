@@ -77,16 +77,16 @@ class HistoryController extends Controller
         // Generate filename with date range
         $filename = 'appointment_history';
         if ($request->from_date) {
-            $filename .= '_from_' . $request->from_date;
+            $filename .= '_from_'.$request->from_date;
         }
         if ($request->to_date) {
-            $filename .= '_to_' . $request->to_date;
+            $filename .= '_to_'.$request->to_date;
         }
-        $filename .= '_' . date('Y-m-d_His') . '.csv';
+        $filename .= '_'.date('Y-m-d_His').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
             'Pragma' => 'no-cache',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Expires' => '0',
@@ -94,14 +94,14 @@ class HistoryController extends Controller
 
         $callback = function () use ($csvData) {
             $file = fopen('php://output', 'w');
-            
+
             // Add BOM for Excel UTF-8 compatibility
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
-            
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
             foreach ($csvData as $row) {
                 fputcsv($file, $row);
             }
-            
+
             fclose($file);
         };
 

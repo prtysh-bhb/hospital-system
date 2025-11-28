@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PatientProfile extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity ,SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -22,7 +23,7 @@ class PatientProfile extends Model
         'current_medications',
         'insurance_provider',
         'insurance_number',
-        'delete_at'
+        'delete_at',
     ];
 
     /**

@@ -42,8 +42,8 @@ Route::controller(AuthController::class)->group(function () {
 
     // Forgot Password
     Route::get('/forgot-password', 'forgot_password')->name('forgot-password');
-    Route::post('/forgot-password',  'sendResetLink')->name('forgot-password.send');
-    
+    Route::post('/forgot-password', 'sendResetLink')->name('forgot-password.send');
+
     // Reset Password
     Route::get('/reset-password/{token}', 'reset_password_form')->name('password.reset');
     Route::post('/reset-password', 'reset_password')->name('password.update');
