@@ -91,10 +91,10 @@
                         @php
                             $colorClass = $avatarColors[$index % count($avatarColors)];
                             $initials = strtoupper(
-                                substr($patient->user->first_name, 0, 1) . substr($patient->user->last_name, 0, 1),
+                                substr($patient->user?->first_name, 0, 1) . substr($patient->user?->last_name, 0, 1),
                             );
-                            $age = $patient->user->date_of_birth
-                                ? \Carbon\Carbon::parse($patient->user->date_of_birth)->age
+                            $age = $patient->user?->date_of_birth
+                                ? \Carbon\Carbon::parse($patient->user?->date_of_birth)->age
                                 : 'N/A';
                             $lastVisit = $patient->appointments()->latest()->first();
                         @endphp
@@ -110,14 +110,14 @@
                                         {{ $initials }}
                                     </div>
                                     <div class="ml-3">
-                                        <p class="text-sm font-medium text-gray-800">{{ $patient->user->full_name }}</p>
-                                        <p class="text-xs text-gray-500">{{ $patient->user->email }}</p>
+                                        <p class="text-sm font-medium text-gray-800">{{ $patient->user?->full_name }}</p>
+                                        <p class="text-xs text-gray-500">{{ $patient->user?->email }}</p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 hidden lg:table-cell">
                                 <p class="text-sm text-gray-800">{{ $age }} /
-                                    {{ ucfirst($patient->user->gender ?? 'N/A') }}</p>
+                                    {{ ucfirst($patient->user?->gender ?? 'N/A') }}</p>
                             </td>
                             <td class="px-6 py-4 hidden md:table-cell">
                                 @if ($patient->blood_group)
@@ -128,7 +128,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 hidden lg:table-cell">
-                                <p class="text-sm text-gray-800">{{ $patient->user->phone ?? 'N/A' }}</p>
+                                <p class="text-sm text-gray-800">{{ $patient->user?->phone ?? 'N/A' }}</p>
                             </td>
                             <td class="px-6 py-4 hidden md:table-cell">
                                 @if ($lastVisit)
@@ -140,15 +140,15 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4">
-                                @if ($patient->user->status === 'active')
+                                @if ($patient->user?->status === 'active')
                                     <span
                                         class="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">Active</span>
-                                @elseif($patient->user->status === 'inactive')
+                                @elseif($patient->user?->status === 'inactive')
                                     <span
                                         class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">Inactive</span>
                                 @else
                                     <span
-                                        class="px-3 py-1 text-xs font-medium text-amber-700 bg-amber-100 rounded-full">{{ ucfirst($patient->user->status) }}</span>
+                                        class="px-3 py-1 text-xs font-medium text-amber-700 bg-amber-100 rounded-full">{{ ucfirst($patient->user?->status) }}</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4">
@@ -169,7 +169,7 @@
                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </button>
-                                    <button onclick="deletePatient({{ $patient->user->id }})"
+                                    <button onclick="deletePatient({{ $patient->user?->id }})"
                                         class="text-red-600 hover:text-red-800" title="Delete Patient">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -500,9 +500,17 @@
                     document.querySelector('.overflow-x-auto').style.opacity = '1';
 
                     // Update pagination info
-                    document.getElementById('paginationFrom').textContent = data.pagination.from || 0;
-                    document.getElementById('paginationTo').textContent = data.pagination.to || 0;
-                    document.getElementById('paginationTotal').textContent = data.pagination.total;
+                    // Prevent crash if pagination is missing
+                    if (data.pagination) {
+                        document.getElementById('paginationFrom').textContent = data.pagination.from ?? 0;
+                        document.getElementById('paginationTo').textContent = data.pagination.to ?? 0;
+                        document.getElementById('paginationTotal').textContent = data.pagination.total ?? 0;
+
+                        updatePaginationButtons(data.pagination);
+                    } else {
+                        console.error("Pagination missing from response:", data);
+                    }
+
 
                     // Update pagination buttons
                     updatePaginationButtons(data.pagination);
@@ -511,6 +519,7 @@
                     console.error('Error:', error);
                     document.getElementById('loadingIndicator').classList.add('hidden');
                     document.querySelector('.overflow-x-auto').style.opacity = '1';
+                    console.log('error->>>>', error);
                     alert('An error occurred while fetching patients. Please try again.');
                 });
         }

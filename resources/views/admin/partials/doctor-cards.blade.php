@@ -134,6 +134,7 @@
                         class="flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white {{ $color['bg'] }} rounded-lg {{ $color['hover-bg'] }} font-medium text-center">Edit</a>
                 </div>
                 <button data-doctor-id="{{ $doctor->user->id }}"
+                    data-doctor-name="{{ $doctor->user->first_name }} {{ $doctor->user->last_name }}"
                     class="delete-doctor-btn w-full px-3 sm:px-4 py-2 text-xs sm:text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 font-medium mt-2">
                     Delete Doctor
                 </button>
