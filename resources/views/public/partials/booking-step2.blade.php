@@ -173,7 +173,14 @@
         updateNavigationButtons();
 
         // If there's a pre-selected date, load its slots
+        // Otherwise, auto-select today and fetch its slots
         if (selectedDate) {
+            fetchSlots(selectedDate);
+        } else {
+            // Auto-select today
+            selectedDate = formatDate(today);
+            dateInput.value = selectedDate;
+            renderCalendar();
             fetchSlots(selectedDate);
         }
 
