@@ -4,21 +4,21 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Specialty;
-use App\Services\Admin\SpecialtysServices;
+use App\Services\Admin\specialitiesServices;
 use Illuminate\Http\Request;
 
-class SpecialtysController extends Controller
+class specialitiesController extends Controller
 {
-    protected $specialtysServices;
+    protected $specialitiesServices;
 
-    public function __construct(SpecialtysServices $specialtys)
+    public function __construct(specialitiesServices $specialities)
     {
-        $this->specialtysServices = $specialtys;
+        $this->specialitiesServices = $specialities;
     }
 
     public function index()
     {
-        return view('admin.specialtys.index');
+        return view('admin.specialities.index');
     }
 
     public function getModel(Request $request)
@@ -29,33 +29,33 @@ class SpecialtysController extends Controller
             $data = Specialty::where('id', $request->id)->first();
         }
 
-        return view('admin.specialtys.getmodel', compact('data'));
+        return view('admin.specialities.getmodel', compact('data'));
     }
 
     public function getList(Request $request)
     {
         return response()->json(
-            $this->specialtysServices->getList($request)
+            $this->specialitiesServices->getList($request)
         );
     }
 
     public function store(Request $request)
     {
-        $result = $this->specialtysServices->store($request);
+        $result = $this->specialitiesServices->store($request);
 
         return response()->json($result);
     }
 
     public function toggleStatus(Request $request)
     {
-        $result = $this->specialtysServices->toggleStatus($request);
+        $result = $this->specialitiesServices->toggleStatus($request);
 
         return response()->json($result);
     }
 
     public function destroy($id)
     {
-        return $this->specialtysServices->destroy($id);
+        return $this->specialitiesServices->destroy($id);
     }
 
     public function view($id)
@@ -69,10 +69,10 @@ class SpecialtysController extends Controller
 
         // Check if it's an AJAX request (for modal)
         if (request()->ajax()) {
-            return view('admin.specialtys.view-modal', compact('specialty', 'doctors'));
+            return view('admin.specialities.view-modal', compact('specialty', 'doctors'));
         }
 
         // Return full page view for direct access
-        return view('admin.specialtys.view', compact('specialty', 'doctors'));
+        return view('admin.specialities.view', compact('specialty', 'doctors'));
     }
 }

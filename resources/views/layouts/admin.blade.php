@@ -87,13 +87,13 @@
                 <span class="ml-2">Dashboard</span>
             </a>
 
-            <a href="{{ route('admin.specialtys') }}"
-                class="flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 {{ request()->routeIs('admin.specialtys') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg text-sm sm:text-base">
+            <a href="{{ route('admin.specialities') }}"
+                class="flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 {{ request()->routeIs('admin.specialities') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg text-sm sm:text-base">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 6c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 0c-3.314 0-6 2.686-6 6s2.686 6 6 6 6-2.686 6-6-2.686-6-6-6zm0 0v6m0 0l-4.5 4.5m0 0c.707.707 1.414 1.414 2.121 2.121m2.379-2.121l4.5-4.5" />
                 </svg>
-                <span class="ml-2">Specialty</span>
+                <span class="ml-2">Speciality</span>
             </a>
 
             <a href="{{ route('admin.appointments') }}"
@@ -163,11 +163,12 @@
                 </div>
                 <div class="flex items-center space-x-2 sm:space-x-4">
                     @yield('header-actions')
-                  <div class="flex items-center space-x-2 sm:space-x-3">
+                    <div class="flex items-center space-x-2 sm:space-x-3">
                         <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->first_name . ' ' . auth()->user()->last_name) }}&background=0ea5e9&color=fff"
                             class="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Admin">
                         <div class="hidden sm:block">
-                            <p class="text-sm font-medium text-gray-700">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</p>
+                            <p class="text-sm font-medium text-gray-700">{{ auth()->user()->first_name }}
+                                {{ auth()->user()->last_name }}</p>
                             <p class="text-xs text-gray-500">{{ ucfirst(auth()->user()->role) }}</p>
                         </div>
                     </div>
