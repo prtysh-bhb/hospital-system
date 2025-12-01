@@ -3,7 +3,7 @@
 use App\Http\Controllers\admin\AdminDashboardController;
 use App\Http\Controllers\admin\AppointmentController;
 use App\Http\Controllers\admin\CalendarController as AdminCalendarController;
-use App\Http\Controllers\admin\docktorsController;
+use App\Http\Controllers\admin\DocktorsController;
 use App\Http\Controllers\admin\PetientController;
 use App\Http\Controllers\admin\SpecialtysController;
 use App\Http\Controllers\Auth\AuthController;
@@ -78,13 +78,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('appointments/delete', [AppointmentController::class, 'deleteAppointment'])->name('delete-appointment');
     Route::get('appointments/{id}', [AppointmentController::class, 'viewAppointment'])->name('view-appointment');
 
-    Route::get('/doctors', [docktorsController::class, 'index'])->name('doctors');
-    Route::get('/doctors/add', [docktorsController::class, 'create'])->name('doctors.add');
-    Route::post('/doctors/add', [docktorsController::class, 'store'])->name('doctors.store');
-    Route::get('/doctors/{id}', [docktorsController::class, 'show'])->name('doctors.show');
-    Route::get('/doctors/{id}/edit', [docktorsController::class, 'edit'])->name('doctors.edit');
-    Route::put('/doctors/{id}', [docktorsController::class, 'update'])->name('doctors.update');
-    Route::delete('/doctors/{id}', [docktorsController::class, 'destroy'])->name('doctors.destroy');
+    Route::get('/doctors', [DocktorsController::class, 'index'])->name('doctors');
+    Route::get('/doctors/add', [DocktorsController::class, 'create'])->name('doctors.add');
+    Route::post('/doctors/add', [DocktorsController::class, 'store'])->name('doctors.store');
+    Route::get('/doctors/{id}', [DocktorsController::class, 'show'])->name('doctors.show');
+    Route::get('/doctors/{id}/edit', [DocktorsController::class, 'edit'])->name('doctors.edit');
+    Route::put('/doctors/{id}', [DocktorsController::class, 'update'])->name('doctors.update');
+    Route::delete('/doctors/{id}', [DocktorsController::class, 'destroy'])->name('doctors.destroy');
 
     Route::get('/patients', [PetientController::class, 'index'])->name('patients');
     Route::get('/patients/{id}', [PetientController::class, 'show'])->name('patient-view');

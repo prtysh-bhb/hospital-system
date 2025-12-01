@@ -7,7 +7,7 @@ use App\Models\Specialty;
 use App\Services\admin\DoctoreServices;
 use Illuminate\Http\Request;
 
-class docktorsController extends Controller
+class DocktorsController extends Controller
 {
     protected DoctoreServices $doctoreServices;
 
