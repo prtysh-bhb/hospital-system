@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\doctor;
+namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use App\Services\Doctor\DoctorDashboadService;
 
-class DoctorDashboarController extends Controller
+class DoctorDashboardController extends Controller
 {
     protected DoctorDashboadService $dashboardService;
 

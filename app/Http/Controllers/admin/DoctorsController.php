@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Specialty;
-use App\Services\admin\DoctoreServices;
+use App\Services\Admin\DoctoreServices;
 use Illuminate\Http\Request;
 
-class DocktorsController extends Controller
+class DoctorsController extends Controller
 {
     protected DoctoreServices $doctoreServices;
 

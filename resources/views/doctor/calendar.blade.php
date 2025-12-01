@@ -142,6 +142,23 @@
         let currentView = 'month'; // month, week, day
         let currentDate = new Date();
 
+        // Helper function to parse time string to hour in 24-hour format
+        function parseTimeToHour(timeStr) {
+            if (!timeStr) return -1;
+
+            // Handle formats like "9:00 AM", "10:30 PM", "09:00 AM"
+            const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+            if (!match) return -1;
+
+            let hour = parseInt(match[1], 10);
+            const period = match[3].toUpperCase();
+
+            if (period === 'PM' && hour !== 12) hour += 12;
+            if (period === 'AM' && hour === 12) hour = 0;
+
+            return hour;
+        }
+
         $(document).ready(function() {
             console.log('Document ready, loading calendar for:', currentMonth);
             loadCalendar(currentMonth);
@@ -330,9 +347,11 @@
                     const isToday = dateStr === new Date().toISOString().split('T')[0];
                     const appointments = responses[index]?.success ? responses[index].appointments : [];
 
-                    // Filter appointments for this time slot
+                    // Filter appointments for this time slot using hour-based matching
+                    const slotHour = parseTimeToHour(timeSlot);
                     const slotAppointments = appointments.filter(apt => {
-                        return apt.time === timeSlot;
+                        const aptHour = parseTimeToHour(apt.time);
+                        return aptHour === slotHour;
                     });
 
                     html += `
@@ -422,8 +441,11 @@
             ];
 
             timeSlots.forEach(timeSlot => {
+                // Use hour-based matching for better compatibility
+                const slotHour = parseTimeToHour(timeSlot);
                 const slotAppointments = appointments.filter(apt => {
-                    return apt.time === timeSlot;
+                    const aptHour = parseTimeToHour(apt.time);
+                    return aptHour === slotHour;
                 });
 
                 html += `
@@ -871,13 +893,13 @@
                                             <span class="text-gray-700">${apt.type}</span>
                                         </div>
                                         ${apt.reason ? `
-                                                                                                        <div class="flex items-start text-sm">
-                                                                                                            <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                                                                            </svg>
-                                                                                                            <span class="text-gray-600">${apt.reason}</span>
-                                                                                                        </div>
-                                                                                                        ` : ''}
+                                                                                                            <div class="flex items-start text-sm">
+                                                                                                                <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                                                                </svg>
+                                                                                                                <span class="text-gray-600">${apt.reason}</span>
+                                                                                                            </div>
+                                                                                                            ` : ''}
                                     </div>
                                 </div>
                             `).join('');

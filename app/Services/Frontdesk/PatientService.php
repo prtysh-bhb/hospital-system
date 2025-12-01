@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\frontdesk;
+namespace App\Services\Frontdesk;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class petientService
+class PatientService
 {
     public function getPatients($filters = [])
     {

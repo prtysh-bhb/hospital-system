@@ -1,6 +1,6 @@
 <?php
 
-namespace App\services\frontdesk;
+namespace App\Services\Frontdesk;
 
 use App\Models\Appointment;
 use App\Models\User;
