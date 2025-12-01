@@ -55,23 +55,23 @@
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
             <p class="text-xs text-gray-500 uppercase">Total</p>
-            <p class="text-2xl font-bold text-gray-800">{{ $statistics['total'] }}</p>
+            <p id="statTotal" class="text-2xl font-bold text-gray-800">{{ $statistics['total'] }}</p>
         </div>
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
             <p class="text-xs text-gray-500 uppercase">Confirmed</p>
-            <p class="text-2xl font-bold text-green-600">{{ $statistics['confirmed'] }}</p>
+            <p id="statConfirmed" class="text-2xl font-bold text-green-600">{{ $statistics['confirmed'] }}</p>
         </div>
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
             <p class="text-xs text-gray-500 uppercase">Pending</p>
-            <p class="text-2xl font-bold text-amber-600">{{ $statistics['pending'] }}</p>
+            <p id="statPending" class="text-2xl font-bold text-amber-600">{{ $statistics['pending'] }}</p>
         </div>
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
             <p class="text-xs text-gray-500 uppercase">Completed</p>
-            <p class="text-2xl font-bold text-sky-600">{{ $statistics['completed'] }}</p>
+            <p id="statCompleted" class="text-2xl font-bold text-sky-600">{{ $statistics['completed'] }}</p>
         </div>
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
             <p class="text-xs text-gray-500 uppercase">Cancelled</p>
-            <p class="text-2xl font-bold text-red-600">{{ $statistics['cancelled'] }}</p>
+            <p id="statCancelled" class="text-2xl font-bold text-red-600">{{ $statistics['cancelled'] }}</p>
         </div>
     </div>
 
@@ -206,6 +206,23 @@
     </div>
 
     <script>
+        // Helper function to parse time string to hour in 24-hour format
+        function parseTimeToHour(timeStr) {
+            if (!timeStr) return -1;
+
+            // Handle formats like "9:00 AM", "10:30 PM", "09:00 AM"
+            const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+            if (!match) return -1;
+
+            let hour = parseInt(match[1], 10);
+            const period = match[3].toUpperCase();
+
+            if (period === 'PM' && hour !== 12) hour += 12;
+            if (period === 'AM' && hour === 12) hour = 0;
+
+            return hour;
+        }
+
         function showAppointmentDetails(appointmentId) {
             const modal = document.getElementById('appointmentModal');
             const modalContent = document.getElementById('modalContent');
@@ -263,17 +280,17 @@
                                             <span class="text-sm font-medium text-gray-800">${apt.patient_name}</span>
                                         </div>
                                         ${apt.patient_phone ? `
-                                                    <div class="flex justify-between">
-                                                        <span class="text-sm text-gray-600">Phone:</span>
-                                                        <span class="text-sm font-medium text-gray-800">${apt.patient_phone}</span>
-                                                    </div>
-                                                    ` : ''}
+                                                        <div class="flex justify-between">
+                                                            <span class="text-sm text-gray-600">Phone:</span>
+                                                            <span class="text-sm font-medium text-gray-800">${apt.patient_phone}</span>
+                                                        </div>
+                                                        ` : ''}
                                         ${apt.patient_email ? `
-                                                    <div class="flex justify-between">
-                                                        <span class="text-sm text-gray-600">Email:</span>
-                                                        <span class="text-sm font-medium text-gray-800">${apt.patient_email}</span>
-                                                    </div>
-                                                    ` : ''}
+                                                        <div class="flex justify-between">
+                                                            <span class="text-sm text-gray-600">Email:</span>
+                                                            <span class="text-sm font-medium text-gray-800">${apt.patient_email}</span>
+                                                        </div>
+                                                        ` : ''}
                                     </div>
                                 </div>
                                 
@@ -290,11 +307,11 @@
                                             <span class="text-sm font-medium text-gray-800">${apt.doctor_name}</span>
                                         </div>
                                         ${apt.doctor_specialty ? `
-                                                    <div class="flex justify-between">
-                                                        <span class="text-sm text-gray-600">Specialty:</span>
-                                                        <span class="text-sm font-medium text-gray-800">${apt.doctor_specialty}</span>
-                                                    </div>
-                                                    ` : ''}
+                                                        <div class="flex justify-between">
+                                                            <span class="text-sm text-gray-600">Specialty:</span>
+                                                            <span class="text-sm font-medium text-gray-800">${apt.doctor_specialty}</span>
+                                                        </div>
+                                                        ` : ''}
                                     </div>
                                 </div>
                                 
@@ -310,23 +327,23 @@
                                             <span class="text-sm font-medium text-gray-800">${apt.duration_minutes} minutes</span>
                                         </div>
                                         ${apt.reason_for_visit ? `
-                                                    <div>
-                                                        <span class="text-sm text-gray-600">Reason:</span>
-                                                        <p class="text-sm font-medium text-gray-800 mt-1">${apt.reason_for_visit}</p>
-                                                    </div>
-                                                    ` : ''}
+                                                        <div>
+                                                            <span class="text-sm text-gray-600">Reason:</span>
+                                                            <p class="text-sm font-medium text-gray-800 mt-1">${apt.reason_for_visit}</p>
+                                                        </div>
+                                                        ` : ''}
                                         ${apt.symptoms ? `
-                                                    <div>
-                                                        <span class="text-sm text-gray-600">Symptoms:</span>
-                                                        <p class="text-sm font-medium text-gray-800 mt-1">${apt.symptoms}</p>
-                                                    </div>
-                                                    ` : ''}
+                                                        <div>
+                                                            <span class="text-sm text-gray-600">Symptoms:</span>
+                                                            <p class="text-sm font-medium text-gray-800 mt-1">${apt.symptoms}</p>
+                                                        </div>
+                                                        ` : ''}
                                         ${apt.notes ? `
-                                                    <div>
-                                                        <span class="text-sm text-gray-600">Notes:</span>
-                                                        <p class="text-sm font-medium text-gray-800 mt-1">${apt.notes}</p>
-                                                    </div>
-                                                    ` : ''}
+                                                        <div>
+                                                            <span class="text-sm text-gray-600">Notes:</span>
+                                                            <p class="text-sm font-medium text-gray-800 mt-1">${apt.notes}</p>
+                                                        </div>
+                                                        ` : ''}
                                     </div>
                                 </div>
                                 
@@ -436,13 +453,13 @@
                                             ${apt.specialty ? `<span class="text-gray-500 ml-1">(${apt.specialty})</span>` : ''}
                                         </div>
                                         ${apt.reason ? `
-                                                <div class="flex items-start text-sm">
-                                                    <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
-                                                    <span class="text-gray-600">${apt.reason}</span>
-                                                </div>
-                                                ` : ''}
+                                                    <div class="flex items-start text-sm">
+                                                        <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        </svg>
+                                                        <span class="text-gray-600">${apt.reason}</span>
+                                                    </div>
+                                                    ` : ''}
                                     </div>
                                 </div>
                             `).join('');
@@ -494,6 +511,24 @@
         let currentDate = new Date();
         let currentDoctorId = '{{ $doctorId ?? '' }}';
         let originalMonthName = '{{ $calendarData['month_name'] }}';
+        let originalStatistics = {
+            total: {{ $statistics['total'] }},
+            confirmed: {{ $statistics['confirmed'] }},
+            pending: {{ $statistics['pending'] }},
+            completed: {{ $statistics['completed'] }},
+            cancelled: {{ $statistics['cancelled'] }}
+        };
+
+        // Function to update statistics cards
+        function updateStatistics(statistics) {
+            if (statistics) {
+                document.getElementById('statTotal').textContent = statistics.total || 0;
+                document.getElementById('statConfirmed').textContent = statistics.confirmed || 0;
+                document.getElementById('statPending').textContent = statistics.pending || 0;
+                document.getElementById('statCompleted').textContent = statistics.completed || 0;
+                document.getElementById('statCancelled').textContent = statistics.cancelled || 0;
+            }
+        }
 
         // Initialize calendar grid with server data
         const calendarGrid = document.getElementById('calendarGrid');
@@ -579,6 +614,7 @@
                 loadDayView();
             } else {
                 document.getElementById('periodTitle').textContent = originalMonthName;
+                updateStatistics(originalStatistics);
             }
         }
 
@@ -620,23 +656,39 @@
 
         function loadWeekView() {
             const startOfWeek = new Date(currentDate);
-            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+            let day = currentDate.getDay();
+            if (day === 0) day = 7;
+            startOfWeek.setDate(currentDate.getDate() - day + 1);
             const startDate = startOfWeek.toISOString().split('T')[0];
 
             document.getElementById('weekView').innerHTML =
                 '<div class="text-center py-8"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-600 mx-auto"></div></div>';
 
             fetch(
-                    `{{ route('admin.calendar.week') }}?start_date=${startDate}${currentDoctorId ? '&doctor_id=' + currentDoctorId : ''}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('periodTitle').textContent = data.data.week_title;
-                        renderWeekView(data.data.days);
+                `{{ route('admin.calendar.week') }}?start_date=${startDate}${currentDoctorId ? '&doctor_id=' + currentDoctorId : ''}`
+            )
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('periodTitle').textContent = data.data.week_title;
+                    renderWeekView(data.data.days);
+                    if (data.statistics) {
+                        updateStatistics(data.statistics);
                     }
-                })
-                .catch(error => console.error('Error loading week view:', error));
+
+                    // highlight current day
+                    setTimeout(() => {
+                        const today = new Date().toISOString().split('T')[0];
+                        const todayCell = document.querySelector(`[data-date="${today}"]`);
+                        if (todayCell) {
+                            todayCell.classList.add('active-day');
+                        }
+                    }, 50);
+                }
+            })
+            .catch(error => console.error('Error loading week view:', error));
         }
+
 
         function renderWeekView(days) {
             const statusColors = {
@@ -660,9 +712,9 @@
                 const isToday = day.is_today;
                 html += `
                     <div class="p-4 text-center border-r border-gray-200 ${isToday ? 'bg-sky-50' : ''}">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">${day.day_short}</p>
-                        <p class="text-lg font-bold ${isToday ? 'text-sky-600' : 'text-gray-800'}">${day.day_num}</p>
-                        <p class="text-xs text-gray-500">${day.month_short}</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">${day.day_short || ''}</p>
+                        <p class="text-lg font-bold ${isToday ? 'text-sky-600' : 'text-gray-800'}">${day.day_num || ''}</p>
+                        <p class="text-xs text-gray-500">${day.month_short || ''}</p>
                     </div>
                 `;
             });
@@ -677,7 +729,7 @@
 
             timeSlots.forEach(timeSlot => {
                 html += `<div class="grid grid-cols-8 border-b border-gray-100">`;
-                
+
                 // Time column
                 html += `
                     <div class="p-4 border-r border-gray-200 bg-gray-50">
@@ -685,11 +737,16 @@
                     </div>
                 `;
 
+                // Parse the slot hour
+                const slotHour = parseTimeToHour(timeSlot);
+
                 // Day columns
                 days.forEach(day => {
                     const isToday = day.is_today;
-                    const dayAppointments = day.appointments.filter(apt => {
-                        return apt.time === timeSlot;
+                    const dayAppointments = (day.appointments || []).filter(apt => {
+                        // Check if appointment falls within this hour slot
+                        const aptHour = parseTimeToHour(apt.time);
+                        return aptHour === slotHour;
                     });
 
                     html += `
@@ -698,13 +755,14 @@
 
                     if (dayAppointments.length > 0) {
                         dayAppointments.forEach(apt => {
-                            const statusClass = statusColors[apt.status] || 'bg-gray-100 text-gray-700';
+                            const statusClass = statusColors[apt.status] ||
+                                'bg-gray-100 text-gray-700';
                             html += `
                                 <div class="text-xs p-2 mb-1 ${statusClass} rounded cursor-pointer hover:shadow-sm border" 
                                     onclick="showAppointmentDetails(${apt.id})" 
-                                    title="${apt.time} - ${apt.patient_name}">
-                                    <div class="font-semibold truncate">${apt.patient_name.split(' ')[0]}</div>
-                                    <div class="text-gray-600 truncate">${apt.doctor_short}</div>
+                                    title="${apt.time || ''} - ${apt.patient_name || 'N/A'}">
+                                    <div class="font-semibold truncate">${apt.patient_name ? apt.patient_name.split(' ')[0] : 'N/A'}</div>
+                                    <div class="text-gray-600 truncate">${apt.doctor_short || ''}</div>
                                 </div>
                             `;
                         });
@@ -729,12 +787,16 @@
                 '<div class="text-center py-8"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-600 mx-auto"></div></div>';
 
             fetch(
-                    `{{ route('admin.calendar.day') }}?date=${dateStr}${currentDoctorId ? '&doctor_id=' + currentDoctorId : ''}`)
+                    `{{ route('admin.calendar.day') }}?date=${dateStr}${currentDoctorId ? '&doctor_id=' + currentDoctorId : ''}`
+                    )
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         document.getElementById('periodTitle').textContent = data.data.date_title;
                         renderDayView(data.data);
+                        if (data.statistics) {
+                            updateStatistics(data.statistics);
+                        }
                     }
                 })
                 .catch(error => console.error('Error loading day view:', error));
@@ -766,8 +828,13 @@
             ];
 
             timeSlots.forEach(timeSlot => {
-                const slotAppointments = dayData.appointments.filter(apt => {
-                    return apt.time === timeSlot;
+                // Parse the slot hour
+                const slotHour = parseTimeToHour(timeSlot);
+
+                const slotAppointments = (dayData.appointments || []).filter(apt => {
+                    // Check if appointment falls within this hour slot
+                    const aptHour = parseTimeToHour(apt.time);
+                    return aptHour === slotHour;
                 });
 
                 html += `
@@ -787,17 +854,17 @@
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
-                                            <span class="font-semibold text-gray-800">${apt.patient_name}</span>
-                                            <span class="text-xs px-2 py-1 rounded-full ${statusClass} border">${apt.status.toUpperCase()}</span>
+                                            <span class="font-semibold text-gray-800">${apt.patient_name || 'N/A'}</span>
+                                            <span class="text-xs px-2 py-1 rounded-full ${statusClass} border">${(apt.status || '').toUpperCase()}</span>
                                         </div>
                                         <div class="text-sm text-gray-600">
-                                            <span class="font-medium">Dr. ${apt.doctor_name}</span> • ${apt.specialty}
+                                            <span class="font-medium">${apt.doctor_name || 'N/A'}</span> • ${apt.specialty || 'General'}
                                         </div>
                                         ${apt.reason ? `<div class="text-sm text-gray-500 mt-2">${apt.reason}</div>` : ''}
                                     </div>
                                     <div class="text-right">
-                                        <div class="text-sm font-medium text-gray-800">${apt.duration} min</div>
-                                        <div class="text-xs text-gray-500">${apt.appointment_number}</div>
+                                        <div class="text-sm font-medium text-gray-800">${apt.duration || 30} min</div>
+                                        <div class="text-xs text-gray-500">${apt.appointment_number || ''}</div>
                                     </div>
                                 </div>
                             </div>

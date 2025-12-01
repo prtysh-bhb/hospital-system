@@ -32,8 +32,9 @@ class CalendarService
         $calendarDays = [];
 
         // Start from the first day of the week that the month starts on
-        $calendarStart = $startDate->copy()->startOfWeek(); // Sunday
-        $calendarEnd = $endDate->copy()->endOfWeek(); // Saturday
+        // Use Carbon::SUNDAY to ensure week starts on Sunday to match calendar header
+        $calendarStart = $startDate->copy()->startOfWeek(Carbon::SUNDAY);
+        $calendarEnd = $endDate->copy()->endOfWeek(Carbon::SATURDAY);
 
         $currentDate = $calendarStart->copy();
 

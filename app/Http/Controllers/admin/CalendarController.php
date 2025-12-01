@@ -109,10 +109,12 @@ class CalendarController extends Controller
             $doctorId = $request->input('doctor_id', null);
 
             $weekData = $this->calendarService->getWeekData($startDate, $doctorId);
+            $statistics = $this->calendarService->getWeekStatistics($startDate, $doctorId);
 
             return response()->json([
                 'success' => true,
                 'data' => $weekData,
+                'statistics' => $statistics,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -132,10 +134,12 @@ class CalendarController extends Controller
             $doctorId = $request->input('doctor_id', null);
 
             $dayData = $this->calendarService->getDayData($date, $doctorId);
+            $statistics = $this->calendarService->getDayStatistics($date, $doctorId);
 
             return response()->json([
                 'success' => true,
                 'data' => $dayData,
+                'statistics' => $statistics,
             ]);
         } catch (\Exception $e) {
             return response()->json([

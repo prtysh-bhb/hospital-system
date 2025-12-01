@@ -35,8 +35,9 @@ class CalendarService
         $calendarDays = [];
 
         // Start from the first day of the week that the month starts on
-        $calendarStart = $startDate->copy()->startOfWeek(); // Sunday
-        $calendarEnd = $endDate->copy()->endOfWeek(); // Saturday
+        // Use Carbon::SUNDAY to ensure week starts on Sunday to match calendar header
+        $calendarStart = $startDate->copy()->startOfWeek(Carbon::SUNDAY);
+        $calendarEnd = $endDate->copy()->endOfWeek(Carbon::SATURDAY);
 
         $currentDate = $calendarStart->copy();
 
@@ -162,6 +163,56 @@ class CalendarService
     }
 
     /**
+     * Get appointment statistics for a week
+     */
+    public function getWeekStatistics($startDate, $doctorId = null)
+    {
+        $start = Carbon::parse($startDate)->startOfWeek();
+        $end = $start->copy()->endOfWeek();
+
+        $query = Appointment::whereBetween('appointment_date', [
+            $start->format('Y-m-d'),
+            $end->format('Y-m-d'),
+        ]);
+
+        if ($doctorId) {
+            $query->where('doctor_id', $doctorId);
+        }
+
+        $appointments = $query->get();
+
+        return [
+            'total' => $appointments->count(),
+            'confirmed' => $appointments->where('status', 'confirmed')->count(),
+            'pending' => $appointments->where('status', 'pending')->count(),
+            'completed' => $appointments->where('status', 'completed')->count(),
+            'cancelled' => $appointments->where('status', 'cancelled')->count(),
+        ];
+    }
+
+    /**
+     * Get appointment statistics for a single day
+     */
+    public function getDayStatistics($date, $doctorId = null)
+    {
+        $query = Appointment::whereDate('appointment_date', $date);
+
+        if ($doctorId) {
+            $query->where('doctor_id', $doctorId);
+        }
+
+        $appointments = $query->get();
+
+        return [
+            'total' => $appointments->count(),
+            'confirmed' => $appointments->where('status', 'confirmed')->count(),
+            'pending' => $appointments->where('status', 'pending')->count(),
+            'completed' => $appointments->where('status', 'completed')->count(),
+            'cancelled' => $appointments->where('status', 'cancelled')->count(),
+        ];
+    }
+
+    /**
      * Get week view data
      */
     public function getWeekData($startDate, $doctorId = null)
@@ -212,6 +263,7 @@ class CalendarService
                 'day_name' => $currentDate->format('l'),
                 'day_short' => $currentDate->format('D'),
                 'day_num' => $currentDate->day,
+                'month_short' => $currentDate->format('M'),
                 'is_today' => $dateKey === Carbon::today()->format('Y-m-d'),
                 'appointments' => $dayAppointments,
             ];
