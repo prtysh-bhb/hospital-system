@@ -5,7 +5,7 @@ use App\Http\Controllers\admin\AppointmentController;
 use App\Http\Controllers\admin\CalendarController as AdminCalendarController;
 use App\Http\Controllers\admin\docktorsController;
 use App\Http\Controllers\admin\PetientController;
-use App\Http\Controllers\admin\SpecialtysController;
+use App\Http\Controllers\admin\specialitiesController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\doctor\CalendarController;
 use App\Http\Controllers\doctor\DoctorAppointmentController;
@@ -60,13 +60,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-details', [AdminDashboardController::class, 'getDashboardDetails'])->name('dashboard.details');
 
-    Route::get('specialtys', [SpecialtysController::class, 'index'])->name('specialtys');
-    Route::get('specialtys/{id}', [SpecialtysController::class, 'view'])->name('specialtys-view');
-    Route::get('specialtys-list', [SpecialtysController::class, 'getList'])->name('specialtys-list');
-    Route::post('getmodel', [SpecialtysController::class, 'getmodel'])->name('specialtys-getmodel');
-    Route::post('store', [SpecialtysController::class, 'store'])->name('specialtys-store');
-    Route::post('specialtys', [SpecialtysController::class, 'toggleStatus'])->name('specialtys-toggleStatus');
-    Route::delete('specialtys/{id}', [SpecialtysController::class, 'destroy'])->name('specialtys-destroy');
+    Route::get('specialities', [specialitiesController::class, 'index'])->name('specialities');
+    Route::get('specialities/{id}', [specialitiesController::class, 'view'])->name('specialities-view');
+    Route::get('specialities-list', [specialitiesController::class, 'getList'])->name('specialities-list');
+    Route::post('getmodel', [specialitiesController::class, 'getmodel'])->name('specialities-getmodel');
+    Route::post('store', [specialitiesController::class, 'store'])->name('specialities-store');
+    Route::post('specialities', [specialitiesController::class, 'toggleStatus'])->name('specialities-toggleStatus');
+    Route::delete('specialities/{id}', [specialitiesController::class, 'destroy'])->name('specialities-destroy');
 
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments');
     Route::get('appointmentslist', [AppointmentController::class, 'getAppointments'])->name('appointments-list');

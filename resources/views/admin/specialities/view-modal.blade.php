@@ -100,7 +100,7 @@
             $('.openaddmodal[data-id="' + id + '"]').trigger('click');
             // Or directly trigger the edit modal
             $.ajax({
-                url: "{{ route('admin.specialtys-getmodel') }}",
+                url: "{{ route('admin.specialities-getmodel') }}",
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'

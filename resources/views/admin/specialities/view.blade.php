@@ -4,7 +4,7 @@
 @section('page-title', 'Specialty Details')
 
 @section('header-back-button')
-    <a href="{{ route('admin.specialtys') }}" class="text-gray-600 hover:text-gray-800">
+    <a href="{{ route('admin.specialities') }}" class="text-gray-600 hover:text-gray-800">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -98,7 +98,7 @@
 
         <!-- Action Buttons -->
         <div class="flex gap-4 mt-6">
-            <a href="{{ route('admin.specialtys') }}"
+            <a href="{{ route('admin.specialities') }}"
                 class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-center">
                 Back to List
             </a>
@@ -112,7 +112,7 @@
     @push('scripts')
         <script>
             function openEditModal(id) {
-                window.location.href = '{{ route('admin.specialtys') }}?edit=' + id;
+                window.location.href = '{{ route('admin.specialities') }}?edit=' + id;
             }
         </script>
     @endpush

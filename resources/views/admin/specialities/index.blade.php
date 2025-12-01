@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', 'Specialtys Management')
-@section('page-title', 'Specialtys Management')
+@section('title', 'Specialities Management')
+@section('page-title', 'Specialities Management')
 
 @section('header-actions')
     <a href="javascript:void(0)" data-id=""
         class="px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium openaddmodal">
-        + Add Specialty
+        + Add Speciality
     </a>
 @endsection
 
@@ -20,7 +20,7 @@
         <div class="grid grid-cols-1 md:grid-cols-5 gap-3 sm:gap-4">
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Search</label>
-                <input type="text" id="searchInput" placeholder="Search Specialty..."
+                <input type="text" id="searchInput" placeholder="Search Speciality..."
                     class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
             </div>
             <div>
@@ -33,14 +33,14 @@
                 </select>
             </div>
             <div class="flex items-end">
-                <button id="applyFiltersBtn" onclick="loadSpecialtys()"
+                <button id="applyFiltersBtn" onclick="loadspecialities()"
                     class="w-full px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium">Apply
                     Filters</button>
             </div>
         </div>
     </div>
 
-    <!-- Specialtys Table -->
+    <!-- specialities Table -->
     <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
         <div class="overflow-x-auto">
             <table class="w-full">
@@ -51,7 +51,7 @@
                             ID</th>
                         <th
                             class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Specialty</th>
+                            Speciality</th>
                         <th
                             class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden md:table-cell">
                             Description</th>
@@ -69,7 +69,7 @@
                             Actions</th>
                     </tr>
                 </thead>
-                <tbody id="specialtysTableBody" class="divide-y divide-gray-200">
+                <tbody id="specialitiesTableBody" class="divide-y divide-gray-200">
                     <!-- Dynamic Rows will load here -->
                 </tbody>
             </table>
@@ -134,7 +134,7 @@
                 let deleteName = null;
 
                 // When delete button is clicked → OPEN MODAL
-                $(document).on('click', '.specialtys-destroy', function() {
+                $(document).on('click', '.specialities-destroy', function() {
                     deleteId = $(this).data('id');
                     deleteName = $(this).data('name');
 
@@ -170,7 +170,7 @@
                 }
 
                 // Function to load specialties data and update the table
-                window.loadSpecialtys = function(page = 1) {
+                window.loadspecialities = function(page = 1) {
                     let filters = getFilters();
 
                     // Build query string for filters
@@ -179,11 +179,11 @@
                     if (filters.status) query += `&status=${filters.status}`;
 
                     // Fetch data from the server
-                    fetch("{{ route('admin.specialtys-list') }}" + query)
+                    fetch("{{ route('admin.specialities-list') }}" + query)
                         .then(response => response.json())
                         .then(res => {
                             let data = res.data;
-                            let tbody = document.getElementById("specialtysTableBody");
+                            let tbody = document.getElementById("specialitiesTableBody");
                             let paginationContainer = document.getElementById("paginationContainer");
                             let paginationInfo = document.getElementById("paginationInfo");
 
@@ -216,7 +216,9 @@
 
                                 let row = `
                         <tr class="hover:bg-gray-50" id="specialty-${item.id}">
-                            <td class="px-4 py-3 text-gray-800">${index + 1}</td>
+                            <td class="px-4 py-3 text-gray-800">
+                                ${(data.current_page - 1) * data.per_page + index + 1}
+                            </td>
                             <td class="px-4 py-3 text-gray-800">${item.name}</td>
                             <td class="px-4 py-3 text-gray-500">${item.description ?? ''}</td>
                             <td class="px-4 py-3 text-gray-500">${createdAt}</td>
@@ -239,7 +241,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </button>
-                                    <button class="text-red-600 hover:text-red-800 specialtys-destroy" data-id="${item.id}" data-name="${item.name}">
+                                    <button class="text-red-600 hover:text-red-800 specialities-destroy" data-id="${item.id}" data-name="${item.name}">
                                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
@@ -265,7 +267,7 @@
 
                     // Previous Button
                     paginationHTML += `
-                        <button onclick="loadSpecialtys(${data.prev_page_url ? data.current_page - 1 : data.current_page})"
+                        <button onclick="loadspecialities(${data.prev_page_url ? data.current_page - 1 : data.current_page})"
                             class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${data.prev_page_url ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50' : 'text-gray-400 bg-gray-100 cursor-not-allowed'} rounded-lg">
                             Previous
                         </button>
@@ -274,7 +276,7 @@
                     // Page Numbers
                     for (let i = 1; i <= data.last_page; i++) {
                         paginationHTML += `
-                            <button onclick="loadSpecialtys(${i})"
+                            <button onclick="loadspecialities(${i})"
                                 class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${i === data.current_page ? 'text-white bg-sky-600' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'} rounded-lg">
                                 ${i}
                             </button>`;
@@ -282,7 +284,7 @@
 
                     // Next Button
                     paginationHTML += `
-                        <button onclick="loadSpecialtys(${data.next_page_url ? data.current_page + 1 : data.current_page})"
+                        <button onclick="loadspecialities(${data.next_page_url ? data.current_page + 1 : data.current_page})"
                             class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${data.next_page_url ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50' : 'text-gray-400 bg-gray-100 cursor-not-allowed'} rounded-lg">
                             Next
                         </button>
@@ -304,7 +306,7 @@
                     }
 
                     $.ajax({
-                        url: "{{ route('admin.specialtys-getmodel') }}",
+                        url: "{{ route('admin.specialities-getmodel') }}",
                         type: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -325,7 +327,7 @@
                     $('.addmodalbody').html('');
                 };
 
-                $('body').on('submit', '.specialtys-formsubmit', function(e) {
+                $('body').on('submit', '.specialities-formsubmit', function(e) {
                     e.preventDefault();
 
                     $.ajax({
@@ -352,7 +354,7 @@
                                 toastr.success(data.msg);
                                 // close modal
                                 closeSpecialtyModal();
-                                loadSpecialtys();
+                                loadspecialities();
                             }
                         }
                     });
@@ -371,7 +373,7 @@
                     let currentStatus = badge.data('status');
 
                     $.ajax({
-                        url: '{{ route('admin.specialtys-toggleStatus') }}',
+                        url: '{{ route('admin.specialities-toggleStatus') }}',
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
@@ -405,7 +407,7 @@
                     let id = $(this).data('id');
 
                     $.ajax({
-                        url: '{{ route('admin.specialtys-view', ':id') }}'.replace(':id', id),
+                        url: '{{ route('admin.specialities-view', ':id') }}'.replace(':id', id),
                         type: 'GET',
                         success: function(response) {
                             $('.viewmodalbody').html(response);
@@ -421,7 +423,8 @@
                 document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
                     if (!deleteId) return;
                     $.ajax({
-                        url: '{{ route('admin.specialtys-destroy', ':id') }}'.replace(':id', deleteId),
+                        url: '{{ route('admin.specialities-destroy', ':id') }}'.replace(':id',
+                            deleteId),
                         type: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -463,7 +466,7 @@
                 };
 
                 // Initial page load
-                loadSpecialtys();
+                loadspecialities();
             });
         </script>
     @endpush
