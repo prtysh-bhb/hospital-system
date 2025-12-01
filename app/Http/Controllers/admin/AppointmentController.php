@@ -383,7 +383,7 @@ class AppointmentController extends Controller
             $appointment->appointment_time = $request->input('appointment_time');
             $appointment->appointment_type = $request->input('appointment_type');
             $appointment->reason_for_visit = $request->input('reason_for_visit');
-            
+
             // Get the original status before changing
             $originalStatus = $appointment->getOriginal('status');
             $newStatus = $request->input('status');
@@ -391,9 +391,9 @@ class AppointmentController extends Controller
             $appointment->notes = $request->input('notes', $appointment->notes);
 
             // Check if reactivating a cancelled/no_show appointment
-            $inactiveStatuses = ['cancelled', 'no_show'];
+            $inactiveStatuses = ['cancelled', 'no_show', 'completed'];
             $activeStatuses = ['pending', 'confirmed', 'checked_in', 'in_progress'];
-            
+
             if (in_array($originalStatus, $inactiveStatuses) && in_array($newStatus, $activeStatuses)) {
                 // Validate that the slot is still available (don't exclude current appointment since it was inactive)
                 $slotValidation = $this->slotService->validateAppointmentTime(
@@ -406,14 +406,14 @@ class AppointmentController extends Controller
                 if (! $slotValidation['valid']) {
                     return response()->json([
                         'status' => 422,
-                        'msg' => 'Cannot reactivate appointment: ' . $slotValidation['message'],
+                        'msg' => 'Cannot reactivate appointment: '.$slotValidation['message'],
                         'errors' => ['status' => ['This time slot is now taken by another appointment. Please select a different time or keep the appointment cancelled.']],
                     ], 422);
                 }
             }
 
             // Validate time slot if doctor, date, or time changed (for non-cancelled appointments)
-            if ($appointment->isDirty(['doctor_id', 'appointment_date', 'appointment_time']) && !in_array($newStatus, $inactiveStatuses)) {
+            if ($appointment->isDirty(['doctor_id', 'appointment_date', 'appointment_time']) && ! in_array($newStatus, $inactiveStatuses)) {
                 $slotValidation = $this->slotService->validateAppointmentTime(
                     $request->input('doctor_id'),
                     $request->input('appointment_date'),

@@ -224,18 +224,19 @@
 
         function loadWeekView() {
             const startOfWeek = new Date(currentDate);
-            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+            let day = currentDate.getDay();
+            if (day === 0) day = 7; // Convert Sunday to day 7
+            startOfWeek.setDate(currentDate.getDate() - day + 1);
 
             const endOfWeek = new Date(startOfWeek);
             endOfWeek.setDate(startOfWeek.getDate() + 6);
 
             $('#currentPeriod').text(
-                `Week of ${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+                `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
             );
 
             showLoading('#weekView', 'Loading week view...');
 
-            // Load appointments for the week
             const weekDates = [];
             for (let i = 0; i < 7; i++) {
                 const day = new Date(startOfWeek);
@@ -243,18 +244,29 @@
                 weekDates.push(day.toISOString().split('T')[0]);
             }
 
-            // Fetch appointments for all days in the week
-            Promise.all(weekDates.map(date =>
-                fetch(`{{ route('doctor.calendar.appointments') }}?date=${date}`)
-                .then(response => response.json())
-                .catch(() => ({
-                    success: false,
-                    appointments: []
-                }))
-            )).then(responses => {
+            Promise.all(
+                weekDates.map(date =>
+                    fetch(`{{ route('doctor.calendar.appointments') }}?date=${date}`)
+                    .then(response => response.json())
+                    .catch(() => ({
+                        success: false,
+                        appointments: []
+                    }))
+                )
+            ).then(responses => {
                 renderWeekView(weekDates, responses);
+
+                // 🔹 Highlight Current Day After Rendering
+                setTimeout(() => {
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayCell = document.querySelector(`[data-date="${today}"]`);
+                    if (todayCell) {
+                        todayCell.classList.add('active-day');
+                    }
+                }, 50);
             });
         }
+
 
         function renderWeekView(weekDates, responses) {
             const statusColors = {
@@ -859,13 +871,13 @@
                                             <span class="text-gray-700">${apt.type}</span>
                                         </div>
                                         ${apt.reason ? `
-                                                                                                    <div class="flex items-start text-sm">
-                                                                                                        <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                                                                        </svg>
-                                                                                                        <span class="text-gray-600">${apt.reason}</span>
-                                                                                                    </div>
-                                                                                                    ` : ''}
+                                                                                                        <div class="flex items-start text-sm">
+                                                                                                            <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                                                            </svg>
+                                                                                                            <span class="text-gray-600">${apt.reason}</span>
+                                                                                                        </div>
+                                                                                                        ` : ''}
                                     </div>
                                 </div>
                             `).join('');

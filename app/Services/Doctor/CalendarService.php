@@ -32,8 +32,9 @@ class CalendarService
         $calendarDays = [];
 
         // Start from the first day of the week that the month starts on
-        $calendarStart = $startDate->copy()->startOfWeek(); // Sunday
-        $calendarEnd = $endDate->copy()->endOfWeek(); // Saturday
+        // Use Carbon::SUNDAY to ensure week starts on Sunday to match calendar header
+        $calendarStart = $startDate->copy()->startOfWeek(Carbon::SUNDAY);
+        $calendarEnd = $endDate->copy()->endOfWeek(Carbon::SATURDAY);
 
         $currentDate = $calendarStart->copy();
 
@@ -193,7 +194,7 @@ class CalendarService
             return [
                 'id' => $appointment->id,
                 'appointment_number' => $appointment->appointment_number,
-                'patient_name' => $appointment->patient->first_name . ' ' . $appointment->patient->last_name,
+                'patient_name' => $appointment->patient->first_name.' '.$appointment->patient->last_name,
                 'patient_age' => $appointment->patient->date_of_birth ?
                     Carbon::parse($appointment->patient->date_of_birth)->age : 'N/A',
                 'time' => Carbon::parse($appointment->appointment_time)->format('g:i A'),
@@ -207,5 +208,4 @@ class CalendarService
             ];
         });
     }
-
 }
