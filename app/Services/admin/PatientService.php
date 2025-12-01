@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services\admin;
+namespace App\Services\Admin;
 
 use App\Models\PatientProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class PetientService
+class PatientService
 {
     /**
      * Create a new class instance.

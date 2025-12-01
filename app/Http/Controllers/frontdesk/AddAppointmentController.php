@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\frontdesk;
+namespace App\Http\Controllers\Frontdesk;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -9,7 +9,7 @@ use App\Services\public\BookAppointmentService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-class AddApoimnetController extends Controller
+class AddAppointmentController extends Controller
 {
     protected $bookingService;
 

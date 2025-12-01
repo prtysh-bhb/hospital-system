@@ -7,7 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class specialitiesServices
+class SpecialitiesServices
 {
     public function getList($request)
     {

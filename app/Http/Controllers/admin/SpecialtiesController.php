@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Specialty;
-use App\Services\Admin\specialitiesServices;
+use App\Services\Admin\SpecialitiesServices;
 use Illuminate\Http\Request;
 
-class specialitiesController extends Controller
+class SpecialtiesController extends Controller
 {
     protected $specialitiesServices;
 
-    public function __construct(specialitiesServices $specialities)
+    public function __construct(SpecialitiesServices $specialities)
     {
         $this->specialitiesServices = $specialities;
     }

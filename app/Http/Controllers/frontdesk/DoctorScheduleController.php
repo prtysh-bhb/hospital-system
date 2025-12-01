@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\frontdesk;
+namespace App\Http\Controllers\Frontdesk;
 
 use App\Http\Controllers\Controller;
-use App\services\frontdesk\DoctoreScheduleService;
+use App\Services\Frontdesk\DoctoreScheduleService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class DoctoreScheduleController extends Controller
+class DoctorScheduleController extends Controller
 {
     protected $scheduleService;
 

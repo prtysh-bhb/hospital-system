@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\admin\PetientService;
+use App\Services\Admin\PatientService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-class PetientController extends Controller
+class PatientController extends Controller
 {
-    protected PetientService $petientService;
+    protected PatientService $patientService;
 
-    public function __construct(PetientService $petientService)
+    public function __construct(PatientService $patientService)
     {
-        $this->petientService = $petientService;
+        $this->patientService = $patientService;
     }
 
     public function index(Request $request)
@@ -25,8 +25,8 @@ class PetientController extends Controller
                 'status' => $request->input('status'),
             ];
 
-            $patients = $this->petientService->getPatients($filters);
-
+            $patients = $this->patientService->getPatients($filters);
+            
             // Build the HTML for patient rows
             $html = view('admin.partials.patient-cards', compact('patients'))->render();
 
@@ -43,14 +43,14 @@ class PetientController extends Controller
             ]);
         }
 
-        $patients = $this->petientService->getPatients();
+        $patients = $this->patientService->getPatients();
 
         return view('admin.patients', compact('patients'));
     }
 
     public function show(Request $request, $id)
     {
-        $patient = $this->petientService->getPatientById($id);
+        $patient = $this->PatientService->getPatientById($id);
 
         if ($request->ajax()) {
             $html = view('admin.partials.patient-view', compact('patient'))->render();
@@ -63,7 +63,7 @@ class PetientController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $patient = $this->petientService->getPatientById($id);
+        $patient = $this->patientService->getPatientById($id);
 
         if ($request->ajax()) {
             $html = view('admin.partials.patient-edit', compact('patient'))->render();
@@ -104,7 +104,7 @@ class PetientController extends Controller
                 'emergency_contact_name.min' => 'Emergency contact name must be at least 2 characters.',
             ]);
 
-            $result = $this->petientService->updatePatient($id, $validated);
+            $result = $this->patientService->updatePatient($id, $validated);
 
             if ($request->ajax()) {
                 return response()->json([
@@ -143,7 +143,7 @@ class PetientController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
-            $result = $this->petientService->deletePatient($id);
+            $result = $this->patientService->deletePatient($id);
 
             if ($request->ajax()) {
                 return response()->json([
