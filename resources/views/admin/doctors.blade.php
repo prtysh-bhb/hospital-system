@@ -333,7 +333,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        toastr.success(data.message, 'success');
+                        toastr.success(data.message);
                         fetchDoctors();
                         document.getElementById('customDeleteModal').classList.add('hidden');
                     } else {
