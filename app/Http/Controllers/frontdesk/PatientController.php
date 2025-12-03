@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Frontdesk;
 
 use App\Http\Controllers\Controller;
-use App\Services\admin\PatientService;
+use App\Services\Frontdesk\PatientService;
 use Illuminate\Http\Request;
 
 class PatientController extends Controller
