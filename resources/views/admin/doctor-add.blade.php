@@ -187,7 +187,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Specialty <span
                             class="text-red-600">*</span></label>
-                    <select name="specialty_id"
+                    <select id="specialty_select" name="specialty_id"
                         class="w-full px-4 py-2 border {{ $errors->has('specialty_id') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
                         <option value="">Select Specialty</option>
                         @foreach ($specialties as $specialty)
@@ -356,8 +356,21 @@
         </div>
     </form>
 
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            $('#specialty_select').select2({
+                placeholder: "Select specialty", // Placeholder text
+                allowClear: true, // Shows a clear (x) button
+                closeOnSelect: false // Keep dropdown open for multiple select
+            });
+
+            // Optional: Listen for changes
+            $('#specialty_select').on('select2:select select2:unselect', function(e) {
+                console.log("Selected values:", $(this).val());
+            });
+
+
             const form = document.getElementById('doctorForm');
             const submitButton = form.querySelector('button[type="submit"]');
             const originalButtonText = submitButton.innerHTML;
