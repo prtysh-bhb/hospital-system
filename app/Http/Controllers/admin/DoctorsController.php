@@ -261,7 +261,7 @@ class DoctorsController extends Controller
             'consultation_fee' => 'required|numeric|min:0|max:100000',
             'slot_duration' => 'required|integer|in:15,30,45,60',
             'languages' => 'nullable|string|max:255',
-            'status' => 'nullable|in:active,inactive',
+            'status' => 'nullable|in:active,inactive,suspended',
             'available_for_booking' => 'nullable|in:0,1',
             'schedules' => 'nullable|array',
             'schedules.*.enabled' => 'nullable|in:0,1',

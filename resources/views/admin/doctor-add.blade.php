@@ -127,6 +127,9 @@
                             <option value="inactive"
                                 {{ old('status', $doctor->user->status ?? '') == 'inactive' ? 'selected' : '' }}>Inactive
                             </option>
+                            <option value="suspended"
+                                {{ old('status', $doctor->user->status ?? '') == 'suspended' ? 'selected' : '' }}>Suspended
+                            </option>
                         </select>
                     </div>
 
