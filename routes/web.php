@@ -93,6 +93,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->name('patient-delete');
 
     Route::get('/calendar', [AdminCalendarController::class, 'index'])->name('calendar');
+    Route::get('/calendar/month', [AdminCalendarController::class, 'getMonthView'])->name('calendar.month');
     Route::get('/calendar/appointments', [AdminCalendarController::class, 'getDateAppointments'])->name('calendar.appointments');
     Route::get('/calendar/week', [AdminCalendarController::class, 'getWeekView'])->name('calendar.week');
     Route::get('/calendar/day', [AdminCalendarController::class, 'getDayView'])->name('calendar.day');
