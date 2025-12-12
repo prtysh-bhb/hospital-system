@@ -26,7 +26,7 @@ class PatientController extends Controller
             ];
 
             $patients = $this->patientService->getPatients($filters);
-            
+
             // Build the HTML for patient rows
             $html = view('admin.partials.patient-cards', compact('patients'))->render();
 

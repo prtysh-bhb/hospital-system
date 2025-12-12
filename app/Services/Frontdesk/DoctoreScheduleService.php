@@ -58,11 +58,11 @@ class DoctoreScheduleService
                     return null;
                 }
             }
-            
+
             return [
                 'id' => $doctor->id,
                 'name' => $doctor->full_name,
-                'availability_status' =>$doctor->status,
+                'availability_status' => $doctor->status,
                 'specialization' => $doctor->doctorProfile->specialty->name ?? 'General',
                 'experience' => $doctor->doctorProfile->experience_years ?? 0,
                 'room' => $doctor->doctorProfile->room_number ?? 'N/A',
