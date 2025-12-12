@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\CalendarController as AdminCalendarController;
 use App\Http\Controllers\Admin\DoctorsController;
 use App\Http\Controllers\Admin\PatientController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SpecialtiesController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Doctor\CalendarController;
@@ -97,6 +98,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/calendar/week', [AdminCalendarController::class, 'getWeekView'])->name('calendar.week');
     Route::get('/calendar/day', [AdminCalendarController::class, 'getDayView'])->name('calendar.day');
     Route::get('/appointments/{id}/details', [AdminCalendarController::class, 'getAppointmentDetails'])->name('appointments.details');
+
+    // Settings
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings');
+    Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
 });
 
 // Doctor Routes
