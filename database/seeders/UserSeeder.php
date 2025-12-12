@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
         $users[] = [
             'role' => 'admin',
             'email' => 'admin@gmail.com',
+            'username' => 'admin@gmail.com',
             'password' => Hash::make('admin@123'),
             'first_name' => 'System',
             'last_name' => 'Administrator',
@@ -36,6 +37,7 @@ class UserSeeder extends Seeder
         $users[] = [
             'role' => 'frontdesk',
             'email' => 'frontdesk@medicare.com',
+            'username' => 'frontdesk@medicare.com',
             'password' => Hash::make('admin@123'),
             'first_name' => 'Sarah',
             'last_name' => 'Johnson',
@@ -52,6 +54,7 @@ class UserSeeder extends Seeder
         $users[] = [
             'role' => 'frontdesk',
             'email' => 'reception@medicare.com',
+            'username' => 'reception@medicare.com',
             'password' => Hash::make('admin@123'),
             'first_name' => 'Michael',
             'last_name' => 'Brown',
@@ -118,6 +121,7 @@ class UserSeeder extends Seeder
             $users[] = [
                 'role' => 'doctor',
                 'email' => $doctor['email'],
+                'username' => $doctor['email'],  // Added username after email
                 'password' => Hash::make('admin@123'),
                 'first_name' => $doctor['first_name'],
                 'last_name' => $doctor['last_name'],
@@ -151,7 +155,8 @@ class UserSeeder extends Seeder
         foreach ($patientNames as $index => $name) {
             $users[] = [
                 'role' => 'patient',
-                'email' => strtolower($name[0]).'.'.strtolower($name[1]).'@patient.com',
+                'email' => strtolower($name[0]) . '.' . strtolower($name[1]) . '@patient.com',
+                'username' => strtolower($name[0]) . '.' . strtolower($name[1]) . '@patient.com',  // Added username after email
                 'password' => Hash::make('admin@123'),
                 'first_name' => $name[0],
                 'last_name' => $name[1],
