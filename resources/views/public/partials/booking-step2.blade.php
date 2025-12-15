@@ -157,7 +157,7 @@
 
         const minDate = new Date(today);
         const maxDate = new Date(today);
-        maxDate.setDate(maxDate.getDate() + 60); // 60 days from today
+        maxDate.setDate(maxDate.getDate() + {{ env('ADVANCE_DAYS_FOR_APPOINTMENT', 30) }}); // 60 days from today
 
         let currentMonth = today.getMonth();
         let currentYear = today.getFullYear();

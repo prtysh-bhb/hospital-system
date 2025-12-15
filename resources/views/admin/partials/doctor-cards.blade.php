@@ -173,7 +173,11 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-2">
-                    <button data-doctor-id="{{ $doctor->user->id }}"
+                    <button data-doctor-id="{{ $doctor->user->id }}" data-color-gradient="{{ $color['gradient'] }}"
+                        data-color-avatar="{{ $color['avatar'] }}" data-color-text="{{ $color['text'] }}"
+                        data-color-accent="{{ $color['accent'] }}"
+                        data-color-accent-light="{{ $color['accent-light'] }}"
+                        data-color-border="{{ $color['border'] }}" data-color-hover="{{ $color['hover'] }}"
                         class="view-doctor-btn flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 {{ $color['ring'] }}">
                         View Details
                     </button>

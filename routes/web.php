@@ -17,6 +17,8 @@ use App\Http\Controllers\Frontdesk\FrontDashboardController;
 use App\Http\Controllers\Frontdesk\HistoryController;
 use App\Http\Controllers\Frontdesk\PatientController as FrontPatientController;
 use App\Http\Controllers\Public\BookAppointmentController;
+use App\Http\Controllers\Patient\DashboardController;
+use App\Http\Controllers\Patient\PatientAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -150,8 +152,14 @@ Route::prefix('frontdesk')->name('frontdesk.')->middleware(['auth', 'role:frontd
 });
 
 // Patient Routes
+// Patient Authentication (separate from staff login)
+Route::prefix('patient')->name('patient.')->group(function () {
+    Route::get('/login', [PatientAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [PatientAuthController::class, 'login'])->name('login.post');
+    Route::post('/logout', [PatientAuthController::class, 'logout'])->name('logout');
+});
+
+// Patient Protected Routes
 Route::prefix('patient')->name('patient.')->middleware(['auth', 'role:patient'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('patient.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });

@@ -31,6 +31,14 @@ class AuthService
 
         $user = Auth::user();
 
+        // Prevent patients from logging in through staff login
+        if ($user->role === 'patient') {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'username' => ['Patients cannot login here. Please use the Patient Portal.'],
+            ]);
+        }
+
         // Check if user is active
         if ($user->status !== 'active') {
             Auth::logout();

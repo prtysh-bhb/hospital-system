@@ -69,7 +69,6 @@
         <div class="p-4 sm:p-6 border-b flex items-center justify-between">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-sky-700">MediCare HMS</h1>
-                <p class="text-xs sm:text-sm text-gray-500">Admin Panel</p>
             </div>
             <button id="close-sidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
