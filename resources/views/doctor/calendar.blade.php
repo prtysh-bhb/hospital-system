@@ -258,16 +258,18 @@
 
             console.log('Document ready, loading calendar for:', currentMonth);
 
-            // Load appropriate view based on URL (pass false to avoid re-updating URL)
-            if (currentView === 'week') {
-                switchView('week', false);
-            } else if (currentView === 'day') {
-                switchView('day', false);
-            } else {
-                switchView('month', false);
-            }
-
-            loadWeeklySchedule();
+            // Load weekly schedule FIRST, then initialize the view
+            // This prevents race condition where week/day views render before schedule data is loaded
+            loadWeeklySchedule(function() {
+                // Load appropriate view based on URL (pass false to avoid re-updating URL)
+                if (currentView === 'week') {
+                    switchView('week', false);
+                } else if (currentView === 'day') {
+                    switchView('day', false);
+                } else {
+                    switchView('month', false);
+                }
+            });
 
             // View switchers
             $('#viewMonth').on('click', function() {
@@ -774,7 +776,7 @@
             });
         }
 
-        function loadWeeklySchedule() {
+        function loadWeeklySchedule(callback) {
             console.log('Loading weekly schedule...');
 
             $.ajax({
@@ -790,10 +792,20 @@
                     } else {
                         showError('#weeklySchedule', response.message || 'Failed to load schedule');
                     }
+
+                    // Call the callback after schedule is loaded (success or with error data)
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error('Schedule AJAX error:', error);
                     showError('#weeklySchedule', 'Failed to load schedule');
+
+                    // Still call callback on error so views can render (with empty schedule)
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
                 }
             });
         }
@@ -1077,13 +1089,13 @@
                                             <span class="text-gray-700">${apt.type}</span>
                                         </div>
                                         ${apt.reason ? `
-                                                                                                                            <div class="flex items-start text-sm">
-                                                                                                                                <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                                                                                                </svg>
-                                                                                                                                <span class="text-gray-600">${apt.reason}</span>
-                                                                                                                            </div>
-                                                                                                                            ` : ''}
+                                                                                                                                <div class="flex items-start text-sm">
+                                                                                                                                    <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                                                                                    </svg>
+                                                                                                                                    <span class="text-gray-600">${apt.reason}</span>
+                                                                                                                                </div>
+                                                                                                                                ` : ''}
                                     </div>
                                 </div>
                             `).join('');
