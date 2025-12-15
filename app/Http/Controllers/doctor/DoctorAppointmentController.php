@@ -522,4 +522,93 @@ class DoctorAppointmentController extends Controller
             ], 400);
         }
     }
+
+    public function reschedule(Request $request, $id, DoctorAppointmentServices $svc)
+    {
+        try {
+            $request->validate([
+                'date' => 'required|date|after_or_equal:today',
+                'time' => 'required|string',
+            ]);
+
+            $doctorId = Auth::id();
+
+            $appointment = Appointment::where('id', $id)->where('doctor_id', $doctorId)->first();
+            if (! $appointment) {
+                return response()->json(['status' => 404, 'msg' => 'Appointment not found or unauthorized'], 404);
+            }
+
+            $date = $request->date;
+            $timeStr = $request->time; // expected like '10:30 AM'
+
+            // Verify requested time exists in available slots for that date
+            $available = $svc->getAvailableSlots($doctorId, $date);
+            $slots = [];
+            if (is_array($available)) {
+                // Some services return ['slots' => [...] ] or plain array
+                if (array_key_exists('slots', $available) && is_array($available['slots'])) $slots = $available['slots'];
+                elseif (array_key_exists('data', $available) && is_array($available['data'])) $slots = $available['data'];
+                else $slots = $available;
+            }
+
+            if (! in_array($timeStr, $slots)) {
+                return response()->json(['status' => 400, 'msg' => 'Selected time is not available'], 400);
+            }
+
+            // Normalize time to H:i:s
+            try {
+                $time24 = date('H:i:s', strtotime($timeStr));
+            } catch (\Exception $e) {
+                $time24 = $timeStr;
+            }
+
+            $appointment->appointment_date = $date;
+            $appointment->appointment_time = $time24;
+            $appointment->status = 'confirmed';
+            $appointment->save();
+
+            return response()->json(['status' => 200, 'msg' => 'Appointment rescheduled successfully']);
+
+        } catch (ValidationException $e) {
+            return response()->json(['status' => 422, 'msg' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            \Log::error('Failed to reschedule appointment: '.$e->getMessage());
+            return response()->json(['status' => 400, 'msg' => 'Failed to reschedule appointment'], 400);
+        }
+    }
+    public function cancel(Request $request, $id)
+    {
+        $appointment = Appointment::findOrFail($id);
+
+        // Safety check: Ensure the appointment isn't already completed or cancelled
+        if (in_array($appointment->status, ['completed', 'cancelled'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Appointment cannot be cancelled'
+            ], 400);
+        }
+
+        // Validate cancellation reason. Laravel automatically handles the validation failure.
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:255',
+        ]);
+
+        // If validation passes, get the cancellation reason
+        $cancellationReason = $request->input('cancellation_reason');
+
+        // Update the appointment status and cancellation reason
+        $appointment->update([
+            'status' => 'cancelled',
+            'cancellation_reason' => $cancellationReason
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Appointment cancelled successfully'
+        ], 200);
+    }
+
+
+
+
 }

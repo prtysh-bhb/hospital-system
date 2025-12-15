@@ -324,11 +324,16 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         placeholder="e.g., Hypertension">
                 </div>
-                <div>
+                <div class="relative">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Medication Name</label>
                     <input type="text" id="med-name"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g., Metoprolol">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        placeholder="e.g., Paracetamol">
+                    <ul id="med-suggestions"
+                        class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto hidden">
+                    </ul>
                 </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Dosage</label>
                     <input type="text" id="med-dosage"
@@ -361,6 +366,146 @@
     </div>
 
     @push('scripts')
+        <script>
+            const medInput = document.getElementById('med-name');
+            const listBox = document.getElementById('med-suggestions');
+            const dosageInput = document.getElementById('med-dosage');
+
+            let timer = null;
+            let suggestions = [];
+            let activeIndex = -1;
+
+            // ================= FETCH MEDICINES =================
+            medInput.addEventListener('input', function() {
+                const q = this.value.trim().toLowerCase();
+
+                if (q.length < 3) {
+                    hideList();
+                    return;
+                }
+
+                clearTimeout(timer);
+
+                timer = setTimeout(() => {
+                    fetch(
+                            `https://rxnav.nlm.nih.gov/REST/approximateTerm.json?term=${encodeURIComponent(q)}&maxEntries=30`
+                        )
+                        .then(res => res.json())
+                        .then(data => {
+                            const raw = data.approximateGroup?.candidate || [];
+
+                            // FILTER: undefined / empty / mismatch
+                            suggestions = raw.filter(item =>
+                                item &&
+                                item.name &&
+                                item.name.toLowerCase().includes(q)
+                            );
+
+                            renderList();
+                        })
+                        .catch(err => console.error(err));
+                }, 300);
+            });
+
+            // ================= RENDER LIST =================
+            function renderList() {
+                listBox.innerHTML = '';
+                activeIndex = -1;
+
+                if (!suggestions.length) {
+                    hideList();
+                    return;
+                }
+
+                suggestions.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = item.name;
+                    li.className =
+                        'px-3 py-2 text-sm cursor-pointer hover:bg-sky-100';
+
+                    li.addEventListener('click', () => selectItem(index));
+                    listBox.appendChild(li);
+                });
+
+                listBox.classList.remove('hidden');
+            }
+
+            // ================= KEYBOARD NAVIGATION =================
+            medInput.addEventListener('keydown', function(e) {
+                if (listBox.classList.contains('hidden')) return;
+
+                const items = listBox.querySelectorAll('li');
+
+                if (!items.length) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                    updateActive(items);
+                }
+
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = Math.max(activeIndex - 1, 0);
+                    updateActive(items);
+                }
+
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (activeIndex >= 0) {
+                        selectItem(activeIndex);
+                    }
+                }
+
+                if (e.key === 'Escape') {
+                    hideList();
+                }
+            });
+
+            // ================= UPDATE ACTIVE + SCROLL =================
+            function updateActive(items) {
+                items.forEach((li, i) => {
+                    li.classList.toggle('bg-sky-200', i === activeIndex);
+                });
+
+                // AUTO SCROLL INTO VIEW
+                if (items[activeIndex]) {
+                    items[activeIndex].scrollIntoView({
+                        block: 'nearest',
+                        behavior: 'smooth'
+                    });
+                }
+            }
+
+            // ================= SELECT ITEM =================
+            function selectItem(index) {
+                const name = suggestions[index].name;
+                medInput.value = name;
+                hideList();
+
+                // Auto dosage
+                const dose = name.match(/\d+\s?(mg|ml|mcg)/i);
+                if (dose) {
+                    dosageInput.value = dose[0];
+                }
+            }
+
+            // ================= HIDE LIST =================
+            function hideList() {
+                listBox.classList.add('hidden');
+                listBox.innerHTML = '';
+                suggestions = [];
+                activeIndex = -1;
+            }
+
+            // ================= CLICK OUTSIDE =================
+            document.addEventListener('click', function(e) {
+                if (!medInput.contains(e.target) && !listBox.contains(e.target)) {
+                    hideList();
+                }
+            });
+        </script>
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const appointmentId = {{ $appointment->id }};
