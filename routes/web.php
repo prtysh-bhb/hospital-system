@@ -119,6 +119,8 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
     Route::post('appointments/{id}/prescription', [DoctorAppointmentController::class, 'savePrescription'])->name('appointments.prescription');
     Route::post('appointments/{id}/follow-up', [DoctorAppointmentController::class, 'scheduleFollowUp'])->name('appointments.followup');
     Route::get('appointments/available-slots', [DoctorAppointmentController::class, 'getAvailableSlots'])->name('appointments.available-slots');
+    Route::post('appointments/{id}/reschedule', [DoctorAppointmentController::class, 'reschedule'])->name('appointments.reschedule');
+    Route::post('appointments/{id}/cancel', [DoctorAppointmentController::class, 'cancel'])->name('appointments.cancel');
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
     Route::get('/calendar/data', [CalendarController::class, 'getCalendarData'])->name('calendar.data');
