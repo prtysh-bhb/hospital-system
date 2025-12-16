@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Appointment;
+use App\Models\DoctorLeave;
 use App\Models\DoctorSchedule;
 use Carbon\Carbon;
 
@@ -23,6 +24,18 @@ class AppointmentSlotService
                 'success' => false,
                 'message' => 'Doctor and date are required',
                 'slots' => [],
+            ];
+        }
+
+        // Check if doctor is on leave for this date
+        $leaveCheck = $this->isDoctorOnLeave($doctorId, $date);
+        if ($leaveCheck['on_leave']) {
+            return [
+                'success' => false,
+                'message' => $leaveCheck['message'],
+                'slots' => [],
+                'on_leave' => true,
+                'leave_end_date' => $leaveCheck['leave_end_date'],
             ];
         }
 
@@ -94,7 +107,79 @@ class AppointmentSlotService
             'success' => true,
             'slots' => $slots,
             'message' => count($slots) > 0 ? 'Slots available' : 'No slots available',
+            'on_leave' => false,
         ];
+    }
+
+    /**
+     * Check if doctor is on leave for a specific date
+     *
+     * @param  int  $doctorId
+     * @param  string  $date
+     * @return array
+     */
+    public function isDoctorOnLeave($doctorId, $date)
+    {
+        $selectedDate = Carbon::parse($date)->format('Y-m-d');
+
+        $leave = DoctorLeave::where('doctor_id', $doctorId)
+            ->where('status', 'approved')
+            ->where('start_date', '<=', $selectedDate)
+            ->where('end_date', '>=', $selectedDate)
+            ->first();
+
+        if ($leave) {
+            $endDate = Carbon::parse($leave->end_date)->format('d M, Y');
+            
+            return [
+                'on_leave' => true,
+                'message' => "Doctor is on leave until {$endDate}. Please select another date or doctor.",
+                'leave_end_date' => $leave->end_date,
+                'leave_type' => $leave->leave_type,
+            ];
+        }
+
+        return [
+            'on_leave' => false,
+            'message' => null,
+            'leave_end_date' => null,
+        ];
+    }
+
+    /**
+     * Check if doctor has any upcoming leave
+     *
+     * @param  int  $doctorId
+     * @return array|null
+     */
+    public function getDoctorUpcomingLeave($doctorId)
+    {
+        $today = Carbon::now()->format('Y-m-d');
+
+        $leave = DoctorLeave::where('doctor_id', $doctorId)
+            ->where('status', 'approved')
+            ->where('end_date', '>=', $today)
+            ->orderBy('start_date', 'asc')
+            ->first();
+
+        if ($leave) {
+            $startDate = Carbon::parse($leave->start_date);
+            $endDate = Carbon::parse($leave->end_date);
+            $isCurrentlyOnLeave = $startDate->lte(Carbon::now()) && $endDate->gte(Carbon::now());
+
+            return [
+                'has_leave' => true,
+                'is_currently_on_leave' => $isCurrentlyOnLeave,
+                'start_date' => $leave->start_date,
+                'end_date' => $leave->end_date,
+                'start_date_formatted' => $startDate->format('d M, Y'),
+                'end_date_formatted' => $endDate->format('d M, Y'),
+                'leave_type' => $leave->leave_type,
+                'reason' => $leave->reason,
+            ];
+        }
+
+        return null;
     }
 
     /**
@@ -197,6 +282,15 @@ class AppointmentSlotService
      */
     public function validateAppointmentTime($doctorId, $date, $time, $excludeAppointmentId = null)
     {
+        // Check if doctor is on leave
+        $leaveCheck = $this->isDoctorOnLeave($doctorId, $date);
+        if ($leaveCheck['on_leave']) {
+            return [
+                'valid' => false,
+                'message' => $leaveCheck['message'],
+            ];
+        }
+
         // Check if appointment date is in the past
         $selectedDate = Carbon::parse($date);
         $now = Carbon::now();

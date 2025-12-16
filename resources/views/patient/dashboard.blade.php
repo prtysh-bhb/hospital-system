@@ -107,6 +107,47 @@
     </div>
 </div>
 
+
+<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-up mb-8 ">
+    <div class="bg-gradient-to-r from-sky-50 to-blue-50 rounded-xl shadow-sm p-6 border border-sky-100">
+        <div class="flex items-start">
+            <div class="p-3 rounded-lg bg-white shadow-sm">
+                <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Need to see a doctor?</h3>
+                <p class="text-gray-600 text-sm mb-4">Schedule a new appointment with any of our specialists</p>
+                <a href="{{ route('booking') }}"
+                    class="inline-flex items-center px-4 py-2 bg-white text-sky-600 font-medium rounded-lg border border-sky-200 hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-all duration-200 text-sm">
+                    Book Appointment
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-r from-gray-50 to-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex items-start">
+            <div class="p-3 rounded-lg bg-white shadow-sm">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Medical History</h3>
+                <p class="text-gray-600 text-sm mb-4">Access your past appointments and treatment records</p>
+                <button id="medical-history-button"
+                    class="inline-flex items-center px-4 py-2 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 text-sm">
+                    View History
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-sky-50 to-white">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -317,45 +358,6 @@
         <h3 class="text-xl font-semibold text-gray-800 mb-6">Appointment Details</h3>
         <div id="appointment-details-content">
             <!-- Appointment details will be populated here by JavaScript -->
-        </div>
-    </div>
-</div>
-
-<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-up" style="animation-delay: 0.3s">
-    <div class="bg-gradient-to-r from-sky-50 to-blue-50 rounded-xl shadow-sm p-6 border border-sky-100">
-        <div class="flex items-start">
-            <div class="p-3 rounded-lg bg-white shadow-sm">
-                <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Need to see a doctor?</h3>
-                <p class="text-gray-600 text-sm mb-4">Schedule a new appointment with any of our specialists</p>
-                <a href="{{ route('booking') }}"
-                    class="inline-flex items-center px-4 py-2 bg-white text-sky-600 font-medium rounded-lg border border-sky-200 hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-all duration-200 text-sm">
-                    Book Appointment
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-r from-gray-50 to-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <div class="flex items-start">
-            <div class="p-3 rounded-lg bg-white shadow-sm">
-                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Medical History</h3>
-                <p class="text-gray-600 text-sm mb-4">Access your past appointments and treatment records</p>
-                <button id="medical-history-button"
-                    class="inline-flex items-center px-4 py-2 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 text-sm">
-                    View History
-                </button>
-            </div>
         </div>
     </div>
 </div>

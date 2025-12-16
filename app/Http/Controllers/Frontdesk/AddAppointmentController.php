@@ -89,6 +89,47 @@ class AddAppointmentController extends Controller
         return response()->json($result);
     }
 
+    public function checkDoctorLeave(Request $request)
+    {
+        $doctorId = $request->get('doctor_id');
+        
+        if (!$doctorId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Doctor ID is required',
+            ]);
+        }
+
+        $leaveInfo = $this->slotService->getDoctorUpcomingLeave($doctorId);
+
+        if ($leaveInfo && $leaveInfo['is_currently_on_leave']) {
+            return response()->json([
+                'success' => true,
+                'on_leave' => true,
+                'is_currently_on_leave' => true,
+                'message' => "This doctor is currently on leave until {$leaveInfo['end_date_formatted']}. Please select another doctor.",
+                'leave_info' => $leaveInfo,
+            ]);
+        }
+
+        if ($leaveInfo && $leaveInfo['has_leave']) {
+            return response()->json([
+                'success' => true,
+                'on_leave' => false,
+                'has_upcoming_leave' => true,
+                'message' => "Note: This doctor will be on leave from {$leaveInfo['start_date_formatted']} to {$leaveInfo['end_date_formatted']}.",
+                'leave_info' => $leaveInfo,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'on_leave' => false,
+            'has_upcoming_leave' => false,
+            'message' => null,
+        ]);
+    }
+
     public function store(Request $request)
     {
         try {
