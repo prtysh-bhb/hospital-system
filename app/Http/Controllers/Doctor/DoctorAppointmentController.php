@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Doctor;
 
-use App\Http\Controllers\Controller;
-use App\Models\Appointment;
-use App\Services\Doctor\DoctorAppointmentServices;
 use Carbon\Carbon;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
+use App\Models\AppointmentHistory;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Services\Doctor\DoctorAppointmentServices;
 
 class DoctorAppointmentController extends Controller
 {
@@ -529,29 +530,33 @@ class DoctorAppointmentController extends Controller
             $request->validate([
                 'date' => 'required|date|after_or_equal:today',
                 'time' => 'required|string',
+                'note' => 'nullable|string|max:100', // validate the optional note
             ]);
 
             $doctorId = Auth::id();
 
             $appointment = Appointment::where('id', $id)->where('doctor_id', $doctorId)->first();
-            if (! $appointment) {
+            if (!$appointment) {
                 return response()->json(['status' => 404, 'msg' => 'Appointment not found or unauthorized'], 404);
             }
 
             $date = $request->date;
-            $timeStr = $request->time; // expected like '10:30 AM'
+            $timeStr = $request->time;
+            $note = $request->note ?? null;
 
             // Verify requested time exists in available slots for that date
             $available = $svc->getAvailableSlots($doctorId, $date);
             $slots = [];
             if (is_array($available)) {
-                // Some services return ['slots' => [...] ] or plain array
-                if (array_key_exists('slots', $available) && is_array($available['slots'])) $slots = $available['slots'];
-                elseif (array_key_exists('data', $available) && is_array($available['data'])) $slots = $available['data'];
-                else $slots = $available;
+                if (array_key_exists('slots', $available) && is_array($available['slots']))
+                    $slots = $available['slots'];
+                elseif (array_key_exists('data', $available) && is_array($available['data']))
+                    $slots = $available['data'];
+                else
+                    $slots = $available;
             }
 
-            if (! in_array($timeStr, $slots)) {
+            if (!in_array($timeStr, $slots)) {
                 return response()->json(['status' => 400, 'msg' => 'Selected time is not available'], 400);
             }
 
@@ -562,18 +567,30 @@ class DoctorAppointmentController extends Controller
                 $time24 = $timeStr;
             }
 
+            // Update the appointment
             $appointment->appointment_date = $date;
             $appointment->appointment_time = $time24;
-            $appointment->status = 'confirmed';
-            $appointment->save();
+            $appointment->status = $appointment->status === 'cancelled' ? 'confirmed' : $appointment->status;
+            $appointment->cancelled_at = null;
+            $appointment->cancellation_reason = null;
+            
+            // Save note if provided
+            if (!empty($note)) {
+                $appointment->notes = $note;
+            }
+            
+            $appointment->save(); // This will trigger the updated() listener and create history record
 
             return response()->json(['status' => 200, 'msg' => 'Appointment rescheduled successfully']);
 
-        } catch (ValidationException $e) {
-            return response()->json(['status' => 422, 'msg' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
-            \Log::error('Failed to reschedule appointment: '.$e->getMessage());
-            return response()->json(['status' => 400, 'msg' => 'Failed to reschedule appointment'], 400);
+            \Log::error('Failed to reschedule appointment: ' . $e->getMessage(), ['exception' => $e]);
+
+            return response()->json([
+                'status' => 400,
+                'msg' => $e->getMessage(),
+                'trace' => config('app.debug') ? $e->getTrace() : null
+            ], 400);
         }
     }
     public function cancel(Request $request, $id)
@@ -599,7 +616,8 @@ class DoctorAppointmentController extends Controller
         // Update the appointment status and cancellation reason
         $appointment->update([
             'status' => 'cancelled',
-            'cancellation_reason' => $cancellationReason
+            'cancellation_reason' => $cancellationReason,
+            'cancelled_at' => now(),
         ]);
 
         return response()->json([
@@ -607,8 +625,4 @@ class DoctorAppointmentController extends Controller
             'message' => 'Appointment cancelled successfully'
         ], 200);
     }
-
-
-
-
 }
