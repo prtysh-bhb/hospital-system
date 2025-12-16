@@ -97,6 +97,16 @@
                 <p id="slotsLoading" class="text-sm text-gray-500 mt-2 hidden">Loading available times…</p>
             </div>
 
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Note (Optional)</label>
+                <textarea id="rescheduleNote" class="w-full border rounded-lg px-3 py-2" name="note"
+                    placeholder="Add a reason or note for rescheduling" rows="3" maxlength="100"></textarea>
+                <div class="flex justify-between mt-1">
+                    <p id="rescheduleNoteError" class="text-red-500 text-xs hidden">Note cannot exceed 100 characters</p>
+                    <p id="rescheduleNoteCount" class="text-xs text-gray-500">0/100</p>
+                </div>
+            </div>
+
             <div class="flex justify-end gap-2">
                 <button id="closeRescheduleModal" class="px-4 py-2 bg-gray-200 rounded-lg">
                     Cancel
@@ -228,11 +238,18 @@
                     // compute default date: use appointment date if today or future, otherwise today
                     const todayStr = new Date().toISOString().slice(0, 10);
                     let defaultDate = apptDate && apptDate >= todayStr ? apptDate : todayStr;
-                    $('#rescheduleDate').val(defaultDate);
+
+                    // set min date to today (prevent selecting past dates)
+                    $('#rescheduleDate').attr('min', todayStr).val(defaultDate);
 
                     // clear time select while we fetch
                     $('#rescheduleTime').empty().append('<option value="">Loading available times...</option>');
                     $('#slotsLoading').removeClass('hidden');
+
+                    // clear note field
+                    $('#rescheduleNote').val('');
+                    $('#rescheduleNoteCount').text('0/100');
+                    $('#rescheduleNoteError').addClass('hidden');
 
                     // show modal
                     $('#rescheduleModal').removeClass('hidden').addClass('flex');
@@ -317,6 +334,17 @@
                         });
                 }
 
+                // Character counter for reschedule note
+                $('#rescheduleNote').on('input', function() {
+                    const len = $(this).val().length;
+                    $('#rescheduleNoteCount').text(len + '/100');
+                    if (len > 100) {
+                        $('#rescheduleNoteError').removeClass('hidden');
+                    } else {
+                        $('#rescheduleNoteError').addClass('hidden');
+                    }
+                });
+
                 $('#closeRescheduleModal').on('click', function() {
                     $('#rescheduleModal')
                         .addClass('hidden')
@@ -327,9 +355,17 @@
                     const id = $('#rescheduleAppointmentId').val();
                     const date = $('#rescheduleDate').val();
                     const time = $('#rescheduleTime').val();
+                    const note = $('#rescheduleNote').val().trim();
 
                     if (!date || !time) {
                         toastr.error('Please select date and time', '', {
+                            closeButton: false
+                        });
+                        return;
+                    }
+
+                    if (note.length > 100) {
+                        toastr.error('Note cannot exceed 100 characters', '', {
                             closeButton: false
                         });
                         return;
@@ -340,7 +376,8 @@
                         type: 'POST',
                         data: {
                             date: date,
-                            time: time
+                            time: time,
+                            note: note
                         },
                         success: function(res) {
                             if (res.status === 200) {
