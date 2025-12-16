@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\AppointmentHistory;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Observers\AppointmentObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([AppointmentObserver::class])]
 class Appointment extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
@@ -26,6 +32,7 @@ class Appointment extends Model
         'symptoms',
         'notes',
         'cancellation_reason',
+        'cancelled_at',
         'booked_by',
         'booked_via',
         'reminder_sent',
@@ -41,12 +48,28 @@ class Appointment extends Model
 
     public function getFormattedDateAttribute()
     {
-        return $this->appointment_date->format('d-m-Y');
+        if (empty($this->appointment_date)) {
+            return null;
+        }
+
+        try {
+            return $this->appointment_date->format('d-m-Y');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     public function getFormattedTimeAttribute()
     {
-        return \Carbon\Carbon::parse($this->appointment_time)->format('h:i A');
+        if (empty($this->appointment_time)) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($this->appointment_time)->format('h:i A');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
