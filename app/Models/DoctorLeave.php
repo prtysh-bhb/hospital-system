@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class DoctorLeave extends Model
+{
+    use HasFactory, LogsActivity, SoftDeletes;
+    protected $fillable = [
+        'doctor_id',
+        'approved_by',
+        'start_date',
+        'end_date',
+        'start_time',
+        'end_time',
+        'leave_type',
+        'half_day_slot',
+        'reason',
+        'status',
+    ];
+    public function doctor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'doctor_id');
+    }
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+    
+}

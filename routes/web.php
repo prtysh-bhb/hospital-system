@@ -19,6 +19,7 @@ use App\Http\Controllers\Frontdesk\PatientController as FrontPatientController;
 use App\Http\Controllers\Public\BookAppointmentController;
 use App\Http\Controllers\Patient\DashboardController;
 use App\Http\Controllers\Patient\PatientAuthController;
+use App\Http\Controllers\Doctor\DoctorLeaveController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,7 @@ Route::controller(AuthController::class)->group(function () {
 Route::get('booking', [BookAppointmentController::class, 'index'])->name('booking');
 Route::post('booking', [BookAppointmentController::class, 'store'])->name('booking.store');
 Route::get('/get-time-slots', [BookAppointmentController::class, 'getSlots'])->name('get.time.slots');
+Route::get('/check-doctor-leave', [BookAppointmentController::class, 'checkDoctorLeave'])->name('check.doctor.leave');
 Route::get('/download-appointment', [BookAppointmentController::class, 'downloadPDFAppointment'])->name('download.appointment');
 
 // Admin Routes
@@ -129,6 +131,9 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
     Route::get('/calendar/schedule', [CalendarController::class, 'getWeeklySchedule'])->name('calendar.schedule');
     Route::get('/calendar/appointments', [CalendarController::class, 'getDateAppointments'])->name('calendar.appointments');
     Route::post('/calendar/schedule/update', [CalendarController::class, 'updateSchedule'])->name('calendar.schedule.update');
+
+    Route::get('/leaves', [DoctorLeaveController::class, 'index'])->name('leaves');
+    Route::post('/leaves', [DoctorLeaveController::class, 'store'])->name('leaves.store');
 });
 
 // Front Desk Routes

@@ -24,7 +24,7 @@
     <!-- Sidebar -->
     <aside id="sidebar"
         class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:inset-0">
-        <div class="p-4 sm:p-6 border-b flex items-center justify-between">
+        <div class="p-4 sm:p-5 border-b flex items-center justify-between">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-sky-700">MediCare HMS</h1>
             </div>
