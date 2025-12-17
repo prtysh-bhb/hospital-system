@@ -76,6 +76,7 @@ class DoctorLeaveController extends Controller
                     ->whereNotIn('status', ['cancelled', 'completed'])
                     ->update([
                         'status' => 'cancelled',
+                        'cancelled_at' => now(),
                         'cancellation_reason' => 'Doctor on leave: '.($request->input('reason') ?? 'Leave approved'),
                     ]);
                 event(new AppointmentCancelEvent(

@@ -50,7 +50,7 @@ class PatientController extends Controller
 
     public function show(Request $request, $id)
     {
-        $patient = $this->PatientService->getPatientById($id);
+        $patient = $this->patientService->getPatientById($id);
 
         if ($request->ajax()) {
             $html = view('admin.partials.patient-view', compact('patient'))->render();

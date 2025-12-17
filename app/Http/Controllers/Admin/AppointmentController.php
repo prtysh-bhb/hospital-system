@@ -348,6 +348,12 @@ class AppointmentController extends Controller
                     'required',
                     'in:pending,confirmed,checked_in,in_progress,completed,cancelled,no_show',
                 ],
+                'cancellation_reason' => [
+                    'required_if:status,cancelled',
+                    'nullable',
+                    'string',
+                    'max:500',
+                ],
             ], [
                 'patient_id.required' => 'Please select a valid patient.',
                 'patient_id.exists' => 'The selected patient does not exist or is not valid.',
@@ -363,6 +369,8 @@ class AppointmentController extends Controller
                 'reason_for_visit.max' => 'Reason for visit cannot be longer than 1000 characters.',
                 'status.required' => 'Status is required.',
                 'status.in' => 'Please select a valid status.',
+                'cancellation_reason.required_if' => 'Please provide a reason for cancellation.',
+                'cancellation_reason.max' => 'Cancellation reason cannot be longer than 500 characters.',
             ]);
 
             // Find and update the appointment
@@ -386,6 +394,13 @@ class AppointmentController extends Controller
             $originalStatus = $appointment->getOriginal('status');
             $newStatus = $request->input('status');
             $appointment->status = $newStatus;
+            if ($newStatus === 'cancelled') {
+                $appointment->cancellation_reason = $request->input('cancellation_reason', $appointment->cancellation_reason);
+                $appointment->cancelled_at = now();
+            } else {
+                $appointment->cancellation_reason = null;
+                $appointment->cancelled_at = null;
+            }
             $appointment->notes = $request->input('notes', $appointment->notes);
 
             // Check if reactivating a cancelled/no_show appointment

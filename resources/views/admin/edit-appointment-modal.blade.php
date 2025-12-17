@@ -1,4 +1,4 @@
-<form id="editAppointmentForm" class="space-y-4 sm:space-y-6">
+<form id="editAppointmentForm" class="space-y-4 sm:space-y-6" novalidate>
     @csrf
     <input type="hidden" id="appointment_id" name="appointment_id" value="{{ $appointment->id ?? '' }}">
 
@@ -8,7 +8,7 @@
                 class="text-red-600">*</span></label>
         <select id="edit_select_patient" name="patient_id"
             class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
-            <option>Search or select patient...</option>
+            <option value="">Search or select patient...</option>
             @foreach ($patients as $patient)
                 <option value="{{ $patient->id }}"
                     {{ $appointment && $appointment->patient_id == $patient->id ? 'selected' : '' }}>
@@ -16,6 +16,7 @@
                 </option>
             @endforeach
         </select>
+        <p id="patient_error" class="text-xs text-red-500 mt-1 hidden"></p>
     </div>
 
     <!-- Doctor Selection -->
@@ -24,7 +25,7 @@
                 class="text-red-600">*</span></label>
         <select id="edit_doctor_select" name="doctor_id"
             class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
-            <option>Search or select doctor...</option>
+            <option value="">Search or select doctor...</option>
             @foreach ($doctors as $doctor)
                 <option value="{{ $doctor->id }}"
                     {{ $appointment && $appointment->doctor_id == $doctor->id ? 'selected' : '' }}>
@@ -33,6 +34,7 @@
                 </option>
             @endforeach
         </select>
+        <p id="doctor_error" class="text-xs text-red-500 mt-1 hidden"></p>
     </div>
 
     <!-- Date & Time -->
@@ -44,6 +46,7 @@
                 value="{{ $appointment ? $appointment->appointment_date->format('Y-m-d') : '' }}"
                 min="{{ date('Y-m-d') }}"
                 class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+            <p id="date_error" class="text-xs text-red-500 mt-1 hidden"></p>
         </div>
         <div>
             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Time <span
@@ -59,6 +62,7 @@
                 @endif
             </select>
             <p id="time_slot_message" class="text-xs text-gray-500 mt-1"></p>
+            <p id="time_error" class="text-xs text-red-500 mt-1 hidden"></p>
         </div>
     </div>
 
@@ -68,7 +72,7 @@
                 class="text-red-600">*</span></label>
         <select id="edit_type_select" name="appointment_type"
             class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
-            <option>Select type...</option>
+            <option value="">Select type...</option>
             <option value="consultation"
                 {{ $appointment && $appointment->appointment_type == 'consultation' ? 'selected' : '' }}>Consultation
             </option>
@@ -81,6 +85,7 @@
             <option value="check_up"
                 {{ $appointment && $appointment->appointment_type == 'check_up' ? 'selected' : '' }}>Check-up</option>
         </select>
+        <p id="type_error" class="text-xs text-red-500 mt-1 hidden"></p>
     </div>
 
     <!-- Reason -->
@@ -90,6 +95,7 @@
         <textarea id="edit_reason_for_visit" name="reason_for_visit"
             class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
             rows="4" placeholder="Enter reason for visit or symptoms">{{ $appointment ? $appointment->reason_for_visit : '' }}</textarea>
+        <p id="reason_error" class="text-xs text-red-500 mt-1 hidden"></p>
     </div>
 
     <!-- Notes -->
@@ -123,6 +129,15 @@
         <p id="status_conflict_message" class="text-xs text-red-500 mt-1 hidden"></p>
     </div>
 
+    <!-- Cancellation Reason (shown only when status is cancelled) -->
+    <div id="cancellation_reason_container" class="hidden">
+        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Cancellation Reason <span
+                class="text-red-600">*</span></label>
+        <textarea id="edit_cancellation_reason" name="cancellation_reason"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+            rows="3" placeholder="Please provide a reason for cancellation">{{ $appointment ? $appointment->cancellation_reason : '' }}</textarea>
+    </div>
+
     <!-- Action Buttons -->
     <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
         <button type="button" onclick="closeEditModal()"
@@ -145,6 +160,11 @@
         const submitBtn = form.querySelector('button[type="submit"]');
         const timeMessage = document.getElementById('time_slot_message');
         const statusConflictMessage = document.getElementById('status_conflict_message');
+        const cancellationReasonContainer = document.getElementById('cancellation_reason_container');
+        const cancellationReasonTextarea = document.getElementById('edit_cancellation_reason');
+        const patientSelect = document.getElementById('edit_select_patient');
+        const typeSelect = document.getElementById('edit_type_select');
+        const reasonTextarea = document.getElementById('edit_reason_for_visit');
 
         // Original values to allow keeping the current slot
         const originalDoctorId = '{{ $appointment->doctor_id ?? '' }}';
@@ -156,6 +176,21 @@
 
         // Track if slot is conflicted (for cancelled/no_show appointments)
         let hasSlotConflict = false;
+
+        // Function to toggle cancellation reason field
+        function toggleCancellationReason() {
+            if (statusSelect.value === 'cancelled') {
+                cancellationReasonContainer.classList.remove('hidden');
+                cancellationReasonTextarea.setAttribute('required', 'required');
+            } else {
+                cancellationReasonContainer.classList.add('hidden');
+                cancellationReasonTextarea.removeAttribute('required');
+                cancellationReasonTextarea.value = ''; // Clear the value when hidden
+            }
+        }
+
+        // Initialize cancellation reason visibility on page load
+        toggleCancellationReason();
 
         // Check if a time is in the past (for today's date)
         function isTimePast(time24, date) {
@@ -400,11 +435,167 @@
             return `${hours.toString().padStart(2, '0')}:${minutes} ${modifier}`;
         }
 
+        // Comprehensive form validation
+        function validateAllFields() {
+            let isValid = true;
+
+            // Validate Patient
+            const patientError = document.getElementById('patient_error');
+            if (!patientSelect.value || patientSelect.value === '') {
+                patientSelect.classList.add('border-red-500');
+                patientError.textContent = 'Please select a patient.';
+                patientError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                patientSelect.classList.remove('border-red-500');
+                patientError.classList.add('hidden');
+            }
+
+            // Validate Doctor
+            const doctorError = document.getElementById('doctor_error');
+            if (!doctorSelect.value || doctorSelect.value === '') {
+                doctorSelect.classList.add('border-red-500');
+                doctorError.textContent = 'Please select a doctor.';
+                doctorError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                doctorSelect.classList.remove('border-red-500');
+                doctorError.classList.add('hidden');
+            }
+
+            // Validate Date
+            const dateError = document.getElementById('date_error');
+            if (!dateInput.value) {
+                dateInput.classList.add('border-red-500');
+                dateError.textContent = 'Please select an appointment date.';
+                dateError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                dateInput.classList.remove('border-red-500');
+                dateError.classList.add('hidden');
+            }
+
+            // Validate Time
+            const timeError = document.getElementById('time_error');
+            if (!timeSelect.value || timeSelect.value === '') {
+                timeSelect.classList.add('border-red-500');
+                timeError.textContent = 'Please select an appointment time.';
+                timeError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                timeSelect.classList.remove('border-red-500');
+                timeError.classList.add('hidden');
+            }
+
+            // Validate Appointment Type
+            const typeError = document.getElementById('type_error');
+            if (!typeSelect.value || typeSelect.value === '') {
+                typeSelect.classList.add('border-red-500');
+                typeError.textContent = 'Please select an appointment type.';
+                typeError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                typeSelect.classList.remove('border-red-500');
+                typeError.classList.add('hidden');
+            }
+
+            // Validate Reason for Visit
+            const reasonError = document.getElementById('reason_error');
+            if (!reasonTextarea.value.trim()) {
+                reasonTextarea.classList.add('border-red-500');
+                reasonError.textContent = 'Please provide a reason for visit.';
+                reasonError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                reasonTextarea.classList.remove('border-red-500');
+                reasonError.classList.add('hidden');
+            }
+
+            // Validate Cancellation Reason if status is cancelled
+            const cancellationReasonError = document.getElementById('cancellation_reason_error');
+            if (statusSelect.value === 'cancelled') {
+                const reason = cancellationReasonTextarea.value.trim();
+                if (!reason) {
+                    cancellationReasonTextarea.classList.add('border-red-500');
+                    cancellationReasonError.textContent = 'Please provide a reason for cancellation.';
+                    cancellationReasonError.classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    cancellationReasonTextarea.classList.remove('border-red-500');
+                    cancellationReasonError.classList.add('hidden');
+                }
+            }
+
+            return isValid;
+        }
+
+        // Clear validation error on field change
+        function clearFieldValidationError(field, errorId) {
+            field.classList.remove('border-red-500');
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.classList.add('hidden');
+            }
+        }
+
+        // Form submission handler
+        form.addEventListener('submit', function(e) {
+            if (!validateAllFields()) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        });
+
         // Event Listeners
-        doctorSelect.addEventListener('change', fetchAvailableSlots);
-        dateInput.addEventListener('change', fetchAvailableSlots);
-        timeSelect.addEventListener('change', validateForm);
-        statusSelect.addEventListener('change', checkStatusConflict);
+        patientSelect.addEventListener('change', function() {
+            clearFieldValidationError(patientSelect, 'patient_error');
+        });
+
+        doctorSelect.addEventListener('change', function() {
+            fetchAvailableSlots();
+            clearFieldValidationError(doctorSelect, 'doctor_error');
+            // Recheck status conflict after slot change
+            if (hasSlotConflict) {
+                checkStatusConflict();
+            }
+        });
+
+        dateInput.addEventListener('change', function() {
+            fetchAvailableSlots();
+            clearFieldValidationError(dateInput, 'date_error');
+            // Recheck status conflict after date change
+            if (hasSlotConflict) {
+                checkStatusConflict();
+            }
+        });
+
+        timeSelect.addEventListener('change', function() {
+            validateForm();
+            clearFieldValidationError(timeSelect, 'time_error');
+            // Recheck status conflict after time change
+            if (hasSlotConflict) {
+                checkStatusConflict();
+            }
+        });
+
+        typeSelect.addEventListener('change', function() {
+            clearFieldValidationError(typeSelect, 'type_error');
+        });
+
+        reasonTextarea.addEventListener('input', function() {
+            clearFieldValidationError(reasonTextarea, 'reason_error');
+        });
+
+        statusSelect.addEventListener('change', function() {
+            toggleCancellationReason();
+            checkStatusConflict();
+        });
+
+        // Validate cancellation reason on input
+        cancellationReasonTextarea.addEventListener('input', function() {
+            clearFieldValidationError(cancellationReasonTextarea, 'cancellation_reason_error');
+        });
 
         // Initial load if values exist
         if (doctorSelect.value && dateInput.value && doctorSelect.value !== 'Search or select doctor...') {
@@ -416,4 +607,34 @@
             checkStatusConflict();
         }
     })();
+
+    if (xhr.status === 422 && xhr.responseJSON?.errors) {
+        Object.entries(xhr.responseJSON.errors).forEach(([field, messages]) => {
+            const input = document.querySelector(`[name="${field}"]`);
+            if (input) {
+                showFieldError(input, messages[0]);
+            }
+        });
+    }
+
+    function showFieldError(field, message) {
+        field.classList.add('border-red-500');
+        field.classList.remove('border-gray-300');
+
+        let errorEl = field.parentElement.querySelector('.field-error');
+        if (!errorEl) {
+            errorEl = document.createElement('p');
+            errorEl.className = 'field-error text-xs text-red-500 mt-1';
+            field.parentElement.appendChild(errorEl);
+        }
+        errorEl.textContent = message;
+    }
+
+    function clearFieldError(field) {
+        field.classList.remove('border-red-500');
+        field.classList.add('border-gray-300');
+
+        const errorEl = field.parentElement.querySelector('.field-error');
+        if (errorEl) errorEl.remove();
+    }
 </script>

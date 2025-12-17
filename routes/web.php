@@ -170,4 +170,5 @@ Route::prefix('patient')->name('patient.')->group(function () {
 // Patient Protected Routes
 Route::prefix('patient')->name('patient.')->middleware(['auth', 'role:patient'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/cancel-appointment', [DashboardController::class, 'cancelAppointment'])->name('cancel-appointment');
 });
