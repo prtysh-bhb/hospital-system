@@ -19,7 +19,7 @@ class AuthService
 
         // Attempt to authenticate with username instead of email
         if (
-            !Auth::attempt([
+            ! Auth::attempt([
                 'username' => $credentials['username'],
                 'password' => $credentials['password'],
             ], $remember)

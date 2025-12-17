@@ -15,7 +15,7 @@ class DashboardController extends Controller
         $appointments = $user->patientAppointments()
             ->with([
                 'doctor.doctorProfile.specialty',
-                'prescriptions'
+                'prescriptions',
             ])
             ->orderBy('appointment_date', 'desc')
             ->get()
@@ -24,15 +24,15 @@ class DashboardController extends Controller
                 $doctor = $appointment->doctor;
                 $doctorProfile = $doctor->doctorProfile ?? null;
                 $specialty = $doctorProfile?->specialty;
-                
+
                 // Get prescription if exists
                 $prescription = $appointment->prescriptions->first();
-                
+
                 return (object) [
                     'id' => $appointment->id,
                     'appointment_number' => $appointment->appointment_number,
                     'doctor_id' => $doctor->id,
-                    'doctor_name' => 'Dr. ' . ($doctor->full_name ?? 'Unknown'),
+                    'doctor_name' => 'Dr. '.($doctor->full_name ?? 'Unknown'),
                     'doctor_image' => $doctor->profile_image,
                     'specialty' => $specialty?->name ?? 'General Medicine',
                     'specialty_id' => $specialty?->id,
@@ -65,8 +65,8 @@ class DashboardController extends Controller
         $today = Carbon::today();
         $stats = (object) [
             'total' => $appointments->count(),
-            'today' => $appointments->filter(fn($a) => $a->date->isSameDay($today))->count(),
-            'upcoming' => $appointments->filter(fn($a) => $a->date->gte($today) && in_array($a->status, ['pending', 'confirmed']))->count(),
+            'today' => $appointments->filter(fn ($a) => $a->date->isSameDay($today))->count(),
+            'upcoming' => $appointments->filter(fn ($a) => $a->date->gte($today) && in_array($a->status, ['pending', 'confirmed']))->count(),
             'completed' => $appointments->where('status', 'completed')->count(),
             'cancelled' => $appointments->where('status', 'cancelled')->count(),
         ];

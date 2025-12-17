@@ -49,7 +49,7 @@ class AuthController extends Controller
                 'success' => true,
                 'message' => 'Login successful!',
                 'redirect_url' => $result['redirect_url'],
-                'user' => $result['user']
+                'user' => $result['user'],
             ], 200);
 
         } catch (ValidationException $e) {

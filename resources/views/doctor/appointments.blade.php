@@ -218,7 +218,7 @@
                                 <span id="status-badge-${a.id}" class="px-3 py-1 ${badge[0]} ${badge[1]} text-xs sm:text-sm font-medium rounded-full">${badge[2]}</span>
                                 <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-2">
                                     <a href="${a.details_url || '#'}" class="px-3 sm:px-4 py-2 bg-sky-600 text-white text-xs sm:text-sm rounded-lg hover:bg-sky-700 text-center">View Details</a>
-                                    ${a.status !== 'completed' ? `<button data-id="${a.id}" data-date="${a.date || ''}" data-time="${a.time || ''}" class="btn-reschedule px-3 sm:px-4 py-2 bg-white border border-sky-600 text-sky-600 text-xs sm:text-sm rounded-lg hover:bg-sky-50">Reschedule</button>` : ''}
+                                    ${(a.status !== 'completed' && a.status !== 'cancelled' && a.status !== 'in_progress' && a.status !== 'checked_in') ? `<button data-id="${a.id}" data-date="${a.date || ''}" data-time="${a.time || ''}" class="btn-reschedule px-3 sm:px-4 py-2 bg-white border border-sky-600 text-sky-600 text-xs sm:text-sm rounded-lg hover:bg-sky-50">Reschedule</button>` : ''}
                                     ${(a.status !== 'completed' && a.status !== 'cancelled') ? `<button data-id="${a.id}" class="btn-cancel px-3 sm:px-4 py-2 bg-red-600 text-white text-xs sm:text-sm rounded-lg hover:bg-red-700">Cancel</button>` : ''}
                                 </div>
                             </div>

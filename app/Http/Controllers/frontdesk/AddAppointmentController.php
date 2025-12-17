@@ -92,8 +92,8 @@ class AddAppointmentController extends Controller
     public function checkDoctorLeave(Request $request)
     {
         $doctorId = $request->get('doctor_id');
-        
-        if (!$doctorId) {
+
+        if (! $doctorId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Doctor ID is required',

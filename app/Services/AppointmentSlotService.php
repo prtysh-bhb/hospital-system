@@ -29,7 +29,7 @@ class AppointmentSlotService
 
         // Check if doctor is on leave for this date
         $leaveCheck = $this->isDoctorOnLeave($doctorId, $date);
-        if ($leaveCheck['on_leave']) {
+        if ($leaveCheck['on_leave'] && $leaveCheck['leave_type'] === 'full_day') {
             return [
                 'success' => false,
                 'message' => $leaveCheck['message'],
@@ -87,6 +87,15 @@ class AppointmentSlotService
                     continue;
                 }
 
+                // Skip if slot is during half-day leave
+                if ($leaveCheck['on_leave'] && $leaveCheck['leave_type'] === 'half_day') {
+                    if ($this->isSlotDuringHalfDayLeave($start, $leaveCheck)) {
+                        $start->addMinutes($slotDuration);
+
+                        continue;
+                    }
+                }
+
                 // If today, check if slot time has passed
                 if ($isToday) {
                     $slotDateTime = Carbon::parse($date.' '.$timeSlot24);
@@ -130,12 +139,19 @@ class AppointmentSlotService
 
         if ($leave) {
             $endDate = Carbon::parse($leave->end_date)->format('d M, Y');
-            
+
+            $message = $leave->leave_type === 'half_day'
+                ? 'Doctor is on half-day leave on this date. Limited slots available.'
+                : "Doctor is on leave until {$endDate}. Please select another date or doctor.";
+
             return [
                 'on_leave' => true,
-                'message' => "Doctor is on leave until {$endDate}. Please select another date or doctor.",
+                'message' => $message,
                 'leave_end_date' => $leave->end_date,
                 'leave_type' => $leave->leave_type,
+                'half_day_slot' => $leave->half_day_slot ?? null,
+                'start_time' => $leave->start_time ?? null,
+                'end_time' => $leave->end_time ?? null,
             ];
         }
 
@@ -143,7 +159,43 @@ class AppointmentSlotService
             'on_leave' => false,
             'message' => null,
             'leave_end_date' => null,
+            'leave_type' => null,
         ];
+    }
+
+    /**
+     * Check if a time slot is during half-day leave
+     *
+     * @param  Carbon  $slotTime
+     * @param  array  $leaveCheck
+     * @return bool
+     */
+    private function isSlotDuringHalfDayLeave($slotTime, $leaveCheck)
+    {
+        if ($leaveCheck['leave_type'] !== 'half_day') {
+            return false;
+        }
+
+        // If custom time range is specified
+        if ($leaveCheck['start_time'] && $leaveCheck['end_time']) {
+            $leaveStart = Carbon::parse($leaveCheck['start_time']);
+            $leaveEnd = Carbon::parse($leaveCheck['end_time']);
+
+            return $slotTime->gte($leaveStart) && $slotTime->lt($leaveEnd);
+        }
+
+        // If using half_day_slot field (morning/afternoon)
+        if ($leaveCheck['half_day_slot']) {
+            $noonTime = Carbon::parse('12:00');
+
+            if ($leaveCheck['half_day_slot'] === 'morning') {
+                return $slotTime->lt($noonTime);
+            } elseif ($leaveCheck['half_day_slot'] === 'afternoon') {
+                return $slotTime->gte($noonTime);
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -285,10 +337,24 @@ class AppointmentSlotService
         // Check if doctor is on leave
         $leaveCheck = $this->isDoctorOnLeave($doctorId, $date);
         if ($leaveCheck['on_leave']) {
-            return [
-                'valid' => false,
-                'message' => $leaveCheck['message'],
-            ];
+            // For full-day leave, reject completely
+            if ($leaveCheck['leave_type'] === 'full_day') {
+                return [
+                    'valid' => false,
+                    'message' => $leaveCheck['message'],
+                ];
+            }
+
+            // For half-day leave, check if the time slot falls during leave period
+            if ($leaveCheck['leave_type'] === 'half_day') {
+                $slotTime = Carbon::parse($this->convertTo24Hour($time));
+                if ($this->isSlotDuringHalfDayLeave($slotTime, $leaveCheck)) {
+                    return [
+                        'valid' => false,
+                        'message' => 'This time slot is not available due to doctor\'s half-day leave. Please select another time.',
+                    ];
+                }
+            }
         }
 
         // Check if appointment date is in the past

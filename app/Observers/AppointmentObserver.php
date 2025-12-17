@@ -19,7 +19,7 @@ class AppointmentObserver
                 logger()->info('Appointment created - creating history', [
                     'appointment_id' => $appointment->id,
                     'appointment_date' => $appointment->appointment_date,
-                    'appointment_time' => $appointment->appointment_time
+                    'appointment_time' => $appointment->appointment_time,
                 ]);
             }
             $actorId = Auth::id();
@@ -38,9 +38,9 @@ class AppointmentObserver
                 $apptTime = '00:00:00';
             }
 
-            if ($appointment->status === 'cancelled' && !empty($appointment->cancellation_reason)) {
+            if ($appointment->status === 'cancelled' && ! empty($appointment->cancellation_reason)) {
                 $note = $appointment->cancellation_reason;
-            } elseif (!empty($appointment->notes)) {
+            } elseif (! empty($appointment->notes)) {
                 $note = $appointment->notes;
             } else {
                 $note = null;
@@ -56,12 +56,12 @@ class AppointmentObserver
             ]);
         } catch (\Exception $e) {
             if (function_exists('logger')) {
-                logger()->error('Failed creating appointment history on create: ' . $e->getMessage(), [
-                    'appointment_id' => $appointment->id
+                logger()->error('Failed creating appointment history on create: '.$e->getMessage(), [
+                    'appointment_id' => $appointment->id,
                 ]);
             } else {
-                \Log::error('Failed creating appointment history on create: ' . $e->getMessage(), [
-                    'appointment_id' => $appointment->id
+                \Log::error('Failed creating appointment history on create: '.$e->getMessage(), [
+                    'appointment_id' => $appointment->id,
                 ]);
             }
         }
@@ -86,7 +86,7 @@ class AppointmentObserver
             logger()->info('Appointment updated - creating history', [
                 'appointment_id' => $appointment->id,
                 'changes' => $intersect,
-                'all_changes' => $changed
+                'all_changes' => $changed,
             ]);
         }
 
@@ -110,9 +110,9 @@ class AppointmentObserver
             if (empty($apptTime)) {
                 $apptTime = '00:00:00';
             }
-            if ($appointment->status === 'cancelled' && !empty($appointment->cancellation_reason)) {
+            if ($appointment->status === 'cancelled' && ! empty($appointment->cancellation_reason)) {
                 $note = $appointment->cancellation_reason;
-            } elseif (!empty($appointment->notes)) {
+            } elseif (! empty($appointment->notes)) {
                 $note = $appointment->notes;
             } else {
                 $note = null;
@@ -122,21 +122,21 @@ class AppointmentObserver
                 'appointment_id' => $appointment->id,
                 'created_by' => $actorId,
                 'status' => $appointment->status,
-                'note' => $note ,
+                'note' => $note,
                 'appointment_date' => $apptDate,
                 'appointment_time' => $apptTime,
             ]);
         } catch (\Exception $e) {
             // Don't let history insert block the appointment update — log for investigation
             if (function_exists('logger')) {
-                logger()->error('Failed creating appointment history: ' . $e->getMessage(), [
+                logger()->error('Failed creating appointment history: '.$e->getMessage(), [
                     'appointment_id' => $appointment->id,
-                    'changes' => $changed
+                    'changes' => $changed,
                 ]);
             } else {
-                \Log::error('Failed creating appointment history: ' . $e->getMessage(), [
+                \Log::error('Failed creating appointment history: '.$e->getMessage(), [
                     'appointment_id' => $appointment->id,
-                    'changes' => $changed
+                    'changes' => $changed,
                 ]);
             }
         }

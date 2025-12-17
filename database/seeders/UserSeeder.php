@@ -155,8 +155,8 @@ class UserSeeder extends Seeder
         foreach ($patientNames as $index => $name) {
             $users[] = [
                 'role' => 'patient',
-                'email' => strtolower($name[0]) . '.' . strtolower($name[1]) . '@patient.com',
-                'username' => strtolower($name[0]) . '.' . strtolower($name[1]) . '@patient.com',  // Added username after email
+                'email' => strtolower($name[0]).'.'.strtolower($name[1]).'@patient.com',
+                'username' => strtolower($name[0]).'.'.strtolower($name[1]).'@patient.com',  // Added username after email
                 'password' => Hash::make('admin@123'),
                 'first_name' => $name[0],
                 'last_name' => $name[1],

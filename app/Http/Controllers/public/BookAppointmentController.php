@@ -4,6 +4,7 @@ namespace App\Http\Controllers\public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\DoctorLeave;
 use App\Models\DoctorSchedule;
 use App\Models\Specialty;
 use App\Models\User;
@@ -172,7 +173,49 @@ class BookAppointmentController extends Controller
 
         return response()->json([
             'slots' => $result['slots'],
+            'on_leave' => $result['on_leave'] ?? false,
+            'message' => $result['message'] ?? null,
         ]);
+    }
+
+    public function getDoctorLeaveDates(Request $request)
+    {
+        $doctor_id = session('doctor_id');
+
+        if (! $doctor_id) {
+            return response()->json(['leave_dates' => []]);
+        }
+
+        $startDate = now();
+        $endDate = now()->addDays(env('ADVANCE_DAYS_FOR_APPOINTMENT', 30));
+
+        $leaves = DoctorLeave::where('doctor_id', $doctor_id)
+            ->where('status', 'approved')
+            ->where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('start_date', [$startDate, $endDate])
+                    ->orWhereBetween('end_date', [$startDate, $endDate])
+                    ->orWhere(function ($q) use ($startDate, $endDate) {
+                        $q->where('start_date', '<=', $startDate)
+                            ->where('end_date', '>=', $endDate);
+                    });
+            })
+            ->get();
+
+        $leaveDates = [];
+        foreach ($leaves as $leave) {
+            $start = \Carbon\Carbon::parse($leave->start_date);
+            $end = \Carbon\Carbon::parse($leave->end_date);
+
+            while ($start <= $end) {
+                $leaveDates[$start->format('Y-m-d')] = [
+                    'type' => $leave->leave_type,
+                    'half_day_slot' => $leave->half_day_slot,
+                ];
+                $start->addDay();
+            }
+        }
+
+        return response()->json(['leave_dates' => $leaveDates]);
     }
 
     public function store(Request $request)

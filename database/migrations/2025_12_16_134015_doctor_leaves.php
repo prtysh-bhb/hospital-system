@@ -20,7 +20,7 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
-            
+
             $table->date('start_date');
             $table->date('end_date');
             $table->time('start_time')->nullable();
