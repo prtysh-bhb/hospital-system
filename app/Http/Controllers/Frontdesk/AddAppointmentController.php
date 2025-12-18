@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Frontdesk;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\AppointmentSlotService;
-use App\Services\public\BookAppointmentService;
+use App\Services\Public\BookAppointmentService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -92,8 +92,8 @@ class AddAppointmentController extends Controller
     public function checkDoctorLeave(Request $request)
     {
         $doctorId = $request->get('doctor_id');
-
-        if (! $doctorId) {
+        
+        if (!$doctorId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Doctor ID is required',

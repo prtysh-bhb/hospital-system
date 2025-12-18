@@ -47,8 +47,8 @@ class DoctorLeaveController extends Controller
                 'type' => 'leave_conflict',
                 'message' => 'You already have a leave applied for the selected date(s).',
                 'errors' => [
-                    'leave_dates' => ['You already have a leave applied for the selected date(s).'],
-                ],
+                    'leave_dates' => ['You already have a leave applied for the selected date(s).']
+                ]
             ], 422);
         }
         $cancelAppointments = $request->boolean('cancel_appointments', false);
@@ -76,7 +76,6 @@ class DoctorLeaveController extends Controller
                     ->whereNotIn('status', ['cancelled', 'completed'])
                     ->update([
                         'status' => 'cancelled',
-                        'cancelled_at' => now(),
                         'cancellation_reason' => 'Doctor on leave: '.($request->input('reason') ?? 'Leave approved'),
                     ]);
                 event(new AppointmentCancelEvent(
@@ -117,7 +116,7 @@ class DoctorLeaveController extends Controller
         string $endDate
     ): bool {
         return DoctorLeave::where('doctor_id', $doctorId)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', ['pending', 'approved']) 
             ->where(function ($query) use ($startDate, $endDate) {
                 $query->where('start_date', '<=', $endDate)
                     ->where('end_date', '>=', $startDate);
