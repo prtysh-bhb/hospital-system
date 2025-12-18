@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\WhatsAppDebugController;
 use App\Http\Controllers\Api\WhatsAppMessageController;
-use App\Http\Controllers\Api\WhatsAppWebhookController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -14,22 +13,22 @@ Route::get('/user', function (Request $request) {
 Route::group(['prefix' => 'whatsapp'], function () {
     // Send text message
     Route::post('/send-text', [WhatsAppMessageController::class, 'sendTextMessage']);
-    
+
     // Send image message
     Route::post('/send-image', [WhatsAppMessageController::class, 'sendImageMessage']);
-    
-    // Send document message
-    Route::post('/send-document', [WhatsAppMessageController::class, 'sendDocumentMessage']);
-    
+
     // Send template message
     Route::post('/send-template', [WhatsAppMessageController::class, 'sendTemplateMessage']);
-    
+
+    // Send document message
+    Route::post('/send-document', [WhatsAppMessageController::class, 'sendDocumentMessage']);
+
     // Upload media
     Route::post('/upload-media', [WhatsAppMessageController::class, 'uploadMedia']);
-    
+
     // Get templates list
     Route::get('/templates', [WhatsAppMessageController::class, 'getTemplates']);
-    
+
     // Create template
     Route::post('/templates', [WhatsAppMessageController::class, 'createTemplate']);
 
@@ -38,7 +37,7 @@ Route::group(['prefix' => 'whatsapp'], function () {
 
     // Delete media
     Route::delete('/delete/media', [WhatsAppMessageController::class, 'deleteMedia']);
-    
+
     // DEBUG ROUTES
     Route::get('/debug/config', [WhatsAppDebugController::class, 'checkConfig']);
     Route::get('/debug/validate-token', [WhatsAppDebugController::class, 'validateToken']);

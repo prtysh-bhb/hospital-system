@@ -3,16 +3,18 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use GuzzleHttp\Exception\RequestException;
 
 class WhatsAppService
 {
     protected $client;
+
     protected $config;
+
     protected $baseUrl;
+
     protected $headers;
 
     public function __construct()
@@ -27,7 +29,7 @@ class WhatsAppService
         ]);
 
         $this->headers = [
-            'Authorization' => 'Bearer ' . $this->config['access_token'],
+            'Authorization' => 'Bearer '.$this->config['access_token'],
             'Content-Type' => 'application/json',
         ];
     }
@@ -37,36 +39,21 @@ class WhatsAppService
      */
     public function validatePhoneNumber(string $phoneNumber): array
     {
-        // Remove all non-digits
         $cleaned = preg_replace('/[^0-9]/', '', $phoneNumber);
-        
+
         if (strlen($cleaned) < 10) {
-            return [
-                'valid' => false,
-                'message' => 'Phone number too short'
-            ];
+            return ['valid' => false, 'message' => 'Phone number too short'];
         }
-        
+
         if (strlen($cleaned) > 15) {
-            return [
-                'valid' => false,
-                'message' => 'Phone number too long'
-            ];
+            return ['valid' => false, 'message' => 'Phone number too long'];
         }
-        
-        // Check if it starts with country code
-        if (!preg_match('/^\d{10,15}$/', $cleaned)) {
-            return [
-                'valid' => false,
-                'message' => 'Invalid phone number format'
-            ];
+
+        if (! preg_match('/^\d{10,15}$/', $cleaned)) {
+            return ['valid' => false, 'message' => 'Invalid phone number format'];
         }
-        
-        return [
-            'valid' => true,
-            'message' => 'Phone number is valid',
-            'formatted' => $cleaned
-        ];
+
+        return ['valid' => true, 'message' => 'Phone number is valid', 'formatted' => $cleaned];
     }
 
     /**
@@ -75,14 +62,12 @@ class WhatsAppService
     public function sendMessage(string $to, array $message, string $type = 'text')
     {
         try {
-            // Validate phone number first
             $validation = $this->validatePhoneNumber($to);
-            if (!$validation['valid']) {
+            if (! $validation['valid']) {
                 throw new \Exception($validation['message']);
             }
-            
+
             $to = $validation['formatted'];
-            
             $url = "/{$this->config['phone_number_id']}/messages";
 
             $payload = [
@@ -92,7 +77,6 @@ class WhatsAppService
                 'type' => $type,
             ];
 
-            // Add message content based on type
             switch ($type) {
                 case 'text':
                     $payload['text'] = ['body' => $message['body']];
@@ -117,30 +101,43 @@ class WhatsAppService
                     $payload['template'] = [
                         'name' => trim($message['name']),
                         'language' => ['code' => trim($message['language'])],
-                        // 'components' => $message['components'] ?? [],
+                        'components' => $message['components'] ?? [],
                     ];
-                    // dd($payload);
                     break;
 
                 case 'interactive':
                     $payload['interactive'] = $message['interactive'];
                     break;
             }
-            
+
+            // Log outgoing payload
+            Log::channel('whatsapp_log')->info('Sending WhatsApp message', [
+                'to' => $to,
+                'type' => $type,
+                'payload' => $payload,
+            ]);
+
             $response = $this->client->post($url, [
                 'headers' => $this->headers,
                 'json' => $payload,
             ]);
-            return json_decode($response->getBody()->getContents(), true);
+
+            $responseBody = json_decode($response->getBody()->getContents(), true);
+
+            // Log response
+            Log::channel('whatsapp_log')->info('WhatsApp API response', $responseBody);
+
+            return $responseBody;
 
         } catch (RequestException $e) {
-            // Log full Guzzle error for debugging
-            $errorBody = $e->hasResponse()
-                ? $e->getResponse()->getBody()->getContents()
-                : $e->getMessage();
-            Log::error('WhatsApp API Error: ' . $errorBody);
+            $errorBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
 
-            // Provide readable messages
+            // Log error
+            Log::channel('whatsapp_log')->error('WhatsApp API Error', [
+                'message' => $e->getMessage(),
+                'response' => $errorBody,
+            ]);
+
             if ($e->hasResponse()) {
                 $statusCode = $e->getResponse()->getStatusCode();
                 switch ($statusCode) {
@@ -155,13 +152,11 @@ class WhatsAppService
                     case 429:
                         throw new \Exception('Too Many Requests: You are being rate limited by WhatsApp API.');
                     default:
-                        // Catch other HTTP errors
-                        throw new \Exception("WhatsApp API returned status {$statusCode}: " . $errorBody);
+                        throw new \Exception("WhatsApp API returned status {$statusCode}: ".$errorBody);
                 }
             }
 
-            // Catch network or other Guzzle exceptions
-            throw new \Exception('WhatsApp API Error: ' . $e->getMessage());
+            throw new \Exception('WhatsApp API Error: '.$e->getMessage());
         }
     }
 
@@ -171,49 +166,37 @@ class WhatsAppService
     public function uploadMedia(UploadedFile $file)
     {
         try {
-            $mimeType = $file->getMimeType(); // image/jpeg
+            $mimeType = $file->getMimeType();
 
-            // Map MIME → WhatsApp type
-            if (str_starts_with($mimeType, 'image/')) {
-                $type = 'image';
-            } elseif (str_starts_with($mimeType, 'video/')) {
-                $type = 'video';
-            } elseif (str_starts_with($mimeType, 'audio/')) {
-                $type = 'audio';
-            } else {
-                $type = 'document';
-            }
+            $type = str_starts_with($mimeType, 'image/') ? 'image' :
+                (str_starts_with($mimeType, 'video/') ? 'video' :
+                    (str_starts_with($mimeType, 'audio/') ? 'audio' : 'document'));
 
             $url = "/{$this->config['phone_number_id']}/media";
 
             $response = $this->client->post($url, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->config['access_token'],
-                ],
+                'headers' => ['Authorization' => 'Bearer '.$this->config['access_token']],
                 'multipart' => [
                     [
                         'name' => 'file',
                         'contents' => fopen($file->getPathname(), 'rb'),
                         'filename' => $file->getClientOriginalName(),
-                        'headers' => [
-                            'Content-Type' => $mimeType, // VERY IMPORTANT
-                        ],
+                        'headers' => ['Content-Type' => $mimeType],
                     ],
-                    [
-                        'name' => 'type',
-                        'contents' => $type,
-                    ],
-                    [
-                        'name' => 'messaging_product',
-                        'contents' => 'whatsapp',
-                    ],
+                    ['name' => 'type', 'contents' => $type],
+                    ['name' => 'messaging_product', 'contents' => 'whatsapp'],
                 ],
             ]);
 
-            return json_decode($response->getBody()->getContents(), true);
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            Log::channel('whatsapp_log')->info('Media uploaded to WhatsApp', $data);
+
+            return $data;
 
         } catch (RequestException $e) {
-            Log::error('WhatsApp Media Upload Error: ' . $e->getResponse()->getBody());
+            $errorBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
+            Log::channel('whatsapp_log')->error('WhatsApp Media Upload Error', ['error' => $errorBody]);
             throw new \Exception('Media upload failed');
         }
     }
@@ -224,35 +207,30 @@ class WhatsAppService
     public function getMediaUrl(string $mediaId)
     {
         try {
-            // Build the URL with query params
-            $query = [
-                'phone_number_id' => $this->config['phone_number_id'], // your WhatsApp Business phone ID
-            ];
-
-            // Send GET request to WhatsApp Graph API
             $response = $this->client->get("/{$mediaId}", [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->config['access_token'],
-                ],
-                'query' => $query,
+                'headers' => ['Authorization' => 'Bearer '.$this->config['access_token']],
+                'query' => ['phone_number_id' => $this->config['phone_number_id']],
             ]);
 
             $data = json_decode($response->getBody()->getContents(), true);
 
-            // Check if 'url' exists
-            if (!isset($data['url'])) {
-                Log::error('WhatsApp Get Media Error: URL not found', ['response' => $data]);
+            if (! isset($data['url'])) {
+                Log::channel('whatsapp_log')->error('WhatsApp Get Media Error: URL not found', ['response' => $data]);
+
                 return null;
             }
+
+            Log::channel('whatsapp_log')->info('WhatsApp Get Media URL', $data);
 
             return [
                 'media_id' => $data['id'],
                 'url' => $data['url'],
-                'mime_type' => $data['mime_type'] ?? null
+                'mime_type' => $data['mime_type'] ?? null,
             ];
 
         } catch (\Exception $e) {
-            Log::error('WhatsApp Get Media Error: ' . $e->getMessage());
+            Log::channel('whatsapp_log')->error('WhatsApp Get Media Error', ['message' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -263,16 +241,16 @@ class WhatsAppService
     public function deleteMedia(string $mediaId)
     {
         try {
-            $url = "/{$mediaId}";
+            $response = $this->client->delete("/{$mediaId}", ['headers' => $this->headers]);
 
-            $response = $this->client->delete($url, [
-                'headers' => $this->headers,
-            ]);
+            $success = $response->getStatusCode() === 200;
+            Log::channel('whatsapp_log')->info('WhatsApp Delete Media', ['media_id' => $mediaId, 'success' => $success]);
 
-            return $response->getStatusCode() === 200;
+            return $success;
 
         } catch (RequestException $e) {
-            Log::error('WhatsApp Delete Media Error: ' . $e->getMessage());
+            Log::channel('whatsapp_log')->error('WhatsApp Delete Media Error', ['message' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -287,13 +265,12 @@ class WhatsAppService
 
             $payload = [
                 'name' => strtolower(trim($data['name'])),
-                'language' => $data['language'], // en_US
+                'language' => $data['language'],
                 'category' => $data['category'],
                 'components' => [],
             ];
 
-            // HEADER (optional)
-            if (!empty($data['header'])) {
+            if (! empty($data['header'])) {
                 $payload['components'][] = [
                     'type' => 'HEADER',
                     'format' => 'TEXT',
@@ -301,45 +278,34 @@ class WhatsAppService
                 ];
             }
 
-            // BODY (required)
-            $payload['components'][] = [
-                'type' => 'BODY',
-                'text' => $data['body'],
-            ];
+            $payload['components'][] = ['type' => 'BODY', 'text' => $data['body']];
 
-            // FOOTER (optional)
-            if (!empty($data['footer'])) {
-                $payload['components'][] = [
-                    'type' => 'FOOTER',
-                    'text' => $data['footer'],
-                ];
+            if (! empty($data['footer'])) {
+                $payload['components'][] = ['type' => 'FOOTER', 'text' => $data['footer']];
             }
 
-            // BUTTONS (optional)
-            if (!empty($data['buttons'])) {
-                $payload['components'][] = [
-                    'type' => 'BUTTONS',
-                    'buttons' => $data['buttons'],
-                ];
+            if (! empty($data['buttons'])) {
+                $payload['components'][] = ['type' => 'BUTTONS', 'buttons' => $data['buttons']];
             }
 
             $response = $this->client->post($url, [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->config['access_token'],
+                    'Authorization' => 'Bearer '.$this->config['access_token'],
                     'Content-Type' => 'application/json',
                 ],
                 'json' => $payload,
             ]);
 
-            return json_decode($response->getBody(), true);
+            $result = json_decode($response->getBody(), true);
+
+            Log::channel('whatsapp_log')->info('WhatsApp Template Created', $result);
+
+            return $result;
 
         } catch (RequestException $e) {
-            $error = $e->hasResponse()
-                ? $e->getResponse()->getBody()->getContents()
-                : $e->getMessage();
-
-            \Log::error('WhatsApp Template Error: ' . $error);
-            throw new \Exception($error);
+            $errorBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
+            Log::channel('whatsapp_log')->error('WhatsApp Template Error', ['error' => $errorBody]);
+            throw new \Exception($errorBody);
         }
     }
 
@@ -349,46 +315,45 @@ class WhatsAppService
     public function getTemplates()
     {
         try {
-            $url = "/{$this->config['business_account_id']}/message_templates";
-
-            $response = $this->client->get($url, [
+            $response = $this->client->get("/{$this->config['business_account_id']}/message_templates", [
                 'headers' => $this->headers,
             ]);
 
-            return json_decode($response->getBody(), true);
-        }catch (RequestException $e) {
-            $error = $e->hasResponse()
-                ? $e->getResponse()->getBody()->getContents()
-                : $e->getMessage();
+            $data = json_decode($response->getBody()->getContents(), true);
 
-            Log::error('WhatsApp Get Templates Error: ' . $e->getMessage());
-            throw new \Exception($error);
+            Log::channel('whatsapp_log')->info('WhatsApp Templates List', $data);
+
+            return $data;
+        } catch (RequestException $e) {
+            $errorBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
+            Log::channel('whatsapp_log')->error('WhatsApp Get Templates Error', ['error' => $errorBody]);
+            throw new \Exception($errorBody);
         }
     }
 
     /**
      * Delete message template
+     * Deleting templates via WhatsApp API is not supported. Please delete templates manually via the WhatsApp Business Manager UI.
      */
-    public function deleteTemplate(string $templateName)
-    {
-        try {
-            $url = "/{$this->config['business_account_id']}/message_templates?name={$templateName}";
+    // public function deleteTemplate(string $templateName)
+    // {
+    //     try {
+    //         $response = $this->client->delete("/{$this->config['business_account_id']}/message_templates?name={$templateName}", [
+    //             'headers' => $this->headers,
+    //         ]);
 
-            $response = $this->client->delete($url, [
-                'headers' => $this->headers,
-            ]);
+    //         $success = $response->getStatusCode() === 200;
 
-            return $response->getStatusCode() === 200;
+    //         Log::channel('whatsapp_log')->info('WhatsApp Template Deleted', ['template' => $templateName, 'success' => $success]);
 
-        } catch (RequestException $e) {
-            $error = $e->hasResponse()
-                ? $e->getResponse()->getBody()->getContents()
-                : $e->getMessage();
+    //         return $success;
 
-            \Log::error('WhatsApp Delete Template Error: ' . $error);
-            return false;
-        }
-    }
+    //     } catch (RequestException $e) {
+    //         $errorBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
+    //         Log::channel('whatsapp_log')->error('WhatsApp Delete Template Error', ['error' => $errorBody]);
+    //         return false;
+    //     }
+    // }
 
     /**
      * Verify webhook

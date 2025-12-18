@@ -9,7 +9,7 @@ return [
     'version' => 'v22.0',
 
     'webhook' => [
-        'url' => env('APP_URL') . '/api/whatsapp/webhook',
+        'url' => env('APP_URL').'/api/whatsapp/webhook',
         'events' => [
             'messages',
             'message_template_status_update',
