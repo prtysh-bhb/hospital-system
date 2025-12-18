@@ -93,6 +93,10 @@
                                     <span id="doctorEmail" class="text-gray-800 text-sm font-medium"></span>
                                 </div>
                                 <div class="flex items-start">
+                                    <span class="text-gray-500 text-sm w-28 flex-shrink-0">Username:</span>
+                                    <span id="doctorUsername" class="text-gray-800 text-sm font-medium"></span>
+                                </div>
+                                <div class="flex items-start">
                                     <span class="text-gray-500 text-sm w-28 flex-shrink-0">Phone:</span>
                                     <span id="doctorPhone" class="text-gray-800 text-sm font-medium"></span>
                                 </div>
@@ -212,6 +216,7 @@
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="suspended">Suspended</option>
+                    {{-- <option value="on_leave">On Leave</option> --}}
                 </select>
             </div>
         </div>
@@ -558,6 +563,7 @@
 
             // Personal Info
             document.getElementById('doctorEmail').textContent = doctor.email;
+            document.getElementById('doctorUsername').textContent = doctor.username;
             document.getElementById('doctorPhone').textContent = doctor.phone || 'N/A';
             document.getElementById('doctorGender').textContent = doctor.gender;
             document.getElementById('doctorDob').textContent = doctor.date_of_birth;

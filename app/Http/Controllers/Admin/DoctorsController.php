@@ -55,6 +55,7 @@ class DoctorsController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
             'last_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
+            'username' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
             'email' => 'required|email|max:50|unique:users,email',
             'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone', 'not_regex:/^0+$/'],
             'date_of_birth' => 'required|date|before:today',
@@ -75,6 +76,9 @@ class DoctorsController extends Controller
         ], [
             'first_name.regex' => 'First name can only contain letters and spaces.',
             'first_name.min' => 'First name must be at least 2 characters.',
+            'username.regex' => 'User name can only contain letters and spaces.',
+            'username.min' => 'User name must be at least 2 characters.',
+            'username.max' => 'User name cannot exceed 25 characters.',
             'first_name.max' => 'First name cannot exceed 25 characters.',
             'last_name.regex' => 'Last name can only contain letters and spaces.',
             'last_name.min' => 'Last name must be at least 2 characters.',
@@ -188,6 +192,7 @@ class DoctorsController extends Controller
                     'id' => $doctor->user->id,
                     'full_name' => $doctor->user->full_name,
                     'first_name' => $doctor->user->first_name,
+                    'username' => $doctor->user->username,
                     'last_name' => $doctor->user->last_name,
                     'email' => $doctor->user->email,
                     'phone' => $doctor->user->phone,

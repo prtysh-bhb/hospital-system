@@ -126,6 +126,7 @@ Route::prefix('doctor')->name('doctor.')->middleware(['auth', 'role:doctor'])->g
     Route::get('appointments/available-slots', [DoctorAppointmentController::class, 'getAvailableSlots'])->name('appointments.available-slots');
     Route::post('appointments/{id}/reschedule', [DoctorAppointmentController::class, 'reschedule'])->name('appointments.reschedule');
     Route::post('appointments/{id}/cancel', [DoctorAppointmentController::class, 'cancel'])->name('appointments.cancel');
+    Route::post('appointments/{id}/update-status', [DoctorAppointmentController::class, 'updateStatus'])->name('appointments.update-status');
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
     Route::get('/calendar/data', [CalendarController::class, 'getCalendarData'])->name('calendar.data');
@@ -171,4 +172,8 @@ Route::prefix('patient')->name('patient.')->group(function () {
 Route::prefix('patient')->name('patient.')->middleware(['auth', 'role:patient'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/cancel-appointment', [DashboardController::class, 'cancelAppointment'])->name('cancel-appointment');
+    Route::post('/reschedule-appointment', [DashboardController::class, 'rescheduleAppointment'])->name('reschedule-appointment');
+    Route::get('/available-time-slots', [DashboardController::class, 'getAvailableTimeSlots'])->name('available-time-slots');
+    Route::get('/medical-history', [DashboardController::class, 'getMedicalHistory'])->name('medical-history');
+    Route::get('/prescription/{id}/download', [DashboardController::class, 'downloadPrescription'])->name('prescription.download');
 });

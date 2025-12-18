@@ -108,8 +108,8 @@
                         </div>
                     </div>
 
-                    <!-- Status Badge -->
-                    <div class="flex-shrink-0 ml-2">
+                    <!-- Status Badges -->
+                    <div class="flex-shrink-0 ml-2 flex flex-col gap-1.5">
                         @if ($doctor->user->status === 'active')
                             <span
                                 class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
@@ -124,6 +124,17 @@
                             <span
                                 class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
                                 {{ ucfirst($doctor->user->status) }}
+                            </span>
+                        @endif
+
+                        @if ($doctor->user->isOnLeave())
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                                </svg>
+                                On Leave
                             </span>
                         @endif
                     </div>
