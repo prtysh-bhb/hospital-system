@@ -382,6 +382,12 @@ class AppointmentController extends Controller
                     'msg' => 'Appointment not found.',
                 ]);
             }
+            if ($appointment->status === 'completed' || $appointment->status === 'cancelled' || $appointment->status === 'in_progress') {
+                return response()->json([
+                    'status' => 422,
+                    'msg' => 'Completed, cancelled, or in-progress appointments cannot be modified.',
+                ]);
+            }
 
             $appointment->patient_id = $request->input('patient_id');
             $appointment->doctor_id = $request->input('doctor_id');

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Doctor;
 
-use App\Events\AppointmentCancelEvent;
+use App\Events\NotifiyUserEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\DoctorLeave;
@@ -79,7 +79,7 @@ class DoctorLeaveController extends Controller
                         'cancelled_at' => now(),
                         'cancellation_reason' => 'Doctor on leave: '.($request->input('reason') ?? 'Leave approved'),
                     ]);
-                event(new AppointmentCancelEvent(
+                event(new NotifiyUserEvent(
                     $user->id,
                     $request->input('reason')
                 ));

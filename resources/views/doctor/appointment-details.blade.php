@@ -37,6 +37,30 @@
                     </span>
                 </div>
 
+                <!-- Status Change Section -->
+
+                @if (
+                    $appointment->status !== 'completed' ||
+                        $appointment->status !== 'cancelled' ||
+                        $appointment->status !== 'in_progress')
+                    <div id="status-change-section" class="mb-6 p-4 bg-gray-50 rounded-lg hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Change Appointment Status</label>
+                        <div class="flex gap-3">
+                            <select id="status-select"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                                <option value="">Select status...</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="checked_in">Checked In</option>
+                                <option value="in_progress">In Progress</option>
+                            </select>
+                            <button id="update-status-btn"
+                                class="px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 font-medium">
+                                Update
+                            </button>
+                        </div>
+                        <p id="status-message" class="mt-2 text-sm hidden"></p>
+                    </div>
+                @endif
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                         <p class="text-xs sm:text-sm text-gray-500 mb-1">Appointment ID</p>
@@ -189,7 +213,6 @@
                     <p class="text-sm text-gray-500 italic">No prescriptions available</p>
                 </div>
             </div>
-            {{-- @dd($appointment->status); --}}
 
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
 
@@ -308,6 +331,33 @@
                     </button>
                     <p id="followup-message" class="text-sm hidden"></p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Appointment Confirmation Modal -->
+    <div id="complete-appointment-modal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Complete Appointment</h3>
+                <p class="text-sm text-gray-600 mb-6">Are you sure you want to mark this appointment as completed? This
+                    action cannot be undone.</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancel-complete-btn"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
+                    Cancel
+                </button>
+                <button id="confirm-complete-btn"
+                    class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                    Confirm
+                </button>
             </div>
         </div>
     </div>
@@ -555,6 +605,16 @@
                         `px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full ${statusColors[data.appointment.status] || 'bg-gray-100 text-gray-700'}`;
                     document.getElementById('appointment-status').textContent = data.appointment.status.charAt(0)
                         .toUpperCase() + data.appointment.status.slice(1).replace('_', ' ');
+
+                    // Show/hide status change section based on current status
+                    const currentStatus = data.appointment.status;
+                    if (currentStatus !== 'completed' && currentStatus !== 'cancelled') {
+                        document.getElementById('status-change-section').classList.remove('hidden');
+                        updateStatusOptions(currentStatus);
+                    } else {
+                        document.getElementById('status-change-section').classList.add('hidden');
+                    }
+
                     document.getElementById('appointment-number').textContent = data.appointment.appointment_number;
                     document.getElementById('appointment-datetime').textContent =
                         `${data.appointment.date} • ${data.appointment.time}`;
@@ -750,7 +810,7 @@
                     const quantity = document.getElementById('med-quantity').value.trim();
 
                     if (!name || !dosage || !frequency || !duration) {
-                        alert('Please fill in all required fields (Name, Dosage, Frequency, Duration)');
+                        toastr.error('Please fill in all required medication fields');
                         return;
                     }
 
@@ -973,11 +1033,23 @@
                         });
                 });
 
-                // Complete Appointment
+                // Complete Appointment - Show Modal
                 document.getElementById('complete-appointment-btn').addEventListener('click', function() {
-                    if (!confirm('Are you sure you want to mark this appointment as completed?')) {
-                        return;
-                    }
+                    document.getElementById('complete-appointment-modal').classList.remove('hidden');
+                });
+
+                // Cancel Complete Modal
+                document.getElementById('cancel-complete-btn').addEventListener('click', function() {
+                    document.getElementById('complete-appointment-modal').classList.add('hidden');
+                });
+
+                // Confirm Complete Appointment
+                document.getElementById('confirm-complete-btn').addEventListener('click', function() {
+                    const modal = document.getElementById('complete-appointment-modal');
+                    const btn = this;
+
+                    btn.disabled = true;
+                    btn.textContent = 'Processing...';
 
                     fetch(`/doctor/appointments/${appointmentId}/complete`, {
                             method: 'POST',
@@ -989,15 +1061,110 @@
                         .then(response => response.json())
                         .then(result => {
                             if (result.status === 200) {
-                                alert(result.msg);
-                                window.location.href = '{{ route('doctor.appointments') }}';
+                                modal.classList.add('hidden');
+                                toastr.success(result.msg);
+                                setTimeout(() => {
+                                    window.location.href = '{{ route('doctor.appointments') }}';
+                                }, 1000);
                             } else {
-                                alert(result.msg || 'Failed to complete appointment');
+                                toastr.error(result.msg || 'Failed to complete appointment');
+                                btn.disabled = false;
+                                btn.textContent = 'Confirm';
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('An error occurred');
+                            toastr.error('An error occurred');
+                            btn.disabled = false;
+                            btn.textContent = 'Confirm';
+                        });
+                });
+
+                // Update Status Options based on current status
+                function updateStatusOptions(currentStatus) {
+                    const select = document.getElementById('status-select');
+                    select.innerHTML = '<option value="">Select status...</option>';
+
+                    // Define allowed transitions
+                    const allowedTransitions = {
+                        'pending': ['confirmed'],
+                        'confirmed': ['checked_in', 'in_progress'],
+                        'checked_in': ['in_progress'],
+                        'in_progress': []
+                    };
+
+                    const statusLabels = {
+                        'confirmed': 'Confirmed',
+                        'checked_in': 'Checked In',
+                        'in_progress': 'In Progress'
+                    };
+
+                    const allowedStatuses = allowedTransitions[currentStatus] || [];
+                    allowedStatuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = statusLabels[status];
+                        select.appendChild(option);
+                    });
+                }
+
+                // Update Status Handler
+                document.getElementById('update-status-btn').addEventListener('click', function() {
+                    const newStatus = document.getElementById('status-select').value;
+                    const messageEl = document.getElementById('status-message');
+
+                    if (!newStatus) {
+                        showMessage(messageEl, 'Please select a status', 'error');
+                        return;
+                    }
+
+                    // Validate status transition
+                    const currentStatus = appointmentData.appointment.status;
+                    const allowedTransitions = {
+                        'pending': ['confirmed'],
+                        'confirmed': ['checked_in', 'in_progress'],
+                        'checked_in': ['in_progress'],
+                        'in_progress': []
+                    };
+
+                    if (!allowedTransitions[currentStatus] || !allowedTransitions[currentStatus].includes(
+                            newStatus)) {
+                        showMessage(messageEl, 'Invalid status transition', 'error');
+                        return;
+                    }
+
+                    this.disabled = true;
+                    this.textContent = 'Updating...';
+
+                    fetch(`/doctor/appointments/${appointmentId}/update-status`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                status: newStatus
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.status === 200) {
+                                showMessage(messageEl, 'Status updated successfully!', 'success');
+                                // Reload appointment details
+                                setTimeout(() => {
+                                    loadAppointmentDetails();
+                                }, 1000);
+                            } else {
+                                showMessage(messageEl, result.msg || 'Failed to update status', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showMessage(messageEl, 'An error occurred', 'error');
+                        })
+                        .finally(() => {
+                            this.disabled = false;
+                            this.textContent = 'Update';
                         });
                 });
 

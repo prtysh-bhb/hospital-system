@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Traits\LogsActivity;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -199,5 +200,19 @@ class User extends Authenticatable
     public function specialty()
     {
         return $this->belongsTo(Specialty::class, 'specialty_id');
+    }
+
+    public function doctorLeaves(): HasMany
+    {
+        return $this->hasMany(DoctorLeave::class, 'doctor_id');
+    }
+
+    public function isOnLeave(): bool
+    {
+        return $this->doctorLeaves()
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', Carbon::today())
+            ->whereDate('end_date', '>=', Carbon::today())
+            ->exists();
     }
 }

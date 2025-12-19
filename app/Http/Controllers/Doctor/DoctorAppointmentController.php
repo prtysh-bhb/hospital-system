@@ -658,4 +658,83 @@ class DoctorAppointmentController extends Controller
             'message' => 'Appointment cancelled successfully',
         ], 200);
     }
+
+    /**
+     * Update appointment status with validation
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $doctorId = Auth::id();
+
+            // Fetch appointment belonging to this doctor
+            $appointment = Appointment::where('id', $id)
+                ->where('doctor_id', $doctorId)
+                ->first();
+
+            if (! $appointment) {
+                return response()->json([
+                    'status' => 404,
+                    'msg' => 'Appointment not found or unauthorized',
+                ], 404);
+            }
+
+            // Check if appointment is already completed or cancelled
+            if (in_array($appointment->status, ['completed', 'cancelled'])) {
+                return response()->json([
+                    'status' => 400,
+                    'msg' => 'Cannot change status of completed or cancelled appointments',
+                ], 400);
+            }
+
+            $validated = $request->validate([
+                'status' => 'required|in:confirmed,checked_in,in_progress,completed',
+            ]);
+
+            $newStatus = $validated['status'];
+            $currentStatus = $appointment->status;
+
+            // Define allowed status transitions
+            $allowedTransitions = [
+                'pending' => ['confirmed'],
+                'confirmed' => ['checked_in', 'in_progress'],
+                'checked_in' => ['in_progress'],
+                'in_progress' => ['completed'],
+            ];
+
+            // Validate status transition
+            if (! isset($allowedTransitions[$currentStatus]) ||
+                ! in_array($newStatus, $allowedTransitions[$currentStatus])) {
+                return response()->json([
+                    'status' => 400,
+                    'msg' => "Cannot change status from {$currentStatus} to {$newStatus}. Please follow the proper workflow.",
+                ], 400);
+            }
+
+            // Update the status
+            $appointment->status = $newStatus;
+            $appointment->save();
+
+            return response()->json([
+                'status' => 200,
+                'msg' => 'Status updated successfully',
+                'data' => [
+                    'status' => $appointment->status,
+                ],
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 422,
+                'msg' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Update appointment status error: '.$e->getMessage());
+
+            return response()->json([
+                'status' => 500,
+                'msg' => 'An error occurred while updating status',
+            ], 500);
+        }
+    }
 }

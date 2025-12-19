@@ -2,8 +2,10 @@
 
 namespace App\Services\Admin;
 
+use App\Models\DoctorLeave;
 use App\Models\DoctorProfile;
 use App\Models\DoctorSchedule;
+use App\Models\Specialty;
 use App\Models\User;
 
 class DoctoreServices
@@ -38,9 +40,18 @@ class DoctoreServices
 
         // Filter by status
         if (! empty($filters['status'])) {
-            $query->whereHas('user', function ($q) use ($filters) {
-                $q->where('status', $filters['status']);
-            });
+            if ($filters['status'] === 'on_leave') {
+                // Filter doctors who are currently on leave
+                $query->whereHas('user.doctorLeaves', function ($q) {
+                    $q->where('status', 'approved')
+                        ->whereDate('start_date', '<=', now())
+                        ->whereDate('end_date', '>=', now());
+                });
+            } else {
+                $query->whereHas('user', function ($q) use ($filters) {
+                    $q->where('status', $filters['status']);
+                });
+            }
         }
 
         return $query->get();
@@ -56,6 +67,7 @@ class DoctoreServices
                 'role' => 'doctor',
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
+                'username' => $data['username'],
                 'email' => $data['email'],
                 'phone' => $data['phone'],
                 'password' => \Hash::make($data['phone']), // Phone as password
