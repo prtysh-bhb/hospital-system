@@ -145,7 +145,7 @@ class WhatsAppMessageController extends Controller
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
             'template_name' => 'required|string',
-            'language' => 'required|string',
+            'language' => 'nullable|string',
             'components' => 'nullable|array',
         ]);
 
@@ -161,13 +161,12 @@ class WhatsAppMessageController extends Controller
 
             // Trim template name and language
             $templateName = trim($request->template_name);
-            $language = trim($request->language);
+            $language = $request->language ? trim($request->language) : null;
 
             $response = $this->whatsappService->sendMessage(
                 $phoneNumber,
                 [
                     'name' => $templateName,
-                    'language' => $language,
                     'components' => $request->components ?? [],
                 ],
                 'template'
@@ -217,7 +216,7 @@ class WhatsAppMessageController extends Controller
     {
         $request->validate([
             'name' => 'required|regex:/^[a-z0-9_]+$/',
-            'language' => 'required|string',
+            'language' => 'nullable|string',
             'category' => 'required|in:MARKETING,UTILITY,AUTHENTICATION',
             'body' => 'required|string',
             'header' => 'nullable|string',
@@ -241,19 +240,19 @@ class WhatsAppMessageController extends Controller
         }
     }
 
-    public function deleteTemplate($name)
-    {
-        try {
-            $success = $this->whatsappService->deleteTemplate($name);
-            if ($success) {
-                return response()->json(['status' => 'success', 'message' => "Template '{$name}' deleted"]);
-            } else {
-                return response()->json(['status' => 'error', 'message' => "Failed to delete template '{$name}'"], 500);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
+    // public function deleteTemplate($name)
+    // {
+    //     try {
+    //         $success = $this->whatsappService->deleteTemplate($name);
+    //         if ($success) {
+    //             return response()->json(['status' => 'success', 'message' => "Template '{$name}' deleted"]);
+    //         } else {
+    //             return response()->json(['status' => 'error', 'message' => "Failed to delete template '{$name}'"], 500);
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+    //     }
+    // }
 
     /**
      * Upload media

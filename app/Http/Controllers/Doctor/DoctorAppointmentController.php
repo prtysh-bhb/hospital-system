@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Doctor;
 
+use App\Enums\WhatsappTemplating;
+use App\Events\NotifiyUserEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Services\Doctor\DoctorAppointmentServices;
@@ -526,7 +528,7 @@ class DoctorAppointmentController extends Controller
     public function reschedule(Request $request, $id, DoctorAppointmentServices $svc)
     {
         try {
-            // 1️⃣ Validate request
+            // Validate request
             $request->validate([
                 'date' => 'required|date|after_or_equal:today',
                 'time' => 'required|string',
@@ -535,7 +537,7 @@ class DoctorAppointmentController extends Controller
 
             $doctorId = Auth::id();
 
-            // 2️⃣ Fetch appointment (doctor-safe)
+            // Fetch appointment (doctor-safe)
             $appointment = Appointment::where('id', $id)
                 ->where('doctor_id', $doctorId)
                 ->first();
@@ -547,7 +549,7 @@ class DoctorAppointmentController extends Controller
                 ], 404);
             }
 
-            // 3️⃣ Block reschedule for invalid statuses
+            // Block reschedule for invalid statuses
             $blockedStatuses = ['completed', 'cancelled', 'in_progress', 'checked_in'];
 
             if (in_array($appointment->status, $blockedStatuses)) {
@@ -561,7 +563,7 @@ class DoctorAppointmentController extends Controller
             $timeStr = $request->time;
             $note = $request->note ?? null;
 
-            // 4️⃣ Verify requested time exists in available slots
+            // Verify requested time exists in available slots
             $available = $svc->getAvailableSlots($doctorId, $date);
 
             $slots = [];
@@ -582,14 +584,14 @@ class DoctorAppointmentController extends Controller
                 ], 400);
             }
 
-            // 5️⃣ Normalize time to H:i:s
+            // Normalize time to H:i:s
             try {
                 $time24 = date('H:i:s', strtotime($timeStr));
             } catch (\Exception $e) {
                 $time24 = $timeStr;
             }
 
-            // 6️⃣ Update appointment
+            // Update appointment
             $appointment->appointment_date = $date;
             $appointment->appointment_time = $time24;
 
@@ -607,6 +609,61 @@ class DoctorAppointmentController extends Controller
 
             $appointment->save(); // triggers history / listeners
 
+            // Send WhatsApp reschedule notification
+            $patient = $appointment->patient;
+            $doctor = $appointment->doctor;
+
+            if ($patient->phone) {
+                $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
+                $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
+
+                $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
+                $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+                $status = ucfirst($appointment->status);
+
+                $components = [
+                    [
+                        'type' => 'body',
+                        'parameters' => [
+                            ['type' => 'text', 'text' => $patientName],
+                            ['type' => 'text', 'text' => $doctorName],
+                            ['type' => 'text', 'text' => $appointmentDate],
+                            ['type' => 'text', 'text' => $appointmentTime],
+                        ],
+                    ],
+                ];
+
+                $params = [
+                    'phone_number' => $patient->phone,
+                    'template_name' => WhatsappTemplating::RESCHEDULE_APPOINTMENT->value, // Use a different template name
+                    'components' => $components,
+                    'appointment_data' => [
+                        'appointment_id' => $appointment->id,
+                        'appointment_number' => $appointment->appointment_number,
+                        'patient_name' => $patientName,
+                        'doctor_name' => $doctorName,
+                        'appointment_date' => $appointmentDate,
+                        'appointment_time' => $appointmentTime,
+                        'appointment_status' => $status,
+                    ],
+                ];
+
+                event(new NotifiyUserEvent($params)); // Trigger event to send WhatsApp message
+            }
+            // Log all appointment data as a single variable
+            $logData = [
+                'appointment' => [
+                    'appointment_id' => $appointment->id,
+                    'appointment_number' => $appointment->appointment_number,
+                    'patient_name' => $patientName,
+                    'doctor_name' => $doctorName,
+                    'appointment_date' => $appointmentDate,
+                    'appointment_time' => $appointmentTime,
+                    'appointment_status' => $status,
+                ],
+            ];
+
+            \Log::info('Appointment rescheduled successfully', $logData);
             return response()->json([
                 'status' => 200,
                 'msg' => 'Appointment rescheduled successfully',
@@ -652,6 +709,48 @@ class DoctorAppointmentController extends Controller
             'cancellation_reason' => $cancellationReason,
             'cancelled_at' => now(),
         ]);
+
+        // Send WhatsApp cancellation notification via NotifyUserEvent
+        $patient = $appointment->patient;
+        $doctor = $appointment->doctor;
+
+        if ($patient->phone) {
+            $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
+            $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
+
+            $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
+            $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+            $status = ucfirst($appointment->status);
+
+            $components = [
+                [
+                    'type' => 'body',
+                    'parameters' => [
+                        ['type' => 'text', 'text' => $patient->first_name . ' ' . $patient->last_name],
+                        ['type' => 'text', 'text' => 'Dr. ' . $doctor->first_name . ' ' . $doctor->last_name],
+                        ['type' => 'text', 'text' => $appointmentDate],
+                        ['type' => 'text', 'text' => $appointmentTime],
+                    ],
+                ],
+            ];
+
+            $params = [
+                'phone_number' => $patient->phone,
+                'template_name' => WhatsappTemplating::CANCEL_APPOINTMENT->value,
+                'components' => $components,
+                'appointment_data' => [
+                    'appointment_id' => $appointment->id,
+                    'appointment_number' => $appointment->appointment_number,
+                    'patient_name' => $patientName,
+                    'doctor_name' => $doctorName,
+                    'appointment_date' => $appointmentDate,
+                    'appointment_time' => $appointmentTime,
+                    'appointment_status' => $status,
+                ],
+            ];
+
+            event(new NotifiyUserEvent($params));
+        }
 
         return response()->json([
             'success' => true,

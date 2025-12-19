@@ -16,12 +16,15 @@ class WhatsAppService
     protected $baseUrl;
 
     protected $headers;
+    protected $language_code;
 
     public function __construct()
     {
         $this->config = config('whatsapp');
         $this->baseUrl = $this->config['api_url'];
-
+        $this->baseUrl = $this->config['api_url'];
+        $this->language_code = $this->config['language_code'];
+        
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
             'timeout' => 30.0,
@@ -100,7 +103,9 @@ class WhatsAppService
                 case 'template':
                     $payload['template'] = [
                         'name' => trim($message['name']),
-                        'language' => ['code' => trim($message['language'])],
+                        'language' => [
+                            'code' => $message['language'] ?? $this->language_code
+                        ],
                         'components' => $message['components'] ?? [],
                     ];
                     break;
@@ -265,7 +270,7 @@ class WhatsAppService
 
             $payload = [
                 'name' => strtolower(trim($data['name'])),
-                'language' => $data['language'],
+                'language' => !empty($data['language']) ? trim($data['language']) : $this->language_code,
                 'category' => $data['category'],
                 'components' => [],
             ];
