@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\WhatsappTemplating;
+use App\Events\NotifiyUserEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\PatientProfile;
 use App\Models\User;
 use App\Services\AppointmentSlotService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -504,8 +507,49 @@ class AppointmentController extends Controller
                     ]);
                 }
             }
-
             $appointment->save();
+
+            // Send WhatsApp notification via NotifyUserEvent if status changed
+            $patient = $appointment->patient;
+            $doctor = $appointment->doctor;
+
+            if (in_array($appointment->status, ['cancelled'])) {
+                if ($patient->phone) {
+                    $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
+                    $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
+
+                    $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
+                    $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+                    $status = ucfirst($appointment->status);
+
+                    $components = [
+                        [
+                            'type' => 'body',
+                            'parameters' => [
+                                ['type' => 'text', 'text' => $patient->first_name],
+                                ['type' => 'text', 'text' => 'Dr. ' . $doctor->last_name],
+                                ['type' => 'text', 'text' => $appointmentDate],
+                                ['type' => 'text', 'text' => $appointmentTime],
+                            ],
+                        ],
+                    ];
+                    $params = [
+                        'phone_number' => $patient->phone,
+                        'template_name' => WhatsappTemplating::RESCHEDULE_APPOINTMENT->value,
+                        'components' => $components,
+                        'appointment_data' => [
+                            'appointment_id' => $appointment->id,
+                            'appointment_number' => $appointment->appointment_number,
+                            'patient_name' => $patientName,
+                            'doctor_name' => $doctorName,
+                            'appointment_date' => $appointmentDate,
+                            'appointment_time' => $appointmentTime,
+                            'appointment_status' => $status,
+                        ],
+                    ];
+                    event(new NotifiyUserEvent($params));
+                }
+            }
 
             return response()->json([
                 'status' => 200,
@@ -577,4 +621,5 @@ class AppointmentController extends Controller
             ]);
         }
     }
+
 }

@@ -28,10 +28,10 @@ class WhatsAppMessageController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'error' => $validator->errors()
+                'error' => $validator->errors(),
             ], 422);
         }
-        
+
         try {
             $response = $this->whatsappService->sendMessage(
                 $request->phone_number,
@@ -42,13 +42,13 @@ class WhatsAppMessageController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $response,
-                'message' => 'Message sent successfully'
+                'message' => 'Message sent successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -66,7 +66,7 @@ class WhatsAppMessageController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'error' => $validator->errors()
+                'error' => $validator->errors(),
             ], 422);
         }
 
@@ -83,13 +83,13 @@ class WhatsAppMessageController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $response,
-                'message' => 'Image sent successfully'
+                'message' => 'Image sent successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -108,7 +108,7 @@ class WhatsAppMessageController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'error' => $validator->errors()
+                'error' => $validator->errors(),
             ], 422);
         }
 
@@ -126,13 +126,13 @@ class WhatsAppMessageController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $response,
-                'message' => 'Document sent successfully'
+                'message' => 'Document sent successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -145,13 +145,13 @@ class WhatsAppMessageController extends Controller
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
             'template_name' => 'required|string',
-            'language' => 'required|string',
+            'language' => 'nullable|string',
             'components' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'error' => $validator->errors()
+                'error' => $validator->errors(),
             ], 422);
         }
 
@@ -161,13 +161,12 @@ class WhatsAppMessageController extends Controller
 
             // Trim template name and language
             $templateName = trim($request->template_name);
-            $language = trim($request->language);
+            $language = $request->language ? trim($request->language) : null;
 
             $response = $this->whatsappService->sendMessage(
                 $phoneNumber,
                 [
                     'name' => $templateName,
-                    'language' => $language,
                     'components' => $request->components ?? [],
                 ],
                 'template'
@@ -177,16 +176,17 @@ class WhatsAppMessageController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $response,
-                'message' => 'Template message sent successfully'
+                'message' => 'Template message sent successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
+
     /**
      * Get templates list
      */
@@ -198,13 +198,13 @@ class WhatsAppMessageController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $templates,
-                'message' => 'Templates retrieved successfully'
+                'message' => 'Templates retrieved successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -216,7 +216,7 @@ class WhatsAppMessageController extends Controller
     {
         $request->validate([
             'name' => 'required|regex:/^[a-z0-9_]+$/',
-            'language' => 'required|string',
+            'language' => 'nullable|string',
             'category' => 'required|in:MARKETING,UTILITY,AUTHENTICATION',
             'body' => 'required|string',
             'header' => 'nullable|string',
@@ -229,16 +229,31 @@ class WhatsAppMessageController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $response
+                'data' => $response,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
+
+    // public function deleteTemplate($name)
+    // {
+    //     try {
+    //         $success = $this->whatsappService->deleteTemplate($name);
+    //         if ($success) {
+    //             return response()->json(['status' => 'success', 'message' => "Template '{$name}' deleted"]);
+    //         } else {
+    //             return response()->json(['status' => 'error', 'message' => "Failed to delete template '{$name}'"], 500);
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+    //     }
+    // }
+
     /**
      * Upload media
      */
@@ -254,13 +269,13 @@ class WhatsAppMessageController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $response,
-                'message' => 'Media uploaded successfully'
+                'message' => 'Media uploaded successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -276,17 +291,17 @@ class WhatsAppMessageController extends Controller
 
         $media = $this->whatsappService->getMediaUrl($request->media_id);
 
-        if (!$media) {
+        if (! $media) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unable to fetch media URL'
+                'message' => 'Unable to fetch media URL',
             ], 400);
         }
 
         return response()->json([
             'success' => true,
             'data' => $media,
-            'message' => 'Media URL fetched successfully'
+            'message' => 'Media URL fetched successfully',
         ]);
     }
 
@@ -306,12 +321,12 @@ class WhatsAppMessageController extends Controller
         if ($deleted) {
             return response()->json([
                 'success' => true,
-                'message' => 'Media deleted successfully'
+                'message' => 'Media deleted successfully',
             ]);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete media. Check if media ID is valid.'
+                'message' => 'Failed to delete media. Check if media ID is valid.',
             ], 400);
         }
     }
