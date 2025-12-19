@@ -11,10 +11,43 @@ class SettingController extends Controller
 {
     public function index()
     {
-        $settingscategory = SettingCategory::where('status', 1)->get();
-        $Setting = Setting::all();
+        // Get active categories with their settings count
+        $categories = SettingCategory::where('status', '1')->get()->map(function ($category) {
+            $settingsCount = Setting::where('setting_category_id', $category->id)
+                ->where('status', '1')
+                ->count();
 
-        return view('admin.settings.index', compact('Setting', 'settingscategory'));
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'display_name' => ucwords(str_replace('_', ' ', $category->name)),
+                'settings_count' => $settingsCount,
+            ];
+        });
+
+        // Get all settings grouped by category
+        $settingsByCategory = Setting::whereIn('setting_category_id', $categories->pluck('id'))
+            ->where('status', '1')
+            ->get()
+            ->groupBy('setting_category_id');
+
+        // Format settings data for easy access
+        $settings = [];
+        foreach ($settingsByCategory as $categoryId => $categorySettings) {
+            foreach ($categorySettings as $setting) {
+                $settings[$setting->key] = [
+                    'value' => $setting->getRawOriginal('value'),
+                    'type' => $setting->type,
+                    'description' => $setting->description,
+                    'category_id' => $setting->setting_category_id,
+                ];
+            }
+        }
+
+        // Debug: Uncomment to see data structure
+        // dd($categories->toArray(), $settings);
+
+        return view('admin.settings.index', compact('categories', 'settings'));
     }
 
     /**
@@ -24,25 +57,26 @@ class SettingController extends Controller
     {
         $request->validate([
             'settings' => 'required|array',
-            'settings.*.setting_id' => 'required|exists:settings,id',
+            'settings.*.key' => 'required|string',
             'settings.*.value' => 'nullable',
+            'settings.*.type' => 'required|string',
+            'settings.*.category_id' => 'required|integer',
         ]);
-        $category = SettingCategory::find($request->category_id);
 
         try {
-            $updatedCount = 0;
-
             foreach ($request->settings as $settingData) {
-                $setting = Setting::findOrFail($settingData['setting_id']);
                 $value = $settingData['value'];
+                $type = $settingData['type'];
+                $key = $settingData['key'];
+                $categoryId = $settingData['category_id'];
 
                 // Validate and process value based on type
-                switch ($setting->type) {
+                switch ($type) {
                     case 'integer':
                         if ($value !== null && $value !== '' && ! is_numeric($value)) {
                             return response()->json([
                                 'success' => false,
-                                'message' => "Value for '{$setting->key}' must be a number",
+                                'message' => "Value for '{$key}' must be a number",
                             ], 422);
                         }
                         $value = (string) intval($value);
@@ -57,7 +91,7 @@ class SettingController extends Controller
                         if ($value && json_decode($value) === null && json_last_error() !== JSON_ERROR_NONE) {
                             return response()->json([
                                 'success' => false,
-                                'message' => "Invalid JSON format for '{$setting->key}'",
+                                'message' => "Invalid JSON format for '{$key}'",
                             ], 422);
                         }
                         break;
@@ -66,13 +100,20 @@ class SettingController extends Controller
                         $value = (string) $value;
                 }
 
-                // Update the setting
-                $setting->update(['value' => $value]);
+                // Update or create the setting
+                Setting::updateOrCreate(
+                    ['key' => $key],
+                    [
+                        'value' => $value,
+                        'type' => $type,
+                        'setting_category_id' => $categoryId,
+                    ]
+                );
             }
 
             return response()->json([
                 'success' => true,
-                'message' => ' setting updated successfully',
+                'message' => 'Settings updated successfully',
             ]);
         } catch (\Exception $e) {
             return response()->json([

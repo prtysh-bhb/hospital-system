@@ -31,7 +31,7 @@ class SettingsSeeder extends Seeder
                 'key' => 'enable_email_notifications',
                 'value' => '1',
                 'type' => 'boolean',
-                'setting_category_id' => 1,
+                'setting_category_id' => 3,
                 'description' => 'Enable or disable email notifications',
             ],
             [
@@ -40,6 +40,41 @@ class SettingsSeeder extends Seeder
                 'type' => 'integer',
                 'setting_category_id' => 2,
                 'description' => 'Number of days in advance a patient can book an appointment',
+            ],
+            [
+                'key' => 'show_emergency_contact',
+                'value' => '1',
+                'type' => 'boolean',
+                'setting_category_id' => 5,
+                'description' => 'Show emergency contact fields on booking form',
+            ],
+            [
+                'key' => 'show_blood_group',
+                'value' => '1',
+                'type' => 'boolean',
+                'setting_category_id' => 5,
+                'description' => 'Show blood group field on booking form',
+            ],
+            [
+                'key' => 'show_medical_history',
+                'value' => '0',
+                'type' => 'boolean',
+                'setting_category_id' => 5,
+                'description' => 'Show medical history field on booking form',
+            ],
+            [
+                'key' => 'show_current_medications',
+                'value' => '0',
+                'type' => 'boolean',
+                'setting_category_id' => 5,
+                'description' => 'Show current medications field on booking form',
+            ],
+            [
+                'key' => 'show_insurance_details',
+                'value' => '1',
+                'type' => 'boolean',
+                'setting_category_id' => 5,
+                'description' => 'Show insurance details fields on booking form',
             ],
         ];
 

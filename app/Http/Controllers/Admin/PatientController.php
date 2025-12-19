@@ -88,6 +88,10 @@ class PatientController extends Controller
                 'address' => 'nullable|string|min:10|max:500',
                 'emergency_contact' => ['nullable', 'regex:/^[0-9]{10,15}$/', 'not_regex:/^0+$/'],
                 'emergency_contact_name' => 'nullable|string|min:2|max:255|regex:/^[a-zA-Z\s]+$/',
+                'medical_history' => 'nullable|string|max:2000',
+                'current_medications' => 'nullable|string|max:2000',
+                'insurance_provider' => 'nullable|string|max:255',
+                'insurance_number' => 'nullable|string|max:100',
                 'status' => 'required|in:active,inactive',
             ], [
                 'first_name.regex' => 'First name can only contain letters and spaces.',

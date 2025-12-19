@@ -106,6 +106,84 @@
             rows="3" placeholder="Any additional information (optional)">{{ $appointment ? $appointment->notes : '' }}</textarea>
     </div>
 
+    <!-- Patient Profile Fields (Conditional) -->
+    @if (isset($formSettings['show_emergency_contact']) && $formSettings['show_emergency_contact'])
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Emergency Contact Name</label>
+                <input type="text" id="edit_emergency_contact_name" name="emergency_contact_name"
+                    value="{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->emergency_contact_name : '' }}"
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                    placeholder="Contact person name">
+            </div>
+
+            <div>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Emergency Contact Phone</label>
+                <input type="text" id="edit_emergency_contact_phone" name="emergency_contact_phone"
+                    value="{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->emergency_contact_phone : '' }}"
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                    placeholder="Contact phone number">
+            </div>
+        </div>
+    @endif
+
+    @if (isset($formSettings['show_blood_group']) && $formSettings['show_blood_group'])
+        <div>
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Blood Group</label>
+            <select id="edit_blood_group" name="blood_group"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+                <option value="">Select blood group</option>
+                @php $currentBloodGroup = $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->blood_group : ''; @endphp
+                <option value="A+" {{ $currentBloodGroup == 'A+' ? 'selected' : '' }}>A+</option>
+                <option value="A-" {{ $currentBloodGroup == 'A-' ? 'selected' : '' }}>A-</option>
+                <option value="B+" {{ $currentBloodGroup == 'B+' ? 'selected' : '' }}>B+</option>
+                <option value="B-" {{ $currentBloodGroup == 'B-' ? 'selected' : '' }}>B-</option>
+                <option value="AB+" {{ $currentBloodGroup == 'AB+' ? 'selected' : '' }}>AB+</option>
+                <option value="AB-" {{ $currentBloodGroup == 'AB-' ? 'selected' : '' }}>AB-</option>
+                <option value="O+" {{ $currentBloodGroup == 'O+' ? 'selected' : '' }}>O+</option>
+                <option value="O-" {{ $currentBloodGroup == 'O-' ? 'selected' : '' }}>O-</option>
+            </select>
+        </div>
+    @endif
+
+    @if (isset($formSettings['show_medical_history']) && $formSettings['show_medical_history'])
+        <div>
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Medical History</label>
+            <textarea id="edit_medical_history" name="medical_history"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                rows="3" placeholder="Any past medical conditions, surgeries, etc.">{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->medical_history : '' }}</textarea>
+        </div>
+    @endif
+
+    @if (isset($formSettings['show_current_medications']) && $formSettings['show_current_medications'])
+        <div>
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Current Medications</label>
+            <textarea id="edit_current_medications" name="current_medications"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                rows="3" placeholder="List any medications currently taking">{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->current_medications : '' }}</textarea>
+        </div>
+    @endif
+
+    @if (isset($formSettings['show_insurance_details']) && $formSettings['show_insurance_details'])
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Insurance Provider</label>
+                <input type="text" id="edit_insurance_provider" name="insurance_provider"
+                    value="{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->insurance_provider : '' }}"
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                    placeholder="Insurance company name">
+            </div>
+
+            <div>
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Insurance Number</label>
+                <input type="text" id="edit_insurance_number" name="insurance_number"
+                    value="{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->insurance_number : '' }}"
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                    placeholder="Policy/Member number">
+            </div>
+        </div>
+    @endif
+
     <!-- Status -->
     <div>
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status</label>

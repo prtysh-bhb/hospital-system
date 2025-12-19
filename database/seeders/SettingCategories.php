@@ -15,18 +15,24 @@ class SettingCategories extends Seeder
         $settingCategories = [
             [
                 'name' => 'general',
-                'status' => '0',
+                'status' => '1',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'public_booking',
-                'status' => '0',
+                'status' => '1',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'notifications',
+                'status' => '1',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'booking_form',
                 'status' => '1',
                 'created_at' => now(),
                 'updated_at' => now(),

@@ -9,6 +9,7 @@
     <title>@yield('title', 'Admin Dashboard') - MediCare HMS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -129,7 +130,7 @@
                 <span class="ml-2">Calendar</span>
             </a>
 
-             <a href="{{ route('admin.settings') }}"
+            <a href="{{ route('admin.settings') }}"
                 class="flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 {{ request()->routeIs('admin.settings') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg text-sm sm:text-base">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

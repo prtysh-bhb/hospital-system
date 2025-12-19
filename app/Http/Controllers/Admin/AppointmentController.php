@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Services\Public\BookAppointmentService;
 
 class AppointmentController extends Controller
 {
@@ -34,7 +35,10 @@ class AppointmentController extends Controller
         $patients = User::where('role', 'patient')->get();
         $doctors = User::where('role', 'doctor')->with('doctorProfile.specialty')->get();
 
-        return view('admin.add-appointment', compact('patients', 'doctors'));
+        // Get form field visibility settings (centralized method)
+        $formSettings = BookAppointmentService::getFormSettings();
+
+        return view('admin.add-appointment', compact('patients', 'doctors', 'formSettings'));
     }
 
     // Get available time slots for a doctor on a specific date
@@ -155,6 +159,14 @@ class AppointmentController extends Controller
                     'appointment_type' => 'required|in:consultation,follow_up,emergency,check_up',
                     'reason_for_visit' => 'required|string|max:1000',
                     'notes' => 'nullable|string|max:500',
+                    // Optional patient profile fields
+                    'emergency_contact_name' => 'nullable|string|min:2|max:255',
+                    'emergency_contact_phone' => 'nullable|regex:/^[0-9]{10,15}$/',
+                    'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+                    'medical_history' => 'nullable|string|max:1000',
+                    'current_medications' => 'nullable|string|max:1000',
+                    'insurance_provider' => 'nullable|string|max:255',
+                    'insurance_number' => 'nullable|string|max:255',
                 ], [
                     'first_name.required' => 'First name is required.',
                     'first_name.regex' => 'First name should only contain letters and spaces.',
@@ -200,12 +212,16 @@ class AppointmentController extends Controller
                     'password' => Hash::make(Str::random(12)),
                 ]);
 
-                // Create patient profile (address is stored in users table, not here)
+                // Create patient profile with all optional fields
                 PatientProfile::create([
                     'user_id' => $user->id,
                     'emergency_contact_name' => $request->input('emergency_contact_name'),
                     'emergency_contact_phone' => $request->input('emergency_contact_phone'),
+                    'blood_group' => $request->input('blood_group'),
                     'medical_history' => $request->input('medical_history'),
+                    'current_medications' => $request->input('current_medications'),
+                    'insurance_provider' => $request->input('insurance_provider'),
+                    'insurance_number' => $request->input('insurance_number'),
                 ]);
 
                 $patientId = $user->id;
@@ -299,10 +315,13 @@ class AppointmentController extends Controller
 
         $appointment = null;
         if ($request->has('appointment_id')) {
-            $appointment = Appointment::with(['patient', 'doctor.doctorProfile.specialty'])->find($request->appointment_id);
+            $appointment = Appointment::with(['patient', 'doctor.doctorProfile.specialty', 'patient.patientProfile'])->find($request->appointment_id);
         }
 
-        return view('admin.edit-appointment-modal', compact('patients', 'doctors', 'appointment'));
+        // Get form field visibility settings (centralized method)
+        $formSettings = BookAppointmentService::getFormSettings();
+
+        return view('admin.edit-appointment-modal', compact('patients', 'doctors', 'appointment', 'formSettings'));
     }
 
     // Update appointment
@@ -354,6 +373,13 @@ class AppointmentController extends Controller
                     'string',
                     'max:500',
                 ],
+                'emergency_contact_name' => 'nullable|string|max:255',
+                'emergency_contact_phone' => 'nullable|string|max:20',
+                'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+                'medical_history' => 'nullable|string|max:2000',
+                'current_medications' => 'nullable|string|max:2000',
+                'insurance_provider' => 'nullable|string|max:255',
+                'insurance_number' => 'nullable|string|max:100',
             ], [
                 'patient_id.required' => 'Please select a valid patient.',
                 'patient_id.exists' => 'The selected patient does not exist or is not valid.',
@@ -408,6 +434,36 @@ class AppointmentController extends Controller
                 $appointment->cancelled_at = null;
             }
             $appointment->notes = $request->input('notes', $appointment->notes);
+
+            // Update patient profile with optional fields if provided
+            $patient = User::with('patientProfile')->find($request->input('patient_id'));
+            if ($patient && $patient->patientProfile) {
+                $patientProfile = $patient->patientProfile;
+                
+                if ($request->has('emergency_contact_name')) {
+                    $patientProfile->emergency_contact_name = $request->input('emergency_contact_name');
+                }
+                if ($request->has('emergency_contact_phone')) {
+                    $patientProfile->emergency_contact_phone = $request->input('emergency_contact_phone');
+                }
+                if ($request->has('blood_group')) {
+                    $patientProfile->blood_group = $request->input('blood_group');
+                }
+                if ($request->has('medical_history')) {
+                    $patientProfile->medical_history = $request->input('medical_history');
+                }
+                if ($request->has('current_medications')) {
+                    $patientProfile->current_medications = $request->input('current_medications');
+                }
+                if ($request->has('insurance_provider')) {
+                    $patientProfile->insurance_provider = $request->input('insurance_provider');
+                }
+                if ($request->has('insurance_number')) {
+                    $patientProfile->insurance_number = $request->input('insurance_number');
+                }
+                
+                $patientProfile->save();
+            }
 
             // Check if reactivating a cancelled/no_show appointment
             $inactiveStatuses = ['cancelled', 'no_show', 'completed'];

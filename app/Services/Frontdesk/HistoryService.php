@@ -2,7 +2,7 @@
 
 namespace App\Services\Frontdesk;
 
-use App\Models\Appointment;
+use App\Models\AppointmentHistory;
 use Carbon\Carbon;
 
 class HistoryService
@@ -12,8 +12,7 @@ class HistoryService
      */
     public function getAppointmentsHistory($filters = [])
     {
-        $query = Appointment::with(['patient', 'doctor', 'patient.patientProfile', 'doctor.doctorProfile'])
-            ->whereIn('status', ['completed', 'cancelled', 'no_show'])
+        $query = AppointmentHistory::with(['patient', 'doctor', 'patient.patientProfile', 'doctor.doctorProfile'])
             ->whereHas('patient')  // Only get appointments where patient exists
             ->whereHas('doctor');  // Only get appointments where doctor exists
 
@@ -57,8 +56,7 @@ class HistoryService
      */
     public function getAppointmentsForExport($filters = [])
     {
-        $query = Appointment::with(['patient', 'doctor', 'patient.patientProfile', 'doctor.doctorProfile'])
-            ->whereIn('status', ['completed', 'cancelled', 'no_show'])
+        $query = AppointmentHistory::with(['patient', 'doctor', 'patient.patientProfile', 'doctor.doctorProfile'])
             ->whereHas('patient')
             ->whereHas('doctor');
 
@@ -148,7 +146,7 @@ class HistoryService
      */
     public function getStatistics($filters = [])
     {
-        $query = Appointment::whereIn('status', ['completed', 'cancelled', 'no_show']);
+        $query = AppointmentHistory::query();
 
         // Apply date range only if BOTH dates are provided
         $hasFromDate = isset($filters['from_date']) && ! empty($filters['from_date']);
@@ -180,10 +178,9 @@ class HistoryService
      */
     public function getAppointmentDetails($id)
     {
-        return Appointment::with([
+        return AppointmentHistory::with([
             'patient.patientProfile',
             'doctor.doctorProfile.specialty',
-            'prescriptions',
         ])->findOrFail($id);
     }
 }
