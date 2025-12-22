@@ -2,18 +2,26 @@
 
 namespace App\Http\Controllers\Doctor;
 
-use App\Enums\WhatsappTemplating;
-use App\Events\NotifiyUserEvent;
-use App\Http\Controllers\Controller;
-use App\Models\Appointment;
-use App\Services\Doctor\DoctorAppointmentServices;
 use Carbon\Carbon;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
+use App\Events\NotifiyUserEvent;
+use App\Enums\WhatsappTemplating;
+use App\Services\UltraMsgService;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Interfaces\MessageSenderInterface;
 use Illuminate\Validation\ValidationException;
+use App\Services\Doctor\DoctorAppointmentServices;
 
 class DoctorAppointmentController extends Controller
 {
+    protected MessageSenderInterface $messenger;
+    public function __construct()
+    {
+        // Directly assign the concrete service to the interface variable
+        $this->messenger = new UltraMsgService();
+    }
     public function index()
     {
         return view('doctor.appointments');
@@ -663,6 +671,10 @@ class DoctorAppointmentController extends Controller
                 ],
             ];
 
+            if ($patient && !empty($patient->phone)) {
+                $this->messenger->sendRescheduleMessage($appointment);
+            }
+
             \Log::info('Appointment rescheduled successfully', $logData);
 
             return response()->json([
@@ -750,8 +762,26 @@ class DoctorAppointmentController extends Controller
                 ],
             ];
 
+            // Send the cancellation message via UltraMSGService
+            $this->messenger->sendMessage($patient->phone, [
+                'template_id' => 'APPOINTMENT_CANCEL_ID',  // Template ID in your database
+                'placeholders' => [
+                    'name' => $patient->first_name . ' ' . $patient->last_name,
+                    'doctor' => $doctorName,
+                    'date' => $appointmentDate,
+                    'time' => $appointmentTime,
+                    'reason' => $cancellationReason,
+                ],
+            ], 'text');
+
             event(new NotifiyUserEvent($params));
         }
+
+
+
+        // if ($patient && !empty($patient->phone)) {
+        //     $this->messenger->sendCancellationMessage($appointment);
+        // }
 
         return response()->json([
             'success' => true,

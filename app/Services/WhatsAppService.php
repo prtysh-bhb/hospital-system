@@ -20,7 +20,7 @@ class WhatsAppService
 
     public function __construct()
     {
-        $this->config = config('whatsapp');
+        $this->config = config('services.whatsapp');
         $this->baseUrl = $this->config['api_url'];
         $this->baseUrl = $this->config['api_url'];
         $this->language_code = $this->config['language_code'];
