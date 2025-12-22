@@ -2,7 +2,6 @@
 
 namespace App\Services\Admin;
 
-use App\Models\DoctorLeave;
 use App\Models\DoctorProfile;
 use App\Models\DoctorSchedule;
 use App\Models\Specialty;

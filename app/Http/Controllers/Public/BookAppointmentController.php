@@ -5,13 +5,13 @@ namespace App\Http\Controllers\public;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\DoctorSchedule;
+use App\Models\Setting;
 use App\Models\Specialty;
 use App\Models\User;
 use App\Services\AppointmentSlotService;
 use App\Services\Public\BookAppointmentService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use App\Models\Setting;
 
 class BookAppointmentController extends Controller
 {
