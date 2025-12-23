@@ -3,172 +3,178 @@
 namespace App\Services;
 
 use App\Models\WhatsappTemplate;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use App\Interfaces\MessageSenderInterface;
+use Illuminate\Support\Facades\Log;
 
-class UltraMSGService implements MessageSenderInterface
+class UltraMSGService
 {
-    protected string $baseUrl;
+    protected string $apiUrl;
     protected string $token;
-    protected string $instanceId;
+    protected string $instance_id;
+    protected int $priority;
 
+    protected array $headers = [
+        'Content-Type' => 'application/x-www-form-urlencoded',
+    ];
     public function __construct()
     {
-        $config = config('services.ultramsg');
-
-        $this->baseUrl = rtrim($config['api_url'], '/');
-        $this->token = $config['token'];
-        $this->instanceId = $config['instance_id'];
+        $this->apiUrl = config('services.ultramsg.api_url', 'https://api.ultramsg.com');
+        $this->token = config('services.ultramsg.token');
+        $this->instance_id = config('services.ultramsg.instance_id');
+        $this->priority = config('services.ultramsg.priority', 10);
     }
 
     /**
-     * Normalize phone number
+     * Send a message via UltraMSG
+     *
+     * @param string $to Recipient phone number with international code
+     * @param array $message Message content and parameters
+     * @param string $type Message type: 'text' or 'template'
+     * @return array Response from the API
+     * @throws \Exception
+     */
+    public function send(string $to, array $message, string $type = 'text'): array
+    {
+        $to = $this->normalizePhoneNumber($to);
+
+        if ($type === 'template') {
+            return $this->sendTemplateFromDatabase(
+                $to,
+                $message['name'],                 // DB template id OR name
+                $message['components'] ?? []
+            );
+        }
+
+        if ($type === 'text') {
+            return $this->sendTextMessage($to, $message['body']);
+        }
+
+        throw new \Exception("UltraMSG unsupported message type: {$type}");
+    }
+
+    /**
+     * Summary of sendTemplateFromDatabase
+     * @param string $to
+     * @param string $templateKey
+     * @param array $components
+     * @throws \Exception
+     * @return array
+     */
+    private function sendTemplateFromDatabase(string $to,string $templateKey,array $components): array {
+        // Find template by ID or NAME
+        $template = WhatsappTemplate::where('id', $templateKey)
+            ->orWhere('name', $templateKey)
+            ->first();
+
+        if (!$template) {
+            throw new \Exception("WhatsApp template not found: {$templateKey}");
+        }
+
+        $text = $template->message;
+
+        // Extract values from components
+        $replacements = $this->extractTemplateParameters($components);
+
+        // Replace {{keys}} in message
+        foreach ($replacements as $key => $value) {
+            $text = str_replace('{{' . $key . '}}', $value, $text);
+        }
+
+        return $this->sendTextMessage($to, trim($text));
+    }
+
+    /**
+     * Summary of extractTemplateParameters
+     * @param array $components
+     * @return array
+     */
+    private function extractTemplateParameters(array $components): array
+    {
+        $data = [];
+
+        foreach ($components as $component) {
+            foreach ($component['parameters'] ?? [] as $param) {
+                if (!empty($param['key'])) {
+                    $data[$param['key']] = $param['text'] ?? '';
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Summary of sendTextMessage
+     * @param string $to
+     * @param string $text
+     * @throws \Exception
+     * @return array
+     */
+    private function sendTextMessage(string $to, string $text): array
+    {
+        $this->validateInputs($to, $text);
+
+        $endpoint = "/{$this->instance_id}/messages/chat";
+
+        return $this->request($endpoint, [
+            'token' => $this->token,
+            'to' => $to,
+            'body' => $text,
+            'priority' => $this->priority,
+        ]);
+    }
+
+    /**
+     * Summary of request
+     * @param string $endpoint
+     * @param array $params
+     * @throws \Exception
+     * @return array
+     */
+    private function request(string $endpoint, array $params): array
+    {
+        $response = Http::withHeaders($this->headers)
+            ->asForm()
+            ->timeout(30)
+            ->post($this->apiUrl . $endpoint, $params);
+
+        if (!$response->successful()) {
+            Log::error('UltraMSG API error', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+            throw new \Exception('UltraMSG API failed');
+        }
+
+        return $response->json();
+    }
+
+    /**
+     * Summary of normalizePhoneNumber
+     * @param string $phone
+     * @return string
      */
     private function normalizePhoneNumber(string $phone): string
     {
-        $phoneNumber = preg_replace('/[^0-9+]/', '', $phone);
-
-        if (!str_starts_with($phoneNumber, '+')) {
-            $phoneNumber = ltrim($phoneNumber, '0');
-        }
-
-        return $phoneNumber;
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+        return str_starts_with($phone, '+') ? $phone : ltrim($phone, '0');
     }
 
     /**
-     * Send message (text, image, video, audio, document, sticker, template)
+     * Summary of validateInputs
+     * @param string $to
+     * @param string $text
+     * @throws \Exception
+     * @return void
      */
-    public function sendMessage(string $to, array $message, string $type = 'text')
+    private function validateInputs(string $to, string $text): void
     {
-        try {
-            $to = $this->normalizePhoneNumber($to);
-            $endpoint = $this->resolveEndpoint($type);
-
-            // If message contains a template_id, handle it as a template message
-            if (isset($message['template_id'])) {
-                return $this->sendTemplateMessage($to, $message);
-            }
-
-            // Default: handle normal messages
-            $url = "{$this->baseUrl}/{$this->instanceId}/{$endpoint}";
-            $payload = $this->buildPayload($to, $message, $type);
-
-            Log::info('UltraMSG Request', ['url' => $url, 'payload' => $payload]);
-
-            $response = Http::asForm()->post($url, $payload);
-            $result = $response->json();
-
-            if ((isset($result['success']) && $result['success'] === false) || isset($result['error'])) {
-                throw new \Exception($result['error'] ?? $result['message'] ?? 'Unknown error from UltraMSG');
-            }
-
-            Log::info('UltraMSG Response', $result);
-            return $result;
-
-        } catch (\Exception $e) {
-            Log::error('UltraMSG sendMessage failed', ['error' => $e->getMessage()]);
-            throw new \Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * Send message using a template
-     */
-    private function sendTemplateMessage(string $to, array $message)
-    {
-        // Assuming 'template_id' refers to a template from the database (whatsapp_templates table)
-        $template = $this->getTemplateById($message['template_id']);
-        if (!$template) {
-            throw new \Exception('Template not found.');
+        if (empty($to)) {
+            throw new \Exception('Recipient phone number is required');
         }
 
-        // Parse and replace placeholders in the template message
-        $replacedMessage = $this->replacePlaceholders($template['message'], $message['placeholders']);
-
-        $payload = [
-            'token' => $this->token,
-            'to' => $to,
-            'body' => $replacedMessage, // Replace the dynamic values in the message
-        ];
-
-        // Log the request for sending the message
-        Log::info('UltraMSG Template Request', ['to' => $to, 'message' => $replacedMessage]);
-
-        // Send the message via the UltraMSG API
-        $url = "{$this->baseUrl}/{$this->instanceId}/messages/chat";
-        $response = Http::asForm()->post($url, $payload);
-        $result = $response->json();
-
-        if ((isset($result['success']) && $result['success'] === false) || isset($result['error'])) {
-            throw new \Exception($result['error'] ?? $result['message'] ?? 'Unknown error from UltraMSG');
+        if (empty($text)) {
+            throw new \Exception('Message content is required');
         }
-
-        Log::info('UltraMSG Template Response', $result);
-        return $result;
-    }
-
-    /**
-     * Replace placeholders with actual values
-     */
-    private function replacePlaceholders(string $templateMessage, array $placeholders): string
-    {
-        foreach ($placeholders as $key => $value) {
-            $templateMessage = str_replace('{{' . $key . '}}', $value, $templateMessage);
-        }
-        return $templateMessage;
-    }
-
-    /**
-     * Get template by ID from the database
-     */
-    private function getTemplateById(string $templateId)
-    {
-        // Assuming you have a model WhatsAppTemplate to get the template from your DB
-        return WhatsappTemplate::where('id', $templateId)->first();
-    }
-
-    /**
-     * Resolve endpoint by message type
-     */
-    private function resolveEndpoint(string $type): string
-    {
-        return match ($type) {
-            'text' => 'messages/chat',
-            'image' => 'messages/image',
-            'video' => 'messages/video',
-            'audio' => 'messages/audio',
-            'document' => 'messages/document',
-            'sticker' => 'messages/sticker',
-            default => throw new \Exception("Unsupported message type: {$type}")
-        };
-    }
-
-    /**
-     * Build payload for UltraMSG
-     */
-    private function buildPayload(string $to, array $message, string $type): array
-    {
-        $payload = [
-            'token' => $this->token,
-            'to' => $to,
-        ];
-
-        switch ($type) {
-            case 'text':
-                $payload['body'] = $message['body'] ?? '';
-                break;
-
-            case 'image':
-            case 'video':
-            case 'audio':
-            case 'document':
-            case 'sticker':
-                $payload['link'] = $message['link'] ?? '';
-                $payload['caption'] = $message['caption'] ?? '';
-                break;
-        }
-
-        return $payload;
     }
 }

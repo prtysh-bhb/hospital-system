@@ -16,12 +16,12 @@ use App\Services\Doctor\DoctorAppointmentServices;
 
 class DoctorAppointmentController extends Controller
 {
-    protected MessageSenderInterface $messenger;
-    public function __construct()
-    {
-        // Directly assign the concrete service to the interface variable
-        $this->messenger = new UltraMsgService();
-    }
+    // protected MessageSenderInterface $messenger;
+    // public function __construct()
+    // {
+    //     // Directly assign the concrete service to the interface variable
+    //     $this->messenger = new UltraMsgService();
+    // }
     public function index()
     {
         return view('doctor.appointments');
@@ -107,6 +107,48 @@ class DoctorAppointmentController extends Controller
             // Mark appointment as completed
             $appointment->status = 'completed';
             $appointment->save();
+
+            // Send WhatsApp cancellation notification via NotifyUserEvent
+            $patient = $appointment->patient;
+            $doctor = $appointment->doctor;
+
+            if ($patient->phone) {
+                $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
+                $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
+
+                $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
+                $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+                $status = ucfirst($appointment->status);
+
+                $components = [
+                    [
+                        'type' => 'body',
+                        'parameters' => [
+                            ['key' => 'name', 'type' => 'text', 'text' => $patientName],
+                            ['key' => 'date', 'type' => 'text', 'text' => $appointmentDate],
+                            ['key' => 'time', 'type' => 'text', 'text' => $appointmentTime],
+                            ['key' => 'doctor_name', 'type' => 'text', 'text' => $doctorName],
+                        ],
+                    ],
+                ];
+
+                $params = [
+                    'phone_number' => $patient->phone,
+                    'template_name' => WhatsappTemplating::COMPLETED_APPOINTMENT->value,
+                    'components' => $components,
+                    'appointment_data' => [
+                        'appointment_id' => $appointment->id,
+                        'appointment_number' => $appointment->appointment_number,
+                        'patient_name' => $patientName,
+                        'doctor_name' => $doctorName,
+                        'appointment_date' => $appointmentDate,
+                        'appointment_time' => $appointmentTime,
+                        'appointment_status' => $status,
+                    ],
+                ];
+
+                event(new NotifiyUserEvent($params));
+            }
 
             return response()->json([
                 'status' => 200,
@@ -621,6 +663,10 @@ class DoctorAppointmentController extends Controller
             $patient = $appointment->patient;
             $doctor = $appointment->doctor;
 
+            // Send WhatsApp cancellation notification via NotifyUserEvent
+            $patient = $appointment->patient;
+            $doctor = $appointment->doctor;
+
             if ($patient->phone) {
                 $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
                 $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
@@ -633,17 +679,17 @@ class DoctorAppointmentController extends Controller
                     [
                         'type' => 'body',
                         'parameters' => [
-                            ['type' => 'text', 'text' => $patientName],
-                            ['type' => 'text', 'text' => $doctorName],
-                            ['type' => 'text', 'text' => $appointmentDate],
-                            ['type' => 'text', 'text' => $appointmentTime],
+                            ['key' => 'name', 'type' => 'text', 'text' => $patientName],
+                            ['key' => 'date', 'type' => 'text', 'text' => $appointmentDate],
+                            ['key' => 'time', 'type' => 'text', 'text' => $appointmentTime],
+                            ['key' => 'doctor_name', 'type' => 'text', 'text' => $doctorName],
                         ],
                     ],
                 ];
 
                 $params = [
                     'phone_number' => $patient->phone,
-                    'template_name' => WhatsappTemplating::RESCHEDULE_APPOINTMENT->value, // Use a different template name
+                    'template_name' => WhatsappTemplating::RESCHEDULE_APPOINTMENT->value,
                     'components' => $components,
                     'appointment_data' => [
                         'appointment_id' => $appointment->id,
@@ -656,7 +702,7 @@ class DoctorAppointmentController extends Controller
                     ],
                 ];
 
-                event(new NotifiyUserEvent($params)); // Trigger event to send WhatsApp message
+                event(new NotifiyUserEvent($params));
             }
             // Log all appointment data as a single variable
             $logData = [
@@ -670,10 +716,6 @@ class DoctorAppointmentController extends Controller
                     'appointment_status' => $status,
                 ],
             ];
-
-            if ($patient && !empty($patient->phone)) {
-                $this->messenger->sendRescheduleMessage($appointment);
-            }
 
             \Log::info('Appointment rescheduled successfully', $logData);
             return response()->json([
@@ -738,10 +780,11 @@ class DoctorAppointmentController extends Controller
                 [
                     'type' => 'body',
                     'parameters' => [
-                        ['type' => 'text', 'text' => $patient->first_name . ' ' . $patient->last_name],
-                        ['type' => 'text', 'text' => 'Dr. ' . $doctor->first_name . ' ' . $doctor->last_name],
-                        ['type' => 'text', 'text' => $appointmentDate],
-                        ['type' => 'text', 'text' => $appointmentTime],
+                        ['key' => 'patient_name', 'type' => 'text', 'text' => $patientName],
+                        ['key' => 'doctor_name', 'type' => 'text', 'text' => $doctorName],
+                        ['key' => 'appointment_date', 'type' => 'text', 'text' => $appointmentDate],
+                        ['key' => 'appointment_time', 'type' => 'text', 'text' => $appointmentTime],
+                        ['key' => 'cancellation_reason', 'type' => 'text', 'text' => $cancellationReason],
                     ],
                 ],
             ];
@@ -761,27 +804,8 @@ class DoctorAppointmentController extends Controller
                 ],
             ];
 
-            // Send the cancellation message via UltraMSGService
-            $this->messenger->sendMessage($patient->phone, [
-                'template_id' => 'APPOINTMENT_CANCEL_ID',  // Template ID in your database
-                'placeholders' => [
-                    'name' => $patient->first_name . ' ' . $patient->last_name,
-                    'doctor' => $doctorName,
-                    'date' => $appointmentDate,
-                    'time' => $appointmentTime,
-                    'reason' => $cancellationReason,
-                ],
-            ], 'text');
-
             event(new NotifiyUserEvent($params));
         }
-
-
-
-        // if ($patient && !empty($patient->phone)) {
-        //     $this->messenger->sendCancellationMessage($appointment);
-        // }
-
         return response()->json([
             'success' => true,
             'message' => 'Appointment cancelled successfully',

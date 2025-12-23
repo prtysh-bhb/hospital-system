@@ -54,7 +54,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'whatsapp' => [
-        'url' => env('WHATSAPP_BUSINESS_API_URL'),
+        'api_url' => env('WHATSAPP_BUSINESS_API_URL'),
         'phone_number_id' => env('WHATSAPP_BUSINESS_PHONE_NUMBER_ID'),
         'account_id' => env('WHATSAPP_BUSINESS_ACCOUNT_ID'),
         'access_token' => env('WHATSAPP_BUSINESS_ACCESS_TOKEN'),

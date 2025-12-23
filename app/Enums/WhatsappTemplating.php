@@ -4,6 +4,9 @@ namespace App\Enums;
 
 enum WhatsappTemplating:string
 {
-    case CANCEL_APPOINTMENT = 'appointment_reschedule_1';
-    case RESCHEDULE_APPOINTMENT = 'appointment_reschedule';
+    case CANCEL_APPOINTMENT = 'APPOINTMENT_CANCEL';
+    case COMPLETED_APPOINTMENT = 'APPOINTMENT_COMPLETED';
+    case CONFIRM_APPOINTMENT = 'APPOINTMENT_CONFIRM';
+    case REMINDER_APPOINTMENT = 'APPOINTMENT_REMINDER';
+    case RESCHEDULE_APPOINTMENT = 'APPOINTMENT_RESCHEDULE';
 }

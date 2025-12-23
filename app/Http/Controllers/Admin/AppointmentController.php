@@ -513,7 +513,7 @@ class AppointmentController extends Controller
             $patient = $appointment->patient;
             $doctor = $appointment->doctor;
 
-            if (in_array($appointment->status, ['cancelled'])) {
+            if ($newStatus === 'cancelled') {
                 if ($patient->phone) {
                     $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
                     $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
@@ -526,16 +526,18 @@ class AppointmentController extends Controller
                         [
                             'type' => 'body',
                             'parameters' => [
-                                ['type' => 'text', 'text' => $patient->first_name],
-                                ['type' => 'text', 'text' => 'Dr. ' . $doctor->last_name],
-                                ['type' => 'text', 'text' => $appointmentDate],
-                                ['type' => 'text', 'text' => $appointmentTime],
+                                ['key' => 'patient_name', 'type' => 'text', 'text' => $patientName],
+                                ['key' => 'doctor_name', 'type' => 'text', 'text' => $doctorName],
+                                ['key' => 'appointment_date', 'type' => 'text', 'text' => $appointmentDate],
+                                ['key' => 'appointment_time', 'type' => 'text', 'text' => $appointmentTime],
+                                ['key' => 'cancellation_reason', 'type' => 'text', 'text' => $appointment->cancellation_reason ?? 'Not Available'],
                             ],
                         ],
                     ];
+
                     $params = [
                         'phone_number' => $patient->phone,
-                        'template_name' => WhatsappTemplating::RESCHEDULE_APPOINTMENT->value,
+                        'template_name' => WhatsappTemplating::CANCEL_APPOINTMENT->value,
                         'components' => $components,
                         'appointment_data' => [
                             'appointment_id' => $appointment->id,
@@ -547,6 +549,7 @@ class AppointmentController extends Controller
                             'appointment_status' => $status,
                         ],
                     ];
+
                     event(new NotifiyUserEvent($params));
                 }
             }

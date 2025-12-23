@@ -22,7 +22,6 @@ class WhatsAppService
     {
         $this->config = config('services.whatsapp');
         $this->baseUrl = $this->config['api_url'];
-        $this->baseUrl = $this->config['api_url'];
         $this->language_code = $this->config['language_code'];
         
         $this->client = new Client([
@@ -62,7 +61,7 @@ class WhatsAppService
     /**
      * Send WhatsApp message
      */
-    public function sendMessage(string $to, array $message, string $type = 'text')
+    public function send(string $to, array $message, string $type = 'text')
     {
         try {
             $validation = $this->validatePhoneNumber($to);

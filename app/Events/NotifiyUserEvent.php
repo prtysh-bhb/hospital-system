@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Services\WhatsAppService;
+use App\Services\UltraMSGService;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
@@ -44,7 +45,8 @@ class NotifiyUserEvent
             }
 
             // Initialize WhatsApp service
-            $whatsappService = app(WhatsAppService::class);
+            // $whatsappService = app(WhatsAppService::class);
+            $whatsappService = $this->getWhatsAppService();
 
             // Build message with template name and components
             $message = [
@@ -54,7 +56,7 @@ class NotifiyUserEvent
             ];
 
             // Send WhatsApp message via template
-            $response = $whatsappService->sendMessage(
+            $response = $whatsappService->send(
                 $phoneNumber,
                 $message,
                 'template'
@@ -74,5 +76,16 @@ class NotifiyUserEvent
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    private function getWhatsAppService(): ?object  
+    {
+        $driver = config('services.whatsapp_driver');
+
+        return match ($driver) {
+            'ultramsg' => new UltraMSGService(),
+            'waba' => new WhatsAppService(),
+            default => null,
+        };
     }
 }
