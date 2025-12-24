@@ -25,7 +25,7 @@ class AddAppointmentController extends Controller
     {
         // Get form field visibility settings (centralized method)
         $formSettings = BookAppointmentService::getFormSettings();
-        
+
         return view('frontdesk.add-appointment', compact('formSettings'));
     }
 

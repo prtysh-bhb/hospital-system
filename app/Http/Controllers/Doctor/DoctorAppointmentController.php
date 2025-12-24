@@ -671,8 +671,8 @@ class DoctorAppointmentController extends Controller
                 $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
                 $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
 
-                $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
-                $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+                $doctorName = 'Dr. '.trim($doctor->first_name.' '.$doctor->last_name);
+                $patientName = trim($patient->first_name.' '.$patient->last_name);
                 $status = ucfirst($appointment->status);
 
                 $components = [
@@ -718,6 +718,7 @@ class DoctorAppointmentController extends Controller
             ];
 
             \Log::info('Appointment rescheduled successfully', $logData);
+
             return response()->json([
                 'status' => 200,
                 'msg' => 'Appointment rescheduled successfully',
@@ -772,8 +773,8 @@ class DoctorAppointmentController extends Controller
             $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
             $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
 
-            $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
-            $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+            $doctorName = 'Dr. '.trim($doctor->first_name.' '.$doctor->last_name);
+            $patientName = trim($patient->first_name.' '.$patient->last_name);
             $status = ucfirst($appointment->status);
 
             $components = [

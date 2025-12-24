@@ -367,157 +367,47 @@
                         <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">
                             <!-- Show Emergency Contact -->
                             @if (isset($settings['show_emergency_contact']))
-                                <div class="setting-card bg-white border-2 border-gray-100 rounded-xl p-5 hover:border-sky-200 hover:shadow-md transition-all duration-200"
-                                    data-category-id="{{ $settings['show_emergency_contact']['category_id'] }}">
-                                    <div class="flex items-start justify-between gap-3 mb-4">
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold text-gray-900 mb-1 truncate">
-                                                {{ ucwords(str_replace('_', ' ', 'show_emergency_contact')) }}</h4>
-                                            <p class="text-xs text-gray-500">
-                                                {{ $settings['show_emergency_contact']['description'] }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6">
-                                        <div class="flex items-center justify-between">
-                                            <span
-                                                class="text-sm font-medium text-gray-700">{{ $settings['show_emergency_contact']['value'] == '1' ? 'Visible' : 'Hidden' }}</span>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" class="sr-only peer setting-input"
-                                                    data-setting-key="show_emergency_contact"
-                                                    data-category-id="{{ $settings['show_emergency_contact']['category_id'] }}"
-                                                    data-setting-type="{{ $settings['show_emergency_contact']['type'] }}"
-                                                    {{ $settings['show_emergency_contact']['value'] == '1' ? 'checked' : '' }}>
-                                                <div
-                                                    class="w-12 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-100 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-sky-500 peer-checked:to-blue-500">
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                <x-setting-switch-button setting-key="show_emergency_contact"
+                                    label="{{ ucwords(str_replace('_', ' ', 'show_emergency_contact')) }}"
+                                    description="{{ $settings['show_emergency_contact']['description'] }}"
+                                    category-id="{{ $settings['show_emergency_contact']['category_id'] }}"
+                                    :checked="$settings['show_emergency_contact']['value'] == '1'" enabled-text="Visible" disabled-text="Hidden" />
                             @endif
 
                             <!-- Show Blood Group -->
                             @if (isset($settings['show_blood_group']))
-                                <div class="setting-card bg-white border-2 border-gray-100 rounded-xl p-5 hover:border-sky-200 hover:shadow-md transition-all duration-200"
-                                    data-category-id="{{ $settings['show_blood_group']['category_id'] }}">
-                                    <div class="flex items-start justify-between gap-3 mb-4">
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold text-gray-900 mb-1 truncate">
-                                                {{ ucwords(str_replace('_', ' ', 'show_blood_group')) }}</h4>
-                                            <p class="text-xs text-gray-500">
-                                                {{ $settings['show_blood_group']['description'] }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6">
-                                        <div class="flex items-center justify-between">
-                                            <span
-                                                class="text-sm font-medium text-gray-700">{{ $settings['show_blood_group']['value'] == '1' ? 'Visible' : 'Hidden' }}</span>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" class="sr-only peer setting-input"
-                                                    data-setting-key="show_blood_group"
-                                                    data-category-id="{{ $settings['show_blood_group']['category_id'] }}"
-                                                    data-setting-type="{{ $settings['show_blood_group']['type'] }}"
-                                                    {{ $settings['show_blood_group']['value'] == '1' ? 'checked' : '' }}>
-                                                <div
-                                                    class="w-12 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-100 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-sky-500 peer-checked:to-blue-500">
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                <x-setting-switch-button setting-key="show_blood_group"
+                                    label="{{ ucwords(str_replace('_', ' ', 'show_blood_group')) }}"
+                                    description="{{ $settings['show_blood_group']['description'] }}"
+                                    category-id="{{ $settings['show_blood_group']['category_id'] }}" :checked="$settings['show_blood_group']['value'] == '1'"
+                                    enabled-text="Visible" disabled-text="Hidden" />
                             @endif
 
                             <!-- Show Medical History -->
                             @if (isset($settings['show_medical_history']))
-                                <div class="setting-card bg-white border-2 border-gray-100 rounded-xl p-5 hover:border-sky-200 hover:shadow-md transition-all duration-200"
-                                    data-category-id="{{ $settings['show_medical_history']['category_id'] }}">
-                                    <div class="flex items-start justify-between gap-3 mb-4">
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold text-gray-900 mb-1 truncate">
-                                                {{ ucwords(str_replace('_', ' ', 'show_medical_history')) }}</h4>
-                                            <p class="text-xs text-gray-500">
-                                                {{ $settings['show_medical_history']['description'] }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6">
-                                        <div class="flex items-center justify-between">
-                                            <span
-                                                class="text-sm font-medium text-gray-700">{{ $settings['show_medical_history']['value'] == '1' ? 'Visible' : 'Hidden' }}</span>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" class="sr-only peer setting-input"
-                                                    data-setting-key="show_medical_history"
-                                                    data-category-id="{{ $settings['show_medical_history']['category_id'] }}"
-                                                    data-setting-type="{{ $settings['show_medical_history']['type'] }}"
-                                                    {{ $settings['show_medical_history']['value'] == '1' ? 'checked' : '' }}>
-                                                <div
-                                                    class="w-12 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-100 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-sky-500 peer-checked:to-blue-500">
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                <x-setting-switch-button setting-key="show_medical_history"
+                                    label="{{ ucwords(str_replace('_', ' ', 'show_medical_history')) }}"
+                                    description="{{ $settings['show_medical_history']['description'] }}"
+                                    category-id="{{ $settings['show_medical_history']['category_id'] }}" :checked="$settings['show_medical_history']['value'] == '1'"
+                                    enabled-text="Visible" disabled-text="Hidden" />
                             @endif
 
                             <!-- Show Current Medications -->
                             @if (isset($settings['show_current_medications']))
-                                <div class="setting-card bg-white border-2 border-gray-100 rounded-xl p-5 hover:border-sky-200 hover:shadow-md transition-all duration-200"
-                                    data-category-id="{{ $settings['show_current_medications']['category_id'] }}">
-                                    <div class="flex items-start justify-between gap-3 mb-4">
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold text-gray-900 mb-1 truncate">
-                                                {{ ucwords(str_replace('_', ' ', 'show_current_medications')) }}</h4>
-                                            <p class="text-xs text-gray-500">
-                                                {{ $settings['show_current_medications']['description'] }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6">
-                                        <div class="flex items-center justify-between">
-                                            <span
-                                                class="text-sm font-medium text-gray-700">{{ $settings['show_current_medications']['value'] == '1' ? 'Visible' : 'Hidden' }}</span>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" class="sr-only peer setting-input"
-                                                    data-setting-key="show_current_medications"
-                                                    data-category-id="{{ $settings['show_current_medications']['category_id'] }}"
-                                                    data-setting-type="{{ $settings['show_current_medications']['type'] }}"
-                                                    {{ $settings['show_current_medications']['value'] == '1' ? 'checked' : '' }}>
-                                                <div
-                                                    class="w-12 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-100 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-sky-500 peer-checked:to-blue-500">
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                <x-setting-switch-button setting-key="show_current_medications"
+                                    label="{{ ucwords(str_replace('_', ' ', 'show_current_medications')) }}"
+                                    description="{{ $settings['show_current_medications']['description'] }}"
+                                    category-id="{{ $settings['show_current_medications']['category_id'] }}"
+                                    :checked="$settings['show_current_medications']['value'] == '1'" enabled-text="Visible" disabled-text="Hidden" />
                             @endif
 
                             <!-- Show Insurance Details -->
                             @if (isset($settings['show_insurance_details']))
-                                <div class="setting-card bg-white border-2 border-gray-100 rounded-xl p-5 hover:border-sky-200 hover:shadow-md transition-all duration-200"
-                                    data-category-id="{{ $settings['show_insurance_details']['category_id'] }}">
-                                    <div class="flex items-start justify-between gap-3 mb-4">
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold text-gray-900 mb-1 truncate">
-                                                {{ ucwords(str_replace('_', ' ', 'show_insurance_details')) }}</h4>
-                                            <p class="text-xs text-gray-500">
-                                                {{ $settings['show_insurance_details']['description'] }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6">
-                                        <div class="flex items-center justify-between">
-                                            <span
-                                                class="text-sm font-medium text-gray-700">{{ $settings['show_insurance_details']['value'] == '1' ? 'Visible' : 'Hidden' }}</span>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" class="sr-only peer setting-input"
-                                                    data-setting-key="show_insurance_details"
-                                                    data-category-id="{{ $settings['show_insurance_details']['category_id'] }}"
-                                                    data-setting-type="{{ $settings['show_insurance_details']['type'] }}"
-                                                    {{ $settings['show_insurance_details']['value'] == '1' ? 'checked' : '' }}>
-                                                <div
-                                                    class="w-12 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-100 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-sky-500 peer-checked:to-blue-500">
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                <x-setting-switch-button setting-key="show_insurance_details"
+                                    label="{{ ucwords(str_replace('_', ' ', 'show_insurance_details')) }}"
+                                    description="{{ $settings['show_insurance_details']['description'] }}"
+                                    category-id="{{ $settings['show_insurance_details']['category_id'] }}"
+                                    :checked="$settings['show_insurance_details']['value'] == '1'" enabled-text="Visible" disabled-text="Hidden" />
                             @endif
                         </div>
 

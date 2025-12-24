@@ -189,7 +189,7 @@
                     </div>
 
                     <!-- Emergency Contact (Conditional) -->
-                    @if (isset($formSettings['show_emergency_contact']) && $formSettings['show_emergency_contact'])
+                    @hasAccess('show_emergency_contact')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact
@@ -215,10 +215,10 @@
                                 @enderror
                             </div>
                         </div>
-                    @endif
+                    @endhasAccess
 
                     <!-- Blood Group (Conditional) -->
-                    @if (isset($formSettings['show_blood_group']) && $formSettings['show_blood_group'])
+                    @hasAccess('show_blood_group')
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Blood Group</label>
                             <select name="blood_group" oninput="removeError(this)"
@@ -239,10 +239,10 @@
                                 <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                             @enderror
                         </div>
-                    @endif
+                    @endhasAccess
 
                     <!-- Medical History (Conditional) -->
-                    @if (isset($formSettings['show_medical_history']) && $formSettings['show_medical_history'])
+                    @hasAccess('show_medical_history')
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Medical History</label>
                             <textarea name="medical_history" rows="3" oninput="removeError(this)"
@@ -252,10 +252,10 @@
                                 <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                             @enderror
                         </div>
-                    @endif
+                    @endhasAccess
 
                     <!-- Current Medications (Conditional) -->
-                    @if (isset($formSettings['show_current_medications']) && $formSettings['show_current_medications'])
+                    @hasAccess('show_current_medications')
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Current Medications</label>
                             <textarea name="current_medications" rows="3" oninput="removeError(this)"
@@ -265,15 +265,15 @@
                                 <p class="text-xs text-red-500 mt-1 error-msg">{{ $message }}</p>
                             @enderror
                         </div>
-                    @endif
+                    @endhasAccess
 
                     <!-- Insurance Details (Conditional) -->
-                    @if (isset($formSettings['show_insurance_details']) && $formSettings['show_insurance_details'])
+                    @hasAccess('show_insurance_details')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Provider</label>
-                                <input type="text" name="insurance_provider"
-                                    value="{{ old('insurance_provider') }}" oninput="removeError(this)"
+                                <input type="text" name="insurance_provider" value="{{ old('insurance_provider') }}"
+                                    oninput="removeError(this)"
                                     class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-600 focus:border-transparent @error('insurance_provider') border-red-500 @else border-gray-300 @enderror"
                                     placeholder="Insurance company name">
                                 @error('insurance_provider')
@@ -292,7 +292,7 @@
                                 @enderror
                             </div>
                         </div>
-                    @endif
+                    @endhasAccess
 
                 </div>
             </div>
