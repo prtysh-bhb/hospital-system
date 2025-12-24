@@ -25,7 +25,7 @@ class WhatsappTemplateSeeder extends Seeder
                 'id' => 'APPOINTMENT_CANCEL',
                 'name' => 'Appointment Cancel',
                 'message' => <<<EOD
-                Hello {{patient_name}}, 
+                Hello {{name}}, 
 
                 We regret to inform you that your appointment has been cancelled due to {{cancellation_reason}}. If you wish to reschedule, please contact us at your earliest convenience.
 
@@ -53,6 +53,20 @@ class WhatsappTemplateSeeder extends Seeder
                 Thank you {{name}}, your appointment is completed.
                 EOD
             ],
+            [
+                'id' => 'DOCTOR_ON_LEAVE',
+                'name' => 'Doctor On Leave',
+                'message' => <<<EOD
+                👋 Hello {{name}}, 
+
+                We wanted to inform you that Dr. {{doctor_name}} will be on leave from {{start_date}} to {{end_date}} and will not be available for appointments during this period.
+
+                If you wish to book another appointment, please click the link below to schedule at a convenient time:
+                {{booking_link}}
+
+                Thank you for your understanding.
+                EOD
+            ]
         ];
 
 

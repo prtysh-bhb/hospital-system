@@ -148,10 +148,10 @@ class DashboardController extends Controller
                     [
                         'type' => 'body',
                         'parameters' => [
-                            ['key' => 'patient_name', 'type' => 'text', 'text' => $patientName],
+                            ['key' => 'name', 'type' => 'text', 'text' => $patientName],
                             ['key' => 'doctor_name', 'type' => 'text', 'text' => $doctorName],
-                            ['key' => 'appointment_date', 'type' => 'text', 'text' => $appointmentDate],
-                            ['key' => 'appointment_time', 'type' => 'text', 'text' => $appointmentTime],
+                            ['key' => 'date', 'type' => 'text', 'text' => $appointmentDate],
+                            ['key' => 'time', 'type' => 'text', 'text' => $appointmentTime],
                             ['key' => 'cancellation_reason', 'type' => 'text', 'text' => $request->cancellation_reason],
                         ],
                     ],

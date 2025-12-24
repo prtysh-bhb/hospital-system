@@ -5,7 +5,7 @@
 
 @section('content')
 
-    <div class="max-w-1xl mx-auto">
+    <div class="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Page Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
@@ -24,7 +24,7 @@
 
         <!-- Apply Leave Form (Hidden by default) -->
         <div id="leaveFormSection" class="hidden mb-8">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                 <div class="flex items-center justify-between mb-4">
                     <h4 class="text-lg font-semibold text-gray-800">Request Leave</h4>
                     <button type="button" id="closeFormBtn" class="text-gray-400 hover:text-gray-600">
@@ -35,17 +35,18 @@
                     </button>
                 </div>
 
-                <form action="#" method="POST" id="leaveForm">
+                <form action="#" method="POST" id="leaveForm" class="space-y-6">
                     @csrf
+
                     <!-- Leave Type -->
-                    <div class="mb-5">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Leave Type</label>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Leave Type</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <label class="cursor-pointer">
                                 <input type="radio" name="leave_type" value="full_day" class="hidden peer" checked>
                                 <div
-                                    class="peer-checked:border-sky-600 peer-checked:bg-sky-50 border rounded-lg p-4 text-center">
-                                    <p class="font-medium text-gray-800">Full Day</p>
+                                    class="peer-checked:border-sky-600 peer-checked:bg-sky-50 border border-gray-200 rounded-xl p-5 text-center transition hover:shadow hover:scale-[1.02]">
+                                    <p class="font-medium text-gray-900">Full Day</p>
                                     <p class="text-xs text-gray-500">Whole day leave</p>
                                 </div>
                             </label>
@@ -53,8 +54,8 @@
                             <label class="cursor-pointer">
                                 <input type="radio" name="leave_type" value="half_day" class="hidden peer">
                                 <div
-                                    class="peer-checked:border-amber-600 peer-checked:bg-amber-50 border rounded-lg p-4 text-center">
-                                    <p class="font-medium text-gray-800">Half Day</p>
+                                    class="peer-checked:border-amber-500 peer-checked:bg-amber-50 border border-gray-200 rounded-xl p-5 text-center transition hover:shadow hover:scale-[1.02]">
+                                    <p class="font-medium text-gray-900">Half Day</p>
                                     <p class="text-xs text-gray-500">Morning / Evening</p>
                                 </div>
                             </label>
@@ -62,8 +63,8 @@
                             <label class="cursor-pointer">
                                 <input type="radio" name="leave_type" value="custom" class="hidden peer">
                                 <div
-                                    class="peer-checked:border-purple-600 peer-checked:bg-purple-50 border rounded-lg p-4 text-center">
-                                    <p class="font-medium text-gray-800">Custom Time</p>
+                                    class="peer-checked:border-purple-600 peer-checked:bg-purple-50 border border-gray-200 rounded-xl p-5 text-center transition hover:shadow hover:scale-[1.02]">
+                                    <p class="font-medium text-gray-900">Custom Time</p>
                                     <p class="text-xs text-gray-500">Specific hours</p>
                                 </div>
                             </label>
@@ -71,23 +72,25 @@
                     </div>
 
                     <!-- Date Range -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date <span
+                                    class="text-red-500">*</span></label>
                             <input type="date" name="start_date"
-                                class="w-full border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
+                                class="w-full border  rounded-xl p-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">End Date <span
+                                    class="text-red-500">*</span></label>
                             <input type="date" name="end_date"
-                                class="w-full border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
+                                class="w-full border  rounded-xl p-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition">
                         </div>
                     </div>
 
                     <!-- Half Day Slot -->
                     <div id="halfDaySection" class="mb-5 hidden">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Half Day Slot</label>
-                        <div class="flex gap-4">
+                        <div class="flex gap-6">
                             <label class="flex items-center gap-2">
                                 <input type="radio" name="half_day_slot" value="morning">
                                 <span class="text-sm text-gray-700">Morning</span>
@@ -104,33 +107,31 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
                             <input type="time" name="start_time"
-                                class="w-full border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                                class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
                             <input type="time" name="end_time"
-                                class="w-full border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                                class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition">
                         </div>
                     </div>
 
                     <!-- Reason -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Reason (optional)</label>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Reason <span
+                                class="text-red-500">*</span></label>
                         <textarea name="reason" rows="3"
-                            class="w-full border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                            class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
                             placeholder="Enter reason for leave..."></textarea>
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex justify-end gap-3">
+                    <div class="flex justify-end gap-4">
                         <button type="button" id="cancelFormBtn"
-                            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                            Cancel
-                        </button>
+                            class="px-5 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition">Cancel</button>
                         <button type="submit" id="leave_submit_button"
-                            class="px-5 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700">
-                            Submit Leave Request
-                        </button>
+                            class="px-6 py-2 bg-sky-600 text-white rounded-xl font-medium hover:bg-sky-700 transition">Submit
+                            Leave Request</button>
                     </div>
                 </form>
             </div>
@@ -438,6 +439,10 @@
                 let form = $(this);
                 let formData = form.serialize();
 
+                // Clear previous errors
+                form.find('.error-text').remove();
+                form.find('.border-red-500').removeClass('border-red-500');
+
                 $.ajax({
                     url: "{{ route('doctor.leaves.store') }}",
                     type: "POST",
@@ -455,40 +460,50 @@
                         }, 1500);
                     },
                     error: function(xhr) {
+                        if (xhr.status === 422 && xhr.responseJSON.errors) {
+                            let errors = xhr.responseJSON.errors;
 
-                        if (xhr.status === 409 && xhr.responseJSON.type ===
-                            'appointment_conflict') {
+                            Object.keys(errors).forEach(function(key) {
+                                let field = form.find(`[name="${key}"]`);
 
-                            $('#appointmentConflictText').text(xhr.responseJSON.message);
-                            $('#appointmentConflictModal').removeClass('hidden');
+                                // Highlight field
+                                field.addClass('border-red-500');
 
+                                // Insert error message after the field
+                                if (field.next('.error-text').length === 0) {
+                                    field.after(
+                                        `<p class="text-red-500 text-sm mt-1 error-text">${errors[key][0]}</p>`
+                                    );
+                                }
+                            });
                             return;
                         }
 
-                        // Leave conflict
+                        if (xhr.status === 409 && xhr.responseJSON.type ===
+                            'appointment_conflict') {
+                            $('#appointmentConflictText').text(xhr.responseJSON.message);
+                            $('#appointmentConflictModal').removeClass('hidden');
+                            return;
+                        }
+
                         if (xhr.status === 422 && xhr.responseJSON.type === 'leave_conflict') {
                             toastr.error(xhr.responseJSON.message);
                             return;
                         }
 
-                        // Validation errors
-                        if (xhr.status === 422 && xhr.responseJSON.errors) {
-                            let errors = xhr.responseJSON.errors;
-                            Object.values(errors).forEach(error => {
-                                toastr.error(error[0]);
-                            });
-                            return;
-                        }
-
                         toastr.error('Something went wrong. Please try again.');
                     },
-
-
                     complete: function() {
                         $('#leave_submit_button').prop('disabled', false).text(
                             'Submit Leave Request');
                     }
                 });
+            });
+
+            // Remove error messages and red border when user modifies input/select/textarea
+            $('#leaveForm').on('input change', 'input, select, textarea', function() {
+                $(this).removeClass('border-red-500');
+                $(this).next('.error-text').remove();
             });
         });
         $('#closeConflictModal').on('click', function() {

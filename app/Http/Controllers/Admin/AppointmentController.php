@@ -58,7 +58,11 @@ class AppointmentController extends Controller
 
     public function getAppointments(Request $request)
     {
-        $query = Appointment::with(['patient', 'doctor.doctorProfile.specialty']);
+        // $query = Appointment::with(['patient', 'doctor.doctorProfile.specialty']);
+        $query = Appointment::with(['patient' => function ($query) {
+                $query->withTrashed();  
+            },'doctor.doctorProfile.specialty'
+        ])->whereNull('appointments.deleted_at');
 
         // 1. SEARCH
         if ($request->filled('search')) {
@@ -510,49 +514,53 @@ class AppointmentController extends Controller
             $appointment->save();
 
             // Send WhatsApp notification via NotifyUserEvent if status changed
+            $statusChanged = $originalStatus !== $newStatus;
             $patient = $appointment->patient;
             $doctor = $appointment->doctor;
 
-            if ($newStatus === 'cancelled') {
-                if ($patient->phone) {
+            if ($patient && $patient->phone && in_array($newStatus, ['cancelled', 'confirmed'])) {
+
+                $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+
+                $templateName = $newStatus === 'cancelled'
+                    ? WhatsappTemplating::CANCEL_APPOINTMENT->value
+                    : WhatsappTemplating::CONFIRM_APPOINTMENT->value;
+
+                if ($newStatus === 'cancelled') {
+
+                    // ✅ EXACT template order
+                    $parameters = [
+                        ['key' => 'name', 'type' => 'text', 'text' => $patientName],
+                        ['key' => 'cancellation_reason', 'type' => 'text', 'text' => $appointment->cancellation_reason ?? 'Not Available',],
+                    ];
+
+                } else {
+                    // confirmed
                     $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
                     $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
-
                     $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
-                    $patientName = trim($patient->first_name . ' ' . $patient->last_name);
-                    $status = ucfirst($appointment->status);
 
-                    $components = [
+                    $parameters = [
+                        ['key' => 'name', 'type' => 'text', 'text' => $patientName],
+                        ['key' => 'doctor_name', 'type' => 'text', 'text' => $doctorName],
+                        ['key' => 'date', 'type' => 'text', 'text' => $appointmentDate],
+                        ['key' => 'time', 'type' => 'text', 'text' => $appointmentTime],
+                    ];
+                }
+
+                $params = [
+                    'phone_number' => $patient->phone,
+                    'template_name' => $templateName,
+                    'components' => [
                         [
                             'type' => 'body',
-                            'parameters' => [
-                                ['key' => 'patient_name', 'type' => 'text', 'text' => $patientName],
-                                ['key' => 'doctor_name', 'type' => 'text', 'text' => $doctorName],
-                                ['key' => 'appointment_date', 'type' => 'text', 'text' => $appointmentDate],
-                                ['key' => 'appointment_time', 'type' => 'text', 'text' => $appointmentTime],
-                                ['key' => 'cancellation_reason', 'type' => 'text', 'text' => $appointment->cancellation_reason ?? 'Not Available'],
-                            ],
+                            'parameters' => $parameters,
                         ],
-                    ];
-
-                    $params = [
-                        'phone_number' => $patient->phone,
-                        'template_name' => WhatsappTemplating::CANCEL_APPOINTMENT->value,
-                        'components' => $components,
-                        'appointment_data' => [
-                            'appointment_id' => $appointment->id,
-                            'appointment_number' => $appointment->appointment_number,
-                            'patient_name' => $patientName,
-                            'doctor_name' => $doctorName,
-                            'appointment_date' => $appointmentDate,
-                            'appointment_time' => $appointmentTime,
-                            'appointment_status' => $status,
-                        ],
-                    ];
-
-                    event(new NotifiyUserEvent($params));
-                }
+                    ],
+                ];
+                event(new NotifiyUserEvent($params));
             }
+
 
             return response()->json([
                 'status' => 200,

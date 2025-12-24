@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Doctor;
 
-use App\Events\NotifiyUserEvent;
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\Appointment;
 use App\Models\DoctorLeave;
-use App\Models\DoctorProfile;
 use Illuminate\Http\Request;
+use App\Models\DoctorProfile;
+use App\Events\NotifiyUserEvent;
+use App\Enums\WhatsappTemplating;
+use App\Http\Controllers\Controller;
 
 class DoctorLeaveController extends Controller
 {
@@ -27,13 +29,21 @@ class DoctorLeaveController extends Controller
 
         $request->validate([
             'leave_type' => 'required|in:full_day,half_day,custom',
-            'start_date' => 'required|date',
+            'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'half_day_slot' => 'nullable|required_if:leave_type,half_day|in:morning,evening',
             'start_time' => 'nullable|required_if:leave_type,custom|date_format:H:i',
             'end_time' => 'nullable|required_if:leave_type,custom|date_format:H:i|after:start_time',
-            'reason' => 'nullable|string|max:255',
+            'reason' => 'required|string|max:255',
             'cancel_appointments' => 'nullable|boolean',
+        ],[
+            'start_date.after_or_equal' => 'The start date must be a date after or equal to today.',
+            'end_date.after_or_equal' => 'The end date must be a date after or equal to start date.',
+            'half_day_slot.required_if' => 'The half day slot is required when leave type is half day.',
+            'start_time.required_if' => 'The start time is required when leave type is custom.',
+            'end_time.required_if' => 'The end time is required when leave type is custom.',
+            'end_time.after' => 'The end time must be a time after start time.',
+            'reason.required' => 'Please provide a reason for your leave.',
         ]);
 
         if ($this->hasOverlappingLeave(
@@ -71,18 +81,55 @@ class DoctorLeaveController extends Controller
 
         try {
             if ($cancelAppointments) {
-                Appointment::where('doctor_id', $user->id)
+                $appointments = Appointment::where('doctor_id', $user->id)
                     ->whereBetween('appointment_date', [$request->input('start_date'), $request->input('end_date')])
                     ->whereNotIn('status', ['cancelled', 'completed'])
-                    ->update([
+                    ->get();
+
+                foreach ($appointments as $appointment) {
+                    // Cancel each appointment
+                    $appointment->update([
                         'status' => 'cancelled',
                         'cancelled_at' => now(),
-                        'cancellation_reason' => 'Doctor on leave: '.($request->input('reason') ?? 'Leave approved'),
+                        'cancellation_reason' => 'Doctor on leave: ' . ($request->input('reason') ?? 'Leave approved'),
                     ]);
-                event(new NotifiyUserEvent(
-                    $user->id,
-                    $request->input('reason')
-                ));
+
+                    $patient = $appointment->patient;
+                    $doctor = $appointment->doctor;
+
+                    if ($patient && $patient->phone) {
+                        $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
+                        $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+
+                        // Get leave start and end date from request
+                        $leaveStartDate = Carbon::parse($request->input('start_date'))->format('F j, Y');
+                        $leaveEndDate = Carbon::parse($request->input('end_date'))->format('F j, Y');
+
+                        // Booking link
+                        $bookingLink = route('booking'); // Replace with your actual booking route
+
+                        $components = [
+                            [
+                                'type' => 'body',
+                                'parameters' => [
+                                    ['key' => 'name', 'type' => 'text', 'text' => $patientName],
+                                    ['key' => 'doctor_name', 'type' => 'text', 'text' => $doctorName],
+                                    ['key' => 'start_date', 'type' => 'text', 'text' => $leaveStartDate],
+                                    ['key' => 'end_date', 'type' => 'text', 'text' => $leaveEndDate],
+                                    ['key' => 'booking_link', 'type' => 'text', 'text' => $bookingLink],
+                                ],
+                            ],
+                        ];
+
+                        $params = [
+                            'phone_number' => $patient->phone,
+                            'template_name' => WhatsappTemplating::DOCTOR_ON_LEAVE->value,
+                            'components' => $components,
+                        ];
+
+                        event(new NotifiyUserEvent($params));
+                    }
+                }
             }
             DoctorLeave::create([
                 'doctor_id' => $user->id,
