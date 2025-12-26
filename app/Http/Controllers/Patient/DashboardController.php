@@ -3,15 +3,22 @@
 namespace App\Http\Controllers\Patient;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Appointment;
+use Illuminate\Container\Attributes\Auth;
+use Illuminate\Support\Str;
 use App\Models\Prescription;
 use Illuminate\Http\Request;
+use App\Models\PatientProfile;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Validation\Rule;
 use App\Events\NotifiyUserEvent;
 use App\Enums\WhatsappTemplating;
 use App\Models\AppointmentHistory;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use App\Services\AppointmentSlotService;
+use App\Services\Public\BookAppointmentService;
 
 class DashboardController extends Controller
 {
@@ -25,7 +32,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-
+        $doctors = User::where('role', 'doctor')->with('doctorProfile.specialty')->get();
         // Get appointments with all related data
         $appointments = $user->patientAppointments()
             ->with([
@@ -86,7 +93,7 @@ class DashboardController extends Controller
             'cancelled' => $appointments->where('status', 'cancelled')->count(),
         ];
 
-        return view('patient.dashboard', compact('appointments', 'stats'));
+        return view('patient.dashboard', compact('appointments', 'stats', 'doctors'));
     }
 
     public function cancelAppointment(Request $request)
@@ -490,6 +497,142 @@ class DashboardController extends Controller
             \Log::error('Download prescription error: '.$e->getMessage());
 
             return back()->with('error', 'An error occurred while downloading the prescription.');
+        }
+    }
+
+    public function storeAppointment(Request $request)
+    {
+        try {
+            // Determine whether a patient was selected or new patient details are provided
+            $patientId = $request->input('patient_id');
+
+            if ($patientId && $patientId != '') {
+                // Validate required fields when patient selected
+                $request->validate([
+                    'patient_id' => [
+                        'required',
+                        Rule::exists('users', 'id')->where(function ($query) {
+                            $query->where('role', 'patient');
+                        })
+                    ],
+                    'doctor_id' => [
+                        'required',
+                        Rule::exists('users', 'id')->where(function ($query) {
+                            $query->where('role', 'doctor');
+                        })
+                    ],
+                    'appointment_date' => 'required|date|after_or_equal:today',
+                    'appointment_time' => 'required',
+                    'appointment_type' => 'required|in:consultation,follow_up,emergency,check_up',
+                    'reason_for_visit' => 'required|string|max:1000',
+                ], [
+                    'patient_id.required' => 'Please select a patient.',
+                    'doctor_id.required' => 'Please select a doctor.',
+                    'appointment_date.required' => 'Appointment date is required.',
+                    'appointment_date.after_or_equal' => 'Appointment date must be today or in the future.',
+                    'appointment_time.required' => 'Appointment time is required.',
+                    'appointment_type.required' => 'Please select appointment type.',
+                    'reason_for_visit.required' => 'Reason for visit is required.',
+                ]);
+            } else {
+                // Validate patient details + appointment when creating new patient
+                $request->validate([
+                    'doctor_id' => [
+                        'required',
+                        Rule::exists('users', 'id')->where(function ($query) {
+                            $query->where('role', 'doctor');
+                        })
+                    ],
+                    'appointment_date' => 'required|date|after_or_equal:today',
+                    'appointment_time' => 'required',
+                    'appointment_type' => 'required|in:consultation,follow_up,emergency,check_up',
+                    'reason_for_visit' => 'required|string|max:1000',
+                    'notes' => 'nullable|string|max:500',
+                ], [
+                    'doctor_id.required' => 'Please select a doctor.',
+                    'appointment_date.required' => 'Appointment date is required.',
+                    'appointment_date.after_or_equal' => 'Appointment date must be today or in the future.',
+                    'appointment_time.required' => 'Appointment time is required.',
+                    'appointment_type.required' => 'Please select appointment type.',
+                    'reason_for_visit.required' => 'Reason for visit is required.',
+                    'reason_for_visit.max' => 'Reason for visit cannot exceed 1000 characters.',
+                    'notes.max' => 'Notes cannot exceed 500 characters.',
+                ]);
+            }
+
+            $date = now()->format('Ymd');
+            $random = random_int(0, 999999);
+            $randomPadded = str_pad($random, 6, '0', STR_PAD_LEFT);
+            $appointmentNumber = 'APT-' . $date . '-' . $randomPadded;
+
+            // Parse appointment time (could be "09:00 AM" format or "09:00" format)
+            $appointmentTime = $request->input('appointment_time');
+
+            // Validate if the time slot is available
+            $slotValidation = $this->slotService->validateAppointmentTime(
+                $request->input('doctor_id'),
+                $request->input('appointment_date'),
+                $appointmentTime
+            );
+
+            if (!$slotValidation['valid']) {
+                return response()->json([
+                    'status' => 422,
+                    'msg' => $slotValidation['message'],
+                    'errors' => ['appointment_time' => [$slotValidation['message']]],
+                ], 422);
+            }
+
+            // Convert 12-hour format to 24-hour if needed
+            if (strpos($appointmentTime, 'AM') !== false || strpos($appointmentTime, 'PM') !== false) {
+                $appointmentTime = date('H:i:s', strtotime($appointmentTime));
+            } else {
+                // Ensure it has seconds
+                if (substr_count($appointmentTime, ':') == 1) {
+                    $appointmentTime .= ':00';
+                }
+            }
+
+            // Create a new appointment instance
+            $appointment = new Appointment;
+            $appointment->appointment_number = $appointmentNumber;
+            $appointment->patient_id = $patientId;
+            $appointment->doctor_id = $request->input('doctor_id');
+            $appointment->appointment_date = $request->input('appointment_date');
+            $appointment->appointment_time = $appointmentTime;
+            $appointment->appointment_type = $request->input('appointment_type');
+            $appointment->reason_for_visit = $request->input('reason_for_visit');
+            $appointment->notes = $request->input('notes');
+            $appointment->status = $request->input('status', 'pending');
+            $appointment->booked_by = auth()->id();
+            $appointment->booked_via = 'patient';
+            $appointment->save();
+
+            // Return success response
+            return response()->json([
+                'status' => 200,
+                'msg' => 'Appointment created successfully.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation errors
+            return response()->json([
+                'status' => 422,
+                'msg' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Appointment creation failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except(['password']),
+            ]);
+
+            // Handle exceptions and return a response
+            return response()->json([
+                'status' => 400,
+                'msg' => 'Something went wrong. Please try again later.',
+                'error' => $e->getMessage(),
+            ], 400);
         }
     }
 }

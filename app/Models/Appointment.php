@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Appointment extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
-
+    protected $table = 'appointments';
     protected $fillable = [
         'appointment_number',
         'patient_id',

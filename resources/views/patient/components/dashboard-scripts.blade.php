@@ -376,7 +376,7 @@
 
             fetch(
                     `{{ route('patient.available-time-slots') }}?doctor_id=${doctorId}&date=${date}&appointment_id=${appointmentId}`
-                    )
+                )
                 .then(response => response.json())
                 .then(data => {
                     loadingMsg.classList.add('hidden');
@@ -587,6 +587,279 @@
                 document.getElementById('appointment-details-modal').classList.add('hidden');
                 document.getElementById('cancel-appointment-modal').classList.add('hidden');
                 document.getElementById('reschedule-appointment-modal').classList.add('hidden');
+                document.getElementById('appointment-booking-modal').classList.add('hidden');
+            }
+        });
+
+        document.querySelectorAll('.appointment-booking').forEach((button, index) => {
+            button.addEventListener('click', function(e) {
+                const modal = document.getElementById('appointment-booking-modal');
+                const content = document.getElementById('appointment-booking-content');
+                modal.classList.remove('hidden');
+            });
+        });
+
+        $(document).ready(function() {
+            // Initialize character counters
+            function updateCharCount(field) {
+                const fieldId = field.attr('id');
+                const countSpan = $('#' + fieldId + '_count');
+                if (countSpan.length) {
+                    countSpan.text(field.val().length);
+                }
+            }
+
+            // Update character counts on input
+            $('#reason_for_visit, #notes').on(
+                'input',
+                function() {
+                    updateCharCount($(this));
+                });
+
+            // Toggle patient form based on selection
+            function togglePatientForm() {
+                var pid = $('#select_patient').val();
+                if (pid && pid !== '') {
+                    $('#patientForm').hide();
+                    // Clear any existing errors in patient form
+                    $('#patientForm input, #patientForm select, #patientForm textarea').each(
+                        function() {
+                            clearFieldError($(this));
+                        });
+                } else {
+                    $('#patientForm').show();
+                }
+            }
+
+            // Initialize form visibility
+            togglePatientForm();
+            $('#select_patient').on('change', togglePatientForm);
+
+            // Error handling functions
+            function showFieldError(field, message) {
+                const fieldId = field.attr('id');
+                const errorSpanId = fieldId + '_error';
+                let errorSpan = $('#' + errorSpanId);
+
+                // If error span doesn't exist, try to find it
+                if (!errorSpan.length) {
+                    // Check if there's already an error span for this field
+                    errorSpan = field.siblings('span[id$="_error"]').first();
+                    if (!errorSpan.length) {
+                        // Look for error span in the parent container
+                        errorSpan = field.closest('div').find('span[id$="_error"]').first();
+                    }
+                }
+
+                if (errorSpan.length) {
+                    errorSpan.text(message).removeClass('hidden');
+                    // Add error border to the field
+                    field.addClass('border-red-500');
+
+                    // Special handling for Select2
+                    if (field.hasClass('select2-hidden-accessible')) {
+                        field.next('.select2-container').find('.select2-selection').addClass(
+                            'border-red-500');
+                    }
+                } else {
+                    // Fallback: show as toast
+                    toastr.error(message);
+                }
+            }
+
+            function clearFieldError(field) {
+                const fieldId = field.attr('id');
+                let errorSpan = $('#' + fieldId + '_error');
+
+                if (!errorSpan.length) {
+                    // Try to find error span in siblings
+                    errorSpan = field.siblings('span[id$="_error"]').first();
+                }
+
+                if (errorSpan.length) {
+                    errorSpan.addClass('hidden').text('');
+                }
+
+                // Remove error border
+                field.removeClass('border-red-500');
+
+                // Special handling for Select2
+                if (field.hasClass('select2-hidden-accessible')) {
+                    field.next('.select2-container').find('.select2-selection').removeClass(
+                        'border-red-500');
+                }
+            }
+
+            // Clear errors on input
+            $(document).on('input change', 'input, select, textarea', function() {
+                clearFieldError($(this));
+            });
+
+            // Clear all errors
+            function clearAllErrors() {
+                $('input, select, textarea').each(function() {
+                    clearFieldError($(this));
+                });
+            }
+
+            // Function to handle backend errors
+            function displayBackendErrors(errors) {
+                clearAllErrors();
+
+                Object.keys(errors).forEach(function(key) {
+                    // Handle special cases where field names might not match exactly
+                    let fieldName = key;
+                    let field = $('[name="' + fieldName + '"]');
+
+                    // If not found by name, try by id
+                    if (!field.length) {
+                        field = $('#' + fieldName);
+                    }
+
+                    // If still not found, try common variations
+                    if (!field.length) {
+                        if (key === 'patient_id') field = $('#select_patient');
+                        else if (key === 'doctor_id') field = $('#doctor_select');
+                        else if (key === 'appointment_type') field = $('#type_select');
+                    }
+
+                    if (field.length) {
+                        showFieldError(field, errors[key][0]);
+                    } else {
+                        // If field not found, show as toast
+                        toastr.error(errors[key][0]);
+                    }
+                });
+            }
+
+            // Form submission with AJAX
+            $('#appointmentForm').on('submit', function(e) {
+                e.preventDefault();
+
+                // Clear previous errors
+                clearAllErrors();
+
+                // Show loading state
+                const submitBtn = $('#submitBtn');
+                const originalText = submitBtn.html();
+                submitBtn.prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin me-2"></i>Creating...'
+                );
+
+                let formData = new FormData(this);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 200) {
+                            toastr.success(response.msg);
+                            $('#appointment-booking-modal').addClass('hidden');
+                            $('#appointmentForm')[0].reset();
+                            loadMedicalHistory();
+                        }
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false).html(originalText);
+
+                        if (xhr.status === 422) {
+                            // Validation errors from backend
+                            let errors = xhr.responseJSON.errors;
+                            if (errors) {
+                                displayBackendErrors(errors);
+                                // toastr.error('Please fix the validation errors.');
+                            }
+                        } else if (xhr.status === 400) {
+                            // Other errors
+                            let errorMsg = xhr.responseJSON.msg ||
+                                'Something went wrong. Please try again.';
+                            // toastr.error(errorMsg);
+                        } else {
+                            toastr.error(
+                                'An unexpected error occurred. Please try again.'
+                            );
+                        }
+                    }
+                });
+            });
+
+            // Select2 initialization (if needed)
+            $('#select_patient, #doctor_select, #type_select').select2({
+                placeholder: function() {
+                    return $(this).data('placeholder') || 'Select...';
+                },
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Load time slots function (from your existing code)
+            function loadAvailableSlots() {
+                const doctorId = $('#doctor_select').val();
+                const date = $('#appointment_date').val();
+                const timeSelect = $('#appointment_time');
+
+                if (!doctorId || !date) {
+                    timeSelect.html('<option value="">Select doctor and date first</option>');
+                    return;
+                }
+
+                timeSelect.html('<option value="">Loading slots...</option>').prop('disabled', true);
+
+                $.ajax({
+                    url: '{{ route('patient.available-time-slots') }}',
+                    method: 'GET',
+                    data: {
+                        doctor_id: doctorId,
+                        date: date
+                    },
+                    success: function(response) {
+                        timeSelect.prop('disabled', false);
+
+                        timeSelect.prop('disabled', false);
+                        if (response.success && response.slots && response.slots.length >
+                            0) {
+                            let options = '<option value="">Select Time</option>';
+                            response.slots.forEach(function(slot) {
+                                options +=
+                                    `<option value="${slot.time}">${slot.formatted_time}</option>`;
+                            });
+                            timeSelect.html(options);
+                        } else {
+                            timeSelect.html(
+                                '<option value="">No slots available for this date</option>'
+                            );
+                        }
+                    },
+                    error: function() {
+                        timeSelect.html('<option value="">Error loading slots</option>')
+                            .prop(
+                                'disabled', false);
+                    }
+                });
+            }
+
+            // Load slots when doctor or date changes
+            $('#doctor_select, #appointment_date').on('change', function() {
+                clearFieldError($(this));
+                loadAvailableSlots();
+            });
+        });
+        // Close modal on clicking the close button
+        $('.close-appointment-booking').on('click', function() {
+            $('#appointment-booking-modal').addClass('hidden');
+        });
+
+        // Close modal when clicking outside the modal content
+        $('#appointment-booking-modal').on('click', function(e) {
+            // Check if the click is on the overlay (not on the inner modal)
+            if ($(e.target).is('#appointment-booking-modal')) {
+                $(this).addClass('hidden');
             }
         });
     });

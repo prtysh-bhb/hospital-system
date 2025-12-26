@@ -5,6 +5,12 @@
 
 @section('content')
     <div class="mx-auto">
+        @php
+            $generalCat = $categories->where('name', 'general')->first();
+            $bookingCat = $categories->where('name', 'public_booking')->first();
+            $notifCat = $categories->where('name', 'notifications')->first();
+            $formCat = $categories->where('name', 'booking_form')->first();
+        @endphp
         <div class="flex flex-col lg:flex-row gap-6">
             <!-- Sidebar -->
             <div class="lg:w-100 xl:w-72 flex-shrink-0">
@@ -15,9 +21,9 @@
                         <p class="text-sm text-gray-500">Manage your system configuration</p>
                     </div>
                     <div class="p-2">
+                        <!-- Static categories -->
                         <nav class="space-y-1">
                             <!-- General Settings -->
-                            @php $generalCat = $categories->where('name', 'general')->first(); @endphp
                             <button type="button" onclick="switchCategory('general')" id="category_general"
                                 class="category-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 active-category bg-sky-50 text-sky-700 border border-sky-100">
                                 <span
@@ -32,7 +38,6 @@
                             </button>
 
                             <!-- Public Booking Settings -->
-                            @php $bookingCat = $categories->where('name', 'public_booking')->first(); @endphp
                             <button type="button" onclick="switchCategory('public_booking')" id="category_public_booking"
                                 class="category-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900">
                                 <span
@@ -47,7 +52,6 @@
                             </button>
 
                             <!-- Notifications Settings -->
-                            @php $notifCat = $categories->where('name', 'notifications')->first(); @endphp
                             <button type="button" onclick="switchCategory('notifications')" id="category_notifications"
                                 class="category-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900">
                                 <span
@@ -62,7 +66,6 @@
                             </button>
 
                             <!-- Booking Form Settings -->
-                            @php $formCat = $categories->where('name', 'booking_form')->first(); @endphp
                             <button type="button" onclick="switchCategory('booking_form')" id="category_booking_form"
                                 class="category-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900">
                                 <span
@@ -76,6 +79,30 @@
                                 </div>
                             </button>
                         </nav>
+
+                        <!-- Dynamically generate categories (commented out) -->
+                        {{-- <nav class="space-y-1">
+                            <!-- Loop through all active categories -->
+                            @foreach ($categories as $category)
+                                <button type="button" onclick="switchCategory('{{ $category['name'] }}')"
+                                    id="category_{{ $category['name'] }}"
+                                    class="category-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 {{ $loop->first ? 'active-category bg-sky-50 text-sky-700 border border-sky-100' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                                    <span
+                                        class="w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 {{ $loop->first ? 'bg-sky-500 text-white' : 'bg-gray-100 text-gray-500' }}">
+                                        <i class="fas fa-cog text-xs"></i>
+                                        <!-- You can change this icon per category if you want -->
+                                    </span>
+                                    <div class="flex-1 text-left">
+                                        <div class="font-medium">{{ $category['display_name'] }}
+                                        </div>
+                                        <div class="text-xs mt-0.5 text-sky-600">
+                                            {{ $category['settings_count'] ?? 0 }}
+                                            {{ Str::plural('setting', $category['settings_count'] ?? 0) }}
+                                        </div>
+                                    </div>
+                                </button>
+                            @endforeach
+                        </nav> --}}
                     </div>
 
                     <!-- Sidebar Footer -->
@@ -567,6 +594,18 @@
                 selectedBtn.appendChild(chevron);
             }
         }
+        // Initialize - show first category by default
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstCategoryBtn = document.querySelector('.category-btn');
+
+            if (firstCategoryBtn) {
+                const categoryId = firstCategoryBtn.id.replace('category_', '');
+                switchCategory(categoryId);
+
+                // optional: agar future use ke liye save rakhna ho
+                localStorage.setItem('activeCategory', categoryId);
+            }
+        });
 
         // Handle boolean toggle text update
         $(document).on('change', '.setting-input[data-setting-type="boolean"]', function() {

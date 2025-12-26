@@ -176,4 +176,5 @@ Route::prefix('patient')->name('patient.')->middleware(['auth', 'role:patient'])
     Route::get('/available-time-slots', [DashboardController::class, 'getAvailableTimeSlots'])->name('available-time-slots');
     Route::get('/medical-history', [DashboardController::class, 'getMedicalHistory'])->name('medical-history');
     Route::get('/prescription/{id}/download', [DashboardController::class, 'downloadPrescription'])->name('prescription.download');
+    Route::post('appointments/store', [DashboardController::class, 'storeAppointment'])->name('store.appointment');
 });

@@ -12,17 +12,20 @@ class SettingController extends Controller
     public function index()
     {
         // Get active categories with their settings count
-        $categories = SettingCategory::where('status', '1')->get()->map(function ($category) {
-            $settingsCount = Setting::where('setting_category_id', $category->id)
+        $categories = SettingCategory::where('status', '1')
+            ->orderByRaw('`order` = 0')
+            ->orderBy('order', 'asc')
+            ->get()->map(function ($category) {
+                $settingsCount = Setting::where('setting_category_id', $category->id)
                 ->where('status', '1')
                 ->count();
 
-            return [
-                'id' => $category->id,
-                'name' => $category->name,
-                'display_name' => ucwords(str_replace('_', ' ', $category->name)),
-                'settings_count' => $settingsCount,
-            ];
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'display_name' => ucwords(str_replace('_', ' ', $category->name)),
+                    'settings_count' => $settingsCount,
+                ];
         });
 
         // Get all settings grouped by category
