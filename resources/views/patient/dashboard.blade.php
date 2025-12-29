@@ -213,18 +213,18 @@
                 @foreach ($appointments as $index => $appointment)
                     @php
                         $statusColors = [
-                            'completed' => 'bg-green-100 text-green-700',
-                            'confirmed' => 'bg-blue-100 text-blue-700',
-                            'pending' => 'bg-yellow-100 text-yellow-700',
-                            'cancelled' => 'bg-red-100 text-red-700',
-                            'no_show' => 'bg-gray-100 text-gray-700',
+                            'Completed' => 'bg-green-100 text-green-700',
+                            'Confirmed' => 'bg-blue-100 text-blue-700',
+                            'Pending' => 'bg-yellow-100 text-yellow-700',
+                            'Cancelled' => 'bg-red-100 text-red-700',
+                            'No Show' => 'bg-gray-100 text-gray-700',
                         ];
                         $dotColors = [
-                            'completed' => 'bg-green-500',
-                            'confirmed' => 'bg-blue-500',
-                            'pending' => 'bg-yellow-500',
-                            'cancelled' => 'bg-red-500',
-                            'no_show' => 'bg-gray-500',
+                            'Completed' => 'bg-green-500',
+                            'Confirmed' => 'bg-blue-500',
+                            'Pending' => 'bg-yellow-500',
+                            'Cancelled' => 'bg-red-500',
+                            'No Show' => 'bg-gray-500',
                         ];
                     @endphp
                     <div class="appointment-card bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg hover:border-sky-200 transition-all duration-300"
@@ -258,7 +258,7 @@
                                     class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold {{ $statusColors[$appointment->status] ?? 'bg-gray-100 text-gray-700' }} ml-2">
                                     <span
                                         class="w-2 h-2 rounded-full mr-2 {{ $dotColors[$appointment->status] ?? 'bg-gray-500' }}"></span>
-                                    {{ ucwords(str_replace('_', ' ', $appointment->status)) }}
+                                    {{ $appointment->status }}
                                 </span>
                             </div>
 
@@ -268,10 +268,18 @@
                                     <svg class="w-4 h-4 mr-2.5 text-gray-400" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 3v18h14V3H5zm4 14H7v-2h2v2zm0-4H7v-2h2v2zm4 4h-2v-2h2v2zm0-4h-2v-2h2v2z" />
+                                    </svg>
+                                    <span class="font-medium">{{ $appointment->appointment_number ?? 'N/A' }}</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <svg class="w-4 h-4 mr-2.5 text-gray-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                     <span class="font-medium">
-                                        {{ $appointment->date->format('D, M j, Y') }}
+                                        {{ $appointment->date }}
                                     </span>
                                 </div>
 
@@ -281,7 +289,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span class="font-medium">{{ $appointment->time->format('g:i A') }}</span>
+                                    <span class="font-medium">{{ $appointment->time }}</span>
                                     <span class="mx-2 text-gray-300">•</span>
                                     <span class="text-gray-500">{{ $appointment->duration }} mins</span>
                                 </div>
@@ -294,7 +302,7 @@
                                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
                                         <span class="text-sm font-medium text-gray-700">
-                                            {{ ucwords(str_replace('_', ' ', $appointment->appointment_type)) }}
+                                            {{ $appointment->appointment_type }}
                                         </span>
                                     </div>
                                 @endif

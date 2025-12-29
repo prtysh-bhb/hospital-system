@@ -20,17 +20,6 @@
             'no_show': 'bg-gray-500'
         };
 
-        // Helper Functions
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-
         function generatePrescriptionHTML(prescription) {
             if (!prescription) return '';
 
@@ -89,6 +78,7 @@
         }
 
         function generateAppointmentDetailsHTML(apt) {
+            const normalizedStatus = apt.status.toLowerCase().replace(' ', '_');
             const prescriptionHTML = apt.has_prescription && apt.prescription ?
                 generatePrescriptionHTML(apt.prescription) : '';
 
@@ -113,14 +103,14 @@
                     </div>
                     <div class="bg-gray-50 p-3 rounded-lg">
                         <p class="text-xs text-gray-500 mb-1">Status</p>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[apt.status] || 'bg-gray-100 text-gray-700'}">
-                            <span class="w-1.5 h-1.5 rounded-full mr-1.5 ${dotColors[apt.status] || 'bg-gray-500'}"></span>
-                            ${apt.status ? apt.status.charAt(0).toUpperCase() + apt.status.slice(1).replace('_', ' ') : 'N/A'}
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[normalizedStatus] || 'bg-gray-100 text-gray-700'}">
+                            <span class="w-1.5 h-1.5 rounded-full mr-1.5 ${dotColors[normalizedStatus] || 'bg-gray-500'}"></span>
+                            ${apt.status}
                         </span>
                     </div>
                     <div class="bg-gray-50 p-3 rounded-lg">
                         <p class="text-xs text-gray-500 mb-1">Date</p>
-                        <p class="text-sm font-medium text-gray-800">${formatDate(apt.date)}</p>
+                        <p class="text-sm font-medium text-gray-800">${apt.date || 'N/A'}</p>
                     </div>
                     <div class="bg-gray-50 p-3 rounded-lg">
                         <p class="text-xs text-gray-500 mb-1">Time</p>
@@ -138,7 +128,7 @@
                 ${apt.appointment_type ? `
                 <div class="bg-gray-50 p-3 rounded-lg">
                     <p class="text-xs text-gray-500 mb-1">Appointment Type</p>
-                    <p class="text-sm font-medium text-gray-800">${apt.appointment_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+                    <p class="text-sm font-medium text-gray-800">${apt.appointment_type}</p>
                 </div>
                 ` : ''}
                 ${apt.reason_for_visit ? `
@@ -591,11 +581,11 @@
             }
         });
 
+        // Appointment Booking Modal Start
         document.querySelectorAll('.appointment-booking').forEach((button, index) => {
             button.addEventListener('click', function(e) {
-                const modal = document.getElementById('appointment-booking-modal');
-                const content = document.getElementById('appointment-booking-content');
-                modal.classList.remove('hidden');
+                const modal = document.getElementById('appointment-booking-modal').classList
+                    .remove('hidden');
             });
         });
 
@@ -735,17 +725,12 @@
             // Form submission with AJAX
             $('#appointmentForm').on('submit', function(e) {
                 e.preventDefault();
-
-                // Clear previous errors
                 clearAllErrors();
-
-                // Show loading state
                 const submitBtn = $('#submitBtn');
                 const originalText = submitBtn.html();
                 submitBtn.prop('disabled', true).html(
                     '<i class="fas fa-spinner fa-spin me-2"></i>Creating...'
                 );
-
                 let formData = new FormData(this);
 
                 $.ajax({
@@ -759,7 +744,11 @@
                     },
                     success: function(response) {
                         if (response.status === 200) {
-                            toastr.success(response.msg);
+                            toastr.success(response.msg, '', {
+                                closeButton: false,
+                                progressBar: false,
+                                timeOut: 2000,
+                            });
                             $('#appointment-booking-modal').addClass('hidden');
                             $('#appointmentForm')[0].reset();
                             loadMedicalHistory();
@@ -862,5 +851,20 @@
                 $(this).addClass('hidden');
             }
         });
+
+        // Select your date input
+        const dateInput = document.getElementById('appointment_date');
+
+        // Disable scroll and arrow key changes
+        dateInput.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault(); // Prevent arrow keys from changing date
+            }
+        });
+
+        dateInput.addEventListener('wheel', function(e) {
+            e.preventDefault(); // Prevent mouse wheel from changing date
+        });
+        // Appointment Booking Modal End
     });
 </script>

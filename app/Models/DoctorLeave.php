@@ -14,6 +14,7 @@ class DoctorLeave extends Model
     protected $table = 'doctor_leaves';
     protected $fillable = [
         'doctor_id',
+        'approval_type',
         'approved_by',
         'start_date',
         'end_date',

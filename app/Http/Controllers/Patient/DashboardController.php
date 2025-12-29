@@ -60,15 +60,17 @@ class DashboardController extends Controller
                     'specialty_id' => $specialty?->id,
                     'qualification' => $doctorProfile?->qualification ?? '',
                     'consultation_fee' => $doctorProfile?->consultation_fee ?? 0,
-                    'date' => Carbon::parse($appointment->appointment_date),
-                    'time' => Carbon::parse($appointment->appointment_time),
+                    'date' => $appointment->formatted_date,
+                    'time' => $appointment->formatted_time,
+                    'date_raw' => $appointment->appointment_date,
                     'duration' => $appointment->duration_minutes ?? 30,
-                    'status' => $appointment->status,
-                    'appointment_type' => $appointment->appointment_type ?? 'consultation',
+                    'status' => $appointment->status ? ucwords(str_replace('_', ' ', $appointment->status)) : 'Pending',
+                    'appointment_type' => $appointment->appointment_type ? ucwords(str_replace('_', ' ', $appointment->appointment_type)) : 'Consultation',
                     'reason_for_visit' => $appointment->reason_for_visit,
                     'symptoms' => $appointment->symptoms,
                     'notes' => $appointment->notes,
                     'cancellation_reason' => $appointment->cancellation_reason,
+
                     // Prescription data
                     'has_prescription' => $prescription !== null,
                     'prescription' => $prescription ? (object) [
@@ -85,10 +87,11 @@ class DashboardController extends Controller
 
         // Calculate stats
         $today = Carbon::today();
+
         $stats = (object) [
             'total' => $appointments->count(),
-            'today' => $appointments->filter(fn ($a) => $a->date->isSameDay($today))->count(),
-            'upcoming' => $appointments->filter(fn ($a) => $a->date->gte($today) && in_array($a->status, ['pending', 'confirmed']))->count(),
+            'today' => $appointments->filter(fn($a) => $a->date_raw->isSameDay($today))->count(),
+            'upcoming' => $appointments->filter(fn($a) =>$a->date_raw->gte($today) && in_array($a->status, ['pending', 'confirmed']))->count(),
             'completed' => $appointments->where('status', 'completed')->count(),
             'cancelled' => $appointments->where('status', 'cancelled')->count(),
         ];
