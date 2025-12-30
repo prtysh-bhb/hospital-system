@@ -36,7 +36,8 @@ class DoctorLeaveController extends Controller
             'end_time' => 'nullable|required_if:leave_type,custom|date_format:H:i|after:start_time',
             'reason' => 'required|string|max:255',
             'cancel_appointments' => 'nullable|boolean',
-        ],[
+            'approval_type' => 'nullable|in:admin,auto',
+        ], [
             'start_date.after_or_equal' => 'The start date must be a date after or equal to today.',
             'end_date.after_or_equal' => 'The end date must be a date after or equal to start date.',
             'half_day_slot.required_if' => 'The half day slot is required when leave type is half day.',
@@ -46,12 +47,14 @@ class DoctorLeaveController extends Controller
             'reason.required' => 'Please provide a reason for your leave.',
         ]);
 
-        if ($this->hasOverlappingLeave(
-            $user->id,
-            $request->input('start_date'),
-            $request->input('end_date')
-        )) {
-
+        // Check overlapping leave
+        if (
+            $this->hasOverlappingLeave(
+                $user->id,
+                $request->input('start_date'),
+                $request->input('end_date')
+            )
+        ) {
             return response()->json([
                 'success' => false,
                 'type' => 'leave_conflict',
@@ -61,13 +64,19 @@ class DoctorLeaveController extends Controller
                 ],
             ], 422);
         }
+
         $cancelAppointments = $request->boolean('cancel_appointments', false);
+        $approvalType = $request->input('approval_type', 'admin'); // default admin
 
         $conflictingAppointments = Appointment::where('doctor_id', $user->id)
-            ->whereBetween('appointment_date', [$request->input('start_date'), $request->input('end_date')])
+            ->whereBetween('appointment_date', [
+                $request->input('start_date'),
+                $request->input('end_date')
+            ])
             ->whereNotIn('status', ['cancelled', 'completed']);
 
-        if ($conflictingAppointments->exists() && ! $cancelAppointments) {
+        // Only check conflicts if approval_type = auto
+        if ($approvalType === 'auto' && $conflictingAppointments->exists() && !$cancelAppointments) {
             $count = $conflictingAppointments->count();
 
             return response()->json([
@@ -76,18 +85,14 @@ class DoctorLeaveController extends Controller
                 'message' => "You have {$count} appointment(s) scheduled during the selected leave period.",
                 'appointment_count' => $count,
             ], 409);
-
         }
 
         try {
-            if ($cancelAppointments) {
-                $appointments = Appointment::where('doctor_id', $user->id)
-                    ->whereBetween('appointment_date', [$request->input('start_date'), $request->input('end_date')])
-                    ->whereNotIn('status', ['cancelled', 'completed'])
-                    ->get();
+            // Cancel appointments ONLY if approval_type = auto and user requested cancel
+            if ($approvalType === 'auto' && $cancelAppointments) {
+                $appointments = $conflictingAppointments->get();
 
                 foreach ($appointments as $appointment) {
-                    // Cancel each appointment
                     $appointment->update([
                         'status' => 'cancelled',
                         'cancelled_at' => now(),
@@ -101,12 +106,10 @@ class DoctorLeaveController extends Controller
                         $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
                         $patientName = trim($patient->first_name . ' ' . $patient->last_name);
 
-                        // Get leave start and end date from request
                         $leaveStartDate = Carbon::parse($request->input('start_date'))->format('F j, Y');
                         $leaveEndDate = Carbon::parse($request->input('end_date'))->format('F j, Y');
 
-                        // Booking link
-                        $bookingLink = route('booking'); // Replace with your actual booking route
+                        $bookingLink = route('booking');
 
                         $components = [
                             [
@@ -131,6 +134,11 @@ class DoctorLeaveController extends Controller
                     }
                 }
             }
+
+            // Decide leave status
+            $status = $approvalType === 'admin' ? 'pending' : 'approved';
+
+            // Create leave
             DoctorLeave::create([
                 'doctor_id' => $user->id,
                 'start_date' => $request->input('start_date'),
@@ -140,20 +148,34 @@ class DoctorLeaveController extends Controller
                 'start_time' => $request->input('start_time'),
                 'end_time' => $request->input('end_time'),
                 'reason' => $request->input('reason'),
-                'status' => 'approved',
+                'status' => $status,
+                'approval_type' => $request->input('approval_type', 'admin'),
             ]);
 
-            DoctorProfile::where('user_id', $user->id)->update(['available_for_booking' => false]);
+            // Disable booking only if leave is approved
+            if ($status === 'approved') {
+                DoctorProfile::where('user_id', $user->id)
+                    ->update(['available_for_booking' => false]);
+            }
 
-            $message = 'Leave request submitted successfully.';
-            if ($cancelAppointments) {
+            $message = $status === 'pending'
+                ? 'Leave request submitted for approval.'
+                : 'Leave request submitted successfully.';
+
+            if ($cancelAppointments && $status === 'approved') {
                 $message = 'Leave request submitted and conflicting appointments have been cancelled.';
             }
 
-            return response()->json(['success' => true, 'message' => $message]);
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Failed to submit leave request.'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit leave request.'
+            ], 500);
         }
     }
 

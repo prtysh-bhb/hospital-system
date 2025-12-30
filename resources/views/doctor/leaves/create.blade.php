@@ -86,9 +86,6 @@
                         </div>
                     </div>
 
-
-
-
                     <!-- Date Range -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -198,63 +195,93 @@
             </div>
         </div>
 
-
         <!-- Leave Statistics -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-6">
+
+            <!-- Total Leaves -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
                 <div class="flex items-center">
-                    <div class="p-2 bg-blue-100 rounded-lg">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-2 bg-blue-100 rounded-md">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                            </path>
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-gray-500">Total Leaves</p>
-                        <p class="text-xl font-bold text-gray-800">{{ $leaves->count() }}</p>
+                        <p class="text-xs text-gray-500">Total Leaves</p>
+                        <p class="text-lg font-bold text-gray-800" id="totalLeaves">
+                            {{ $leaves->count() }}
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+
+            <!-- Pending -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
                 <div class="flex items-center">
-                    <div class="p-2 bg-yellow-100 rounded-lg">
-                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-2 bg-yellow-100 rounded-md">
+                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-gray-500">Pending</p>
-                        <p class="text-xl font-bold text-yellow-600">{{ $leaves->where('status', 'pending')->count() }}</p>
+                        <p class="text-xs text-gray-500">Pending</p>
+                        <p class="text-lg font-bold text-yellow-600" id="pendingLeaves">
+                            {{ $leaves->where('status', 'pending')->count() }}
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+
+            <!-- Approved -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
                 <div class="flex items-center">
-                    <div class="p-2 bg-green-100 rounded-lg">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
-                            </path>
+                    <div class="p-2 bg-green-100 rounded-md">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-gray-500">Approved</p>
-                        <p class="text-xl font-bold text-green-600">{{ $leaves->where('status', 'approved')->count() }}</p>
+                        <p class="text-xs text-gray-500">Approved</p>
+                        <p class="text-lg font-bold text-green-600" id="approvedLeaves">
+                            {{ $leaves->where('status', 'approved')->count() }}
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+
+            <!-- Rejected -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
                 <div class="flex items-center">
-                    <div class="p-2 bg-red-100 rounded-lg">
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-2 bg-orange-100 rounded-md">
+                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-gray-500">Rejected</p>
-                        <p class="text-xl font-bold text-red-600">{{ $leaves->where('status', 'rejected')->count() }}</p>
+                        <p class="text-xs text-gray-500">Rejected</p>
+                        <p class="text-lg font-bold text-orange-600" id="rejectedLeaves">
+                            {{ $leaves->where('status', 'rejected')->count() }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cancelled -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+                <div class="flex items-center">
+                    <div class="p-2 bg-red-100 rounded-md">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-xs text-gray-500">Cancelled</p>
+                        <p class="text-lg font-bold text-red-600" id="cancelledLeaves">
+                            {{ $leaves->where('status', 'cancelled')->count() }}
+                        </p>
                     </div>
                 </div>
             </div>

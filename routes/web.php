@@ -110,8 +110,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/settings', [SettingController::class, 'index'])->name('settings');
     Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
 
-    // Admin Leave Management
+    // Leave
     Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves');
+    Route::post('/leaves/update-status', [LeaveController::class, 'updateStatus'])->name('leaves.update-status');
+
 });
 
 // Doctor Routes

@@ -11,69 +11,98 @@
     <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
         <div>
             <!-- Leave Statistics -->
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-6">
+
+                <!-- Total Leaves -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
                     <div class="flex items-center">
-                        <div class="p-2 bg-blue-100 rounded-lg">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="p-2 bg-blue-100 rounded-md">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                                </path>
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-gray-500">Total Leaves</p>
-                            <p class="text-xl font-bold text-gray-800">{{ $leaves->count() }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                    <div class="flex items-center">
-                        <div class="p-2 bg-yellow-100 rounded-lg">
-                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-gray-500">Pending</p>
-                            <p class="text-xl font-bold text-yellow-600">{{ $leaves->where('status', 'pending')->count() }}
+                            <p class="text-xs text-gray-500">Total Leaves</p>
+                            <p class="text-lg font-bold text-gray-800" id="totalLeaves">
+                                {{ $leaves->count() }}
                             </p>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+
+                <!-- Pending -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
                     <div class="flex items-center">
-                        <div class="p-2 bg-green-100 rounded-lg">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
-                                </path>
+                        <div class="p-2 bg-yellow-100 rounded-md">
+                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-gray-500">Approved</p>
-                            <p class="text-xl font-bold text-green-600">{{ $leaves->where('status', 'approved')->count() }}
+                            <p class="text-xs text-gray-500">Pending</p>
+                            <p class="text-lg font-bold text-yellow-600" id="pendingLeaves">
+                                {{ $leaves->where('status', 'pending')->count() }}
                             </p>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+
+                <!-- Approved -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
                     <div class="flex items-center">
-                        <div class="p-2 bg-red-100 rounded-lg">
-                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
+                        <div class="p-2 bg-green-100 rounded-md">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-gray-500">Rejected</p>
-                            <p class="text-xl font-bold text-red-600">{{ $leaves->where('status', 'rejected')->count() }}
+                            <p class="text-xs text-gray-500">Approved</p>
+                            <p class="text-lg font-bold text-green-600" id="approvedLeaves">
+                                {{ $leaves->where('status', 'approved')->count() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rejected -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-orange-100 rounded-md">
+                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-xs text-gray-500">Rejected</p>
+                            <p class="text-lg font-bold text-orange-600" id="rejectedLeaves">
+                                {{ $leaves->where('status', 'rejected')->count() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cancelled -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-md">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-xs text-gray-500">Cancelled</p>
+                            <p class="text-lg font-bold text-red-600" id="cancelledLeaves">
+                                {{ $leaves->where('status', 'cancelled')->count() }}
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <!-- Filters -->
         <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
             <div class="grid grid-cols-1 md:grid-cols-5 gap-3 sm:gap-4">
@@ -195,7 +224,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
 
-            function loaddoctorsleaves(page = 1) {
+            window.loaddoctorsleaves = function(page = 1) {
 
                 let start_date = document.getElementById('filterStartDate').value;
                 let end_date = document.getElementById('filterEndDate').value;
@@ -210,75 +239,95 @@
                 &start_date=${start_date}
                 &end_date=${end_date}`;
 
+                function getStatusClass(status) {
+                    return status === 'pending' ?
+                        'bg-yellow-100 text-yellow-700 border-yellow-300' :
+                        status === 'approved' ?
+                        'bg-green-100 text-green-700 border-green-300' :
+                        status === 'rejected' ?
+                        'bg-orange-100 text-orange-700 border-orange-300' :
+                        status === 'cancelled' ?
+                        'bg-red-100 text-red-700 border-red-300' :
+                        'bg-blue-100 text-blue-700 border-blue-300';
+                }
+
                 fetch(`{{ route('admin.leaves') }}${query}`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(res => {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(res => res.json()).then(res => {
 
-                        let tbody = document.getElementById("leaveTableBody");
-                        tbody.innerHTML = '';
+                    let tbody = document.getElementById("leaveTableBody");
+                    tbody.innerHTML = '';
 
-                        if (!res.data || res.data.length === 0) {
-                            tbody.innerHTML = `
+                    if (!res.data || res.data.length === 0) {
+                        tbody.innerHTML = `
                                 <tr>
                                     <td colspan="9" class="text-center py-6 text-gray-500">
                                         No Leaves Found
                                     </td>
                                 </tr>
                             `;
-                            document.getElementById("paginationContainer").innerHTML = '';
-                            document.getElementById("paginationInfo").innerHTML = '';
-                            return;
+                        document.getElementById("paginationContainer").innerHTML = '';
+                        document.getElementById("paginationInfo").innerHTML = '';
+                        return;
+                    }
+
+                    res.data.forEach((item, index) => {
+
+                        let statusColor =
+                            item.status === 'pending' ? 'bg-yellow-100 text-yellow-600' :
+                            item.status === 'approved' ? 'bg-green-100 text-green-600' :
+                            item.status === 'rejected' ? 'bg-red-100 text-red-600' :
+                            item.status === 'cancelled' ? 'bg-gray-100 text-gray-600' :
+                            'bg-blue-100 text-blue-600'; // default/fallback
+
+                        let startDate = formatDate(item.start_date);
+                        let endDate = formatDate(item.end_date);
+                        let createdAt = formatDate(item.created_at);
+
+                        let duration = '';
+                        if (item.start_date && item.end_date) {
+                            let start = new Date(item.start_date);
+                            let end = new Date(item.end_date);
+                            let days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                            duration = days + (days > 1 ? ' days' : ' day');
                         }
 
-                        res.data.forEach((item, index) => {
-
-                            let statusColor =
-                                item.status === 'pending' ? 'bg-yellow-100 text-yellow-600' :
-                                item.status === 'approved' ? 'bg-green-100 text-green-600' :
-                                'bg-red-100 text-red-600';
-
-                            let startDate = formatDate(item.start_date);
-                            let endDate = formatDate(item.end_date);
-                            let createdAt = formatDate(item.created_at);
-
-                            let duration = '';
-                            if (item.start_date && item.end_date) {
-                                let start = new Date(item.start_date);
-                                let end = new Date(item.end_date);
-                                let days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
-                                duration = days + (days > 1 ? ' days' : ' day');
-                            }
-
-                            tbody.innerHTML += `
-                                <tr>
-                                    <td class="px-4 py-3">
-                                        ${(res.pagination.current_page - 1) * res.pagination.per_page + index + 1}
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        Dr. ${item.doctor?.first_name ?? ''} ${item.doctor?.last_name ?? ''}
-                                    </td>
-                                    <td class="px-4 py-3">${formatLeaveType(item.leave_type)}</td>
-                                    <td class="px-4 py-3">${startDate}</td>
-                                    <td class="px-4 py-3">${endDate}</td>
-                                    <td class="px-4 py-3">${duration}</td>
-                                    <td class="px-4 py-3">${item.reason ?? ''}</td>
-                                    <td class="px-4 py-3">${createdAt}</td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-3 py-1 rounded-full text-xs ${statusColor}">
-                                            ${item.status}
-                                        </span>
-                                    </td>
-                                </tr>
-                            `;
-                        });
-
-                        updatePagination(res.pagination);
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="px-4 py-3">
+                                    ${(res.pagination.current_page - 1) * res.pagination.per_page + index + 1}
+                                </td>
+                                <td class="px-4 py-3">
+                                    Dr. ${item.doctor?.first_name ?? ''} ${item.doctor?.last_name ?? ''}
+                                </td>
+                                <td class="px-4 py-3">${formatLeaveType(item.leave_type)}</td>
+                                <td class="px-4 py-3">${startDate}</td>
+                                <td class="px-4 py-3">${endDate}</td>
+                                <td class="px-4 py-3">${duration}</td>
+                                <td class="px-4 py-3">${item.reason ?? ''}</td>
+                                <td class="px-4 py-3">${createdAt}</td>
+                                <td class="px-4 py-3">
+                                    <select
+                                        class="px-3 py-1 text-xs font-medium rounded-full border focus:ring-2 focus:ring-sky-500
+                                        ${getStatusClass(item.status)}"
+                                        onchange="updateLeaveStatus(${item.id}, this.value);
+                                            this.className = 'px-3 py-1 text-xs font-medium rounded-full border focus:ring-2 focus:ring-sky-500 ' + getStatusClass(this.value);
+                                    ">
+                                        <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="approved" ${item.status === 'approved' ? 'selected' : ''}>Approved</option>
+                                        <option value="rejected" ${item.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+                                        <option value="cancelled" ${item.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        `;
                     });
+
+                    updatePagination(res.pagination);
+                });
             }
 
             // PAGINATION
@@ -337,7 +386,8 @@
             }
 
             function formatLeaveType(type) {
-                return type ? type.replace('_', ' ').toUpperCase() : '';
+                if (!type) return '';
+                return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             }
 
             // Filter change events
@@ -348,6 +398,52 @@
 
             // Initial load
             loaddoctorsleaves();
+
+            // Update Status Leave approved or cancelled
+            window.updateLeaveStatus = function(leaveId, status) {
+                fetch(`{{ route('admin.leaves.update-status') }}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            leave_id: leaveId,
+                            status: status
+                        })
+                    })
+                    .then(async response => {
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            toastr.success(data.message);
+                            updateLeaveCounts(data.counts);
+                            window.loaddoctorsleaves();
+                            return;
+                        }
+
+                        if (response.status === 422) {
+                            toastr.error(data.message);
+                            return;
+                        }
+
+                        toastr.error(data.message || 'Something went wrong');
+                    })
+                    .catch(() => {
+                        toastr.error('Server error. Please try again.');
+                    });
+            };
+
+            // Update Leave counts
+            function updateLeaveCounts(counts) {
+                document.getElementById('totalLeaves').innerText = counts.total;
+                document.getElementById('pendingLeaves').innerText = counts.pending;
+                document.getElementById('approvedLeaves').innerText = counts.approved;
+                document.getElementById('rejectedLeaves').innerText = counts.rejected;
+                document.getElementById('cancelledLeaves').innerText = counts.cancelled;
+            }
+            window.loaddoctorsleaves();
         });
     </script>
 @endpush
