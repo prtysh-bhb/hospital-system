@@ -15,11 +15,6 @@ return new class extends Migration
             if (!Schema::hasColumn('doctor_leaves', 'approval_type')) {
                 $table->enum('approval_type', ['auto', 'admin'])->default('admin')->after('doctor_id');
             }
-
-            // Add 'approved_by' column if it doesn't exist
-            // if (!Schema::hasColumn('doctor_leaves', 'approved_by')) {
-            //     $table->string('approved_by')->nullable()->after('status');
-            // }
         });
     }
 

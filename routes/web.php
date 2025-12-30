@@ -1,25 +1,26 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AppointmentController;
-use App\Http\Controllers\Admin\CalendarController as AdminCalendarController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Admin\LeaveController;
 use App\Http\Controllers\Admin\DoctorsController;
 use App\Http\Controllers\Admin\PatientController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\SpecialtiesController;
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Doctor\CalendarController;
-use App\Http\Controllers\Doctor\DoctorAppointmentController;
-use App\Http\Controllers\Doctor\DoctorDashboardController;
+use App\Http\Controllers\Admin\AppointmentController;
+use App\Http\Controllers\Admin\SpecialtiesController;
+use App\Http\Controllers\Frontdesk\HistoryController;
+use App\Http\Controllers\Patient\DashboardController;
 use App\Http\Controllers\Doctor\DoctorLeaveController;
+use App\Http\Controllers\Patient\PatientAuthController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Doctor\DoctorDashboardController;
+use App\Http\Controllers\Public\BookAppointmentController;
+use App\Http\Controllers\Doctor\DoctorAppointmentController;
 use App\Http\Controllers\Frontdesk\AddAppointmentController;
 use App\Http\Controllers\Frontdesk\DoctorScheduleController;
 use App\Http\Controllers\Frontdesk\FrontDashboardController;
-use App\Http\Controllers\Frontdesk\HistoryController;
+use App\Http\Controllers\Admin\CalendarController as AdminCalendarController;
 use App\Http\Controllers\Frontdesk\PatientController as FrontPatientController;
-use App\Http\Controllers\Patient\DashboardController;
-use App\Http\Controllers\Patient\PatientAuthController;
-use App\Http\Controllers\Public\BookAppointmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -108,6 +109,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings');
     Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
+
+    // Admin Leave Management
+    Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves');
 });
 
 // Doctor Routes

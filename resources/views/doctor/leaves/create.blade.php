@@ -71,6 +71,24 @@
                         </div>
                     </div>
 
+                    {{-- Approval Type --}}
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Approval Type</label>
+                        <div class="flex gap-6">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" name="approval_type" value="auto" id="auto-checkbox">
+                                <span class="text-sm text-gray-700">Auto</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" name="approval_type" value="admin" id="admin-checkbox">
+                                <span class="text-sm text-gray-700">Approved By Admin</span>
+                            </label>
+                        </div>
+                    </div>
+
+
+
+
                     <!-- Date Range -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -375,6 +393,19 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+
+            $('#auto-checkbox').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#admin-checkbox').prop('checked', false); // Uncheck Admin checkbox
+                }
+            });
+
+            $('#admin-checkbox').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#auto-checkbox').prop('checked', false); // Uncheck Auto checkbox
+                }
+            });
+
             // Toggle form visibility
             function showForm() {
                 $('#leaveFormSection').removeClass('hidden');

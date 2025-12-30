@@ -139,6 +139,15 @@
                 <span class="ml-2">Settings</span>
             </a>
 
+            <a href="{{ route('admin.leaves') }}"
+                class="flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 {{ request()->routeIs('admin.leaves') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg text-sm sm:text-base">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V4m0 16v-4m8-8h4m-16 0H4m12.364 10.364l2.828 2.828m-12.728-12.728l2.828 2.828m0 8.486l-2.828 2.828m12.728-12.728l-2.828 2.828" />
+                </svg>
+                <span class="ml-2">Leaves</span>
+            </a>
+
             <form action="{{ route('logout') }}" method="POST" class="mt-8">
                 @csrf
                 <button type="submit"
