@@ -160,7 +160,14 @@ class AuthController extends Controller
 
     public function reset_password_form($token)
     {
-        return view('auth.reset_password_form', compact('token'));
+        $record = DB::table('password_reset_tokens')->where('token', $token)->first();
+
+        if (!$record) {
+            return redirect()->route('login');
+        }
+        $email = $record->email;
+
+        return view('auth.reset_password_form', compact('token', 'email'));
     }
 
     public function reset_password(Request $request)

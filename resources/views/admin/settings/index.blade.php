@@ -305,10 +305,10 @@
                     </div>
 
                     <div class="p-6 lg:p-8">
-                        @if (isset($settings['enable_email_notifications']))
+                        @if (isset($settings['whatsapp_notifications']))
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 @foreach ($settings as $key => $setting)
-                                    @if (in_array($key, ['enable_email_notifications']))
+                                    @if (in_array($key, ['whatsapp_notifications']))
                                         @php
                                             $settingValue = $setting['value'] ?? '0';
                                         @endphp

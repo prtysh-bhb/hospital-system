@@ -7,6 +7,7 @@ use App\Services\UltraMSGService;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use App\Models\Setting;
 
 class NotifiyUserEvent
 {
@@ -28,6 +29,17 @@ class NotifiyUserEvent
     private function sendWhatsAppNotification()
     {
         try {
+            // Fetch the 'whatsapp_notifications' setting from the database or config
+            $whatsappNotificationsEnabled = Setting::where('key', 'whatsapp_notifications')
+                ->where('status', '1')
+                ->value('value'); // Assuming `value` holds the setting value
+
+            // Only proceed if 'whatsapp_notifications' is enabled (i.e., value is '1')
+            if ($whatsappNotificationsEnabled != '1') {
+                Log::info('WhatsApp notifications are disabled. No message will be sent.');
+                return; // Don't send WhatsApp message if notifications are disabled
+            }
+
             // Extract data from array
             $phoneNumber = $this->data['phone_number'] ?? null;
             $templateName = $this->data['template_name'] ?? null;

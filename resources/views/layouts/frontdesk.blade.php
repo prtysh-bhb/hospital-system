@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ asset('assets/favicon.ico') }}">
-    <title>@yield('title', 'Front Desk') - MediCare HMS</title>
+    <title>@yield('title', 'Front Desk') - {{ $site_name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -26,7 +26,7 @@
         class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:inset-0">
         <div class="p-4 sm:p-5 border-b flex items-center justify-between">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-sky-700">MediCare HMS</h1>
+                <h1 class="text-xl sm:text-2xl font-bold text-sky-700">{{ $site_name }}</h1>
             </div>
             <button id="close-sidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,7 +43,7 @@
                 </svg>
                 <span class="ml-2">Dashboard</span>
             </a>
-             <a href="{{ route('frontdesk.appointments.index') }}"
+            <a href="{{ route('frontdesk.appointments.index') }}"
                 class="flex items-center px-3 sm:px-4 py-2 sm:py-3 mb-2 {{ request()->routeIs('frontdesk.appointments.index') ? 'text-white bg-sky-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg text-sm sm:text-base">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -126,7 +126,8 @@
                         <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->first_name . ' ' . auth()->user()->last_name) }}&background=0ea5e9&color=fff"
                             class="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Admin">
                         <div class="hidden sm:block">
-                            <p class="text-sm font-medium text-gray-700">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</p>
+                            <p class="text-sm font-medium text-gray-700">{{ auth()->user()->first_name }}
+                                {{ auth()->user()->last_name }}</p>
                             <p class="text-xs text-gray-500">{{ ucfirst(auth()->user()->role) }}</p>
                         </div>
                     </div>

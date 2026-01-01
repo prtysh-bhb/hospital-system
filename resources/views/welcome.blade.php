@@ -16,7 +16,8 @@
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
             </div>
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 px-4">Welcome to MediCare HMS
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 px-4">Welcome to
+                {{ $site_name }}
             </h1>
             <p class="text-base sm:text-lg text-gray-600">Hospital Management System</p>
         </div>
@@ -158,7 +159,7 @@
 
         <!-- Footer -->
         <p class="text-center text-xs sm:text-sm text-gray-600 mt-5 sm:mt-8">
-            © 2025 MediCare HMS. All rights reserved.
+            © 2025 {{ $site_name }}. All rights reserved.
         </p>
     </div>
 @endsection
