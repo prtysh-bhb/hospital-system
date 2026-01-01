@@ -217,25 +217,90 @@ class BookAppointmentController extends Controller
 
         // Step 3: Patient details and appointment creation
         if ($request->step == 3) {
-            // Validate patient details
-            $validated = $request->validate([
+            // Get field visibility settings
+            $settings = app('settings');
+
+            // Build validation rules based on which fields are visible
+            $rules = [
                 'first_name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s]+$/',
-                'last_name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s]+$/',
-                'email' => 'required|email|max:255',
-                'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'not_regex:/^0+$/'],
-                'date_of_birth' => 'required|date|before_or_equal:today',
-                'gender' => 'required|in:male,female,other',
-                'address' => 'nullable|string|min:10|max:500',
-                'reason_for_visit' => 'required|string|min:10|max:1000',
-                'allergies' => 'nullable|string|max:500',
-                'emergency_contact_name' => 'nullable|string|min:2|max:255',
-                'emergency_contact_phone' => 'nullable|regex:/^[0-9]{10,15}$/',
-                'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-                'medical_history' => 'nullable|string|max:1000',
-                'current_medications' => 'nullable|string|max:1000',
-                'insurance_provider' => 'nullable|string|max:255',
-                'insurance_number' => 'nullable|string|max:255',
-            ]);
+            ];
+
+            // Last name - required only if visible in settings
+            if ($settings->get('show_last_name', false)) {
+                $rules['last_name'] = 'required|string|min:2|max:255|regex:/^[a-zA-Z\s]+$/';
+            } else {
+                $rules['last_name'] = 'nullable|string|min:2|max:255|regex:/^[a-zA-Z\s]+$/';
+            }
+
+            // Email - required only if visible in settings
+            if ($settings->get('show_email', false)) {
+                $rules['email'] = 'required|email|max:255|unique:users,email';
+            } else {
+                $rules['email'] = 'nullable|email|max:255';
+            }
+
+            // Phone - required only if visible in settings
+            if ($settings->get('show_phone', false)) {
+                $rules['phone'] = ['required', 'regex:/^[0-9]{10,15}$/', 'not_regex:/^0+$/'];
+            } else {
+                $rules['phone'] = ['nullable', 'regex:/^[0-9]{10,15}$/'];
+            }
+
+            // Date of Birth - required only if visible in settings
+            if ($settings->get('show_date_of_birth', false)) {
+                $rules['date_of_birth'] = 'required|date|before_or_equal:today';
+            } else {
+                $rules['date_of_birth'] = 'nullable|date|before_or_equal:today';
+            }
+
+            // Gender - required only if visible in settings
+            if ($settings->get('show_gender', false)) {
+                $rules['gender'] = 'required|in:male,female,other';
+            } else {
+                $rules['gender'] = 'nullable|in:male,female,other';
+            }
+
+            // Address - optional if visible
+            if ($settings->get('show_address', false)) {
+                $rules['address'] = 'nullable|string|min:10|max:500';
+            }
+
+            // Reason for Visit - required only if visible in settings
+            if ($settings->get('show_reason_for_visit', false)) {
+                $rules['reason_for_visit'] = 'required|string|min:10|max:1000';
+            } else {
+                $rules['reason_for_visit'] = 'nullable|string|min:10|max:1000';
+            }
+
+            // Optional fields - only validate if visible
+            if ($settings->get('show_allergies', false)) {
+                $rules['allergies'] = 'nullable|string|max:500';
+            }
+
+            if ($settings->get('show_emergency_contact_name', false)) {
+                $rules['emergency_contact_name'] = 'nullable|string|min:2|max:255';
+                $rules['emergency_contact_phone'] = 'nullable|regex:/^[0-9]{10,15}$/';
+            }
+
+            if ($settings->get('show_blood_group', false)) {
+                $rules['blood_group'] = 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-';
+            }
+
+            if ($settings->get('show_medical_history', false)) {
+                $rules['medical_history'] = 'nullable|string|max:1000';
+            }
+
+            if ($settings->get('show_current_medications', false)) {
+                $rules['current_medications'] = 'nullable|string|max:1000';
+            }
+
+            if ($settings->get('show_insurance_details', false)) {
+                $rules['insurance_provider'] = 'nullable|string|max:255';
+                $rules['insurance_number'] = 'nullable|string|max:255';
+            }
+
+            // Validate patient details
+            $validated = $request->validate($rules);
 
             \Log::info('Step 3 validation passed', ['data' => $validated]);
 

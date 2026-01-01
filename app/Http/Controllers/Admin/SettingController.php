@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Setting;
-use App\Models\SettingCategory;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
+use App\Models\PatientProfile;
+use App\Models\SettingCategory;
+use App\Http\Controllers\Controller;
 
 class SettingController extends Controller
 {
@@ -47,10 +50,52 @@ class SettingController extends Controller
             }
         }
 
-        // Debug: Uncomment to see data structure
-        // dd($categories->toArray(), $settings);
+        // User fields (exclude sensitive/system fields)
+        $userExcludedFields = [
+            'password',
+            'role',
+            'remember_token',
+            'status',
+            'profile_image',
+            'created_at',
+            'updated_at',
+            'deleted_at'
+        ];
+        $userFields = collect((new User())->getFillable())
+            ->diff($userExcludedFields)
+            ->values()
+            ->toArray();
 
-        return view('admin.settings.index', compact('categories', 'settings'));
+        // Appointment fields (exclude system/auto fields)
+        $appointmentExcludedFields = [
+            'appointment_number',
+            'cancelled_at',
+            'booked_by',
+            'booked_via',
+            'reminder_sent',
+            'status',
+            'created_at',
+            'updated_at',
+            'deleted_at'
+        ];
+        $appointmentFields = collect((new Appointment())->getFillable())
+            ->diff($appointmentExcludedFields)
+            ->values()
+            ->toArray();
+
+        $patientProfileExcludedFields = [
+            'user_id',
+            'emergency_contact_phone',
+            'created_at',
+            'updated_at',
+            'deleted_at'
+        ];
+        $patientFields = collect((new PatientProfile())->getFillable())
+            ->diff($patientProfileExcludedFields)
+            ->values()
+            ->toArray();
+
+        return view('admin.settings.index', compact('categories', 'settings', 'userFields', 'appointmentFields', 'patientFields'));
     }
 
     /**
@@ -83,6 +128,17 @@ class SettingController extends Controller
                             ], 422);
                         }
                         $value = (string) intval($value);
+                        
+                        // Special validation for appointment_booking_days
+                        if ($key === 'appointment_booking_days') {
+                            $intValue = (int) $value;
+                            if ($intValue <= 0) {
+                                return response()->json([
+                                    'success' => false,
+                                    'message' => 'Appointment booking days must be greater than 0. Negative values and 0 are not allowed.',
+                                ], 422);
+                            }
+                        }
                         break;
 
                     case 'boolean':
@@ -103,15 +159,28 @@ class SettingController extends Controller
                         $value = (string) $value;
                 }
 
-                // Update or create the setting
-                Setting::updateOrCreate(
-                    ['key' => $key],
-                    [
+                // Update or create the setting - match on BOTH key AND category_id
+                $setting = Setting::where('key', $key)
+                    ->where('setting_category_id', $categoryId)
+                    ->first();
+
+                if ($setting) {
+                    // Update existing
+                    $setting->update([
+                        'value' => $value,
+                        'type' => $type,
+                    ]);
+                } else {
+                    // Create new
+                    Setting::create([
+                        'key' => $key,
                         'value' => $value,
                         'type' => $type,
                         'setting_category_id' => $categoryId,
-                    ]
-                );
+                        'description' => '',
+                        'status' => 1,
+                    ]);
+                }
             }
 
             return response()->json([
