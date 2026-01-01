@@ -55,20 +55,23 @@ class BookAppointmentService
             }
 
             // Check if user exists by email or phone
-            $user = User::where('email', $data['email'])
-                ->orWhere('phone', $data['phone'])
+            $user = User::whereNotNull('email')->where('email', $data['email'] ?? null)
+                ->orWhere('phone', $data['phone'] ?? null)
                 ->first();
 
             if (! $user) {
+                // Generate unique email if not provided
+                $email = $data['email'] ?? 'user_'.time().'@hospital.local';
+                
                 // Create new user
                 $user = User::create([
                     'first_name' => $data['first_name'],
-                    'last_name' => $data['last_name'],
-                    'email' => $data['email'],
-                    'phone' => $data['phone'],
-                    'password' => Hash::make($data['phone']), // Password is phone number
-                    'date_of_birth' => $data['date_of_birth'],
-                    'gender' => $data['gender'],
+                    'last_name' => $data['last_name'] ?? null,
+                    'email' => $email,
+                    'phone' => $data['phone'] ?? null,
+                    'password' => Hash::make($data['phone'] ?? 'temporary_password_'.time()), // Password is phone number or temp
+                    'date_of_birth' => $data['date_of_birth'] ?? null,
+                    'gender' => $data['gender'] ?? null,
                     'address' => $data['address'] ?? null,
                     'role' => 'patient',
                     'status' => 'active',
@@ -90,9 +93,9 @@ class BookAppointmentService
                 // Update existing user info if needed
                 $user->update([
                     'first_name' => $data['first_name'],
-                    'last_name' => $data['last_name'],
-                    'date_of_birth' => $data['date_of_birth'],
-                    'gender' => $data['gender'],
+                    'last_name' => $data['last_name'] ?? $user->last_name,
+                    'date_of_birth' => $data['date_of_birth'] ?? $user->date_of_birth,
+                    'gender' => $data['gender'] ?? $user->gender,
                     'address' => $data['address'] ?? $user->address,
                 ]);
 
@@ -134,7 +137,7 @@ class BookAppointmentService
             // Parse appointment time (format: "09:00 AM")
             $appointmentDateTime = Carbon::parse($data['appointment_date'].' '.$data['appointment_time']);
 
-            // Create appointment
+            // Create appointment with all patient details
             $appointment = Appointment::create([
                 'appointment_number' => $appointmentNumber,
                 'patient_id' => $user->id,
@@ -144,9 +147,17 @@ class BookAppointmentService
                 'duration_minutes' => 30, // Default duration
                 'status' => 'pending',
                 'appointment_type' => $data['appointment_type'] ?? 'consultation',
-                'reason_for_visit' => $data['reason_for_visit'],
-                'symptoms' => $data['allergies'] ?? null,
+                'reason_for_visit' => $data['reason_for_visit'] ?? null,
+                'symptoms' => $data['symptoms'] ?? null,
                 'notes' => $data['notes'] ?? null,
+                'allergies' => $data['allergies'] ?? null,
+                'emergency_contact_name' => $data['emergency_contact_name'] ?? null,
+                'emergency_contact_phone' => $data['emergency_contact_phone'] ?? null,
+                'blood_group' => $data['blood_group'] ?? null,
+                'medical_history' => $data['medical_history'] ?? null,
+                'current_medications' => $data['current_medications'] ?? null,
+                'insurance_provider' => $data['insurance_provider'] ?? null,
+                'insurance_number' => $data['insurance_number'] ?? null,
                 'booked_via' => $data['booked_via'] ?? 'online',
                 'reminder_sent' => false,
             ]);

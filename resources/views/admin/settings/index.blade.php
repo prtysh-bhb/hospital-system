@@ -306,35 +306,29 @@
 
                     <div class="p-6 lg:p-8">
                         @if (isset($settings['enable_email_notifications']))
-                            <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">
-                                <!-- Enable Email Notifications -->
-                                <div class="setting-card bg-white border-2 border-gray-100 rounded-xl p-5 hover:border-sky-200 hover:shadow-md transition-all duration-200"
-                                    data-category-id="{{ $settings['enable_email_notifications']['category_id'] }}">
-                                    <div class="flex items-start justify-between gap-3 mb-4">
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold text-gray-900 mb-1 truncate">
-                                                {{ ucwords(str_replace('_', ' ', 'enable_email_notifications')) }}</h4>
-                                            <p class="text-xs text-gray-500">
-                                                {{ $settings['enable_email_notifications']['description'] }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-6">
-                                        <div class="flex items-center justify-between">
-                                            <span
-                                                class="text-sm font-medium text-gray-700">{{ $settings['enable_email_notifications']['value'] == '1' ? 'Enabled' : 'Disabled' }}</span>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" class="sr-only peer setting-input"
-                                                    data-setting-key="enable_email_notifications"
-                                                    data-category-id="{{ $settings['enable_email_notifications']['category_id'] }}"
-                                                    data-setting-type="{{ $settings['enable_email_notifications']['type'] }}"
-                                                    {{ $settings['enable_email_notifications']['value'] == '1' ? 'checked' : '' }}>
-                                                <div
-                                                    class="w-12 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-100 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-sky-500 peer-checked:to-blue-500">
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                @foreach ($settings as $key => $setting)
+                                    @if (in_array($key, ['enable_email_notifications']))
+                                        @php
+                                            $settingValue = $setting['value'] ?? '0';
+                                        @endphp
+
+                                        <label
+                                            class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 hover:border-sky-300 transition-all cursor-pointer">
+                                            <div class="flex-1">
+                                                <p class="font-medium text-gray-700">
+                                                    {{ ucwords(str_replace('_', ' ', $key)) }}
+                                                </p>
+                                            </div>
+
+                                            <input type="checkbox"
+                                                class="setting-input w-5 h-5 text-sky-600 cursor-pointer"
+                                                data-setting-key="{{ $key }}" data-setting-type="boolean"
+                                                data-category-id="{{ $notifCat['id'] ?? 3 }}"
+                                                {{ $settingValue == '1' ? 'checked' : '' }}>
+                                        </label>
+                                    @endif
+                                @endforeach
                             </div>
 
                             <div class="pt-6 mt-6 border-t border-gray-100">
@@ -391,51 +385,128 @@
                     </div>
 
                     <div class="p-6 lg:p-8">
-                        <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">
-                            <!-- Show Emergency Contact -->
-                            @if (isset($settings['show_emergency_contact']))
-                                <x-setting-switch-button setting-key="show_emergency_contact"
-                                    label="{{ ucwords(str_replace('_', ' ', 'show_emergency_contact')) }}"
-                                    description="{{ $settings['show_emergency_contact']['description'] }}"
-                                    category-id="{{ $settings['show_emergency_contact']['category_id'] }}"
-                                    :checked="$settings['show_emergency_contact']['value'] == '1'" enabled-text="Visible" disabled-text="Hidden" />
-                            @endif
+                        <div class="space-y-8">
+                            {{-- ================= USER FIELDS ================= --}}
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">User Information Fields</h3>
+                                @php
+                                    $mandatoryUserFields = ['first_name', 'phone'];
+                                @endphp
 
-                            <!-- Show Blood Group -->
-                            @if (isset($settings['show_blood_group']))
-                                <x-setting-switch-button setting-key="show_blood_group"
-                                    label="{{ ucwords(str_replace('_', ' ', 'show_blood_group')) }}"
-                                    description="{{ $settings['show_blood_group']['description'] }}"
-                                    category-id="{{ $settings['show_blood_group']['category_id'] }}" :checked="$settings['show_blood_group']['value'] == '1'"
-                                    enabled-text="Visible" disabled-text="Hidden" />
-                            @endif
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    @foreach ($userFields as $field)
+                                        @php
+                                            $settingKey = 'show_' . $field;
+                                            $isMandatory = in_array($field, $mandatoryUserFields);
+                                            $settingValue = isset($settings[$settingKey])
+                                                ? $settings[$settingKey]['value']
+                                                : '0';
+                                        @endphp
 
-                            <!-- Show Medical History -->
-                            @if (isset($settings['show_medical_history']))
-                                <x-setting-switch-button setting-key="show_medical_history"
-                                    label="{{ ucwords(str_replace('_', ' ', 'show_medical_history')) }}"
-                                    description="{{ $settings['show_medical_history']['description'] }}"
-                                    category-id="{{ $settings['show_medical_history']['category_id'] }}" :checked="$settings['show_medical_history']['value'] == '1'"
-                                    enabled-text="Visible" disabled-text="Hidden" />
-                            @endif
+                                        <label
+                                            class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 hover:border-sky-300 transition-all cursor-pointer"
+                                            @if ($isMandatory) title="This field is mandatory and cannot be hidden" @endif>
+                                            <div class="flex-1">
+                                                <p class="font-medium text-gray-700">
+                                                    {{ ucwords(str_replace('_', ' ', $field)) }}
+                                                    @if ($isMandatory)
+                                                        <span class="text-red-600 text-xs ml-1">(Required)</span>
+                                                    @endif
+                                                </p>
+                                            </div>
 
-                            <!-- Show Current Medications -->
-                            @if (isset($settings['show_current_medications']))
-                                <x-setting-switch-button setting-key="show_current_medications"
-                                    label="{{ ucwords(str_replace('_', ' ', 'show_current_medications')) }}"
-                                    description="{{ $settings['show_current_medications']['description'] }}"
-                                    category-id="{{ $settings['show_current_medications']['category_id'] }}"
-                                    :checked="$settings['show_current_medications']['value'] == '1'" enabled-text="Visible" disabled-text="Hidden" />
-                            @endif
+                                            <input type="checkbox"
+                                                class="setting-input w-5 h-5 text-sky-600 cursor-pointer"
+                                                data-setting-key="{{ $settingKey }}" data-setting-type="boolean"
+                                                data-category-id="{{ $formCat['id'] }}"
+                                                {{ $isMandatory ? 'checked disabled' : ($settingValue == '1' ? 'checked' : '') }}>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
 
-                            <!-- Show Insurance Details -->
-                            @if (isset($settings['show_insurance_details']))
-                                <x-setting-switch-button setting-key="show_insurance_details"
-                                    label="{{ ucwords(str_replace('_', ' ', 'show_insurance_details')) }}"
-                                    description="{{ $settings['show_insurance_details']['description'] }}"
-                                    category-id="{{ $settings['show_insurance_details']['category_id'] }}"
-                                    :checked="$settings['show_insurance_details']['value'] == '1'" enabled-text="Visible" disabled-text="Hidden" />
-                            @endif
+                            {{-- ================= APPOINTMENT FIELDS ================= --}}
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">Appointment Information Fields</h3>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    @foreach ($appointmentFields as $field)
+                                        @php
+                                            $settingKey = 'show_' . $field;
+                                            $settingValue = isset($settings[$settingKey])
+                                                ? $settings[$settingKey]['value']
+                                                : '0';
+                                        @endphp
+
+                                        <label
+                                            class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 hover:border-sky-300 transition-all cursor-pointer">
+                                            <div class="flex-1">
+                                                <p class="font-medium text-gray-700">
+                                                    {{ ucwords(str_replace('_', ' ', $field)) }}
+                                                </p>
+                                            </div>
+
+                                            <input type="checkbox"
+                                                class="setting-input w-5 h-5 text-sky-600 cursor-pointer"
+                                                data-setting-key="{{ $settingKey }}" data-setting-type="boolean"
+                                                data-category-id="{{ $formCat['id'] }}"
+                                                {{ $settingValue == '1' ? 'checked' : '' }}>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- ================= PATIENT FIELDS ================= --}}
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">Patient Profile Fields</h3>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    @foreach ($patientFields as $field)
+                                        @php
+                                            $settingKey = 'show_' . $field;
+                                            $settingValue = isset($settings[$settingKey])
+                                                ? $settings[$settingKey]['value']
+                                                : '0';
+                                        @endphp
+
+                                        <label
+                                            class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 hover:border-sky-300 transition-all cursor-pointer">
+                                            <div class="flex-1">
+                                                <p class="font-medium text-gray-700">
+                                                    {{ ucwords(str_replace('_', ' ', $field)) }}
+                                                </p>
+                                            </div>
+
+                                            <input type="checkbox"
+                                                class="setting-input w-5 h-5 text-sky-600 cursor-pointer"
+                                                data-setting-key="{{ $settingKey }}" data-setting-type="boolean"
+                                                data-category-id="{{ $formCat['id'] }}"
+                                                {{ $settingValue == '1' ? 'checked' : '' }}>
+                                        </label>
+                                    @endforeach
+
+                                    <!-- Insurance Details Combined Setting -->
+                                    @php
+                                        $insuranceSettingKey = 'show_insurance_details';
+                                        $insuranceSettingValue = isset($settings[$insuranceSettingKey])
+                                            ? $settings[$insuranceSettingKey]['value']
+                                            : '0';
+                                    @endphp
+                                    <label
+                                        class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 hover:border-sky-300 transition-all cursor-pointer">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-gray-700">
+                                                Insurance Details
+                                            </p>
+                                        </div>
+
+                                        <input type="checkbox" class="setting-input w-5 h-5 text-sky-600 cursor-pointer"
+                                            data-setting-key="{{ $insuranceSettingKey }}" data-setting-type="boolean"
+                                            data-category-id="{{ $formCat['id'] }}"
+                                            {{ $insuranceSettingValue == '1' ? 'checked' : '' }}>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="pt-6 mt-6 border-t border-gray-100">
@@ -773,6 +844,32 @@
             if (window.innerWidth >= 1024) {
                 $('.lg\\:w-64').css('position', 'sticky').css('top', '6rem');
             }
+
+            // Validate appointment_booking_days - prevent 0 or negative values
+            function validateBookingDays() {
+                const $input = $('[data-setting-key="appointment_booking_days"]');
+                if ($input.length === 0) return; // Field not present on this page
+
+                const value = parseInt($input.val());
+
+                if (value <= 0 || isNaN(value)) {
+                    $input.addClass('border-red-500');
+                    $input.siblings('.error-hint').remove();
+                    $input.after(
+                        '<p class="text-xs text-red-500 mt-1 error-hint">⚠️ Must be at least 1. Negative or zero values are not allowed.</p>'
+                    );
+                    return false;
+                } else {
+                    $input.removeClass('border-red-500');
+                    $input.siblings('.error-hint').remove();
+                    return true;
+                }
+            }
+
+            $('[data-setting-key="appointment_booking_days"]').on('change input', validateBookingDays);
+
+            // Trigger validation on load
+            $('[data-setting-key="appointment_booking_days"]').trigger('change');
         });
     </script>
 @endpush
