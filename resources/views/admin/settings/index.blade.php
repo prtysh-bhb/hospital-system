@@ -856,7 +856,7 @@
                     $input.addClass('border-red-500');
                     $input.siblings('.error-hint').remove();
                     $input.after(
-                        '<p class="text-xs text-red-500 mt-1 error-hint">⚠️ Must be at least 1. Negative or zero values are not allowed.</p>'
+                        '<p class="text-xs text-red-500 mt-1 error-hint"> Must be at least 1. Negative or zero values are not allowed.</p>'
                     );
                     return false;
                 } else {

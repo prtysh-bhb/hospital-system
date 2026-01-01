@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
 class UserSeeder extends Seeder
 {
@@ -89,9 +89,9 @@ class UserSeeder extends Seeder
                     'first_name' => $doctor[0],
                     'last_name' => $doctor[1],
                     'phone' => $this->Phonegenerator(),
-                    'date_of_birth' => '197' . rand(5, 9) . '-' . rand(1, 12) . '-' . rand(1, 28),
+                    'date_of_birth' => '197'.rand(5, 9).'-'.rand(1, 12).'-'.rand(1, 28),
                     'gender' => rand(0, 1) ? 'male' : 'female',
-                    'address' => rand(100, 999) . ' Doctor Lane, Medical City',
+                    'address' => rand(100, 999).' Doctor Lane, Medical City',
                     'status' => 'active',
                     'email_verified_at' => now(),
                     'updated_at' => now(),
@@ -121,7 +121,7 @@ class UserSeeder extends Seeder
 
         foreach ($patients as $patient) {
 
-            $email = strtolower($patient[0]) . '.' . strtolower($patient[1]) . '@patient.com';
+            $email = strtolower($patient[0]).'.'.strtolower($patient[1]).'@patient.com';
             $phone = $this->Phonegenerator();
 
             User::updateOrCreate(
@@ -133,9 +133,9 @@ class UserSeeder extends Seeder
                     'first_name' => $patient[0],
                     'last_name' => $patient[1],
                     'phone' => $phone,
-                    'date_of_birth' => '19' . rand(80, 99) . '-' . rand(1, 12) . '-' . rand(1, 28),
+                    'date_of_birth' => '19'.rand(80, 99).'-'.rand(1, 12).'-'.rand(1, 28),
                     'gender' => rand(0, 1) ? 'male' : 'female',
-                    'address' => rand(100, 999) . ' Patient Street, Medical City',
+                    'address' => rand(100, 999).' Patient Street, Medical City',
                     'status' => 'active',
                     'email_verified_at' => now(),
                     'updated_at' => now(),
@@ -179,6 +179,6 @@ class UserSeeder extends Seeder
     */
     private function Phonegenerator(): string
     {
-        return '91' . rand(6000000000, 9999999999);
+        return '91'.rand(6000000000, 9999999999);
     }
 }

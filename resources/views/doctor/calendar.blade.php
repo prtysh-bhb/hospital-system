@@ -951,13 +951,13 @@
                 const endTime = $(this).find('.end-time').val();
 
                 if (isAvailable && (!startTime || !endTime)) {
-                    alert('Please set both start and end times for all available days');
+                    toastr.error('Please set both start and end times for all available days');
                     hasError = true;
                     return false;
                 }
 
                 if (isAvailable && startTime >= endTime) {
-                    alert('End time must be after start time for all days');
+                    toastr.error('End time must be after start time for all days');
                     hasError = true;
                     return false;
                 }
@@ -1008,7 +1008,7 @@
                         // Reload schedule
                         renderWeeklySchedule(response.schedule);
                     } else {
-                        alert('Failed to update schedule: ' + (response.message || 'Unknown error'));
+                        toastr.error('Failed to update schedule: ' + (response.message || 'Unknown error'));
                     }
                 },
                 error: function(xhr) {
@@ -1020,7 +1020,7 @@
                         errorMsg = xhr.responseJSON.message;
                     }
 
-                    alert(errorMsg);
+                    toastr.error(errorMsg);
                 },
                 complete: function() {
                     $('#saveSchedule').prop('disabled', false).html('Save Changes');
@@ -1089,13 +1089,13 @@
                                             <span class="text-gray-700">${apt.type}</span>
                                         </div>
                                         ${apt.reason ? `
-                                                                                                                                <div class="flex items-start text-sm">
-                                                                                                                                    <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                                                                                                    </svg>
-                                                                                                                                    <span class="text-gray-600">${apt.reason}</span>
-                                                                                                                                </div>
-                                                                                                                                ` : ''}
+                                                                                                                                            <div class="flex items-start text-sm">
+                                                                                                                                                <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                                                                                                </svg>
+                                                                                                                                                <span class="text-gray-600">${apt.reason}</span>
+                                                                                                                                            </div>
+                                                                                                                                            ` : ''}
                                     </div>
                                 </div>
                             `).join('');
@@ -1324,5 +1324,73 @@
                 closeModal();
             }
         });
+
+        // Validate time inputs for 30-minute intervals
+        function validateTimeInterval(timeValue) {
+            if (!timeValue) return true;
+
+            const [hours, minutes] = timeValue.split(':');
+            const mins = parseInt(minutes, 10);
+
+            // Allow only 00 and 30 for minutes
+            return mins === 0 || mins === 30;
+        }
+
+        // Add validation to time inputs when they are created/updated
+        function attachTimeValidation() {
+            $('input[type="time"]').off('change blur').on('change', function() {
+                if ($(this).val() && !validateTimeInterval($(this).val())) {
+                    toastr.error('Please select a time in 30-minute intervals (e.g., 11:00 or 11:30)');
+                    $(this).val('');
+                }
+            }).on('blur', function() {
+                if ($(this).val() && !validateTimeInterval($(this).val())) {
+                    toastr.warning('Time must be in 30-minute intervals');
+                    $(this).val('');
+                }
+            });
+        }
+
+        // Validate schedule times before saving
+        window.validateScheduleTimes = function() {
+            const timeInputs = document.querySelectorAll('input[type="time"]');
+            let hasInvalidTime = false;
+
+            timeInputs.forEach(input => {
+                if (input.value && !validateTimeInterval(input.value)) {
+                    hasInvalidTime = true;
+                    toastr.error('All times must be in 30-minute intervals (e.g., 11:00, 11:30)');
+                }
+            });
+
+            return !hasInvalidTime;
+        };
+
+        // Override saveSchedule to validate times before saving
+        const originalSaveSchedule = window.saveSchedule;
+        window.saveSchedule = function() {
+            if (!validateScheduleTimes()) {
+                return;
+            }
+            if (typeof originalSaveSchedule === 'function') {
+                originalSaveSchedule.call(this);
+            }
+        };
+
+        // Attach validation when page loads and when schedule is rendered
+        $(document).ready(function() {
+            attachTimeValidation();
+        });
+
+        // Override renderWeeklySchedule to attach validation after rendering
+        const originalRenderWeeklySchedule = window.renderWeeklySchedule;
+        window.renderWeeklySchedule = function(schedule) {
+            if (typeof originalRenderWeeklySchedule === 'function') {
+                originalRenderWeeklySchedule.call(this, schedule);
+            }
+            // Add step attribute to all time inputs for 30-minute intervals
+            $('input[type="time"]').attr('step', '1800');
+            attachTimeValidation();
+        };
     </script>
 @endpush

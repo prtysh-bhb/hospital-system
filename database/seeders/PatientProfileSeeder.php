@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\PatientProfile;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class PatientProfileSeeder extends Seeder
 {
@@ -15,6 +15,7 @@ class PatientProfileSeeder extends Seeder
 
         if ($patients->isEmpty()) {
             $this->command->warn('No patients found. PatientProfileSeeder skipped.');
+
             return;
         }
 
@@ -33,7 +34,7 @@ class PatientProfileSeeder extends Seeder
                     'user_id' => $patient->id,
                 ],
                 [
-                    'emergency_contact_name' => 'Emergency Contact ' . $patient->last_name,
+                    'emergency_contact_name' => 'Emergency Contact '.$patient->last_name,
                     'emergency_contact_phone' => $this->Phonegenerator(),
                     'blood_group' => $bloodGroups[array_rand($bloodGroups)],
                     'allergies' => $hasAllergies
@@ -44,7 +45,7 @@ class PatientProfileSeeder extends Seeder
                         ? $medications[array_rand($medications)]
                         : 'None',
                     'insurance_provider' => $insuranceProviders[array_rand($insuranceProviders)],
-                    'insurance_number' => 'INS-' . rand(100000, 999999),
+                    'insurance_number' => 'INS-'.rand(100000, 999999),
                     'updated_at' => now(),
                 ]
             );
@@ -61,15 +62,16 @@ class PatientProfileSeeder extends Seeder
         }
 
         if (rand(0, 1)) {
-            $history[] = 'Previous surgery in ' . (2010 + rand(0, 12));
+            $history[] = 'Previous surgery in '.(2010 + rand(0, 12));
         }
 
         return empty($history)
             ? 'No significant medical history'
             : implode(', ', $history);
     }
+
     private function Phonegenerator(): string
     {
-        return '91' . rand(6000000000, 9999999999);
+        return '91'.rand(6000000000, 9999999999);
     }
 }

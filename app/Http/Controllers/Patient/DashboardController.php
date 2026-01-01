@@ -2,23 +2,18 @@
 
 namespace App\Http\Controllers\Patient;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Appointment;
-use Illuminate\Container\Attributes\Auth;
-use Illuminate\Support\Str;
-use App\Models\Prescription;
-use Illuminate\Http\Request;
-use App\Models\PatientProfile;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Validation\Rule;
-use App\Events\NotifiyUserEvent;
 use App\Enums\WhatsappTemplating;
-use App\Models\AppointmentHistory;
+use App\Events\NotifiyUserEvent;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Appointment;
+use App\Models\AppointmentHistory;
+use App\Models\Prescription;
+use App\Models\User;
 use App\Services\AppointmentSlotService;
-use App\Services\Public\BookAppointmentService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
@@ -90,8 +85,8 @@ class DashboardController extends Controller
 
         $stats = (object) [
             'total' => $appointments->count(),
-            'today' => $appointments->filter(fn($a) => $a->date_raw->isSameDay($today))->count(),
-            'upcoming' => $appointments->filter(fn($a) =>$a->date_raw->gte($today) && in_array($a->status, ['pending', 'confirmed']))->count(),
+            'today' => $appointments->filter(fn ($a) => $a->date_raw->isSameDay($today))->count(),
+            'upcoming' => $appointments->filter(fn ($a) => $a->date_raw->gte($today) && in_array($a->status, ['pending', 'confirmed']))->count(),
             'completed' => $appointments->where('status', 'completed')->count(),
             'cancelled' => $appointments->where('status', 'cancelled')->count(),
         ];
@@ -150,8 +145,8 @@ class DashboardController extends Controller
                 $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
                 $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
 
-                $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
-                $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+                $doctorName = 'Dr. '.trim($doctor->first_name.' '.$doctor->last_name);
+                $patientName = trim($patient->first_name.' '.$patient->last_name);
                 $status = ucfirst($appointment->status);
 
                 $components = [
@@ -184,7 +179,6 @@ class DashboardController extends Controller
 
                 event(new NotifiyUserEvent($params));
             }
-
 
             return response()->json([
                 'success' => true,
@@ -238,7 +232,7 @@ class DashboardController extends Controller
             }
 
             // Check if appointment can be rescheduled
-            if (! in_array($appointment->status, ['pending', 'confirmed'])) {
+            if (! in_array($appointment->status, ['pending', 'confirmed','cancelled'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Only pending or confirmed appointments can be rescheduled.',
@@ -286,8 +280,8 @@ class DashboardController extends Controller
                 $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
                 $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
 
-                $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
-                $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+                $doctorName = 'Dr. '.trim($doctor->first_name.' '.$doctor->last_name);
+                $patientName = trim($patient->first_name.' '.$patient->last_name);
                 $status = ucfirst($appointment->status);
 
                 $components = [
@@ -297,7 +291,7 @@ class DashboardController extends Controller
                             ['key' => 'name', 'type' => 'text', 'text' => $patientName],
                             ['key' => 'date', 'type' => 'text', 'text' => $appointmentDate],
                             ['key' => 'time', 'type' => 'text', 'text' => $appointmentTime],
-                            
+
                         ],
                     ],
                 ];
@@ -516,13 +510,13 @@ class DashboardController extends Controller
                         'required',
                         Rule::exists('users', 'id')->where(function ($query) {
                             $query->where('role', 'patient');
-                        })
+                        }),
                     ],
                     'doctor_id' => [
                         'required',
                         Rule::exists('users', 'id')->where(function ($query) {
                             $query->where('role', 'doctor');
-                        })
+                        }),
                     ],
                     'appointment_date' => 'required|date|after_or_equal:today',
                     'appointment_time' => 'required',
@@ -544,7 +538,7 @@ class DashboardController extends Controller
                         'required',
                         Rule::exists('users', 'id')->where(function ($query) {
                             $query->where('role', 'doctor');
-                        })
+                        }),
                     ],
                     'appointment_date' => 'required|date|after_or_equal:today',
                     'appointment_time' => 'required',
@@ -566,7 +560,7 @@ class DashboardController extends Controller
             $date = now()->format('Ymd');
             $random = random_int(0, 999999);
             $randomPadded = str_pad($random, 6, '0', STR_PAD_LEFT);
-            $appointmentNumber = 'APT-' . $date . '-' . $randomPadded;
+            $appointmentNumber = 'APT-'.$date.'-'.$randomPadded;
 
             // Parse appointment time (could be "09:00 AM" format or "09:00" format)
             $appointmentTime = $request->input('appointment_time');
@@ -578,7 +572,7 @@ class DashboardController extends Controller
                 $appointmentTime
             );
 
-            if (!$slotValidation['valid']) {
+            if (! $slotValidation['valid']) {
                 return response()->json([
                     'status' => 422,
                     'msg' => $slotValidation['message'],
@@ -625,7 +619,7 @@ class DashboardController extends Controller
             ], 422);
         } catch (\Exception $e) {
             // Log the error for debugging
-            \Log::error('Appointment creation failed: ' . $e->getMessage(), [
+            \Log::error('Appointment creation failed: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request_data' => $request->except(['password']),
             ]);

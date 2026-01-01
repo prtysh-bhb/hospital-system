@@ -9,13 +9,17 @@ use Illuminate\Support\Facades\Log;
 class UltraMSGService
 {
     protected string $apiUrl;
+
     protected string $token;
+
     protected string $instance_id;
+
     protected int $priority;
 
     protected array $headers = [
         'Content-Type' => 'application/x-www-form-urlencoded',
     ];
+
     public function __construct()
     {
         $this->apiUrl = config('services.ultramsg.api_url', 'https://api.ultramsg.com');
@@ -27,10 +31,11 @@ class UltraMSGService
     /**
      * Send a message via UltraMSG
      *
-     * @param string $to Recipient phone number with international code
-     * @param array $message Message content and parameters
-     * @param string $type Message type: 'text' or 'template'
+     * @param  string  $to  Recipient phone number with international code
+     * @param  array  $message  Message content and parameters
+     * @param  string  $type  Message type: 'text' or 'template'
      * @return array Response from the API
+     *
      * @throws \Exception
      */
     public function send(string $to, array $message, string $type = 'text'): array
@@ -54,19 +59,17 @@ class UltraMSGService
 
     /**
      * Summary of sendTemplateFromDatabase
-     * @param string $to
-     * @param string $templateKey
-     * @param array $components
+     *
      * @throws \Exception
-     * @return array
      */
-    private function sendTemplateFromDatabase(string $to,string $templateKey,array $components): array {
+    private function sendTemplateFromDatabase(string $to, string $templateKey, array $components): array
+    {
         // Find template by ID or NAME
         $template = WhatsappTemplate::where('id', $templateKey)
             ->orWhere('name', $templateKey)
             ->first();
 
-        if (!$template) {
+        if (! $template) {
             throw new \Exception("WhatsApp template not found: {$templateKey}");
         }
 
@@ -77,7 +80,7 @@ class UltraMSGService
 
         // Replace {{keys}} in message
         foreach ($replacements as $key => $value) {
-            $text = str_replace('{{' . $key . '}}', $value, $text);
+            $text = str_replace('{{'.$key.'}}', $value, $text);
         }
 
         return $this->sendTextMessage($to, trim($text));
@@ -85,8 +88,6 @@ class UltraMSGService
 
     /**
      * Summary of extractTemplateParameters
-     * @param array $components
-     * @return array
      */
     private function extractTemplateParameters(array $components): array
     {
@@ -94,7 +95,7 @@ class UltraMSGService
 
         foreach ($components as $component) {
             foreach ($component['parameters'] ?? [] as $param) {
-                if (!empty($param['key'])) {
+                if (! empty($param['key'])) {
                     $data[$param['key']] = $param['text'] ?? '';
                 }
             }
@@ -105,10 +106,8 @@ class UltraMSGService
 
     /**
      * Summary of sendTextMessage
-     * @param string $to
-     * @param string $text
+     *
      * @throws \Exception
-     * @return array
      */
     private function sendTextMessage(string $to, string $text): array
     {
@@ -126,19 +125,17 @@ class UltraMSGService
 
     /**
      * Summary of request
-     * @param string $endpoint
-     * @param array $params
+     *
      * @throws \Exception
-     * @return array
      */
     private function request(string $endpoint, array $params): array
     {
         $response = Http::withHeaders($this->headers)
             ->asForm()
             ->timeout(30)
-            ->post($this->apiUrl . $endpoint, $params);
+            ->post($this->apiUrl.$endpoint, $params);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             Log::error('UltraMSG API error', [
                 'status' => $response->status(),
                 'body' => $response->body(),
@@ -151,21 +148,18 @@ class UltraMSGService
 
     /**
      * Summary of normalizePhoneNumber
-     * @param string $phone
-     * @return string
      */
     private function normalizePhoneNumber(string $phone): string
     {
         $phone = preg_replace('/[^0-9+]/', '', $phone);
+
         return str_starts_with($phone, '+') ? $phone : ltrim($phone, '0');
     }
 
     /**
      * Summary of validateInputs
-     * @param string $to
-     * @param string $text
+     *
      * @throws \Exception
-     * @return void
      */
     private function validateInputs(string $to, string $text): void
     {

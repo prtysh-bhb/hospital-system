@@ -14,6 +14,7 @@ use App\Http\Controllers\Doctor\DoctorAppointmentController;
 use App\Http\Controllers\Doctor\DoctorDashboardController;
 use App\Http\Controllers\Doctor\DoctorLeaveController;
 use App\Http\Controllers\Frontdesk\AddAppointmentController;
+use App\Http\Controllers\Frontdesk\AppointmentListController;
 use App\Http\Controllers\Frontdesk\DoctorLeaveFrontdeskController;
 use App\Http\Controllers\Frontdesk\DoctorScheduleController;
 use App\Http\Controllers\Frontdesk\FrontDashboardController;
@@ -22,7 +23,6 @@ use App\Http\Controllers\Frontdesk\PatientController as FrontPatientController;
 use App\Http\Controllers\Patient\DashboardController;
 use App\Http\Controllers\Patient\PatientAuthController;
 use App\Http\Controllers\Public\BookAppointmentController;
-use App\Http\Controllers\Frontdesk\AppointmentListController;
 
 /*
 |--------------------------------------------------------------------------

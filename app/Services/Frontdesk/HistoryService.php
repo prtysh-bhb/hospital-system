@@ -14,25 +14,25 @@ class HistoryService
     {
         $query = AppointmentHistory::with([
             'appointment.patient.patientProfile',
-            'appointment.doctor.doctorProfile.specialty'
+            'appointment.doctor.doctorProfile.specialty',
         ])->whereHas('appointment.patient')
             ->whereHas('appointment.doctor');
 
         // Date range
-        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+        if (! empty($filters['from_date']) && ! empty($filters['to_date'])) {
             $query->whereBetween('appointment_date', [
                 $filters['from_date'],
-                $filters['to_date']
+                $filters['to_date'],
             ]);
         }
 
         // Status
-        if (!empty($filters['status']) && $filters['status'] !== 'all') {
+        if (! empty($filters['status']) && $filters['status'] !== 'all') {
             $query->where('status', $filters['status']);
         }
 
         // Search
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
 
             $query->whereHas('appointment', function ($q) use ($search) {
@@ -49,6 +49,7 @@ class HistoryService
 
         return $query->orderBy('id', 'desc')->paginate(10);
     }
+
     /**
      * Get all appointments for export (without pagination)
      */
@@ -178,7 +179,7 @@ class HistoryService
     {
         return AppointmentHistory::with([
             'appointment.patient.patientProfile',
-            'appointment.doctor.doctorProfile.specialty'
+            'appointment.doctor.doctorProfile.specialty',
         ])->findOrFail($id);
     }
 }

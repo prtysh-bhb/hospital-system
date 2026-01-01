@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\DoctorProfile;
 use App\Models\Specialty;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class DoctorProfileSeeder extends Seeder
 {
@@ -16,6 +16,7 @@ class DoctorProfileSeeder extends Seeder
 
         if ($specialties->isEmpty()) {
             $this->command->warn('No specialties found. DoctorProfileSeeder skipped.');
+
             return;
         }
 
@@ -24,6 +25,7 @@ class DoctorProfileSeeder extends Seeder
 
         if ($doctors->isEmpty()) {
             $this->command->warn('No doctors found. DoctorProfileSeeder skipped.');
+
             return;
         }
 
@@ -34,7 +36,7 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 15,
                 'consultation_fee' => 1500.00,
                 'bio' => 'Senior Cardiologist with 15 years of experience in interventional cardiology.',
-                'license_number' => 'MED-CARD-' . rand(10000, 99999),
+                'license_number' => 'MED-CARD-'.rand(10000, 99999),
             ],
             'mehta@medicare.com' => [
                 'specialty' => 'Pediatrics',
@@ -42,7 +44,7 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 12,
                 'consultation_fee' => 1200.00,
                 'bio' => 'Pediatric specialist focused on child healthcare and development.',
-                'license_number' => 'MED-PED-' . rand(10000, 99999),
+                'license_number' => 'MED-PED-'.rand(10000, 99999),
             ],
             'verma@medicare.com' => [
                 'specialty' => 'Orthopedics',
@@ -50,7 +52,7 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 10,
                 'consultation_fee' => 1300.00,
                 'bio' => 'Orthopedic surgeon specializing in joint replacement and sports injuries.',
-                'license_number' => 'MED-ORT-' . rand(10000, 99999),
+                'license_number' => 'MED-ORT-'.rand(10000, 99999),
             ],
             'desai@medicare.com' => [
                 'specialty' => 'Dermatology',
@@ -58,7 +60,7 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 8,
                 'consultation_fee' => 1100.00,
                 'bio' => 'Dermatologist with expertise in cosmetic and medical dermatology.',
-                'license_number' => 'MED-DER-' . rand(10000, 99999),
+                'license_number' => 'MED-DER-'.rand(10000, 99999),
             ],
             'patel@medicare.com' => [
                 'specialty' => 'Neurology',
@@ -66,20 +68,20 @@ class DoctorProfileSeeder extends Seeder
                 'experience_years' => 14,
                 'consultation_fee' => 1600.00,
                 'bio' => 'Neurologist specializing in stroke management and neurological disorders.',
-                'license_number' => 'MED-NEU-' . rand(10000, 99999),
+                'license_number' => 'MED-NEU-'.rand(10000, 99999),
             ],
         ];
 
         foreach ($doctors as $doctor) {
 
-            if (!isset($doctorData[$doctor->email])) {
+            if (! isset($doctorData[$doctor->email])) {
                 continue;
             }
 
             $data = $doctorData[$doctor->email];
 
             // Safety check
-            if (!isset($specialties[$data['specialty']])) {
+            if (! isset($specialties[$data['specialty']])) {
                 continue;
             }
 

@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum WhatsappTemplating:string
+enum WhatsappTemplating: string
 {
     case CANCEL_APPOINTMENT = 'APPOINTMENT_CANCEL';
     case COMPLETED_APPOINTMENT = 'APPOINTMENT_COMPLETED';

@@ -349,11 +349,11 @@
                         <label for="day{{ $dayNum }}"
                             class="w-32 text-sm font-medium text-gray-700">{{ $dayName }}</label>
                         <input type="time" name="schedules[{{ $dayNum }}][start_time]"
-                            value="{{ $startTime }}"
+                            value="{{ $startTime }}" step="1800"
                             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
                         <span class="text-gray-500">to</span>
                         <input type="time" name="schedules[{{ $dayNum }}][end_time]"
-                            value="{{ $endTime }}"
+                            value="{{ $endTime }}" step="1800"
                             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
                     </div>
                 @endforeach
@@ -699,6 +699,56 @@
                 }
                 return field.name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
             }
+
+            // Validate time inputs for 30-minute intervals
+            function validateTimeInterval(timeValue) {
+                if (!timeValue) return true; // Empty is valid (not required at input level)
+
+                const [hours, minutes] = timeValue.split(':');
+                const mins = parseInt(minutes, 10);
+
+                // Allow only 00 and 30 for minutes
+                return mins === 0 || mins === 30;
+            }
+
+            // Add validation to all time inputs
+            document.querySelectorAll('input[type="time"]').forEach(timeInput => {
+                timeInput.addEventListener('change', function() {
+                    if (this.value && !validateTimeInterval(this.value)) {
+                        toastr.error(
+                            'Please select a time in 30-minute intervals (e.g., 11:00 or 11:30)'
+                            );
+                        this.value = ''; // Clear invalid value
+                    }
+                });
+
+                // Prevent manual input of invalid times
+                timeInput.addEventListener('blur', function() {
+                    if (this.value && !validateTimeInterval(this.value)) {
+                        toastr.warning('Time must be in 30-minute intervals');
+                        this.value = '';
+                    }
+                });
+            });
+
+            // Validate schedule times before form submission
+            form.addEventListener('submit', function(e) {
+                const timeInputs = form.querySelectorAll('input[type="time"]');
+                let hasInvalidTime = false;
+
+                timeInputs.forEach(input => {
+                    if (input.value && !validateTimeInterval(input.value)) {
+                        hasInvalidTime = true;
+                        toastr.error(
+                            'All times must be in 30-minute intervals (e.g., 11:00, 11:30)');
+                    }
+                });
+
+                if (hasInvalidTime) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
         });
     </script>
 @endsection

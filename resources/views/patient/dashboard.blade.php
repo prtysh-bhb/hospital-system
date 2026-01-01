@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Patient Dashboard - Hospital Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -325,17 +326,48 @@
                                     @endif
                                 </div>
 
-                                <button
-                                    class="view-appointment-details inline-flex items-center px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
-                                    data-index="{{ $index }}"
-                                    onclick="event.stopPropagation(); /* Your view details function here */">
-                                    View Details
-                                    <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
+                                <div class="flex items-center gap-2">
+                                    @if (in_array($appointment->status, ['Pending', 'Confirmed']))
+                                        <button type="button"
+                                            class="cancel-appointment-btn inline-flex items-center px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg transition-colors duration-200"
+                                            data-appointment-id="{{ $appointment->id }}"
+                                            data-appointment-number="{{ $appointment->appointment_number }}"
+                                            data-index="{{ $index }}">
+                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            Cancel
+                                        </button>
+                                    @endif
+                                    @if (in_array($appointment->status, ['Pending', 'Confirmed', 'Cancelled']))
+                                        <button type="button"
+                                            class="reschedule-appointment-btn inline-flex items-center px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-600 text-xs font-medium rounded-lg transition-colors duration-200"
+                                            data-appointment-id="{{ $appointment->id }}"
+                                            data-appointment-number="{{ $appointment->appointment_number }}"
+                                            data-doctor-id="{{ $appointment->doctor_id }}"
+                                            data-index="{{ $index }}">
+                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            Reschedule
+                                        </button>
+                                    @endif
+
+                                    <button type="button"
+                                        class="view-appointment-details inline-flex items-center px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                                        data-index="{{ $index }}">
+                                        View Details
+                                        <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

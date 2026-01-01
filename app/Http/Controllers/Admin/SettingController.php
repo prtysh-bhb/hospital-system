@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\User;
-use App\Models\Setting;
-use App\Models\Appointment;
-use Illuminate\Http\Request;
-use App\Models\PatientProfile;
-use App\Models\SettingCategory;
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
+use App\Models\PatientProfile;
+use App\Models\Setting;
+use App\Models\SettingCategory;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
@@ -20,8 +20,8 @@ class SettingController extends Controller
             ->orderBy('order', 'asc')
             ->get()->map(function ($category) {
                 $settingsCount = Setting::where('setting_category_id', $category->id)
-                ->where('status', '1')
-                ->count();
+                    ->where('status', '1')
+                    ->count();
 
                 return [
                     'id' => $category->id,
@@ -29,7 +29,7 @@ class SettingController extends Controller
                     'display_name' => ucwords(str_replace('_', ' ', $category->name)),
                     'settings_count' => $settingsCount,
                 ];
-        });
+            });
 
         // Get all settings grouped by category
         $settingsByCategory = Setting::whereIn('setting_category_id', $categories->pluck('id'))
@@ -59,9 +59,9 @@ class SettingController extends Controller
             'profile_image',
             'created_at',
             'updated_at',
-            'deleted_at'
+            'deleted_at',
         ];
-        $userFields = collect((new User())->getFillable())
+        $userFields = collect((new User)->getFillable())
             ->diff($userExcludedFields)
             ->values()
             ->toArray();
@@ -76,9 +76,9 @@ class SettingController extends Controller
             'status',
             'created_at',
             'updated_at',
-            'deleted_at'
+            'deleted_at',
         ];
-        $appointmentFields = collect((new Appointment())->getFillable())
+        $appointmentFields = collect((new Appointment)->getFillable())
             ->diff($appointmentExcludedFields)
             ->values()
             ->toArray();
@@ -88,9 +88,9 @@ class SettingController extends Controller
             'emergency_contact_phone',
             'created_at',
             'updated_at',
-            'deleted_at'
+            'deleted_at',
         ];
-        $patientFields = collect((new PatientProfile())->getFillable())
+        $patientFields = collect((new PatientProfile)->getFillable())
             ->diff($patientProfileExcludedFields)
             ->values()
             ->toArray();
@@ -128,7 +128,7 @@ class SettingController extends Controller
                             ], 422);
                         }
                         $value = (string) intval($value);
-                        
+
                         // Special validation for appointment_booking_days
                         if ($key === 'appointment_booking_days') {
                             $intValue = (int) $value;

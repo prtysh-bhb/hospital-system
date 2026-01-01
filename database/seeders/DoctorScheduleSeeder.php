@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\DoctorSchedule;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class DoctorScheduleSeeder extends Seeder
 {
@@ -15,6 +15,7 @@ class DoctorScheduleSeeder extends Seeder
 
         if ($doctors->isEmpty()) {
             $this->command->warn('No doctors found. DoctorScheduleSeeder skipped.');
+
             return;
         }
 

@@ -62,7 +62,7 @@ class BookAppointmentService
             if (! $user) {
                 // Generate unique email if not provided
                 $email = $data['email'] ?? 'user_'.time().'@hospital.local';
-                
+
                 // Create new user
                 $user = User::create([
                     'first_name' => $data['first_name'],

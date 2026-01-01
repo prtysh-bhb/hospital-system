@@ -46,11 +46,12 @@
                                     class="text-red-500">*</span></label>
                             <div class="flex items-center">
                                 <input type="date" name="start_date" id="start_date"
-                                    class="w-full bg-transparent border-0 p-0 text-lg font-semibold text-gray-800 focus:ring-0 focus:outline-none cursor-pointer">
+                                    class="w-full bg-transparent border-0 p-0 text-lg font-semibold text-gray-800 focus:ring-0 focus:outline-none shadow-none cursor-pointer">
                             </div>
                             <div id="from_display" class="text-sm text-gray-500 mt-1">
                                 <!-- Will be populated by JS -->
                             </div>
+                            <div class="start_date_error_placeholder"></div>
                         </div>
 
                         <!-- Duration Display -->
@@ -71,11 +72,12 @@
                                     class="text-red-500">*</span></label>
                             <div class="flex items-center">
                                 <input type="date" name="end_date" id="end_date"
-                                    class="w-full bg-transparent border-0 p-0 text-lg font-semibold text-gray-800 focus:ring-0 focus:outline-none cursor-pointer">
+                                    class="w-full bg-transparent border-0 p-0 text-lg font-semibold text-gray-800 focus:ring-0 focus:outline-none shadow-none cursor-pointer">
                             </div>
                             <div id="to_display" class="text-sm text-gray-500 mt-1">
                                 <!-- Will be populated by JS -->
                             </div>
+                            <div class="end_date_error_placeholder"></div>
                         </div>
                     </div>
 
@@ -177,8 +179,9 @@
                         </label>
                         <div class="border border-gray-300 rounded-xl overflow-hidden">
                             <textarea name="reason" rows="4"
-                                class="w-full border-0 p-4 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                                class="w-full border-0 p-4 focus:ring-0 focus:outline-none shadow-none transition"
                                 placeholder="Enter reason for leave..."></textarea>
+                            <div class="reason_error_placeholder"></div>
                             <div class="bg-gray-50 px-4 py-2 text-xs text-gray-500">
                                 Note: Please provide a valid reason for your leave request
                             </div>
@@ -188,12 +191,12 @@
                     <!-- Actions -->
                     <div class="flex justify-end gap-4 pt-4 border-t border-gray-200">
                         <button type="button" id="cancelFormBtn"
-                            class="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition font-medium">
+                            class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition">
                             Cancel
                         </button>
-                        <button type="submit" id="leave_submit_button"
-                            class="px-8 py-3 bg-sky-600 text-white rounded-xl font-medium hover:bg-sky-700 transition">
-                            Submit Leave Request
+                        <button type="submit"
+                            class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition">
+                            Submit
                         </button>
                     </div>
                 </form>
@@ -375,7 +378,6 @@
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800">
                                                 @if ($leave->is_adhoc)
-                                                    <span class="mr-1">⚠️</span>
                                                 @endif
                                                 Full Day
                                                 @if ($leave->is_adhoc)
@@ -386,7 +388,6 @@
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                                 @if ($leave->is_adhoc)
-                                                    <span class="mr-1">⚠️</span>
                                                 @endif
                                                 Custom
                                                 @if ($leave->is_adhoc)
@@ -397,17 +398,17 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         {{ \Carbon\Carbon::parse($leave->start_date)->format('d M, Y') }}
-                                        @if ($leave->leave_type == 'custom' && $leave->start_date_type == 'half_day')
+                                        {{-- @if ($leave->leave_type == 'custom' && $leave->start_date_type == 'half_day')
                                             <span class="text-xs text-gray-500">({{ ucfirst($leave->start_half_slot) }}
                                                 Half)</span>
-                                        @endif
+                                        @endif --}}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         {{ \Carbon\Carbon::parse($leave->end_date)->format('d M, Y') }}
-                                        @if ($leave->leave_type == 'custom' && $leave->end_date_type == 'half_day')
-                                            <span class="text-xs text-gray-500">({{ ucfirst($leave->end_half_slot) }}
-                                                Half)</span>
-                                        @endif
+                                        {{-- @if ($leave->leave_type == 'custom' && $leave->end_date_type == 'half_day')
+                                                <span class="text-xs text-gray-500">({{ ucfirst($leave->end_half_slot) }}
+                                                    Half)</span>
+                                            @endif --}}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         @php
@@ -536,6 +537,30 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            // Helper: Move error messages under the correct divs
+            function moveErrorMessages() {
+                // For start_date
+                let startDateError = $("#leaveForm input[name='start_date']").next('.error-text');
+                if (startDateError.length) {
+                    $('.start_date_error_placeholder').html(startDateError);
+                } else {
+                    $('.start_date_error_placeholder').empty();
+                }
+                // For end_date
+                let endDateError = $("#leaveForm input[name='end_date']").next('.error-text');
+                if (endDateError.length) {
+                    $('.end_date_error_placeholder').html(endDateError);
+                } else {
+                    $('.end_date_error_placeholder').empty();
+                }
+                // For reason
+                let reasonError = $("#leaveForm textarea[name='reason']").next('.error-text');
+                if (reasonError.length) {
+                    $('.reason_error_placeholder').html(reasonError);
+                } else {
+                    $('.reason_error_placeholder').empty();
+                }
+            }
             // Format date function
             function formatDate(dateString) {
                 const date = new Date(dateString);
@@ -992,6 +1017,12 @@
                 $(this).next('.error-text').remove();
                 $(this).parent().next('.error-text').remove();
                 $('.start-date-options, .end-date-options').removeClass('border-red-500');
+                moveErrorMessages();
+            });
+
+            // On AJAX error, move error messages if any
+            $(document).ajaxComplete(function() {
+                moveErrorMessages();
             });
         });
 

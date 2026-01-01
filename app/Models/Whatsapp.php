@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Enums\WhatsappTemplating;
+use Illuminate\Database\Eloquent\Model;
+
 class Whatsapp extends Model
 {
     protected $casts = [

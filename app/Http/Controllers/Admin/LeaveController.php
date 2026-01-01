@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Carbon\Carbon;
-use App\Models\User;
+use App\Enums\WhatsappTemplating;
+use App\Events\NotifiyUserEvent;
+use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\DoctorLeave;
-use Illuminate\Http\Request;
 use App\Models\DoctorProfile;
-use App\Events\NotifiyUserEvent;
-use App\Enums\WhatsappTemplating;
-use App\Http\Controllers\Controller;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class LeaveController extends Controller
 {
@@ -33,7 +33,7 @@ class LeaveController extends Controller
             $query->where('leave_type', $request->leave_type);
         }
 
-        // Date range filter 
+        // Date range filter
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->where(function ($q) use ($request) {
                 $q->whereBetween('start_date', [$request->start_date, $request->end_date])
@@ -64,6 +64,7 @@ class LeaveController extends Controller
 
         return view('admin.leave.index', compact('leaves', 'doctors'));
     }
+
     public function updateStatus(Request $request)
     {
         try {
@@ -95,7 +96,7 @@ class LeaveController extends Controller
                     $appointment->update([
                         'status' => 'cancelled',
                         'cancelled_at' => now(),
-                        'cancellation_reason' => 'Doctor on leave: ' . ($leave->reason ?? 'Leave approved by admin'),
+                        'cancellation_reason' => 'Doctor on leave: '.($leave->reason ?? 'Leave approved by admin'),
                     ]);
 
                     $patient = $appointment->patient;
@@ -103,8 +104,8 @@ class LeaveController extends Controller
 
                     // Notify patient if phone exists
                     if ($patient && $patient->phone) {
-                        $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
-                        $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+                        $doctorName = 'Dr. '.trim($doctor->first_name.' '.$doctor->last_name);
+                        $patientName = trim($patient->first_name.' '.$patient->last_name);
 
                         $leaveStartDate = Carbon::parse($leave->start_date)->format('F j, Y');
                         $leaveEndDate = Carbon::parse($leave->end_date)->format('F j, Y');

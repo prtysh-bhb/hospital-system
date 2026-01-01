@@ -82,7 +82,7 @@ class DoctorLeaveFrontdeskController extends Controller
                 return [
                     'id' => $appt->id,
                     'appointment_date' => $appt->appointment_date->format('d M, Y'),
-                    'patient_name' => $appt->patient->first_name . ' ' . $appt->patient->last_name,
+                    'patient_name' => $appt->patient->first_name.' '.$appt->patient->last_name,
                     'status' => $appt->status,
                 ];
             });
@@ -99,13 +99,13 @@ class DoctorLeaveFrontdeskController extends Controller
         DB::beginTransaction();
         try {
             // If force, cancel all conflicting appointments
-            if ($conflictingAppointments->exists() && !empty($validated['force'])) {
+            if ($conflictingAppointments->exists() && ! empty($validated['force'])) {
                 $appointments = $conflictingAppointments->get();
                 foreach ($appointments as $appointment) {
                     $appointment->update([
                         'status' => 'cancelled',
                         'cancelled_at' => now(),
-                        'cancellation_reason' => 'Doctor on leave (frontdesk action): ' . ($validated['reason'] ?? 'Leave approved'),
+                        'cancellation_reason' => 'Doctor on leave (frontdesk action): '.($validated['reason'] ?? 'Leave approved'),
                     ]);
                 }
             }
@@ -133,7 +133,7 @@ class DoctorLeaveFrontdeskController extends Controller
                     $leaveData['start_date_type'] = 'half_day';
                     $leaveData['start_half_slot'] = $startHalfSelect === 'first_half' ? 'morning' : 'evening';
                 }
-                
+
                 // End date mapping
                 $endHalfSelect = $validated['end_half_select'];
                 if ($endHalfSelect === 'full_day') {
@@ -143,7 +143,7 @@ class DoctorLeaveFrontdeskController extends Controller
                     $leaveData['end_date_type'] = 'half_day';
                     $leaveData['end_half_slot'] = $endHalfSelect === 'first_half' ? 'morning' : 'evening';
                 }
-                
+
                 // Handle legacy field for backward compatibility
                 $leaveData['half_day_slot'] = $leaveData['start_half_slot'] ?? 'morning';
             } else {
@@ -184,7 +184,7 @@ class DoctorLeaveFrontdeskController extends Controller
                     }
                 } else {
                     // Multiple days - create 3 entries as per your requirement
-                    
+
                     // 1. Start date entry (with start date settings)
                     $startRecord = $leaveData;
                     $startRecord['end_date'] = $startDate->format('Y-m-d');
@@ -196,12 +196,12 @@ class DoctorLeaveFrontdeskController extends Controller
                         $startRecord['half_day_slot'] = $startRecord['start_half_slot'];
                     }
                     $leaveRecords[] = $startRecord;
-                    
+
                     // 2. Middle days (if any)
                     if ($totalDays > 2) {
                         $middleStartDate = $startDate->copy()->addDay();
                         $middleEndDate = $endDate->copy()->subDay();
-                        
+
                         if ($middleStartDate->lte($middleEndDate)) {
                             $middleRecord = $leaveData;
                             $middleRecord['start_date'] = $middleStartDate->format('Y-m-d');
@@ -214,7 +214,7 @@ class DoctorLeaveFrontdeskController extends Controller
                             $leaveRecords[] = $middleRecord;
                         }
                     }
-                    
+
                     // 3. End date entry (with end date settings)
                     $endRecord = $leaveData;
                     $endRecord['start_date'] = $endDate->format('Y-m-d');
@@ -247,7 +247,7 @@ class DoctorLeaveFrontdeskController extends Controller
 
             $message = 'Leave added successfully.';
             if (count($leaveRecords) > 1) {
-                $message .= ' (' . count($leaveRecords) . ' leave records created)';
+                $message .= ' ('.count($leaveRecords).' leave records created)';
             }
 
             return response()->json([
@@ -255,7 +255,7 @@ class DoctorLeaveFrontdeskController extends Controller
                 'message' => $message,
                 'data' => [
                     'id' => $firstLeave->id,
-                    'doctor' => 'Dr. ' . $firstLeave->doctor->first_name . ' ' . $firstLeave->doctor->last_name,
+                    'doctor' => 'Dr. '.$firstLeave->doctor->first_name.' '.$firstLeave->doctor->last_name,
                     'start_date' => $firstLeave->start_date->format('Y-m-d'),
                     'start_date_formatted' => $firstLeave->start_date->format('d M, Y'),
                     'end_date' => $firstLeave->end_date->format('Y-m-d'),
@@ -274,11 +274,11 @@ class DoctorLeaveFrontdeskController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Failed to add doctor leave: ' . $e->getMessage());
+            \Log::error('Failed to add doctor leave: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to add leave: ' . $e->getMessage(),
+                'message' => 'Failed to add leave: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -325,7 +325,7 @@ class DoctorLeaveFrontdeskController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Failed to approve leave: ' . $e->getMessage());
+            \Log::error('Failed to approve leave: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -348,7 +348,7 @@ class DoctorLeaveFrontdeskController extends Controller
                 'message' => 'Leave rejected successfully.',
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to reject leave: ' . $e->getMessage());
+            \Log::error('Failed to reject leave: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -368,7 +368,7 @@ class DoctorLeaveFrontdeskController extends Controller
                 'message' => 'Leave deleted successfully.',
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to delete leave: ' . $e->getMessage());
+            \Log::error('Failed to delete leave: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,

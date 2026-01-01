@@ -2,8 +2,8 @@
 
 namespace App\Events;
 
-use App\Services\WhatsAppService;
 use App\Services\UltraMSGService;
+use App\Services\WhatsAppService;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
@@ -35,12 +35,12 @@ class NotifiyUserEvent
             $appointmentData = $this->data['appointment_data'] ?? [];
 
             // Validate phone number
-            if (!$phoneNumber) {
+            if (! $phoneNumber) {
                 return;
             }
 
             // Validate template name
-            if (!$templateName) {
+            if (! $templateName) {
                 return;
             }
 
@@ -78,13 +78,13 @@ class NotifiyUserEvent
         }
     }
 
-    private function getWhatsAppService(): ?object  
+    private function getWhatsAppService(): ?object
     {
         $driver = config('services.whatsapp_driver');
 
         return match ($driver) {
-            'ultramsg' => new UltraMSGService(),
-            'waba' => new WhatsAppService(),
+            'ultramsg' => new UltraMSGService,
+            'waba' => new WhatsAppService,
             default => null,
         };
     }

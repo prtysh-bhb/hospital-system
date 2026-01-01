@@ -866,5 +866,55 @@
             e.preventDefault(); // Prevent mouse wheel from changing date
         });
         // Appointment Booking Modal End
+
+        // Cancel Appointment Handler
+        document.querySelectorAll('.cancel-appointment-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                const appointmentId = this.getAttribute('data-appointment-id');
+                const appointmentNumber = this.getAttribute('data-appointment-number');
+
+                document.getElementById('cancel-appointment-id').value = appointmentId;
+                document.getElementById('cancel-appointment-modal').classList.remove('hidden');
+                document.getElementById('appointment-details-modal').classList.add('hidden');
+                document.getElementById('cancellation-reason').value = '';
+                document.getElementById('cancellation-reason-error').classList.add('hidden');
+            });
+        });
+
+        // Reschedule Appointment Handler
+        document.querySelectorAll('.reschedule-appointment-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                const appointmentId = this.getAttribute('data-appointment-id');
+                const doctorId = this.getAttribute('data-doctor-id');
+
+                document.getElementById('reschedule-appointment-id').value = appointmentId;
+                document.getElementById('reschedule-doctor-id').value = doctorId;
+                document.getElementById('new-date').value = '';
+                document.getElementById('new-time').innerHTML =
+                    '<option value="">Select a time slot</option>';
+                document.getElementById('new-date-error').classList.add('hidden');
+                document.getElementById('new-time-error').classList.add('hidden');
+                document.getElementById('reschedule-appointment-modal').classList.remove(
+                    'hidden');
+                document.getElementById('appointment-details-modal').classList.add('hidden');
+            });
+        });
+
+        // Close cancel modal buttons
+        document.getElementById('close-cancel-modal')?.addEventListener('click', function() {
+            document.getElementById('cancel-appointment-modal').classList.add('hidden');
+            document.getElementById('cancel-appointment-form').reset();
+            document.getElementById('cancellation-reason-error').classList.add('hidden');
+        });
+
+        document.getElementById('cancel-modal-close-btn')?.addEventListener('click', function() {
+            document.getElementById('cancel-appointment-modal').classList.add('hidden');
+            document.getElementById('cancel-appointment-form').reset();
+            document.getElementById('cancellation-reason-error').classList.add('hidden');
+        });
     });
 </script>

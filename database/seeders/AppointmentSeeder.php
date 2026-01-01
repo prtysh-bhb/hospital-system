@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Appointment;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class AppointmentSeeder extends Seeder
 {
@@ -18,8 +18,9 @@ class AppointmentSeeder extends Seeder
         $frontdesk = User::where('role', 'frontdesk')->first();
 
         // Safety checks
-        if ($doctors->isEmpty() || $patients->isEmpty() || !$frontdesk) {
+        if ($doctors->isEmpty() || $patients->isEmpty() || ! $frontdesk) {
             $this->command->warn('Doctors, patients, or frontdesk user missing. Seeder skipped.');
+
             return;
         }
 
@@ -33,7 +34,7 @@ class AppointmentSeeder extends Seeder
                     ->subDays(rand(1, 30))
                     ->setTime(rand(9, 16), 0);
 
-                $appointmentNumber = 'APT-' . date('Y') . '-' . str_pad(
+                $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(
                     $this->appointmentCounter++,
                     4,
                     '0',
@@ -41,8 +42,8 @@ class AppointmentSeeder extends Seeder
                 );
 
                 Appointment::updateOrCreate([
-                        'appointment_number' => $appointmentNumber,
-                    ],
+                    'appointment_number' => $appointmentNumber,
+                ],
                     [
                         'patient_id' => $patient->id,
                         'doctor_id' => $doctor->id,
@@ -85,6 +86,7 @@ class AppointmentSeeder extends Seeder
     private function getRandomAppointmentType(): string
     {
         $types = ['consultation', 'follow_up', 'check_up', 'emergency'];
+
         return $types[array_rand($types)];
     }
 
@@ -120,6 +122,7 @@ class AppointmentSeeder extends Seeder
     private function getRandomBookingMethod(): string
     {
         $methods = ['online', 'frontdesk', 'phone'];
+
         return $methods[array_rand($methods)];
     }
 }

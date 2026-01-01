@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Doctor;
 
-use Carbon\Carbon;
-use App\Models\Appointment;
-use Illuminate\Http\Request;
-use App\Events\NotifiyUserEvent;
 use App\Enums\WhatsappTemplating;
-use App\Services\UltraMsgService;
+use App\Events\NotifiyUserEvent;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Interfaces\MessageSenderInterface;
-use Illuminate\Validation\ValidationException;
+use App\Models\Appointment;
 use App\Services\Doctor\DoctorAppointmentServices;
+use App\Services\UltraMsgService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class DoctorAppointmentController extends Controller
 {
@@ -116,8 +116,8 @@ class DoctorAppointmentController extends Controller
                 $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
                 $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
 
-                $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
-                $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+                $doctorName = 'Dr. '.trim($doctor->first_name.' '.$doctor->last_name);
+                $patientName = trim($patient->first_name.' '.$patient->last_name);
                 $status = ucfirst($appointment->status);
 
                 $components = [
@@ -807,6 +807,7 @@ class DoctorAppointmentController extends Controller
 
             event(new NotifiyUserEvent($params));
         }
+
         return response()->json([
             'success' => true,
             'message' => 'Appointment cancelled successfully',

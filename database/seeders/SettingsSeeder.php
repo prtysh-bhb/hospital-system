@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Setting;
 use App\Models\Appointment;
 use App\Models\PatientProfile;
+use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class SettingsSeeder extends Seeder
@@ -83,9 +83,9 @@ class SettingsSeeder extends Seeder
             'profile_image',
             'created_at',
             'updated_at',
-            'deleted_at'
+            'deleted_at',
         ];
-        $userFields = collect((new User())->getFillable())
+        $userFields = collect((new User)->getFillable())
             ->diff($userExcludedFields)
             ->values()
             ->toArray();
@@ -100,9 +100,9 @@ class SettingsSeeder extends Seeder
             'status',
             'created_at',
             'updated_at',
-            'deleted_at'
+            'deleted_at',
         ];
-        $appointmentFields = collect((new Appointment())->getFillable())
+        $appointmentFields = collect((new Appointment)->getFillable())
             ->diff($appointmentExcludedFields)
             ->values()
             ->toArray();
@@ -112,13 +112,13 @@ class SettingsSeeder extends Seeder
             'emergency_contact_phone',
             'created_at',
             'updated_at',
-            'deleted_at'
+            'deleted_at',
         ];
-        $patientFields = collect((new PatientProfile())->getFillable())
+        $patientFields = collect((new PatientProfile)->getFillable())
             ->diff($patientProfileExcludedFields)
             ->values()
             ->toArray();
-        
+
         // Add a combined setting for insurance details visibility
         $hasInsuranceSettings = false;
 
@@ -155,7 +155,7 @@ class SettingsSeeder extends Seeder
                 'description' => "Show/Hide Patient Profile field: {$field}",
             ];
         }
-        
+
         // Add combined insurance details setting
         $settings[] = [
             'key' => 'show_insurance_details',

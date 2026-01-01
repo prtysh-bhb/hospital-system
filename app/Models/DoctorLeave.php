@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DoctorLeave extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
-    
+
     protected $table = 'doctor_leaves';
-    
+
     protected $fillable = [
         'doctor_id',
         'approval_type',

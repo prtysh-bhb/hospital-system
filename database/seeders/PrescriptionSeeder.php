@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Prescription;
 use App\Models\Appointment;
+use App\Models\Prescription;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class PrescriptionSeeder extends Seeder
 {
@@ -18,6 +18,7 @@ class PrescriptionSeeder extends Seeder
 
         if ($appointments->isEmpty()) {
             $this->command->warn('No completed appointments found. PrescriptionSeeder skipped.');
+
             return;
         }
 
@@ -34,13 +35,13 @@ class PrescriptionSeeder extends Seeder
         foreach ($appointments as $appointment) {
 
             // 50% chance to create/update prescription
-            if (!rand(0, 1)) {
+            if (! rand(0, 1)) {
                 continue;
             }
 
             // Generate a unique prescription number
             do {
-                $prescriptionNumber = 'RX-' . date('Y') . '-' . str_pad(
+                $prescriptionNumber = 'RX-'.date('Y').'-'.str_pad(
                     $this->prescriptionCounter++,
                     4,
                     '0',
@@ -100,7 +101,7 @@ class PrescriptionSeeder extends Seeder
 
         for ($i = 0; $i < $numMeds; $i++) {
             $med = $commonMeds[$i];
-            $med['instructions'] = 'Take with food' . (rand(0, 1) ? ', avoid alcohol' : '');
+            $med['instructions'] = 'Take with food'.(rand(0, 1) ? ', avoid alcohol' : '');
             $medications[] = $med;
         }
 

@@ -9,12 +9,12 @@ use App\Models\Appointment;
 use App\Models\PatientProfile;
 use App\Models\User;
 use App\Services\AppointmentSlotService;
+use App\Services\Public\BookAppointmentService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use App\Services\Public\BookAppointmentService;
 
 class AppointmentController extends Controller
 {
@@ -60,8 +60,8 @@ class AppointmentController extends Controller
     {
         // $query = Appointment::with(['patient', 'doctor.doctorProfile.specialty']);
         $query = Appointment::with(['patient' => function ($query) {
-                $query->withTrashed();  
-            },'doctor.doctorProfile.specialty'
+            $query->withTrashed();
+        }, 'doctor.doctorProfile.specialty',
         ])->whereNull('appointments.deleted_at');
 
         // 1. SEARCH
@@ -446,7 +446,7 @@ class AppointmentController extends Controller
             $patient = User::with('patientProfile')->find($request->input('patient_id'));
             if ($patient && $patient->patientProfile) {
                 $patientProfile = $patient->patientProfile;
-                
+
                 if ($request->has('emergency_contact_name')) {
                     $patientProfile->emergency_contact_name = $request->input('emergency_contact_name');
                 }
@@ -468,7 +468,7 @@ class AppointmentController extends Controller
                 if ($request->has('insurance_number')) {
                     $patientProfile->insurance_number = $request->input('insurance_number');
                 }
-                
+
                 $patientProfile->save();
             }
 
@@ -520,7 +520,7 @@ class AppointmentController extends Controller
 
             if ($patient && $patient->phone && in_array($newStatus, ['cancelled', 'confirmed'])) {
 
-                $patientName = trim($patient->first_name . ' ' . $patient->last_name);
+                $patientName = trim($patient->first_name.' '.$patient->last_name);
 
                 $templateName = $newStatus === 'cancelled'
                     ? WhatsappTemplating::CANCEL_APPOINTMENT->value
@@ -531,14 +531,14 @@ class AppointmentController extends Controller
                     // ✅ EXACT template order
                     $parameters = [
                         ['key' => 'name', 'type' => 'text', 'text' => $patientName],
-                        ['key' => 'cancellation_reason', 'type' => 'text', 'text' => $appointment->cancellation_reason ?? 'Not Available',],
+                        ['key' => 'cancellation_reason', 'type' => 'text', 'text' => $appointment->cancellation_reason ?? 'Not Available'],
                     ];
 
                 } else {
                     // confirmed
                     $appointmentDate = Carbon::parse($appointment->appointment_date)->format('F jS');
                     $appointmentTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
-                    $doctorName = 'Dr. ' . trim($doctor->first_name . ' ' . $doctor->last_name);
+                    $doctorName = 'Dr. '.trim($doctor->first_name.' '.$doctor->last_name);
 
                     $parameters = [
                         ['key' => 'name', 'type' => 'text', 'text' => $patientName],
@@ -560,7 +560,6 @@ class AppointmentController extends Controller
                 ];
                 event(new NotifiyUserEvent($params));
             }
-
 
             return response()->json([
                 'status' => 200,
@@ -632,5 +631,4 @@ class AppointmentController extends Controller
             ]);
         }
     }
-
 }

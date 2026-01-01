@@ -12,7 +12,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class PatientProfile extends Model
 {
     use HasFactory, LogsActivity ,SoftDeletes;
+
     protected $table = 'patient_profiles';
+
     protected $fillable = [
         'user_id',
         'emergency_contact_name',
