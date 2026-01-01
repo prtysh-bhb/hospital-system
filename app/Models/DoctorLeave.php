@@ -11,7 +11,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DoctorLeave extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
+    
     protected $table = 'doctor_leaves';
+    
     protected $fillable = [
         'doctor_id',
         'approval_type',
@@ -24,6 +26,17 @@ class DoctorLeave extends Model
         'half_day_slot',
         'reason',
         'status',
+        'is_adhoc',
+        'start_date_type',
+        'start_half_slot',
+        'end_date_type',
+        'end_half_slot',
+    ];
+
+    protected $casts = [
+        'is_adhoc' => 'boolean',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function doctor(): BelongsTo

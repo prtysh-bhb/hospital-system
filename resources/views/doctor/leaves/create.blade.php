@@ -38,115 +38,163 @@
                 <form action="#" method="POST" id="leaveForm" class="space-y-6">
                     @csrf
 
-                    <!-- Leave Type -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Leave Type</label>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Date Range with Visual Display -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <!-- From Date -->
+                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">From <span
+                                    class="text-red-500">*</span></label>
+                            <div class="flex items-center">
+                                <input type="date" name="start_date" id="start_date"
+                                    class="w-full bg-transparent border-0 p-0 text-lg font-semibold text-gray-800 focus:ring-0 focus:outline-none cursor-pointer">
+                            </div>
+                            <div id="from_display" class="text-sm text-gray-500 mt-1">
+                                <!-- Will be populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Duration Display -->
+                        <div
+                            class="bg-gray-50 rounded-xl p-4 border border-gray-200 flex flex-col items-center justify-center">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Duration</label>
+                            <div id="duration_display" class="text-2xl font-bold text-sky-600">
+                                0 days
+                            </div>
+                            <div class="text-sm text-gray-500 mt-1" id="leave_type_display">
+                                <!-- Will show "Full day" or "Custom" -->
+                            </div>
+                        </div>
+
+                        <!-- To Date -->
+                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">To <span
+                                    class="text-red-500">*</span></label>
+                            <div class="flex items-center">
+                                <input type="date" name="end_date" id="end_date"
+                                    class="w-full bg-transparent border-0 p-0 text-lg font-semibold text-gray-800 focus:ring-0 focus:outline-none cursor-pointer">
+                            </div>
+                            <div id="to_display" class="text-sm text-gray-500 mt-1">
+                                <!-- Will be populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leave Type Selection -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Select type of leave you want to
+                            apply</label>
+
+                        <!-- Leave Type Radio Buttons -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <label class="cursor-pointer">
                                 <input type="radio" name="leave_type" value="full_day" class="hidden peer" checked>
                                 <div
-                                    class="peer-checked:border-sky-600 peer-checked:bg-sky-50 border border-gray-200 rounded-xl p-5 text-center transition hover:shadow hover:scale-[1.02]">
-                                    <p class="font-medium text-gray-900">Full Day</p>
-                                    <p class="text-xs text-gray-500">Whole day leave</p>
-                                </div>
-                            </label>
-
-                            <label class="cursor-pointer">
-                                <input type="radio" name="leave_type" value="half_day" class="hidden peer">
-                                <div
-                                    class="peer-checked:border-amber-500 peer-checked:bg-amber-50 border border-gray-200 rounded-xl p-5 text-center transition hover:shadow hover:scale-[1.02]">
-                                    <p class="font-medium text-gray-900">Half Day</p>
-                                    <p class="text-xs text-gray-500">Morning / Evening</p>
+                                    class="peer-checked:border-sky-600 peer-checked:bg-sky-50 peer-checked:text-sky-700 border border-gray-200 rounded-xl p-4 text-center transition">
+                                    <p class="font-medium">Full days</p>
+                                    <p class="text-xs text-gray-500">All selected days</p>
                                 </div>
                             </label>
 
                             <label class="cursor-pointer">
                                 <input type="radio" name="leave_type" value="custom" class="hidden peer">
                                 <div
-                                    class="peer-checked:border-purple-600 peer-checked:bg-purple-50 border border-gray-200 rounded-xl p-5 text-center transition hover:shadow hover:scale-[1.02]">
-                                    <p class="font-medium text-gray-900">Custom Time</p>
-                                    <p class="text-xs text-gray-500">Specific hours</p>
+                                    class="peer-checked:border-purple-600 peer-checked:bg-purple-50 peer-checked:text-purple-700 border border-gray-200 rounded-xl p-4 text-center transition">
+                                    <p class="font-medium">Custom</p>
+                                    <p class="text-xs text-gray-500">Mix of full/half days</p>
                                 </div>
                             </label>
                         </div>
+
+                        <!-- Custom Days Selection (Hidden by default) -->
+                        <!-- Custom Days Selection (Hidden by default) -->
+                        <div id="customDaysSection" class="hidden mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select half days for start and end
+                                dates</label>
+                            <div class="bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col gap-2">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                                    <div class="flex flex-col items-start flex-1">
+                                        <span class="text-xs text-gray-500 mb-1">From</span>
+                                        <span class="font-medium text-gray-800 text-base" id="start_date_label">Start
+                                            Date</span>
+                                        <span class="text-xs text-gray-500" id="start_day_name"></span>
+                                    </div>
+                                    <select name="start_half_select" id="start_half_select"
+                                        class="w-full sm:w-40 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                                        <option value="full_day">Full Day</option>
+                                        <option value="first_half">First Half</option>
+                                        <option value="second_half">Second Half</option>
+                                    </select>
+                                    <span class="mx-2 text-gray-400 text-lg font-bold">-</span>
+                                    <div class="flex flex-col items-start flex-1">
+                                        <span class="text-xs text-gray-500 mb-1">To</span>
+                                        <span class="font-medium text-gray-800 text-base" id="end_date_label">End
+                                            Date</span>
+                                        <span class="text-xs text-gray-500" id="end_day_name"></span>
+                                    </div>
+                                    <select name="end_half_select" id="end_half_select"
+                                        class="w-full sm:w-40 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                                        <option value="full_day">Full Day</option>
+                                        <option value="first_half">First Half</option>
+                                        <option value="second_half">Second Half</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Hidden fields for backend processing -->
+                            <input type="hidden" name="start_date_type" id="start_date_type" value="full_day">
+                            <input type="hidden" name="start_half_slot" id="start_half_slot" value="morning">
+                            <input type="hidden" name="end_date_type" id="end_date_type" value="full_day">
+                            <input type="hidden" name="end_half_slot" id="end_half_slot" value="morning">
+                        </div>
+
+                        <!-- Leave Days Summary -->
+                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-4">
+                            <p class="text-sm text-blue-700" id="leave_summary">
+                                You are requesting for <span class="font-bold">0 day</span> of leave
+                            </p>
+                        </div>
                     </div>
 
-                    {{-- Approval Type --}}
-                    <div class="mb-5">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Approval Type</label>
-                        <div class="flex gap-6">
-                            <label class="flex items-center gap-2">
-                                <input type="checkbox" name="approval_type" value="auto" id="auto-checkbox">
-                                <span class="text-sm text-gray-700">Auto</span>
-                            </label>
-                            <label class="flex items-center gap-2">
-                                <input type="checkbox" name="approval_type" value="admin" id="admin-checkbox">
-                                <span class="text-sm text-gray-700">Approved By Admin</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Date Range -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date <span
-                                    class="text-red-500">*</span></label>
-                            <input type="date" name="start_date"
-                                class="w-full border  rounded-xl p-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">End Date <span
-                                    class="text-red-500">*</span></label>
-                            <input type="date" name="end_date"
-                                class="w-full border  rounded-xl p-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition">
-                        </div>
-                    </div>
-
-                    <!-- Half Day Slot -->
-                    <div id="halfDaySection" class="mb-5 hidden">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Half Day Slot</label>
-                        <div class="flex gap-6">
-                            <label class="flex items-center gap-2">
-                                <input type="radio" name="half_day_slot" value="morning">
-                                <span class="text-sm text-gray-700">Morning</span>
-                            </label>
-                            <label class="flex items-center gap-2">
-                                <input type="radio" name="half_day_slot" value="evening">
-                                <span class="text-sm text-gray-700">Evening</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Custom Time -->
-                    <div id="customTimeSection" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 hidden">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-                            <input type="time" name="start_time"
-                                class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-                            <input type="time" name="end_time"
-                                class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition">
-                        </div>
+                    <!-- Adhoc Checkbox -->
+                    <div class="mb-6">
+                        <label
+                            class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" name="is_adhoc" value="1" id="is_adhoc"
+                                class="w-4 h-4 text-sky-600 border-gray-300 rounded focus:ring-sky-500">
+                            <div>
+                                <span class="text-sm font-medium text-gray-700">Adhoc Leave (Urgent/Immediate)</span>
+                                <p class="text-xs text-gray-500 mt-1" id="adhoc_description">
+                                    Check this if this is an urgent/adhoc leave request. Adhoc leaves are automatically
+                                    approved and will cancel conflicting appointments.
+                                </p>
+                            </div>
+                        </label>
                     </div>
 
                     <!-- Reason -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Reason <span
-                                class="text-red-500">*</span></label>
-                        <textarea name="reason" rows="3"
-                            class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-                            placeholder="Enter reason for leave..."></textarea>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Reason <span class="text-red-500">*</span>
+                        </label>
+                        <div class="border border-gray-300 rounded-xl overflow-hidden">
+                            <textarea name="reason" rows="4"
+                                class="w-full border-0 p-4 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                                placeholder="Enter reason for leave..."></textarea>
+                            <div class="bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                                Note: Please provide a valid reason for your leave request
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex justify-end gap-4">
+                    <div class="flex justify-end gap-4 pt-4 border-t border-gray-200">
                         <button type="button" id="cancelFormBtn"
-                            class="px-5 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition">Cancel</button>
+                            class="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition font-medium">
+                            Cancel
+                        </button>
                         <button type="submit" id="leave_submit_button"
-                            class="px-6 py-2 bg-sky-600 text-white rounded-xl font-medium hover:bg-sky-700 transition">Submit
-                            Leave Request</button>
+                            class="px-8 py-3 bg-sky-600 text-white rounded-xl font-medium hover:bg-sky-700 transition">
+                            Submit Leave Request
+                        </button>
                     </div>
                 </form>
             </div>
@@ -301,19 +349,21 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     #</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Leave Type</th>
+                                    LEAVE TYPE</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Start Date</th>
+                                    START DATE</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    End Date</th>
+                                    END DATE</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Duration</th>
+                                    DURATION</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Reason</th>
-                                {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status</th> --}}
+                                    AVAILABILITY</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Applied On</th>
+                                    REASON</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    STATUS</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    APPLIED ON</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -324,26 +374,40 @@
                                         @if ($leave->leave_type == 'full_day')
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800">
+                                                @if ($leave->is_adhoc)
+                                                    <span class="mr-1">⚠️</span>
+                                                @endif
                                                 Full Day
+                                                @if ($leave->is_adhoc)
+                                                    (Adhoc)
+                                                @endif
                                             </span>
-                                        @elseif($leave->leave_type == 'half_day')
-                                            <span
-                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                                Half Day ({{ ucfirst($leave->half_day_slot) }})
-                                            </span>
-                                        @else
+                                        @elseif($leave->leave_type == 'custom')
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                Custom ({{ \Carbon\Carbon::parse($leave->start_time)->format('h:i A') }} -
-                                                {{ \Carbon\Carbon::parse($leave->end_time)->format('h:i A') }})
+                                                @if ($leave->is_adhoc)
+                                                    <span class="mr-1">⚠️</span>
+                                                @endif
+                                                Custom
+                                                @if ($leave->is_adhoc)
+                                                    (Adhoc)
+                                                @endif
                                             </span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         {{ \Carbon\Carbon::parse($leave->start_date)->format('d M, Y') }}
+                                        @if ($leave->leave_type == 'custom' && $leave->start_date_type == 'half_day')
+                                            <span class="text-xs text-gray-500">({{ ucfirst($leave->start_half_slot) }}
+                                                Half)</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         {{ \Carbon\Carbon::parse($leave->end_date)->format('d M, Y') }}
+                                        @if ($leave->leave_type == 'custom' && $leave->end_date_type == 'half_day')
+                                            <span class="text-xs text-gray-500">({{ ucfirst($leave->end_half_slot) }}
+                                                Half)</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         @php
@@ -351,13 +415,60 @@
                                                 \Carbon\Carbon::parse($leave->start_date)->diffInDays(
                                                     \Carbon\Carbon::parse($leave->end_date),
                                                 ) + 1;
+                                            if ($leave->leave_type == 'custom') {
+                                                $totalDays = $days;
+                                                if ($leave->start_date_type == 'half_day') {
+                                                    $totalDays -= 0.5;
+                                                }
+                                                if ($leave->end_date_type == 'half_day') {
+                                                    $totalDays -= 0.5;
+                                                }
+                                                // If only one half day (start==end, both half_day), show 'Half Day'
+                                                if (
+                                                    $days == 1 &&
+                                                    $leave->start_date_type == 'half_day' &&
+                                                    $leave->end_date_type == 'half_day'
+                                                ) {
+                                                    echo 'Half Day';
+                                                } elseif ($totalDays == 0.5) {
+                                                    echo 'Half Day';
+                                                } else {
+                                                    echo rtrim(rtrim(number_format($totalDays, 1), '0'), '.') .
+                                                        ' ' .
+                                                        ($totalDays == 1 ? 'day' : 'days');
+                                                }
+                                            } else {
+                                                echo $days . ' ' . ($days == 1 ? 'day' : 'days');
+                                            }
                                         @endphp
-                                        {{ $days }} {{ $days == 1 ? 'day' : 'days' }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        @if ($leave->leave_type == 'custom')
+                                            @php
+                                                $isSingleDay = $leave->start_date == $leave->end_date;
+                                            @endphp
+                                            @if ($isSingleDay && $leave->start_date_type == 'half_day' && $leave->end_date_type == 'half_day')
+                                                {{ ucfirst($leave->start_half_slot) }} Half
+                                            @elseif ($isSingleDay && $leave->start_date_type == 'half_day')
+                                                {{ ucfirst($leave->start_half_slot) }} Half
+                                            @elseif ($isSingleDay && $leave->end_date_type == 'half_day')
+                                                {{ ucfirst($leave->end_half_slot) }} Half
+                                            @else
+                                                @if ($leave->start_date_type == 'half_day')
+                                                    {{ ucfirst($leave->start_half_slot) }} Half (Start)
+                                                @endif
+                                                @if ($leave->end_date_type == 'half_day')
+                                                    {{ ucfirst($leave->end_half_slot) }} Half (End)
+                                                @endif
+                                            @endif
+                                        @else
+                                            -
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
                                         {{ $leave->reason ?? '-' }}
                                     </td>
-                                    {{-- <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($leave->status == 'pending')
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -370,14 +481,19 @@
                                                 <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-400"></span>
                                                 Approved
                                             </span>
-                                        @else
+                                        @elseif($leave->status == 'rejected')
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                 <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-red-400"></span>
                                                 Rejected
                                             </span>
+                                        @else
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                {{ ucfirst($leave->status) }}
+                                            </span>
                                         @endif
-                                    </td> --}}
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $leave->created_at->format('d M, Y') }}
                                     </td>
@@ -420,28 +536,282 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            // Format date function
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
 
-            $('#auto-checkbox').on('change', function() {
-                if ($(this).is(':checked')) {
-                    $('#admin-checkbox').prop('checked', false); // Uncheck Admin checkbox
+            // Get day name
+            function getDayName(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    weekday: 'long'
+                });
+            }
+
+            // Calculate total duration
+            function calculateTotalDuration() {
+                const startDate = $('#start_date').val();
+                const endDate = $('#end_date').val();
+                const leaveType = $('input[name="leave_type"]:checked').val();
+
+                if (!startDate || !endDate) {
+                    return 0;
                 }
+
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+
+                // Ensure end date is not before start date
+                if (end < start) {
+                    $('#end_date').val(startDate);
+                    return 0;
+                }
+
+                // Calculate difference in days
+                const timeDiff = end.getTime() - start.getTime();
+                const totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+
+                // Calculate based on leave type
+                if (leaveType === 'custom') {
+                    let calculatedDays = totalDays;
+                    const startDateType = $('#start_date_type').val();
+                    const endDateType = $('#end_date_type').val();
+
+                    // Adjust for half days
+                    if (startDateType === 'half_day') {
+                        calculatedDays -= 0.5;
+                    }
+                    if (endDateType === 'half_day') {
+                        calculatedDays -= 0.5;
+                    }
+
+                    // Ensure minimum 0
+                    return Math.max(calculatedDays, 0);
+                } else {
+                    // Full days
+                    return totalDays;
+                }
+            }
+
+            // Update date displays
+            function updateDateDisplays() {
+                const startDate = $('#start_date').val();
+                const endDate = $('#end_date').val();
+
+                if (startDate) {
+                    $('#from_display').text(formatDate(startDate));
+                    $('#start_date_label').text(formatDate(startDate).split(',')[0]);
+                    $('#start_day_name').text(getDayName(startDate));
+                } else {
+                    $('#from_display').text('Select date');
+                    $('#start_date_label').text('Start Date');
+                    $('#start_day_name').text('');
+                }
+
+                if (endDate) {
+                    $('#to_display').text(formatDate(endDate));
+                    $('#end_date_label').text(formatDate(endDate).split(',')[0]);
+                    $('#end_day_name').text(getDayName(endDate));
+                } else {
+                    $('#to_display').text('Select date');
+                    $('#end_date_label').text('End Date');
+                    $('#end_day_name').text('');
+                }
+
+                // Update duration and leave type display
+                updateDurationAndSummary();
+            }
+
+            // Update duration and summary
+            function updateDurationAndSummary() {
+                const duration = calculateTotalDuration();
+                const leaveType = $('input[name="leave_type"]:checked').val();
+
+                if (duration > 0) {
+                    // Format display (show .0 for whole numbers)
+                    const displayDuration = duration % 1 === 0 ? duration.toString() : duration.toFixed(1);
+                    $('#duration_display').text(`${displayDuration} ${duration === 1 ? 'day' : 'days'}`);
+
+                    let typeText = leaveType === 'custom' ? 'Custom' : 'Full days';
+                    $('#leave_type_display').text(typeText);
+
+                    // Update leave summary
+                    const summaryText =
+                        `You are requesting for <span class="font-bold">${displayDuration} ${duration === 1 ? 'day' : 'days'}</span> of leave`;
+                    $('#leave_summary').html(summaryText);
+                } else {
+                    $('#duration_display').text('0 days');
+                    $('#leave_type_display').text('');
+                    $('#leave_summary').html(
+                        'You are requesting for <span class="font-bold">0 day</span> of leave');
+                }
+            }
+
+            // Update custom section display
+            // Update custom section display for the new select-based UI
+            function updateCustomSectionDisplay() {
+                const startDateType = $('#start_date_type').val();
+                const startHalfSlot = $('#start_half_slot').val();
+                const endDateType = $('#end_date_type').val();
+                const endHalfSlot = $('#end_half_slot').val();
+
+                // Update select values based on hidden fields
+                if (startDateType === 'full_day') {
+                    $('#start_half_select').val('full_day');
+                } else {
+                    $('#start_half_select').val(startHalfSlot === 'morning' ? 'first_half' : 'second_half');
+                }
+
+                if (endDateType === 'full_day') {
+                    $('#end_half_select').val('full_day');
+                } else {
+                    $('#end_half_select').val(endHalfSlot === 'morning' ? 'first_half' : 'second_half');
+                }
+            }
+
+            // Handle select changes for custom days
+            $('#start_half_select').on('change', function() {
+                const value = $(this).val();
+
+                if (value === 'full_day') {
+                    $('#start_date_type').val('full_day');
+                    $('#start_half_slot').val('morning'); // default
+                } else {
+                    $('#start_date_type').val('half_day');
+                    $('#start_half_slot').val(value === 'first_half' ? 'morning' : 'evening');
+                }
+
+                updateDurationAndSummary();
             });
 
-            $('#admin-checkbox').on('change', function() {
-                if ($(this).is(':checked')) {
-                    $('#auto-checkbox').prop('checked', false); // Uncheck Auto checkbox
+            $('#end_half_select').on('change', function() {
+                const value = $(this).val();
+
+                if (value === 'full_day') {
+                    $('#end_date_type').val('full_day');
+                    $('#end_half_slot').val('morning'); // default
+                } else {
+                    $('#end_date_type').val('half_day');
+                    $('#end_half_slot').val(value === 'first_half' ? 'morning' : 'evening');
                 }
+
+                updateDurationAndSummary();
+            });
+            // Handle adhoc checkbox changes
+            function handleAdhocChange() {
+                const isAdhoc = $('#is_adhoc').is(':checked');
+
+                if (isAdhoc) {
+                    // Hide Approval Type section when adhoc is checked
+                    $('#approvalTypeSection').addClass('hidden');
+                    // Auto set approval_type to 'auto' in backend
+                    $('input[name="approval_type"]').val('auto');
+                    // Update adhoc description
+                    $('#adhoc_description').text(
+                        'Adhoc leaves are automatically approved and will cancel conflicting appointments immediately.'
+                    );
+                } else {
+                    // Show Approval Type section when adhoc is unchecked
+                    $('#approvalTypeSection').removeClass('hidden');
+                    // Reset to default selection
+                    $('input[name="approval_type"][value="admin"]').prop('checked', true);
+                    // Reset adhoc description
+                    $('#adhoc_description').text(
+                        'Check this if this is an urgent/adhoc leave request. Adhoc leaves are automatically approved and will cancel conflicting appointments.'
+                    );
+                }
+            }
+
+            // Set today's date as default for start date
+            function setDefaultDates() {
+                const today = new Date();
+                const tomorrow = new Date();
+                tomorrow.setDate(today.getDate() + 1);
+
+                const formatDateForInput = (date) => {
+                    return date.toISOString().split('T')[0];
+                };
+
+                $('#start_date').val(formatDateForInput(today));
+                $('#end_date').val(formatDateForInput(tomorrow));
+
+                updateDateDisplays();
+                updateCustomSectionDisplay();
+            }
+
+            // Initialize form
+            function initializeForm() {
+                setDefaultDates();
+                handleAdhocChange(); // Initialize adhoc state
+            }
+
+            // Event Listeners
+            $('#start_date, #end_date').on('change', function() {
+                updateDateDisplays();
+            });
+
+            $('input[name="leave_type"]').on('change', function() {
+                const value = this.value;
+
+                if (value === 'custom') {
+                    $('#customDaysSection').removeClass('hidden');
+                } else {
+                    $('#customDaysSection').addClass('hidden');
+                }
+
+                updateDurationAndSummary();
+            });
+
+            // Start date option button click
+            $(document).on('click', '.start-option-btn', function() {
+                const type = $(this).data('type');
+                const slot = $(this).data('slot') || 'morning';
+
+                $('#start_date_type').val(type);
+                if (type === 'half_day') {
+                    $('#start_half_slot').val(slot);
+                }
+
+                updateCustomSectionDisplay();
+                updateDurationAndSummary();
+            });
+
+            // End date option button click
+            $(document).on('click', '.end-option-btn', function() {
+                const type = $(this).data('type');
+                const slot = $(this).data('slot') || 'morning';
+
+                $('#end_date_type').val(type);
+                if (type === 'half_day') {
+                    $('#end_half_slot').val(slot);
+                }
+
+                updateCustomSectionDisplay();
+                updateDurationAndSummary();
+            });
+
+            // Adhoc checkbox change
+            $('#is_adhoc').on('change', function() {
+                handleAdhocChange();
             });
 
             // Toggle form visibility
             function showForm() {
                 $('#leaveFormSection').removeClass('hidden');
                 $('#toggleFormBtn').html(`
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                Cancel
-            `);
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Cancel
+                `);
+                initializeForm();
                 $('html, body').animate({
                     scrollTop: $('#leaveFormSection').offset().top - 100
                 }, 300);
@@ -450,14 +820,23 @@
             function hideForm() {
                 $('#leaveFormSection').addClass('hidden');
                 $('#toggleFormBtn').html(`
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Apply for Leave
-            `);
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Apply for Leave
+                `);
                 $('#leaveForm')[0].reset();
-                $('#halfDaySection').addClass('hidden');
-                $('#customTimeSection').addClass('hidden');
+                $('#customDaysSection').addClass('hidden');
+                // Reset custom fields
+                $('#start_date_type').val('full_day');
+                $('#start_half_slot').val('morning');
+                $('#end_date_type').val('full_day');
+                $('#end_half_slot').val('morning');
+                // Reset adhoc state
+                $('#is_adhoc').prop('checked', false);
+                updateCustomSectionDisplay();
+                updateDurationAndSummary();
+                handleAdhocChange(); // Reset approval type section
             }
 
             $('#toggleFormBtn').on('click', function() {
@@ -476,30 +855,66 @@
                 showForm();
             });
 
-            // Toggle leave type sections
-            $('input[name="leave_type"]').on('change', function() {
-                $('#halfDaySection').addClass('hidden');
-                $('#customTimeSection').addClass('hidden');
-
-                if (this.value === 'half_day') {
-                    $('#halfDaySection').removeClass('hidden');
-                }
-
-                if (this.value === 'custom') {
-                    $('#customTimeSection').removeClass('hidden');
-                }
-            });
-
             // AJAX submit
             $('#leaveForm').on('submit', function(e) {
                 e.preventDefault();
 
                 let form = $(this);
+
+                // For adhoc leaves, ensure approval_type is 'auto'
+                if ($('#is_adhoc').is(':checked')) {
+                    $('input[name="approval_type"]').val('auto');
+                }
+
                 let formData = form.serialize();
 
                 // Clear previous errors
                 form.find('.error-text').remove();
                 form.find('.border-red-500').removeClass('border-red-500');
+
+                // Validate required fields
+                let isValid = true;
+                if (!$('#start_date').val()) {
+                    $('#start_date').addClass('border-red-500');
+                    $('#start_date').after(
+                        '<p class="text-red-500 text-sm mt-1 error-text">Start date is required</p>');
+                    isValid = false;
+                }
+
+                if (!$('#end_date').val()) {
+                    $('#end_date').addClass('border-red-500');
+                    $('#end_date').after(
+                        '<p class="text-red-500 text-sm mt-1 error-text">End date is required</p>');
+                    isValid = false;
+                }
+
+                if (!$('textarea[name="reason"]').val().trim()) {
+                    $('textarea[name="reason"]').addClass('border-red-500');
+                    $('textarea[name="reason"]').after(
+                        '<p class="text-red-500 text-sm mt-1 error-text">Reason is required</p>');
+                    isValid = false;
+                }
+
+                const leaveType = $('input[name="leave_type"]:checked').val();
+
+                if (leaveType === 'custom') {
+                    const startDateType = $('#start_date_type').val();
+                    const endDateType = $('#end_date_type').val();
+
+                    if (startDateType === 'half_day' && !$('#start_half_slot').val()) {
+                        isValid = false;
+                        $('.start-date-options').addClass('border-red-500');
+                    }
+
+                    if (endDateType === 'half_day' && !$('#end_half_slot').val()) {
+                        isValid = false;
+                        $('.end-date-options').addClass('border-red-500');
+                    }
+                }
+
+                if (!isValid) {
+                    return;
+                }
 
                 $.ajax({
                     url: "{{ route('doctor.leaves.store') }}",
@@ -539,7 +954,20 @@
 
                         if (xhr.status === 409 && xhr.responseJSON.type ===
                             'appointment_conflict') {
-                            $('#appointmentConflictText').text(xhr.responseJSON.message);
+                            let msg = xhr.responseJSON.message;
+                            let appointments = xhr.responseJSON.appointments || [];
+                            let detailsHtml = '';
+                            if (appointments.length > 0) {
+                                detailsHtml += '<div class="mb-3 text-sm text-gray-600">';
+                                detailsHtml += '<b>Conflicting Appointments:</b>';
+                                detailsHtml += '<ul class="list-disc pl-5">';
+                                appointments.forEach(function(appt) {
+                                    detailsHtml +=
+                                        `<li><b>${appt.appointment_date}</b> - ${appt.patient_name} <span class='text-xs text-gray-500'>(${appt.status})</span></li>`;
+                                });
+                                detailsHtml += '</ul></div>';
+                            }
+                            $('#appointmentConflictText').html(msg + detailsHtml);
                             $('#appointmentConflictModal').removeClass('hidden');
                             return;
                         }
@@ -562,8 +990,11 @@
             $('#leaveForm').on('input change', 'input, select, textarea', function() {
                 $(this).removeClass('border-red-500');
                 $(this).next('.error-text').remove();
+                $(this).parent().next('.error-text').remove();
+                $('.start-date-options, .end-date-options').removeClass('border-red-500');
             });
         });
+
         $('#closeConflictModal').on('click', function() {
             $('#appointmentConflictModal').addClass('hidden');
         });

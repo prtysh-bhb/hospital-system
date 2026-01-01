@@ -532,8 +532,36 @@
         function searchPatients() {
             const search = document.getElementById('patientSearch').value.trim();
             if (search.length < 2) {
-                alert('Please enter at least 2 characters');
+                showPopup('Please enter at least 2 characters');
                 return;
+            }
+            // Custom popup modal for errors/info
+            function showPopup(message) {
+                let modal = document.getElementById('customPopupModal');
+                if (!modal) {
+                    modal = document.createElement('div');
+                    modal.id = 'customPopupModal';
+                    modal.innerHTML = `
+                <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 animate-fade-in">
+                        <div class="p-6">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4">Notice</h2>
+                            <p class="mb-6 text-gray-700">${message}</p>
+                            <div class="flex justify-end gap-3">
+                                <button id="closePopupBtn" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+                    document.body.appendChild(modal);
+                } else {
+                    modal.querySelector('p').textContent = message;
+                }
+                modal.style.display = 'flex';
+                document.getElementById('closePopupBtn').onclick = function() {
+                    modal.style.display = 'none';
+                };
             }
 
             fetch(`{{ route('frontdesk.add-appointment.search-patient') }}?search=${encodeURIComponent(search)}`)

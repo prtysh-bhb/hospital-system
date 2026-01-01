@@ -1,26 +1,28 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Admin\LeaveController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AppointmentController;
+use App\Http\Controllers\Admin\CalendarController as AdminCalendarController;
 use App\Http\Controllers\Admin\DoctorsController;
+use App\Http\Controllers\Admin\LeaveController;
 use App\Http\Controllers\Admin\PatientController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Doctor\CalendarController;
-use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\SpecialtiesController;
-use App\Http\Controllers\Frontdesk\HistoryController;
-use App\Http\Controllers\Patient\DashboardController;
-use App\Http\Controllers\Doctor\DoctorLeaveController;
-use App\Http\Controllers\Patient\PatientAuthController;
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Doctor\DoctorDashboardController;
-use App\Http\Controllers\Public\BookAppointmentController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Doctor\CalendarController;
 use App\Http\Controllers\Doctor\DoctorAppointmentController;
+use App\Http\Controllers\Doctor\DoctorDashboardController;
+use App\Http\Controllers\Doctor\DoctorLeaveController;
 use App\Http\Controllers\Frontdesk\AddAppointmentController;
+use App\Http\Controllers\Frontdesk\DoctorLeaveFrontdeskController;
 use App\Http\Controllers\Frontdesk\DoctorScheduleController;
 use App\Http\Controllers\Frontdesk\FrontDashboardController;
-use App\Http\Controllers\Admin\CalendarController as AdminCalendarController;
+use App\Http\Controllers\Frontdesk\HistoryController;
 use App\Http\Controllers\Frontdesk\PatientController as FrontPatientController;
+use App\Http\Controllers\Patient\DashboardController;
+use App\Http\Controllers\Patient\PatientAuthController;
+use App\Http\Controllers\Public\BookAppointmentController;
+use App\Http\Controllers\Frontdesk\AppointmentListController;
 
 /*
 |--------------------------------------------------------------------------
@@ -149,13 +151,20 @@ Route::prefix('frontdesk')->name('frontdesk.')->middleware(['auth', 'role:frontd
     Route::get('/dashboard', [FrontDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/stats', [FrontDashboardController::class, 'getDashboardStats'])->name('dashboard.stats');
 
+    // Doctor Leave Management (Frontdesk)
+    Route::get('/doctor-leaves', [DoctorLeaveFrontdeskController::class, 'index'])->name('doctor-leaves.index');
+    Route::post('/doctor-leaves', [DoctorLeaveFrontdeskController::class, 'store'])->name('doctor-leaves.store');
+    Route::post('/doctor-leaves/{id}/approve', [DoctorLeaveFrontdeskController::class, 'approve'])->name('doctor-leaves.approve');
+    Route::post('/doctor-leaves/{id}/reject', [DoctorLeaveFrontdeskController::class, 'reject'])->name('doctor-leaves.reject');
+
     Route::get('/add-appointment', [AddAppointmentController::class, 'index'])->name('add-appointment');
     Route::get('/add-appointment/search-patient', [AddAppointmentController::class, 'searchPatient'])->name('add-appointment.search-patient');
     Route::get('/add-appointment/doctors', [AddAppointmentController::class, 'getDoctors'])->name('add-appointment.doctors');
     Route::get('/add-appointment/available-slots', [AddAppointmentController::class, 'getAvailableSlots'])->name('add-appointment.available-slots');
     Route::post('/add-appointment/store', [AddAppointmentController::class, 'store'])->name('add-appointment.store');
     Route::get('/doctor-schedule', [DoctorScheduleController::class, 'index'])->name('doctor-schedule');
-
+    Route::get('/appointments', [AppointmentListController::class, 'index'])->name('appointments.index');
+    Route::post('/appointments/{appointment}/status', [AppointmentListController::class, 'updateStatus'])->name('appointments.update-status');
     Route::get('/patients', [FrontPatientController::class, 'index'])->name('patients');
     Route::get('/patients/{id}', [FrontPatientController::class, 'show'])->name('patients.show');
     Route::put('/patients/{id}', [FrontPatientController::class, 'update'])->name('patients.update');

@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->enum('role', ['admin', 'doctor', 'frontdesk', 'patient'])->index();
-            $table->string('email')->unique();
+            $table->string('email')->nullable();
+            $table->string('username')->nullable()->unique();
             $table->string('password');
             $table->string('first_name', 100);
             $table->string('last_name', 100);
@@ -52,6 +53,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
+        Schema::drop('username');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
