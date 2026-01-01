@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ asset('assets/favicon.ico') }}">
-    <title>@yield('title', 'Doctor Portal') - MediCare HMS</title>
+    <title>@yield('title', 'Doctor Portal') - {{ $site_name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -22,7 +22,7 @@
     <aside class="hidden lg:block fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg">
         <div class="p-4 sm:p-5 border-b flex items-center justify-between">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-sky-700">MediCare HMS</h1>
+                <h1 class="text-xl sm:text-2xl font-bold text-sky-700">{{ $site_name }}</h1>
             </div>
         </div>
         <nav class="p-3 sm:p-4 overflow-y-auto" style="max-height: calc(100vh - 100px);">

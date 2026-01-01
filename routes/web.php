@@ -40,6 +40,18 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+
+// Clear all caches
+Route::get('/catch', function () {
+    \Artisan::call('config:clear');
+    \Artisan::call('cache:clear');
+    \Artisan::call('view:clear');
+    \Artisan::call('optimize:clear');
+    dd('DONE');
+});
+
+
+
 // Authentication Routes
 Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login')->middleware('redirect.to.dashboard');

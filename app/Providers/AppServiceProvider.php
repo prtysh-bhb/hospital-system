@@ -49,7 +49,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Share settings with all views
         view()->composer('*', function ($view) {
-            $view->with('formSettings', app('settings')->all());
+            // $view->with('formSettings', app('settings')->all(),);
+            $settings = app('settings');
+            $view->with([
+                'formSettings' => $settings->all(),
+                'site_name' => trim((string) $settings->get('site_name')) !== '' ? $settings->get('site_name') : config('app.name'),
+            ]);
         });
     }
 }

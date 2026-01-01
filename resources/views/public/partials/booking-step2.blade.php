@@ -2,7 +2,7 @@
 <!-- Header -->
 <header class="bg-white shadow-sm">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        <h1 class="text-xl sm:text-2xl font-bold text-sky-700"><a href="{{ route('home') }}">MediCare Hospital</a></h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-sky-700"><a href="{{ route('home') }}">{{ $site_name }}</a></h1>
         <p class="text-xs sm:text-sm text-gray-600">Book Your Appointment</p>
     </div>
 </header>
@@ -159,7 +159,7 @@
         const maxDate = new Date(today);
         maxDate.setDate(maxDate.getDate() +
             // {{ env('ADVANCE_DAYS_FOR_APPOINTMENT', 30) }}); // 60 days from today
-           {{ $publicAdvanceBookingDays }});
+            {{ $publicAdvanceBookingDays }});
         let currentMonth = today.getMonth();
         let currentYear = today.getFullYear();
         let selectedDate = dateInput.value || null;
@@ -271,8 +271,7 @@
                 if (isOnFullDayLeave) {
                     dayContent =
                         `<div class="line-through">${day}</div><div class="text-[8px] text-red-400 font-semibold">Leave</div>`;
-                }
-                else if (isOnHalfDayLeave && !isDisabled) {
+                } else if (isOnHalfDayLeave && !isDisabled) {
                     const halfDaySlot = leaveInfo.half_day_slot;
                     let indicator = '';
                     if (halfDaySlot === 'morning') {
@@ -287,15 +286,14 @@
 
                 if (isDisabled) {
                     html += `<div class="${classes}">${dayContent}</div>`;
-                }
-                else {
+                } else {
                     html += `<div class="calendar-day ${classes}" data-date="${dateStr}">${dayContent}</div>`;
                 }
             }
 
             calendarDays.innerHTML = html;
 
-            
+
             document.querySelectorAll('.calendar-day').forEach(dayEl => {
                 dayEl.addEventListener('click', function() {
                     const date = this.dataset.date;
