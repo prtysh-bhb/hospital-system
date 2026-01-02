@@ -182,7 +182,7 @@
 
 <body>
     <div class="header">
-        <h1>Hospital Management System</h1>
+        <h1>{{ $site_name }}</h1>
         <p>Medical Prescription</p>
         <p style="margin-top: 5px;"><strong>Prescription #:</strong> {{ $prescription->prescription_number }}</p>
     </div>
@@ -294,4 +294,5 @@
         <p style="margin-top: 5px;">For emergencies or queries, please contact the hospital immediately.</p>
     </div>
 </body>
+
 </html>

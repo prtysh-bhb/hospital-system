@@ -18,11 +18,16 @@ class AppointmentSeeder extends Seeder
         $frontdesk = User::where('role', 'frontdesk')->first();
 
         // Safety checks
-        if ($doctors->isEmpty() || $patients->isEmpty() || ! $frontdesk) {
-            $this->command->warn('Doctors, patients, or frontdesk user missing. Seeder skipped.');
-
+        if ($doctors->isEmpty() || $patients->isEmpty() || !$frontdesk) {
+            $this->command->warn(
+                'Doctors, patients, or frontdesk user missing. Seeder skipped.'
+            );
             return;
         }
+
+        // Current year start & end
+        $yearStart = Carbon::now()->startOfYear();
+        $yearEnd = Carbon::now()->endOfYear();
 
         foreach ($patients as $patient) {
             $numAppointments = rand(2, 3);
@@ -30,20 +35,23 @@ class AppointmentSeeder extends Seeder
             for ($i = 0; $i < $numAppointments; $i++) {
 
                 $doctor = $doctors->random();
-                $appointmentDate = Carbon::now()
-                    ->subDays(rand(1, 30))
-                    ->setTime(rand(9, 16), 0);
 
-                $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(
+                // 🔹 Random date but ALWAYS in current year
+                $appointmentDate = Carbon::createFromTimestamp(
+                    rand($yearStart->timestamp, $yearEnd->timestamp)
+                )->setTime(rand(9, 16), 0);
+
+                $appointmentNumber = 'APT-' . date('Y') . '-' . str_pad(
                     $this->appointmentCounter++,
                     4,
                     '0',
                     STR_PAD_LEFT
                 );
 
-                Appointment::updateOrCreate([
-                    'appointment_number' => $appointmentNumber,
-                ],
+                Appointment::updateOrCreate(
+                    [
+                        'appointment_number' => $appointmentNumber,
+                    ],
                     [
                         'patient_id' => $patient->id,
                         'doctor_id' => $doctor->id,
@@ -86,7 +94,6 @@ class AppointmentSeeder extends Seeder
     private function getRandomAppointmentType(): string
     {
         $types = ['consultation', 'follow_up', 'check_up', 'emergency'];
-
         return $types[array_rand($types)];
     }
 
@@ -122,7 +129,6 @@ class AppointmentSeeder extends Seeder
     private function getRandomBookingMethod(): string
     {
         $methods = ['online', 'frontdesk', 'phone'];
-
         return $methods[array_rand($methods)];
     }
 }
