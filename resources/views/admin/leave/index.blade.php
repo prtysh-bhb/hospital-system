@@ -190,6 +190,10 @@
                             class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden lg:table-cell">
                             Duration
                         </th>
+                        <th 
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Availability
+                        </th>
                         <th
                             class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             Reason
@@ -294,6 +298,52 @@
                             let days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
                             duration = days + (days > 1 ? ' days' : ' day');
                         }
+                        // Generate availability display
+                        let availabilityHTML = '';
+                        if (item.leave_type === 'full_day') {
+                            availabilityHTML = `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300">Full Day</span>`;
+                        } else if (item.leave_type === 'custom') {
+                            // Custom leave with half days
+                            let availabilityParts = [];
+                            
+                            // Start date
+                            if (item.start_date_type === 'half_day') {
+                                availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.start_half_slot)} Half (${startDate})</span>`);
+                            } else if (item.start_date_type === 'full_day') {
+                                availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${startDate})</span>`);
+                            }
+
+                            // Middle dates (if any)
+                            let start = new Date(item.start_date);
+                            let end = new Date(item.end_date);
+                            let daysDiff = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+                            
+                            if (daysDiff > 1) {
+                                let middleStart = new Date(start);
+                                middleStart.setDate(middleStart.getDate() + 1);
+                                let middleEnd = new Date(end);
+                                middleEnd.setDate(middleEnd.getDate() - 1);
+                                
+                                if (middleStart <= middleEnd) {
+                                    let middleStartStr = formatDate(middleStart.toISOString().split('T')[0]);
+                                    let middleEndStr = formatDate(middleEnd.toISOString().split('T')[0]);
+                                    availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${middleStartStr} to ${middleEndStr})</span>`);
+                                }
+                            }
+
+                            // End date (if different from start)
+                            if (item.end_date !== item.start_date) {
+                                if (item.end_date_type === 'half_day') {
+                                    availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.end_half_slot)} Half (${endDate})</span>`);
+                                } else if (item.end_date_type === 'full_day') {
+                                    availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${endDate})</span>`);
+                                }
+                            }
+
+                            availabilityHTML = `<div class="flex flex-wrap gap-1">${availabilityParts.join('')}</div>`;
+                        } else {
+                            availabilityHTML = `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-700 border-gray-300">-</span>`;
+                        }
 
                         tbody.innerHTML += `
                             <tr>
@@ -307,6 +357,9 @@
                                 <td class="px-4 py-3">${startDate}</td>
                                 <td class="px-4 py-3">${endDate}</td>
                                 <td class="px-4 py-3">${duration}</td>
+                                <td class="px-4 py-3">
+                                    ${availabilityHTML}
+                                </td>
                                 <td class="px-4 py-3">${item.reason ?? ''}</td>
                                 <td class="px-4 py-3">${createdAt}</td>
                                 <td class="px-4 py-3">
@@ -388,6 +441,11 @@
             function formatLeaveType(type) {
                 if (!type) return '';
                 return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            }
+
+            function capitalize(str) {
+                if (!str) return '';
+                return str.charAt(0).toUpperCase() + str.slice(1);
             }
 
             // Filter change events

@@ -260,7 +260,7 @@ class DashboardController extends Controller
             }
 
             // Check if doctor is on leave on the new date
-            $slotService = new \App\Services\AppointmentSlotService;
+            $slotService = new AppointmentSlotService;
             $leaveCheck = $slotService->isDoctorOnLeave($appointment->doctor_id, $request->new_date);
             if ($leaveCheck['on_leave']) {
                 return response()->json([
