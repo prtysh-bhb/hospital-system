@@ -7,6 +7,41 @@
 @section('content')
     <div class="mx-auto px-4 py-6">
 
+        <!-- Appointment Conflict Modal -->
+        <div id="conflictModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-md">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4v2m0 0v2m0-6v-2m0 0V7a2 2 0 012-2h2.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-5.586a1 1 0 01-.707-.293l-5.414-5.414a1 1 0 01-.293-.707V9a2 2 0 012-2h2.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707v2m0 0v2m0-6v-2" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-gray-900">Appointment Conflict</h3>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4" id="conflictMessage"></p>
+
+                    <div id="appointmentsList" class="bg-gray-50 rounded-lg p-3 mb-4 max-h-48 overflow-y-auto">
+                        <!-- Appointments will be inserted here -->
+                    </div>
+
+                    <div class="flex gap-3 justify-end">
+                        <button id="conflictCancelBtn"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button id="conflictProceedBtn"
+                            class="px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700">
+                            Proceed & Cancel Appointments
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Add Leave Card (Hidden by default) --}}
         <div id="leaveFormSection" class="hidden mb-8">
             <div class="bg-white rounded-xl shadow p-6">
@@ -624,6 +659,40 @@
             });
 
             // Form submission
+            const conflictModal = document.getElementById('conflictModal');
+            const conflictCancelBtn = document.getElementById('conflictCancelBtn');
+            const conflictProceedBtn = document.getElementById('conflictProceedBtn');
+            let currentFormData = null;
+
+            function showConflictModal(message, appointments) {
+                document.getElementById('conflictMessage').textContent = message;
+
+                const appointmentsList = document.getElementById('appointmentsList');
+                appointmentsList.innerHTML = appointments.map(apt => `
+                    <div class="border-l-4 border-orange-500 bg-white p-3 mb-2 rounded">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="font-medium text-gray-900">${apt.patient_name}</p>
+                                <p class="text-sm text-gray-600">${apt.appointment_date}</p>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-1
+                                    ${apt.status === 'confirmed' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${apt.status}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                conflictModal.classList.remove('hidden');
+            }
+
+            function closeConflictModal() {
+                conflictModal.classList.add('hidden');
+                currentFormData = null;
+            }
+
+            conflictCancelBtn.addEventListener('click', closeConflictModal);
+
             document.getElementById('leaveForm').addEventListener('submit', function(e) {
                 e.preventDefault();
 
@@ -661,6 +730,7 @@
                 }
 
                 const formData = new FormData(this);
+                currentFormData = formData;
 
                 function submitLeave(force = false) {
                     if (force) formData.set('force', '1');
@@ -681,29 +751,28 @@
                         })
                         .then(async res => {
                             const data = await res.json();
+
                             if (res.status === 409 && data.type === 'appointment_conflict') {
-                                const appts = data.appointments.map(a =>
-                                    `#${a.id}: ${a.appointment_date} (${a.status})`
-                                ).join('\n');
-                                if (confirm(
-                                        `There are appointments during this leave period:\n\n${appts}\n\nDo you want to proceed and cancel these appointments?`
-                                    )) {
-                                    submitLeave(true);
-                                }
+                                showConflictModal(data.message, data.appointments);
                                 return;
                             }
+
                             if (res.status === 422 && data.type === 'leave_conflict') {
                                 errorBox.textContent = data.message ||
                                     'Doctor already has a leave for the selected dates.';
                                 errorBox.classList.remove('hidden');
                                 return;
                             }
+
                             if (!data.success) {
                                 errorBox.textContent = data.message ||
                                     "Something went wrong. Please check inputs.";
                                 errorBox.classList.remove('hidden');
                                 return;
                             }
+
+                            // Close modal and proceed with adding row
+                            closeConflictModal();
 
                             // Add row to table
                             const row = `
@@ -788,6 +857,109 @@
                         });
                 }
                 submitLeave(false);
+            });
+
+            // Handle conflict modal proceed button
+            conflictProceedBtn.addEventListener('click', function() {
+                conflictProceedBtn.disabled = true;
+                conflictProceedBtn.innerHTML = 'Processing...';
+
+                // Retry submission with force flag
+                setTimeout(() => {
+                    const jsonData = {};
+                    currentFormData.forEach((value, key) => {
+                        jsonData[key] = value;
+                    });
+                    jsonData['force'] = '1';
+
+                    fetch("{{ route('frontdesk.doctor-leaves.store') }}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRF-TOKEN": document.querySelector('input[name=_token]')
+                                    .value,
+                                "Accept": "application/json",
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(jsonData)
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Close modal
+                                closeConflictModal();
+
+                                // Add row to table
+                                const row = `
+                        <tr data-leave-id="${data.data.id}" class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border">
+                                <div class="font-medium text-gray-900">${data.data.doctor}</div>
+                                ${data.data.is_adhoc ? '<span class="text-xs text-amber-600 font-medium">(Adhoc)</span>' : ''}
+                            </td>
+                            <td class="px-4 py-3 border">
+                                <div class="text-gray-900">${data.data.start_date_formatted}</div>
+                                ${data.data.start_half_slot ? `<div class="text-xs text-gray-500">${data.data.start_half_slot} Half</div>` : ''}
+                            </td>
+                            <td class="px-4 py-3 border">
+                                <div class="text-gray-900">${data.data.end_date_formatted}</div>
+                                ${data.data.end_half_slot ? `<div class="text-xs text-gray-500">${data.data.end_half_slot} Half</div>` : ''}
+                            </td>
+                            <td class="px-4 py-3 border">
+                                <div class="flex flex-col gap-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${data.data.leave_type === 'full_day' ? 'bg-sky-100 text-sky-800' : 'bg-purple-100 text-purple-800'}">
+                                        ${data.data.leave_type_display}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 border">
+                                ${data.data.availability ? data.data.availability : '-'}
+                            </td>
+                            <td class="px-4 py-3 border text-gray-700 max-w-xs truncate">${data.data.reason}</td>
+                            <td class="px-4 py-3 border">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-400"></span>
+                                    Approved
+                                </span>
+                                <div class="text-xs text-gray-500 mt-1">By Frontdesk</div>
+                            </td>
+                            <td class="px-4 py-3 border">
+                                <span class="text-gray-400 text-sm">-</span>
+                            </td>
+                        </tr>
+                    `;
+
+                                const tableBody = document.getElementById('leaveTableBody');
+                                if (tableBody) {
+                                    tableBody.insertAdjacentHTML('afterbegin', row);
+                                }
+
+                                hideForm();
+                                if (typeof toastr !== 'undefined') {
+                                    toastr.success(data.message ||
+                                        'Leave added and appointments cancelled successfully'
+                                        );
+                                } else {
+                                    alert(data.message ||
+                                        'Leave added and appointments cancelled successfully'
+                                        );
+                                }
+                            } else {
+                                const errorBox = document.getElementById('formError');
+                                errorBox.textContent = data.message ||
+                                    'Failed to process leave with forced appointment cancellation.';
+                                errorBox.classList.remove('hidden');
+                            }
+                        })
+                        .catch(() => {
+                            const errorBox = document.getElementById('formError');
+                            errorBox.textContent =
+                                "Something went wrong while processing the request.";
+                            errorBox.classList.remove('hidden');
+                        })
+                        .finally(() => {
+                            conflictProceedBtn.disabled = false;
+                            conflictProceedBtn.innerHTML = 'Proceed & Cancel Appointments';
+                        });
+                }, 300);
             });
 
             // Approve/Reject buttons (delegated event handling)

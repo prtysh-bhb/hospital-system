@@ -166,101 +166,18 @@ class AppointmentSlotService
             ];
         }
 
-        // Check if any leave record covers this date as full day
+        // Check each leave record
         foreach ($leaves as $leave) {
             $leaveType = $leave->leave_type;
+            $startDateStr = Carbon::parse($leave->start_date)->format('Y-m-d');
+            $endDateStr = Carbon::parse($leave->end_date)->format('Y-m-d');
+            $isStartDate = ($date == $startDateStr);
+            $isEndDate = ($date == $endDateStr);
+            $isMiddleDate = ($date > $startDateStr && $date < $endDateStr);
 
-            // For custom leaves, check the specific date's type
-            if ($leaveType === 'custom') {
-                // Check if this date is the start date
-                $startDateStr = Carbon::parse($leave->start_date)->format('Y-m-d');
-                $endDateStr = Carbon::parse($leave->end_date)->format('Y-m-d');
-                if ($date == $startDateStr) {
-                    if ($leave->start_date_type === 'full_day') {
-                        // This date is full day leave
-                        $endDate = Carbon::parse($leave->end_date)->format('d M, Y');
-
-                        return [
-                            'on_leave' => true,
-                            'message' => "Doctor is on leave until {$endDate}. Please select another date or doctor.",
-                            'leave_end_date' => $leave->end_date,
-                            'leave_type' => 'full_day',
-                            'leave_records' => $leaves,
-                        ];
-                    } elseif ($leave->start_date_type === 'half_day') {
-                        // This date is half day leave (start date)
-                        $endDate = Carbon::parse($leave->end_date)->format('d M, Y');
-
-                        return [
-                            'on_leave' => true,
-                            'message' => 'Doctor is on half-day leave on this date. Limited slots available.',
-                            'leave_end_date' => $leave->end_date,
-                            'leave_type' => 'custom',
-                            'leave_records' => $leaves,
-                            'start_date_type' => 'half_day',
-                            'start_half_slot' => $leave->start_half_slot,
-                            'end_date_type' => $leave->end_date_type,
-                            'end_half_slot' => $leave->end_half_slot,
-                        ];
-                    }
-                }
-                // Check if this date is the end date
-                elseif ($date == $endDateStr) {
-                    if ($leave->end_date_type === 'full_day') {
-                        // This date is full day leave
-                        $endDate = Carbon::parse($leave->end_date)->format('d M, Y');
-
-                        return [
-                            'on_leave' => true,
-                            'message' => "Doctor is on leave until {$endDate}. Please select another date or doctor.",
-                            'leave_end_date' => $leave->end_date,
-                            'leave_type' => 'full_day',
-                            'leave_records' => $leaves,
-                        ];
-                    } elseif ($leave->end_date_type === 'half_day') {
-                        // This date is half day leave (end date)
-                        $endDate = Carbon::parse($leave->end_date)->format('d M, Y');
-
-                        return [
-                            'on_leave' => true,
-                            'message' => 'Doctor is on half-day leave on this date. Limited slots available.',
-                            'leave_end_date' => $leave->end_date,
-                            'leave_type' => 'custom',
-                            'leave_records' => $leaves,
-                            'start_date_type' => $leave->start_date_type,
-                            'start_half_slot' => $leave->start_half_slot,
-                            'end_date_type' => 'half_day',
-                            'end_half_slot' => $leave->end_half_slot,
-                        ];
-                    }
-                }
-                // Date is between start and end (middle dates) - check if there's a separate middle record
-                else {
-                    // Look for a leave record that specifically covers this date as full day
-                    foreach ($leaves as $middleLeave) {
-                        if ($middleLeave->leave_type === 'custom' &&
-                            $middleLeave->start_date_type === 'full_day' &&
-                            $middleLeave->end_date_type === 'full_day' &&
-                            $date >= $middleLeave->start_date->format('Y-m-d') &&
-                            $date <= $middleLeave->end_date->format('Y-m-d')) {
-                            // This date is covered by a middle full-day leave record
-                            $endDate = Carbon::parse($middleLeave->end_date)->format('d M, Y');
-
-                            return [
-                                'on_leave' => true,
-                                'message' => "Doctor is on leave until {$endDate}. Please select another date or doctor.",
-                                'leave_end_date' => $middleLeave->end_date,
-                                'leave_type' => 'full_day',
-                                'leave_records' => $leaves,
-                            ];
-                        }
-                    }
-                }
-            }
-            // For full_day leaves
-            elseif ($leaveType === 'full_day') {
+            // Full day leave - always blocks the entire day
+            if ($leaveType === 'full_day') {
                 $endDate = Carbon::parse($leave->end_date)->format('d M, Y');
-
                 return [
                     'on_leave' => true,
                     'message' => "Doctor is on leave until {$endDate}. Please select another date or doctor.",
@@ -269,7 +186,70 @@ class AppointmentSlotService
                     'leave_records' => $leaves,
                 ];
             }
-            // For old half_day leaves (legacy)
+
+            // Custom leave - check based on specific date types
+            if ($leaveType === 'custom') {
+                $leaveEndDate = Carbon::parse($leave->end_date)->format('d M, Y');
+
+                // Check start date
+                if ($isStartDate) {
+                    if ($leave->start_date_type === 'full_day') {
+                        return [
+                            'on_leave' => true,
+                            'message' => "Doctor is on leave until {$leaveEndDate}. Please select another date or doctor.",
+                            'leave_end_date' => $leave->end_date,
+                            'leave_type' => 'full_day',
+                            'leave_records' => $leaves,
+                        ];
+                    } else {
+                        // Half day on start date
+                        return [
+                            'on_leave' => true,
+                            'message' => 'Doctor is on half-day leave on this date. Limited slots available.',
+                            'leave_end_date' => $leave->end_date,
+                            'leave_type' => 'custom',
+                            'leave_records' => $leaves,
+                            'half_day_slot' => $leave->start_half_slot,
+                        ];
+                    }
+                }
+
+                // Check end date
+                if ($isEndDate) {
+                    if ($leave->end_date_type === 'full_day') {
+                        return [
+                            'on_leave' => true,
+                            'message' => "Doctor is on leave until {$leaveEndDate}. Please select another date or doctor.",
+                            'leave_end_date' => $leave->end_date,
+                            'leave_type' => 'full_day',
+                            'leave_records' => $leaves,
+                        ];
+                    } else {
+                        // Half day on end date
+                        return [
+                            'on_leave' => true,
+                            'message' => 'Doctor is on half-day leave on this date. Limited slots available.',
+                            'leave_end_date' => $leave->end_date,
+                            'leave_type' => 'custom',
+                            'leave_records' => $leaves,
+                            'half_day_slot' => $leave->end_half_slot,
+                        ];
+                    }
+                }
+
+                // Check middle dates - all full days
+                if ($isMiddleDate) {
+                    return [
+                        'on_leave' => true,
+                        'message' => "Doctor is on leave until {$leaveEndDate}. Please select another date or doctor.",
+                        'leave_end_date' => $leave->end_date,
+                        'leave_type' => 'full_day',
+                        'leave_records' => $leaves,
+                    ];
+                }
+            }
+
+            // Legacy half_day leaves
             elseif ($leaveType === 'half_day') {
                 $endDate = Carbon::parse($leave->end_date)->format('d M, Y');
 
@@ -284,29 +264,7 @@ class AppointmentSlotService
             }
         }
 
-        // If we get here, the date might be in the leave range but not specifically covered
-        // (e.g., a middle date in a custom leave where start and end are half days)
-        // Check if it's explicitly not covered by any half-day leave
-        $isExplicitlyNotCovered = true;
-        foreach ($leaves as $leave) {
-            if ($leave->leave_type === 'custom') {
-                // If there's a middle record covering this date as full day, it would have been caught above
-                // So this date is available
-                continue;
-            }
-        }
-
-        if ($isExplicitlyNotCovered) {
-            return [
-                'on_leave' => false,
-                'message' => null,
-                'leave_end_date' => null,
-                'leave_type' => null,
-                'leave_records' => [],
-            ];
-        }
-
-        // Default: assume not on leave
+        // Default: not on leave
         return [
             'on_leave' => false,
             'message' => null,

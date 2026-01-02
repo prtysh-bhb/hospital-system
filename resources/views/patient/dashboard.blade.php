@@ -229,7 +229,7 @@
                         ];
                     @endphp
                     <div class="appointment-card bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg hover:border-sky-200 transition-all duration-300"
-                        data-index="{{ $index }}">
+                        data-index="{{ $index }}" data-appointment-id="{{ $appointment->id }}">
                         <div class="p-6">
                             {{-- Doctor Info Section --}}
                             <div class="flex items-start mb-4">
@@ -255,7 +255,7 @@
                                 </div>
 
                                 {{-- Status Badge --}}
-                                <span
+                                <span data-status
                                     class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold {{ $statusColors[$appointment->status] ?? 'bg-gray-100 text-gray-700' }} ml-2">
                                     <span
                                         class="w-2 h-2 rounded-full mr-2 {{ $dotColors[$appointment->status] ?? 'bg-gray-500' }}"></span>
@@ -279,7 +279,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    <span class="font-medium">
+                                    <span data-date class="font-medium">
                                         {{ $appointment->date }}
                                     </span>
                                 </div>
@@ -290,7 +290,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span class="font-medium">{{ $appointment->time }}</span>
+                                    <span data-time class="font-medium">{{ $appointment->time }}</span>
                                     <span class="mx-2 text-gray-300">•</span>
                                     <span class="text-gray-500">{{ $appointment->duration }} mins</span>
                                 </div>

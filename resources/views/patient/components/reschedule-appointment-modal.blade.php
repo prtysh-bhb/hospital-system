@@ -20,7 +20,7 @@
                 </label>
                 <input type="date" id="new-date" name="new_date"
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
-                    min="{{ date('Y-m-d') }}">
+                    min="{{ date('Y-m-d') }}" max="{{ date('Y-m-d', strtotime("+{$advanceBookingDays} days")) }}">
                 <p id="new-date-error" class="text-xs text-red-500 mt-1 hidden"></p>
             </div>
 

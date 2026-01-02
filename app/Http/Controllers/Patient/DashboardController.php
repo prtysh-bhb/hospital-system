@@ -28,6 +28,11 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         $doctors = User::where('role', 'doctor')->with('doctorProfile.specialty')->get();
+
+        // Get advance booking days from settings
+        $advanceBookingDays = \App\Models\Setting::where('key', 'advance_booking_days')
+            ->first()?->value ?? 30;
+
         // Get appointments with all related data
         $appointments = $user->patientAppointments()
             ->with([
@@ -91,7 +96,7 @@ class DashboardController extends Controller
             'cancelled' => $appointments->where('status', 'cancelled')->count(),
         ];
 
-        return view('patient.dashboard', compact('appointments', 'stats', 'doctors'));
+        return view('patient.dashboard', compact('appointments', 'stats', 'doctors', 'advanceBookingDays'));
     }
 
     public function cancelAppointment(Request $request)
@@ -202,13 +207,19 @@ class DashboardController extends Controller
     public function rescheduleAppointment(Request $request)
     {
         try {
+            // Get advance booking days from settings
+            $advanceBookingDays = \App\Models\Setting::where('key', 'advance_booking_days')
+                ->first()?->value ?? 30;
+            $maxDate = Carbon::today()->addDays($advanceBookingDays)->format('Y-m-d');
+
             $validator = \Validator::make($request->all(), [
                 'appointment_id' => 'required|exists:appointments,id',
-                'new_date' => 'required|date|after_or_equal:today',
+                'new_date' => "required|date|after_or_equal:today|before_or_equal:{$maxDate}",
                 'new_time' => 'required|date_format:H:i',
             ], [
                 'new_date.required' => 'Please select a new appointment date.',
                 'new_date.after_or_equal' => 'Appointment date must be today or a future date.',
+                'new_date.before_or_equal' => "Appointments can only be rescheduled up to {$advanceBookingDays} days in advance.",
                 'new_time.required' => 'Please select a new appointment time.',
                 'new_time.date_format' => 'Invalid time format.',
             ]);
@@ -232,7 +243,7 @@ class DashboardController extends Controller
             }
 
             // Check if appointment can be rescheduled
-            if (! in_array($appointment->status, ['pending', 'confirmed','cancelled'])) {
+            if (! in_array($appointment->status, ['pending', 'confirmed', 'cancelled'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Only pending or confirmed appointments can be rescheduled.',
@@ -245,6 +256,17 @@ class DashboardController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Cannot reschedule to a past date and time.',
+                ], 400);
+            }
+
+            // Check if doctor is on leave on the new date
+            $slotService = new \App\Services\AppointmentSlotService;
+            $leaveCheck = $slotService->isDoctorOnLeave($appointment->doctor_id, $request->new_date);
+            if ($leaveCheck['on_leave']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $leaveCheck['message'] ?? 'Doctor is on leave on the selected date. Please choose another date.',
+                    'leave_end_date' => $leaveCheck['leave_end_date'] ?? null,
                 ], 400);
             }
 
@@ -500,6 +522,11 @@ class DashboardController extends Controller
     public function storeAppointment(Request $request)
     {
         try {
+            // Get advance booking days from settings
+            $advanceBookingDays = \App\Models\Setting::where('key', 'advance_booking_days')
+                ->first()?->value ?? 30;
+            $maxDate = Carbon::today()->addDays($advanceBookingDays)->format('Y-m-d');
+
             // Determine whether a patient was selected or new patient details are provided
             $patientId = $request->input('patient_id');
 
@@ -518,18 +545,22 @@ class DashboardController extends Controller
                             $query->where('role', 'doctor');
                         }),
                     ],
-                    'appointment_date' => 'required|date|after_or_equal:today',
-                    'appointment_time' => 'required',
+                    'appointment_date' => "required|date|after_or_equal:today|before_or_equal:{$maxDate}",
+                    'appointment_time' => 'required|date_format:H:i',
                     'appointment_type' => 'required|in:consultation,follow_up,emergency,check_up',
-                    'reason_for_visit' => 'required|string|max:1000',
+                    'reason_for_visit' => 'required|string|min:10|max:1000',
                 ], [
                     'patient_id.required' => 'Please select a patient.',
                     'doctor_id.required' => 'Please select a doctor.',
                     'appointment_date.required' => 'Appointment date is required.',
                     'appointment_date.after_or_equal' => 'Appointment date must be today or in the future.',
+                    'appointment_date.before_or_equal' => "Appointments can only be booked up to {$advanceBookingDays} days in advance.",
                     'appointment_time.required' => 'Appointment time is required.',
+                    'appointment_time.date_format' => 'Invalid time format.',
                     'appointment_type.required' => 'Please select appointment type.',
                     'reason_for_visit.required' => 'Reason for visit is required.',
+                    'reason_for_visit.min' => 'Reason for visit must be at least 10 characters.',
+                    'reason_for_visit.max' => 'Reason for visit cannot exceed 1000 characters.',
                 ]);
             } else {
                 // Validate patient details + appointment when creating new patient
@@ -540,18 +571,21 @@ class DashboardController extends Controller
                             $query->where('role', 'doctor');
                         }),
                     ],
-                    'appointment_date' => 'required|date|after_or_equal:today',
-                    'appointment_time' => 'required',
+                    'appointment_date' => "required|date|after_or_equal:today|before_or_equal:{$maxDate}",
+                    'appointment_time' => 'required|date_format:H:i',
                     'appointment_type' => 'required|in:consultation,follow_up,emergency,check_up',
-                    'reason_for_visit' => 'required|string|max:1000',
+                    'reason_for_visit' => 'required|string|min:10|max:1000',
                     'notes' => 'nullable|string|max:500',
                 ], [
                     'doctor_id.required' => 'Please select a doctor.',
                     'appointment_date.required' => 'Appointment date is required.',
                     'appointment_date.after_or_equal' => 'Appointment date must be today or in the future.',
+                    'appointment_date.before_or_equal' => "Appointments can only be booked up to {$advanceBookingDays} days in advance.",
                     'appointment_time.required' => 'Appointment time is required.',
+                    'appointment_time.date_format' => 'Invalid time format.',
                     'appointment_type.required' => 'Please select appointment type.',
                     'reason_for_visit.required' => 'Reason for visit is required.',
+                    'reason_for_visit.min' => 'Reason for visit must be at least 10 characters.',
                     'reason_for_visit.max' => 'Reason for visit cannot exceed 1000 characters.',
                     'notes.max' => 'Notes cannot exceed 500 characters.',
                 ]);
@@ -562,7 +596,7 @@ class DashboardController extends Controller
             $randomPadded = str_pad($random, 6, '0', STR_PAD_LEFT);
             $appointmentNumber = 'APT-'.$date.'-'.$randomPadded;
 
-            // Parse appointment time (could be "09:00 AM" format or "09:00" format)
+            // Parse appointment time - ensure it's in 24-hour format
             $appointmentTime = $request->input('appointment_time');
 
             // Validate if the time slot is available
@@ -574,20 +608,15 @@ class DashboardController extends Controller
 
             if (! $slotValidation['valid']) {
                 return response()->json([
-                    'status' => 422,
-                    'msg' => $slotValidation['message'],
+                    'success' => false,
+                    'message' => $slotValidation['message'],
                     'errors' => ['appointment_time' => [$slotValidation['message']]],
                 ], 422);
             }
 
-            // Convert 12-hour format to 24-hour if needed
-            if (strpos($appointmentTime, 'AM') !== false || strpos($appointmentTime, 'PM') !== false) {
-                $appointmentTime = date('H:i:s', strtotime($appointmentTime));
-            } else {
-                // Ensure it has seconds
-                if (substr_count($appointmentTime, ':') == 1) {
-                    $appointmentTime .= ':00';
-                }
+            // Ensure time has seconds if not present
+            if (substr_count($appointmentTime, ':') == 1) {
+                $appointmentTime .= ':00';
             }
 
             // Create a new appointment instance
@@ -600,21 +629,27 @@ class DashboardController extends Controller
             $appointment->appointment_type = $request->input('appointment_type');
             $appointment->reason_for_visit = $request->input('reason_for_visit');
             $appointment->notes = $request->input('notes');
-            $appointment->status = $request->input('status', 'pending');
+            $appointment->status = 'pending';
             $appointment->booked_by = auth()->id();
             $appointment->booked_via = 'patient';
             $appointment->save();
 
             // Return success response
             return response()->json([
+                'success' => true,
                 'status' => 200,
-                'msg' => 'Appointment created successfully.',
+                'message' => 'Appointment created successfully.',
+                'data' => [
+                    'appointment_id' => $appointment->id,
+                    'appointment_number' => $appointment->appointment_number,
+                ],
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Return validation errors
             return response()->json([
+                'success' => false,
                 'status' => 422,
-                'msg' => 'Validation failed.',
+                'message' => 'Validation failed.',
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
@@ -626,8 +661,9 @@ class DashboardController extends Controller
 
             // Handle exceptions and return a response
             return response()->json([
+                'success' => false,
                 'status' => 400,
-                'msg' => 'Something went wrong. Please try again later.',
+                'message' => 'Something went wrong. Please try again later.',
                 'error' => $e->getMessage(),
             ], 400);
         }

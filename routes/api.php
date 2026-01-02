@@ -2,12 +2,16 @@
 
 use App\Http\Controllers\Api\WhatsAppDebugController;
 use App\Http\Controllers\Api\WhatsAppMessageController;
+use App\Http\Controllers\Patient\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+// Patient Appointment Routes
+Route::get('/available-times', [DashboardController::class, 'getAvailableTimeSlots']);
 
 // WhatsApp Routes (Public - no authentication)
 Route::group(['prefix' => 'whatsapp'], function () {

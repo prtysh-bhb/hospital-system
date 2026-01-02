@@ -148,7 +148,7 @@ class DoctorLeaveController extends Controller
             $status = ($approvalType === 'admin') ? 'pending' : 'approved';
             $leaveData['status'] = $status;
 
-            // Calculate total days for creating multiple leave records
+            // For custom leave, store as single record with all date/type information
             $totalDays = $startDate->diffInDays($endDate) + 1;
             $leaveRecords = [];
 
@@ -156,70 +156,10 @@ class DoctorLeaveController extends Controller
                 // Full day leave - create one record
                 $leaveRecords[] = $leaveData;
             } else {
-                // Custom leave type - handle different scenarios
-                if ($totalDays === 1) {
-                    // Single day custom leave
-                    if ($startHalfSelect === 'full_day' && $endHalfSelect === 'full_day') {
-                        // Single full day
-                        $leaveRecords[] = $leaveData;
-                    } elseif ($startHalfSelect !== 'full_day' && $endHalfSelect !== 'full_day') {
-                        // Check if different halves selected
-                        if ($startHalfSelect !== $endHalfSelect) {
-                            // Different halves = full day
-                            $leaveRecords[] = $leaveData;
-                        } else {
-                            // Same half day
-                            $leaveRecords[] = $leaveData;
-                        }
-                    } else {
-                        // One half day selected
-                        $leaveRecords[] = $leaveData;
-                    }
-                } else {
-                    // Multiple days - create 3 entries as per your requirement
-
-                    // 1. Start date entry (with start date settings)
-                    $startRecord = $leaveData;
-                    $startRecord['end_date'] = $startDate->format('Y-m-d');
-                    if ($startHalfSelect !== 'full_day') {
-                        $startRecord['start_date_type'] = 'half_day';
-                        $startRecord['end_date_type'] = 'half_day';
-                        $startRecord['start_half_slot'] = $startHalfSelect === 'first_half' ? 'morning' : 'evening';
-                        $startRecord['end_half_slot'] = $startHalfSelect === 'first_half' ? 'morning' : 'evening';
-                        $startRecord['half_day_slot'] = $startRecord['start_half_slot'];
-                    }
-                    $leaveRecords[] = $startRecord;
-
-                    // 2. Middle days (if any)
-                    if ($totalDays > 2) {
-                        $middleStartDate = $startDate->copy()->addDay();
-                        $middleEndDate = $endDate->copy()->subDay();
-
-                        if ($middleStartDate->lte($middleEndDate)) {
-                            $middleRecord = $leaveData;
-                            $middleRecord['start_date'] = $middleStartDate->format('Y-m-d');
-                            $middleRecord['end_date'] = $middleEndDate->format('Y-m-d');
-                            $middleRecord['start_date_type'] = 'full_day';
-                            $middleRecord['end_date_type'] = 'full_day';
-                            $middleRecord['start_half_slot'] = 'morning';
-                            $middleRecord['end_half_slot'] = 'morning';
-                            $middleRecord['half_day_slot'] = 'morning';
-                            $leaveRecords[] = $middleRecord;
-                        }
-                    }
-
-                    // 3. End date entry (with end date settings)
-                    $endRecord = $leaveData;
-                    $endRecord['start_date'] = $endDate->format('Y-m-d');
-                    if ($endHalfSelect !== 'full_day') {
-                        $endRecord['start_date_type'] = 'half_day';
-                        $endRecord['end_date_type'] = 'half_day';
-                        $endRecord['start_half_slot'] = $endHalfSelect === 'first_half' ? 'morning' : 'evening';
-                        $endRecord['end_half_slot'] = $endHalfSelect === 'first_half' ? 'morning' : 'evening';
-                        $endRecord['half_day_slot'] = $endRecord['start_half_slot'];
-                    }
-                    $leaveRecords[] = $endRecord;
-                }
+                // Custom leave type - always store as single record
+                // The database schema supports storing start_date_type, start_half_slot, end_date_type, end_half_slot
+                // So we can represent the entire leave period in one record
+                $leaveRecords[] = $leaveData;
             }
 
             // Create leave records
@@ -297,11 +237,6 @@ class DoctorLeaveController extends Controller
                 if ($conflictingAppointments->count() > 0) {
                     $message = 'Adhoc leave request submitted. '.$conflictingAppointments->count().' appointment(s) have been cancelled.';
                 }
-            }
-
-            // Add info about number of records created for custom leaves
-            if ($leaveType === 'custom' && count($leaveRecords) > 1) {
-                $message .= ' ('.count($leaveRecords).' leave records created)';
             }
 
             return response()->json([

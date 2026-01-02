@@ -60,14 +60,12 @@ class BookAppointmentService
                 ->first();
 
             if (! $user) {
-                // Generate unique email if not provided
-                $email = $data['email'] ?? 'user_'.time().'@hospital.local';
 
                 // Create new user
                 $user = User::create([
                     'first_name' => $data['first_name'],
                     'last_name' => $data['last_name'] ?? null,
-                    'email' => $email,
+                    'email' => $data['email'] ?? null,
                     'phone' => $data['phone'] ?? null,
                     'password' => Hash::make($data['phone'] ?? 'temporary_password_'.time()), // Password is phone number or temp
                     'date_of_birth' => $data['date_of_birth'] ?? null,
