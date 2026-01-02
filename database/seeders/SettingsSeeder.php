@@ -19,7 +19,7 @@ class SettingsSeeder extends Seeder
         $settings = [
             [
                 'key' => 'site_name',
-                'value' => 'Hospital Management System',
+                'value' => 'MediCare HMS',
                 'type' => 'string',
                 'setting_category_id' => 1,
                 'description' => 'The name of the website',
