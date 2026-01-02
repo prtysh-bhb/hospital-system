@@ -152,35 +152,64 @@ class DoctorAppointmentServices
             ->where('doctor_id', $doctorId)
             ->first();
 
-        if (! $appointment) {
+        if (!$appointment) {
             return null;
         }
 
-        // Check if prescription exists
-        $prescription = Prescription::where('appointment_id', $appointmentId)->first();
+        try {
+            // Get or create prescription
+            $prescription = Prescription::where('appointment_id', $appointmentId)->first();
 
-        $data = [
-            'appointment_id' => $appointmentId,
-            'patient_id' => $appointment->patient_id,
-            'doctor_id' => $doctorId,
-            'diagnosis' => $prescriptionData['diagnosis'] ?? null,
-            'medications' => $prescriptionData['medications'] ?? [],
-            'instructions' => $prescriptionData['instructions'] ?? null,
-            'follow_up_date' => $prescriptionData['follow_up_date'] ?? null,
-            'notes' => $prescriptionData['notes'] ?? null,
-        ];
+            // New medicines coming from request
+            $newMedications = $prescriptionData['medications'] ?? [];
 
-        if ($prescription) {
-            $prescription->update($data);
+            if (!$prescription) {
+
+                // Create prescription with medicines
+                $prescription = Prescription::create([
+                    'prescription_number' => 'RX-' . date('Y') . '-' . str_pad(Prescription::count() + 1, 6, '0', STR_PAD_LEFT),
+                    'appointment_id' => $appointmentId,
+                    'patient_id' => $appointment->patient_id,
+                    'doctor_id' => $doctorId,
+                    'diagnosis' => $prescriptionData['diagnosis'] ?? null,
+                    'instructions' => $prescriptionData['instructions'] ?? null,
+                    'follow_up_date' => $prescriptionData['follow_up_date'] ?? null,
+                    'notes' => $prescriptionData['notes'] ?? null,
+                    'medications' => $newMedications,
+                ]);
+
+            } else {
+
+                // Append medicines to existing medications JSON
+                $existingMedications = $prescription->medications ?? [];
+
+                $mergedMedications = array_merge(
+                    $existingMedications,
+                    $newMedications
+                );
+
+                $prescription->update([
+                    'diagnosis' => $prescriptionData['diagnosis'] ?? $prescription->diagnosis,
+                    'instructions' => $prescriptionData['instructions'] ?? $prescription->instructions,
+                    'follow_up_date' => $prescriptionData['follow_up_date'] ?? $prescription->follow_up_date,
+                    'notes' => $prescriptionData['notes'] ?? $prescription->notes,
+                    'medications' => $mergedMedications,
+                ]);
+            }
 
             return $prescription;
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to save prescription', [
+                'error' => $e->getMessage(),
+                'appointment_id' => $appointmentId,
+                'prescription_data' => $prescriptionData,
+            ]);
+
+            return null;
         }
-
-        // Generate prescription number
-        $data['prescription_number'] = 'RX-'.date('Y').'-'.str_pad(Prescription::count() + 1, 6, '0', STR_PAD_LEFT);
-
-        return Prescription::create($data);
     }
+
 
     /**
      * Schedule a follow-up appointment.

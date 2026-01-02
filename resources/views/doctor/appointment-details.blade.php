@@ -697,9 +697,9 @@
                     if (data.patient.previous_appointments && data.patient.previous_appointments.length > 0) {
                         visitsList.innerHTML = data.patient.previous_appointments.map(visit =>
                             `<div class="p-3 bg-gray-50 rounded-lg">
-                    <p class="text-xs sm:text-sm font-medium text-gray-800">${visit.date} - ${visit.reason}</p>
-                    <p class="text-xs text-gray-600 mt-1">${visit.doctor} - ${visit.specialty}</p>
-                </div>`
+                                <p class="text-xs sm:text-sm font-medium text-gray-800">${visit.date} - ${visit.reason}</p>
+                                <p class="text-xs text-gray-600 mt-1">${visit.doctor} - ${visit.specialty}</p>
+                            </div>`
                         ).join('');
                     } else {
                         visitsList.innerHTML =
@@ -714,42 +714,427 @@
                     // Existing Prescriptions - Always show section
                     const prescriptionsList = document.getElementById('existing-prescriptions-list');
                     prescriptionsList.classList.remove('max-h-[600px]', 'overflow-y-auto');
-                    if (data.prescriptions && data.prescriptions.length > 0) {
-                        // Add scroll if more than 2 prescriptions
-                        if (data.prescriptions.length > 2) {
-                            prescriptionsList.classList.add('max-h-[600px]', 'overflow-y-auto');
-                        }
-                        prescriptionsList.innerHTML = data.prescriptions.map(presc => {
-                            const medsHtml = presc.medications.map(med =>
-                                `<li><strong>${med.name} ${med.dosage}</strong> - ${med.frequency}, ${med.duration}${med.quantity ? `, Qty: ${med.quantity}` : ''}</li>`
-                            ).join('');
 
-                            return `<div class="p-4 border-2 border-gray-200 rounded-lg hover:border-sky-300 transition-colors bg-gradient-to-br from-white to-gray-50">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <span class="text-sm font-bold text-sky-700">${presc.prescription_number}</span>
-                            ${presc.diagnosis ? `<p class="text-sm font-semibold text-gray-800 mt-1">Diagnosis: ${presc.diagnosis}</p>` : ''}
-                        </div>
-                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${presc.created_at}</span>
-                    </div>
-                    <div class="bg-white p-3 rounded-lg border border-gray-100">
-                        <p class="text-xs font-semibold text-gray-600 mb-2">Medications:</p>
-                        <ul class="text-sm text-gray-700 space-y-2">${medsHtml}</ul>
-                    </div>
-                    ${presc.instructions ? `<p class="text-sm text-gray-600 mt-3 italic bg-blue-50 p-2 rounded"><strong>Instructions:</strong> ${presc.instructions}</p>` : ''}
-                </div>`;
-                        }).join('');
+                    // if (data.prescriptions && data.prescriptions.length > 0) {
+
+                    //     // Add scroll if more than 2 prescriptions
+                    //     if (data.prescriptions.length > 2) {
+                    //         prescriptionsList.classList.add('max-h-[600px]', 'overflow-y-auto');
+                    //     }
+
+                    //     prescriptionsList.innerHTML = data.prescriptions.map(presc => {
+
+                    //         console.log('data------------', presc.medications);
+
+                    //         // Separate medicines
+                    //         const medicines = presc.medications.filter(item => !item.type);
+
+                    //         // Separate all vital_signs
+                    //         const vitalsList = presc.medications
+                    //             .filter(item => item.type === 'vital_signs' && item.recorded_at)
+                    //             .sort((a, b) => new Date(b.recorded_at) - new Date(a
+                    //                 .recorded_at)); // Latest first
+
+                    //         // Medicines HTML
+                    //         const medsHtml = medicines.length ?
+                    //             medicines.map(med => `
+            //                 <li class="border-b pb-2">
+            //                     ${med.name ? `<div><strong>Medicine Name:</strong> ${med.name}</div>` : ''}
+            //                     ${med.dosage ? `<div><strong>Dosage:</strong> ${med.dosage}</div>` : ''}
+            //                     ${med.frequency ? `<div><strong>Frequency:</strong> ${med.frequency}</div>` : ''}
+            //                     ${med.duration ? `<div><strong>Duration:</strong> ${med.duration}</div>` : ''}
+            //                     ${med.quantity ? `<div><strong>Quantity:</strong> ${med.quantity}</div>` : ''}
+            //                 </li>
+            //             `).join('') : '<li class="text-gray-400 italic">No medications</li>';
+
+                    //         // Vitals HTML (show all)
+                    //         let vitalsHtml = '';
+                    //         if (vitalsList.length) {
+                    //             vitalsHtml = `
+            //                 <div class="mt-4 bg-sky-50 p-3 rounded-lg border border-sky-100">
+            //                     <p class="text-xs font-semibold text-sky-700 mb-2">Vital Signs:</p>
+            //                     <ul class="text-sm text-gray-700 space-y-3">
+            //                         ${vitalsList.map(vitals => `<li class="border-b pb-2">
+                    //                                                             ${vitals.blood_pressure ? `<div>Blood Pressure: ${vitals.blood_pressure}</div>` : ''}
+                    //                                                             ${vitals.heart_rate ? `<div>Heart Rate: ${vitals.heart_rate}</div>` : ''}
+                    //                                                             ${vitals.temperature ? `<div>Temperature: ${vitals.temperature}</div>` : ''}
+                    //                                                             ${vitals.oxygen_saturation ? `<div>Oxygen Saturation: ${vitals.oxygen_saturation}</div>` : ''}
+                    //                                                             ${vitals.height ? `<div>Height: ${vitals.height}</div>` : ''}
+                    //                                                             ${vitals.weight ? `<div>Weight: ${vitals.weight}</div>` : ''}
+                    //                                                             ${vitals.recorded_at ? `<div class="text-xs text-gray-500 mt-1">Recorded at: ${vitals.recorded_at}</div>` : ''}
+                    //                                                         </li>
+                    //                                                     `).join('')}
+            //                     </ul>
+            //                 </div>
+            //             `;
+                    //         }
+
+                    //         // Final Prescription Card
+                    //         return `
+            //             <div class="p-4 border-2 border-gray-200 rounded-lg hover:border-sky-300 transition-colors bg-gradient-to-br from-white to-gray-50">
+            //                 <div class="flex justify-between items-start mb-3">
+            //                     <div>
+            //                         <span class="text-sm font-bold text-sky-700">${presc.prescription_number}</span>
+            //                         ${presc.diagnosis ? `<p class="text-sm font-semibold text-gray-800 mt-1"> Diagnosis: ${presc.diagnosis} </p>` : '' }
+            //                     </div>
+            //                     <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+            //                         ${presc.created_at}
+            //                     </span>
+            //                 </div>
+
+            //                 <div class="bg-white p-3 rounded-lg border border-gray-100">
+            //                     <p class="text-xs font-semibold text-gray-600 mb-2">Medications:</p>
+            //                     <ul class="text-sm text-gray-700 space-y-2">
+            //                         ${medsHtml}
+            //                     </ul>
+            //                 </div>
+
+            //                 ${vitalsHtml}
+            //                 ${presc.instructions ? `<p class="text-sm text-gray-600 mt-3 italic bg-blue-50 p-2 rounded"><strong>Instructions:</strong> ${presc.instructions}</p>` : '' }
+            //             </div>
+            //         `;
+                    //     }).join('');
+
+                    // } else {
+                    //     prescriptionsList.innerHTML =
+                    //         '<p class="text-sm text-gray-500 italic">No prescriptions available</p>';
+                    // }
+
+                    if (data.prescriptions && data.prescriptions.length > 0) {
+                        // Table with pagination implementation
+                        const prescriptionsPerPage = 3;
+                        let currentPage = 1;
+
+                        // Function to render prescriptions table with pagination
+                        function renderPrescriptionsTable(page) {
+                            const startIndex = (page - 1) * prescriptionsPerPage;
+                            const endIndex = startIndex + prescriptionsPerPage;
+                            const pagePrescriptions = data.prescriptions.slice(startIndex, endIndex);
+
+                            let tableHtml = `
+                                <div class="overflow-x-auto">
+                                    <table class="w-full border-collapse">
+                                        <thead>
+                                            <tr class="bg-gray-50">
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Prescription #</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Date</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Diagnosis</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Medications</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Vital Signs</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                `;
+
+                            pagePrescriptions.forEach(presc => {
+                                // Separate medicines
+                                // Separate medicines and sort by updated_at descending (latest first)
+                                const medicines = presc.medications
+                                    .filter(item => !item.type)
+                                    .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+
+                                // Medicines display (show latest 3 in table)
+                                let medDisplay = medicines.slice(0, 3).map(med =>
+                                    `${med.name || ''} ${med.dosage || ''}`
+                                ).join(', ');
+
+                                // If more than 3 medicines, add "+N more"
+                                if (medicines.length > 3) {
+                                    medDisplay += ` +${medicines.length - 3} more`;
+                                }
+
+                                // If no medicines, show placeholder
+                                if (!medDisplay.trim()) {
+                                    medDisplay = 'No medications';
+                                }
+
+                                // Separate all vital_signs
+                                const vitalsList = presc.medications
+                                    .filter(item => item.type === 'vital_signs' && item.recorded_at)
+                                    .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at));
+
+                                // Vital signs display (latest only)
+                                let vitalsDisplay = 'No vitals';
+                                if (vitalsList.length > 0) {
+                                    const latestVitals = vitalsList[0];
+                                    const vitals = [];
+                                    if (latestVitals.blood_pressure) vitals.push(
+                                        `BP: ${latestVitals.blood_pressure}`);
+                                    if (latestVitals.heart_rate) vitals.push(`HR: ${latestVitals.heart_rate}`);
+                                    if (latestVitals.temperature) vitals.push(
+                                        `Temp: ${latestVitals.temperature}`);
+
+                                    vitalsDisplay = vitals.join(', ');
+                                    if (latestVitals.recorded_at) {
+                                        vitalsDisplay +=
+                                            `<br><span class="text-xs text-gray-500">${latestVitals.recorded_at}</span>`;
+                                    }
+                                }
+
+                                tableHtml += `
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3 border-b">
+                                                <div class="text-sm font-medium text-sky-700">${presc.prescription_number || 'N/A'}</div>
+                                            </td>
+                                            <td class="px-4 py-3 border-b">
+                                                <div class="text-sm text-gray-900">${presc.created_at || 'N/A'}</div>
+                                            </td>
+                                            <td class="px-4 py-3 border-b">
+                                                <div class="text-sm text-gray-900">${presc.diagnosis || 'No diagnosis'}</div>
+                                            </td>
+                                            <td class="px-4 py-3 border-b">
+                                                <div class="text-sm text-gray-900">${medDisplay}</div>
+                                                ${medicines.length > 0 ? 
+                                                    `<button onclick="showMedicationDetails('${presc.prescription_number}')" class="mt-1 text-xs text-sky-600 hover:text-sky-800 underline">View Details</button>` : ''
+                                                }
+                                            </td>
+                                            <td class="px-4 py-3 border-b">
+                                                <div class="text-sm text-gray-900">${vitalsDisplay}</div>
+                                                ${vitalsList.length > 0 ? 
+                                                    `<button onclick="showVitalDetails('${presc.prescription_number}')" class="mt-1 text-xs text-sky-600 hover:text-sky-800 underline">View All</button>` : ''
+                                                }
+                                            </td>
+                                        </tr>
+                                    `;
+                            });
+
+                            tableHtml += `
+                                            </tbody>
+                                    </table>
+                                </div>
+                            `;
+
+                            // Add pagination controls
+                            const totalPages = Math.ceil(data.prescriptions.length / prescriptionsPerPage);
+
+                            if (totalPages > 1) {
+                                tableHtml += `
+                                    <div class="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6 mt-4">
+                                        <div class="flex flex-1 justify-between sm:hidden">
+                                            <button onclick="changePrescriptionPage(${currentPage - 1})" 
+                                                    ${currentPage === 1 ? 'disabled' : ''}
+                                                    class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                Previous
+                                            </button>
+                                            <button onclick="changePrescriptionPage(${currentPage + 1})" 
+                                                    ${currentPage === totalPages ? 'disabled' : ''}
+                                                    class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                Next
+                                            </button>
+                                        </div>
+                                        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                            <div>
+                                                <p class="text-sm text-gray-700">
+                                                    Showing <span class="font-medium">${startIndex + 1}</span> to 
+                                                    <span class="font-medium">${Math.min(endIndex, data.prescriptions.length)}</span> of 
+                                                    <span class="font-medium">${data.prescriptions.length}</span> results
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                                    <button onclick="changePrescriptionPage(${currentPage - 1})" 
+                                                            ${currentPage === 1 ? 'disabled' : ''}
+                                                            class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        <span class="sr-only">Previous</span>
+                                                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                `;
+
+                                // Page numbers
+                                for (let i = 1; i <= totalPages; i++) {
+                                    tableHtml += `
+                                        <button onclick="changePrescriptionPage(${i})" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold 
+                                            ${i === currentPage ? 'z-10 bg-sky-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600'
+                                            : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'}">
+                                            ${i}
+                                        </button>
+                                    `;
+                                }
+
+                                tableHtml += `
+                                            <button onclick="changePrescriptionPage(${currentPage + 1})" 
+                                                    ${currentPage === totalPages ? 'disabled' : ''}
+                                                    class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <span class="sr-only">Next</span>
+                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                    <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l4.5 4.25a.75.75 0 01-1.06.02z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                                </nav>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+
+                            prescriptionsList.innerHTML = tableHtml;
+                        }
+
+                        // Initial render
+                        renderPrescriptionsTable(currentPage);
+
+                        // Global function to change page
+                        window.changePrescriptionPage = function(page) {
+                            const totalPages = Math.ceil(data.prescriptions.length / prescriptionsPerPage);
+                            if (page < 1 || page > totalPages) return;
+                            currentPage = page;
+                            renderPrescriptionsTable(currentPage);
+                        };
+
+                        // Global functions to show details
+                        window.showMedicationDetails = function(prescriptionNumber) {
+                            const prescription = data.prescriptions.find(p => p.prescription_number ===
+                                prescriptionNumber);
+                            if (!prescription) return;
+
+                            const medicines = prescription.medications.filter(item => !item.type);
+
+                            let detailsHtml = `
+                                <div class="p-4 bg-white rounded-lg shadow-lg">
+                                    <h4 class="text-lg font-semibold mb-3">Medication Details - ${prescriptionNumber}</h4>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full border-collapse">
+                                            <thead>
+                                                <tr class="bg-gray-50">
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Medicine Name</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Dosage</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Frequency</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Duration</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Quantity</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                            `;
+
+                            medicines.forEach(med => {
+                                detailsHtml += `
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 border">${med.name || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.dosage || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.frequency || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.duration || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.quantity || 'N/A'}</td>
+                                    </tr>
+                                `;
+                            });
+
+                            detailsHtml += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Show modal
+                            showModal('Medication Details', detailsHtml);
+                        };
+
+                        window.showVitalDetails = function(prescriptionNumber) {
+                            const prescription = data.prescriptions.find(p => p.prescription_number ===
+                                prescriptionNumber);
+                            if (!prescription) return;
+
+                            const vitalsList = prescription.medications
+                                .filter(item => item.type === 'vital_signs' && item.recorded_at)
+                                .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at));
+
+                            let detailsHtml = `
+                                <div class="p-4 bg-white rounded-lg shadow-lg">
+                                    <h4 class="text-lg font-semibold mb-3">Vital Signs Details - ${prescriptionNumber}</h4>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full border-collapse">
+                                            <thead>
+                                                <tr class="bg-gray-50">
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Date & Time</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Blood Pressure</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Heart Rate</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Temperature</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Oxygen</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Weight</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Height</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                            `;
+
+                            vitalsList.forEach(vital => {
+                                detailsHtml += `
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 border">${vital.recorded_at || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.blood_pressure || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.heart_rate || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.temperature || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.oxygen_saturation || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.weight || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.height || 'N/A'}</td>
+                                    </tr>
+                                `;
+                            });
+
+                            detailsHtml += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Show modal
+                            showModal('Vital Signs Details', detailsHtml);
+                        };
 
                     } else {
-                        prescriptionsList.innerHTML =
-                            '<p class="text-sm text-gray-500 italic">No prescriptions available</p>';
+                        prescriptionsList.innerHTML = `
+                            <div class="text-center py-8">
+                                <div class="text-gray-400 mb-3">
+                                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-500">No prescriptions available</p>
+                            </div>
+                        `;
                     }
+                    // Modal show click to View Details in Prescriptions History
+                    function showModal(title, content) {
+                        // Remove existing modal if any
+                        const existingModal = document.getElementById('details-modal');
+                        if (existingModal) {
+                            existingModal.remove();
+                        }
+
+                        const modalHtml = `
+                        <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                            <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                                <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-lg font-semibold text-gray-900">${title}</h3>
+                                        <button onclick="document.getElementById('details-modal').remove()" 
+                                                class="text-gray-400 hover:text-gray-600">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-6 overflow-y-auto flex-grow">
+                                    ${content}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                        document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    }
+
 
                     // Set minimum date for follow-up
                     const tomorrow = new Date();
                     tomorrow.setDate(tomorrow.getDate() + 1);
                     document.getElementById('followup-date').min = tomorrow.toISOString().split('T')[0];
                 }
+
 
                 // Save Consultation Notes
                 document.getElementById('save-notes-btn').addEventListener('click', function() {
