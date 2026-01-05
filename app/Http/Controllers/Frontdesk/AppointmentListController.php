@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontdesk;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AppointmentListController extends Controller
@@ -11,13 +12,41 @@ class AppointmentListController extends Controller
     /**
      * List all appointments
      */
-    public function index()
+    public function index(Request $request)
     {
-        $appointments = Appointment::with(['doctor', 'patient'])
-            ->orderBy('appointment_date', 'desc')
-            ->paginate(15);
+        $query = Appointment::with(['doctor', 'patient']);
 
-        return view('frontdesk.index', compact('appointments'));
+        if ($request->filled('search')) {
+            $query->whereHas('patient', function ($q) use ($request) {
+                $q->where('first_name', 'like', "%{$request->search}%")
+                    ->orWhere('last_name', 'like', "%{$request->search}%");
+            });
+        }
+
+        if ($request->filled('doctor')) {
+            $query->where('doctor_id', $request->doctor);
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('appointment_date', $request->date);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('appointment_type', $request->type);
+        }
+
+        $appointments = $query
+            ->orderBy('appointment_date', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        $doctors = User::where('role', 'doctor')->orderBy('first_name')->get();
+
+        return view('frontdesk.index', compact('appointments', 'doctors'));
     }
 
     /**

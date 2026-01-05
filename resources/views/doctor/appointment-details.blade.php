@@ -824,37 +824,32 @@
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                `;
+                                            `;
 
                             pagePrescriptions.forEach(presc => {
-                                // Separate medicines
-                                // Separate medicines and sort by updated_at descending (latest first)
+                                // Medicines: filter out vital_signs, sort by created_at descending
                                 const medicines = presc.medications
-                                    .filter(item => !item.type)
-                                    .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+                                    .filter(item => item.type === 'medications')
+                                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-                                // Medicines display (show latest 3 in table)
+                                // Display latest 3 meds
                                 let medDisplay = medicines.slice(0, 3).map(med =>
                                     `${med.name || ''} ${med.dosage || ''}`
                                 ).join(', ');
 
-                                // If more than 3 medicines, add "+N more"
                                 if (medicines.length > 3) {
                                     medDisplay += ` +${medicines.length - 3} more`;
                                 }
 
-                                // If no medicines, show placeholder
-                                if (!medDisplay.trim()) {
-                                    medDisplay = 'No medications';
-                                }
+                                if (!medDisplay.trim()) medDisplay = 'No medications';
 
-                                // Separate all vital_signs
+                                // Vital signs: filter type vital_signs, sort by recorded_at descending
                                 const vitalsList = presc.medications
                                     .filter(item => item.type === 'vital_signs' && item.recorded_at)
                                     .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at));
 
-                                // Vital signs display (latest only)
                                 let vitalsDisplay = 'No vitals';
+
                                 if (vitalsList.length > 0) {
                                     const latestVitals = vitalsList[0];
                                     const vitals = [];
@@ -867,101 +862,81 @@
                                     vitalsDisplay = vitals.join(', ');
                                     if (latestVitals.recorded_at) {
                                         vitalsDisplay +=
-                                            `<br><span class="text-xs text-gray-500">${latestVitals.recorded_at}</span>`;
+                                            `<br><span class="text-xs text-gray-500">${formatDateTime(latestVitals.recorded_at)}</span>`;
                                     }
                                 }
 
                                 tableHtml += `
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-4 py-3 border-b">
-                                                <div class="text-sm font-medium text-sky-700">${presc.prescription_number || 'N/A'}</div>
-                                            </td>
-                                            <td class="px-4 py-3 border-b">
-                                                <div class="text-sm text-gray-900">${presc.created_at || 'N/A'}</div>
-                                            </td>
-                                            <td class="px-4 py-3 border-b">
-                                                <div class="text-sm text-gray-900">${presc.diagnosis || 'No diagnosis'}</div>
-                                            </td>
-                                            <td class="px-4 py-3 border-b">
-                                                <div class="text-sm text-gray-900">${medDisplay}</div>
-                                                ${medicines.length > 0 ? 
-                                                    `<button onclick="showMedicationDetails('${presc.prescription_number}')" class="mt-1 text-xs text-sky-600 hover:text-sky-800 underline">View Details</button>` : ''
-                                                }
-                                            </td>
-                                            <td class="px-4 py-3 border-b">
-                                                <div class="text-sm text-gray-900">${vitalsDisplay}</div>
-                                                ${vitalsList.length > 0 ? 
-                                                    `<button onclick="showVitalDetails('${presc.prescription_number}')" class="mt-1 text-xs text-sky-600 hover:text-sky-800 underline">View All</button>` : ''
-                                                }
-                                            </td>
-                                        </tr>
-                                    `;
+                                                    <tr class="hover:bg-gray-50">
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm font-medium text-sky-700">${presc.prescription_number || 'N/A'}</div>
+                                                        </td>
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm text-gray-900">${presc.created_at || 'N/A'}</div>
+                                                        </td>
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm text-gray-900">${presc.diagnosis || 'No diagnosis'}</div>
+                                                        </td>
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm text-gray-900">${medDisplay}</div>
+                                                            ${medicines.length > 0 ? 
+                                                                `<button onclick="showMedicationDetails('${presc.prescription_number}')" class="mt-1 text-xs text-sky-600 hover:text-sky-800 underline">View Details</button>` : ''
+                                                            }
+                                                        </td>
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm text-gray-900">${vitalsDisplay}</div>
+                                                            ${vitalsList.length > 0 ? 
+                                                                `<button onclick="showVitalDetails('${presc.prescription_number}')" class="mt-1 text-xs text-sky-600 hover:text-sky-800 underline">View All</button>` : ''
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                `;
                             });
 
-                            tableHtml += `
-                                            </tbody>
-                                    </table>
-                                </div>
-                            `;
+                            tableHtml += `</tbody></table></div>`;
 
-                            // Add pagination controls
+                            // Pagination controls
                             const totalPages = Math.ceil(data.prescriptions.length / prescriptionsPerPage);
-
                             if (totalPages > 1) {
                                 tableHtml += `
                                     <div class="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6 mt-4">
                                         <div class="flex flex-1 justify-between sm:hidden">
-                                            <button onclick="changePrescriptionPage(${currentPage - 1})" 
-                                                    ${currentPage === 1 ? 'disabled' : ''}
-                                                    class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                                Previous
-                                            </button>
-                                            <button onclick="changePrescriptionPage(${currentPage + 1})" 
-                                                    ${currentPage === totalPages ? 'disabled' : ''}
-                                                    class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                                Next
-                                            </button>
+                                            <button onclick="changePrescriptionPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                                            <button onclick="changePrescriptionPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
                                         </div>
+                                        
                                         <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                                             <div>
                                                 <p class="text-sm text-gray-700">
-                                                    Showing <span class="font-medium">${startIndex + 1}</span> to 
-                                                    <span class="font-medium">${Math.min(endIndex, data.prescriptions.length)}</span> of 
-                                                    <span class="font-medium">${data.prescriptions.length}</span> results
+                                                    Showing <span class="font-medium">${startIndex + 1}</span> to <span class="font-medium">${Math.min(endIndex, data.prescriptions.length)}</span> of <span class="font-medium">${data.prescriptions.length}</span> results
                                                 </p>
                                             </div>
+
                                             <div>
                                                 <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                                                    <button onclick="changePrescriptionPage(${currentPage - 1})" 
-                                                            ${currentPage === 1 ? 'disabled' : ''}
-                                                            class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                    <button onclick="changePrescriptionPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed">
                                                         <span class="sr-only">Previous</span>
                                                         <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                                             <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
                                                         </svg>
-                                                    </button>
-                                `;
+                                                    </button>`;
 
                                 // Page numbers
                                 for (let i = 1; i <= totalPages; i++) {
                                     tableHtml += `
-                                        <button onclick="changePrescriptionPage(${i})" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold 
-                                            ${i === currentPage ? 'z-10 bg-sky-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600'
-                                            : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'}">
-                                            ${i}
-                                        </button>
-                                    `;
+                                                            <button onclick="changePrescriptionPage(${i})" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold ${i === currentPage ? 'z-10 bg-sky-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'}">
+                                                                ${i}
+                                                            </button>
+                                                        `;
                                 }
 
                                 tableHtml += `
-                                            <button onclick="changePrescriptionPage(${currentPage + 1})" 
-                                                    ${currentPage === totalPages ? 'disabled' : ''}
-                                                    class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed">
-                                                <span class="sr-only">Next</span>
-                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                    <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l4.5 4.25a.75.75 0 01-1.06.02z" clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
+                                                    <button onclick="changePrescriptionPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        <span class="sr-only">Next</span>
+                                                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l4.5 4.25a.75.75 0 01-1.06.02z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
                                                 </nav>
                                             </div>
                                         </div>
@@ -983,13 +958,15 @@
                             renderPrescriptionsTable(currentPage);
                         };
 
-                        // Global functions to show details
+                        // Show medication details
                         window.showMedicationDetails = function(prescriptionNumber) {
                             const prescription = data.prescriptions.find(p => p.prescription_number ===
                                 prescriptionNumber);
                             if (!prescription) return;
 
-                            const medicines = prescription.medications.filter(item => !item.type);
+                            const medicines = prescription.medications
+                                .filter(item => item.type === 'medications')
+                                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
                             let detailsHtml = `
                                 <div class="p-4 bg-white rounded-lg shadow-lg">
@@ -1005,32 +982,26 @@
                                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Quantity</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                            `;
+                                            <tbody>`;
 
                             medicines.forEach(med => {
                                 detailsHtml += `
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-2 border">${med.name || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${med.dosage || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${med.frequency || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${med.duration || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${med.quantity || 'N/A'}</td>
-                                    </tr>
-                                `;
+                                                    <tr class="hover:bg-gray-50">
+                                                        <td class="px-4 py-2 border">${med.name || 'N/A'}</td>
+                                                        <td class="px-4 py-2 border">${med.dosage || 'N/A'}</td>
+                                                        <td class="px-4 py-2 border">${med.frequency || 'N/A'}</td>
+                                                        <td class="px-4 py-2 border">${med.duration || 'N/A'}</td>
+                                                        <td class="px-4 py-2 border">${med.quantity || 'N/A'}</td>
+                                                    </tr>
+                                                `;
                             });
 
-                            detailsHtml += `
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            `;
+                            detailsHtml += `</tbody></table></div></div>`;
 
-                            // Show modal
                             showModal('Medication Details', detailsHtml);
                         };
 
+                        // Show vital signs details
                         window.showVitalDetails = function(prescriptionNumber) {
                             const prescription = data.prescriptions.find(p => p.prescription_number ===
                                 prescriptionNumber);
@@ -1056,31 +1027,24 @@
                                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Height</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                            `;
+                                            <tbody>`;
 
                             vitalsList.forEach(vital => {
                                 detailsHtml += `
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-2 border">${vital.recorded_at || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${vital.blood_pressure || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${vital.heart_rate || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${vital.temperature || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${vital.oxygen_saturation || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${vital.weight || 'N/A'}</td>
-                                        <td class="px-4 py-2 border">${vital.height || 'N/A'}</td>
-                                    </tr>
-                                `;
+                                                        <tr class="hover:bg-gray-50">
+                                                            <td class="px-4 py-2 border">${formatDateTime(vital.recorded_at)}</td>
+                                                            <td class="px-4 py-2 border">${vital.blood_pressure || 'N/A'}</td>
+                                                            <td class="px-4 py-2 border">${vital.heart_rate || 'N/A'}</td>
+                                                            <td class="px-4 py-2 border">${vital.temperature || 'N/A'}</td>
+                                                            <td class="px-4 py-2 border">${vital.oxygen_saturation || 'N/A'}</td>
+                                                            <td class="px-4 py-2 border">${vital.weight || 'N/A'}</td>
+                                                            <td class="px-4 py-2 border">${vital.height || 'N/A'}</td>
+                                                        </tr>
+                                                    `;
                             });
 
-                            detailsHtml += `
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            `;
+                            detailsHtml += `</tbody></table></div></div>`;
 
-                            // Show modal
                             showModal('Vital Signs Details', detailsHtml);
                         };
 
@@ -1096,6 +1060,7 @@
                             </div>
                         `;
                     }
+
                     // Modal show click to View Details in Prescriptions History
                     function showModal(title, content) {
                         // Remove existing modal if any
@@ -1105,29 +1070,53 @@
                         }
 
                         const modalHtml = `
-                        <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                            <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                                <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
-                                    <div class="flex items-center justify-between">
-                                        <h3 class="text-lg font-semibold text-gray-900">${title}</h3>
-                                        <button onclick="document.getElementById('details-modal').remove()" 
-                                                class="text-gray-400 hover:text-gray-600">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
+                            <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                                <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                                    <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-semibold text-gray-900">${title}</h3>
+                                            <button onclick="document.getElementById('details-modal').remove()" 
+                                                    class="text-gray-400 hover:text-gray-600">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="p-6 overflow-y-auto flex-grow">
+                                        ${content}
                                     </div>
                                 </div>
-                                <div class="p-6 overflow-y-auto flex-grow">
-                                    ${content}
-                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
 
                         document.body.insertAdjacentHTML('beforeend', modalHtml);
                     }
 
+                    function formatDateTime(isoString) {
+                        if (!isoString) return '-';
+                        const date = new Date(isoString);
+
+                        let day = date.getDate();
+                        let month = date.getMonth() + 1; // Months are 0-based
+                        const year = date.getFullYear();
+
+                        let hours = date.getHours();
+                        const minutes = date.getMinutes();
+
+                        // Add leading zeros
+                        day = day < 10 ? '0' + day : day;
+                        month = month < 10 ? '0' + month : month;
+                        const mins = minutes < 10 ? '0' + minutes : minutes;
+
+                        // AM/PM
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        hours = hours % 12;
+                        hours = hours ? hours : 12; // 0 => 12
+                        const hrs = hours < 10 ? '0' + hours : hours;
+
+                        return `${day}-${month}-${year} ${hrs}:${mins} ${ampm}`;
+                    }
 
                     // Set minimum date for follow-up
                     const tomorrow = new Date();
@@ -1215,23 +1204,28 @@
 
                 function renderMedications() {
                     const container = document.getElementById('medications-prescription-list');
+
                     if (medications.length === 0) {
                         container.innerHTML =
                             '<p class="text-sm text-gray-500 italic">No medications added yet. Click "Add Medication" to start.</p>';
                         return;
                     }
-                    container.innerHTML = medications.map((med, index) =>
-                        `<div class="p-3 sm:p-4 border border-gray-200 rounded-lg">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                    <div>
-                        <p class="font-medium text-gray-800 text-sm sm:text-base">${med.name} ${med.dosage}</p>
-                        <p class="text-xs sm:text-sm text-gray-600 mt-1">${med.frequency}</p>
-                        <p class="text-xs text-gray-500 mt-1">Duration: ${med.duration}${med.quantity ? ` • Quantity: ${med.quantity}` : ''}</p>
-                    </div>
-                    <button onclick="removeMedication(${index})" class="text-red-600 hover:text-red-700 text-xs sm:text-sm self-start sm:self-auto">Remove</button>
-                </div>
-            </div>`
-                    ).join('');
+
+                    container.innerHTML = medications.map((med, index) => `
+                        <div class="relative p-3 sm:p-4 border border-gray-200 rounded-lg">
+                            <button onclick="removeMedication(${index})" class="absolute top-3 right-3 text-red-600 hover:text-red-700 text-xs sm:text-sm">
+                                Remove
+                            </button>
+
+                            <div class="space-y-1 mt-0">
+                                <p class="text-sm sm:text-base"><span class="font-medium">Name:</span> ${med.name}</p>
+                                <p class="text-sm sm:text-base"><span class="font-medium">Dosage:</span> ${med.dosage}</p>
+                                <p class="text-sm sm:text-base"><span class="font-medium">Frequency:</span> ${med.frequency}</p>
+                                <p class="text-sm sm:text-base"><span class="font-medium">Duration:</span> ${med.duration}</p>
+                                ${med.quantity ? `<p class="text-sm sm:text-base"><span class="font-medium">Quantity:</span> ${med.quantity}</p>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
                 }
 
                 window.removeMedication = function(index) {

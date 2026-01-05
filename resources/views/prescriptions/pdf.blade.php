@@ -223,7 +223,6 @@
             <p>{{ $prescription->diagnosis }}</p>
         </div>
     @endif
-
     <div class="section-title">Prescribed Medications</div>
     @if ($prescription->medications && count($prescription->medications) > 0)
         <table class="medications-table">

@@ -372,6 +372,17 @@ class DoctorAppointmentController extends Controller
                 'instructions' => 'nullable|string|max:2000',
                 'notes' => 'nullable|string|max:2000',
             ]);
+            $createdAt = now();
+
+            // Loop through each medication and add created_at and type
+            $medications = $request->medications;
+            foreach ($medications as &$med) {
+                $med['created_at'] = $createdAt;
+                $med['type'] = 'medications';
+            }
+
+            // Replace the medications array in the request
+            $request['medications'] = $medications;
 
             $doctorId = Auth::id();
             $prescription = $svc->savePrescription($id, $doctorId, $request->all());
@@ -453,7 +464,7 @@ class DoctorAppointmentController extends Controller
             }
 
             // Add timestamp to vitals
-            $vitalsData['recorded_at'] = now()->format('F d, Y h:i A');
+            $vitalsData['recorded_at'] = now();
             $vitalsData['type'] = 'vital_signs';
 
             $success = $svc->saveVitalSigns($id, $doctorId, $vitalsData);

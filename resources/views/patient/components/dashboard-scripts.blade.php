@@ -20,62 +20,278 @@
             'no_show': 'bg-gray-500'
         };
 
+        function formatDateTime(isoString) {
+            if (!isoString) return '-';
+            const date = new Date(isoString);
+
+            let day = date.getDate();
+            let month = date.getMonth() + 1; // Months are 0-based
+            const year = date.getFullYear();
+
+            let hours = date.getHours();
+            const minutes = date.getMinutes();
+
+            // Add leading zeros
+            day = day < 10 ? '0' + day : day;
+            month = month < 10 ? '0' + month : month;
+            const mins = minutes < 10 ? '0' + minutes : minutes;
+
+            // AM/PM
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // 0 => 12
+            const hrs = hours < 10 ? '0' + hours : hours;
+
+            return `${day}-${month}-${year} ${hrs}:${mins} ${ampm}`;
+        }
+
+
         function generatePrescriptionHTML(prescription) {
             if (!prescription) return '';
 
-            let medicationsHTML = '';
-            if (prescription.medications && prescription.medications.length > 0) {
-                medicationsHTML = prescription.medications.map(med => `
-                <div class="bg-gray-50 p-3 rounded-lg">
-                    <p class="font-medium text-gray-800">${med.name || 'N/A'}</p>
-                    <p class="text-sm text-gray-600">${med.dosage || ''} ${med.frequency || ''}</p>
-                    ${med.duration ? `<p class="text-xs text-gray-500">Duration: ${med.duration}</p>` : ''}
-                </div>
-            `).join('');
+            // Separate medications & vitals
+            const medicationList = prescription.medications
+                .filter(item => item.type === 'medications')
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // newest first
+
+            const vitalList = prescription.medications
+                .filter(item => item.type === 'vital_signs')
+                .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at)); // newest first
+
+            // MEDICATION TABLE ROWS
+            let medicationsRows = '';
+            if (medicationList.length > 0) {
+                medicationsRows = medicationList.map(med => `
+            <tr class="border-t">
+                <td class="px-3 py-2 text-sm">${med.name || 'N/A'}</td>
+                <td class="px-3 py-2 text-sm">${med.dosage || '-'}</td>
+                <td class="px-3 py-2 text-sm">${med.frequency || '-'}</td>
+                <td class="px-3 py-2 text-sm">${med.duration || '-'}</td>
+                <td class="px-3 py-2 text-sm">${med.quantity || '-'}</td>
+            </tr>
+        `).join('');
             } else {
-                medicationsHTML = '<p class="text-gray-500 text-sm">No medications recorded</p>';
+                medicationsRows = `
+            <tr>
+                <td colspan="5" class="px-3 py-3 text-center text-sm text-gray-500">
+                    No medications recorded
+                </td>
+            </tr>
+        `;
             }
 
-            return `
-            <div class="mt-6 pt-6 border-t border-gray-200">
-                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Prescription
-                    <span class="ml-2 text-xs font-normal text-gray-500">#${prescription.prescription_number || 'N/A'}</span>
-                </h4>
-                ${prescription.diagnosis ? `
-                <div class="mb-4">
-                    <p class="text-sm font-medium text-gray-600">Diagnosis</p>
-                    <p class="text-gray-800">${prescription.diagnosis}</p>
-                </div>
-                ` : ''}
-                <div class="mb-4">
-                    <p class="text-sm font-medium text-gray-600 mb-2">Medications</p>
-                    <div class="space-y-2">${medicationsHTML}</div>
-                </div>
-                ${prescription.instructions ? `
-                <div class="mb-4">
-                    <p class="text-sm font-medium text-gray-600">Instructions</p>
-                    <p class="text-gray-800 text-sm">${prescription.instructions}</p>
-                </div>
-                ` : ''}
-                ${prescription.follow_up_date ? `
-                <div class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <p class="text-sm font-medium text-blue-800">Follow-up Date</p>
-                    <p class="text-blue-700">${prescription.follow_up_date}</p>
-                </div>
-                ` : ''}
-                ${prescription.notes ? `
-                <div class="mb-4">
-                    <p class="text-sm font-medium text-gray-600">Additional Notes</p>
-                    <p class="text-gray-800 text-sm">${prescription.notes}</p>
-                </div>
-                ` : ''}
-            </div>
+            // VITAL SIGNS TABLE ROWS
+            let vitalsRows = '';
+            if (vitalList.length > 0) {
+                vitalsRows = vitalList.map((vital, index) => `
+            <tr class="border-t">
+                <td class="px-3 py-2 text-sm">${index + 1}</td>
+                <td class="px-3 py-2 text-sm">${formatDateTime(vital.recorded_at)}</td>
+
+                <td class="px-3 py-2 text-sm">${vital.height || '-'}</td>
+                <td class="px-3 py-2 text-sm">${vital.weight || '-'}</td>
+                <td class="px-3 py-2 text-sm">${vital.temperature || '-'}</td>
+                <td class="px-3 py-2 text-sm">${vital.heart_rate || '-'}</td>
+                <td class="px-3 py-2 text-sm">${vital.blood_pressure || '-'}</td>
+                <td class="px-3 py-2 text-sm">${vital.oxygen_saturation || '-'}</td>
+            </tr>
+        `).join('');
+            } else {
+                vitalsRows = `
+            <tr>
+                <td colspan="8" class="px-3 py-3 text-center text-sm text-gray-500">
+                    No vital signs recorded
+                </td>
+            </tr>
         `;
+            }
+
+            // RETURN FULL HTML
+            return `
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <h4 class="text-lg font-semibold text-gray-800 mb-4">
+                Prescription 
+                <span class="text-xs text-gray-500">
+                    #${prescription.prescription_number || 'N/A'}
+                </span>
+            </h4>
+
+            <!-- MEDICATION TABLE -->
+            <h5 class="font-semibold mb-2">Medications</h5>
+            <div class="overflow-x-auto mb-6">
+                <table class="min-w-full border border-gray-200 rounded-lg">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-3 py-2">Medicine</th>
+                            <th class="px-3 py-2">Dosage</th>
+                            <th class="px-3 py-2">Frequency</th>
+                            <th class="px-3 py-2">Duration</th>
+                            <th class="px-3 py-2">Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${medicationsRows}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- VITAL SIGNS TABLE -->
+            <h5 class="font-semibold mb-2">Vital Signs</h5>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-200 rounded-lg">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-3 py-2">#</th>
+                            <th class="px-3 py-2">Recorded At</th>
+                            <th class="px-3 py-2">Height</th>
+                            <th class="px-3 py-2">Weight</th>
+                            <th class="px-3 py-2">Temp</th>
+                            <th class="px-3 py-2">Heart Rate</th>
+                            <th class="px-3 py-2">BP</th>
+                            <th class="px-3 py-2">SpO₂</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${vitalsRows}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
         }
+
+
+
+
+        // function generatePrescriptionHTML(prescription) {
+        //     if (!prescription) return '';
+        //     console.log(prescription);
+
+
+        //     // Separate medications & vitals from same array
+        //     const medicationList = prescription.medications.filter(
+        //         item => !item.type
+        //     );
+
+        //     const vitalList = prescription.medications.filter(
+        //         item => item.type === 'vital_signs'
+        //     );
+
+        //     /* =======================
+        //        MEDICATION TABLE ROWS
+        //     ======================= */
+        //     let medicationsRows = '';
+        //     if (medicationList.length > 0) {
+        //         medicationsRows = medicationList.map(med => `
+        //             <tr class="border-t">
+        //                 <td class="px-3 py-2 text-sm">${med.name || 'N/A'}</td>
+        //                 <td class="px-3 py-2 text-sm">${med.dosage || '-'}</td>
+        //                 <td class="px-3 py-2 text-sm">${med.frequency || '-'}</td>
+        //                 <td class="px-3 py-2 text-sm">${med.duration || '-'}</td>
+        //                 <td class="px-3 py-2 text-sm">${med.quantity || '-'}</td>
+        //             </tr>
+        //         `).join('');
+        //     } else {
+        //         medicationsRows = `
+        //             <tr>
+        //                 <td colspan="5" class="px-3 py-3 text-center text-sm text-gray-500">
+        //                     No medications recorded
+        //                 </td>
+        //             </tr>
+        //         `;
+        //     }
+
+        //     /* =======================
+        //        VITAL SIGNS TABLE ROWS
+        //     ======================= */
+        //     let vitalsRows = '';
+        //     if (vitalList.length > 0) {
+        //         vitalsRows = vitalList.map((vital, index) => `
+        //             <tr class="border-t">
+        //                 <td class="px-3 py-2 text-sm">${index + 1}</td>
+        //                 <td class="px-3 py-2 text-sm">${vital.recorded_at || '-'}</td>
+        //                 <td class="px-3 py-2 text-sm">${vital.height || '-'}</td>
+        //                 <td class="px-3 py-2 text-sm">${vital.weight || '-'}</td>
+        //                 <td class="px-3 py-2 text-sm">${vital.temperature || '-'}</td>
+        //                 <td class="px-3 py-2 text-sm">${vital.heart_rate || '-'}</td>
+        //                 <td class="px-3 py-2 text-sm">${vital.blood_pressure || '-'}</td>
+        //                 <td class="px-3 py-2 text-sm">${vital.oxygen_saturation || '-'}</td>
+        //             </tr>
+        //         `).join('');
+        //     } else {
+        //         vitalsRows = `
+        //             <tr>
+        //                 <td colspan="8" class="px-3 py-3 text-center text-sm text-gray-500">
+        //                     No vital signs recorded
+        //                 </td>
+        //             </tr>
+        //         `;
+        //     }
+
+        //     return `
+        //         <div class="mt-6 pt-6 border-t border-gray-200">
+        //             <h4 class="text-lg font-semibold text-gray-800 mb-4">
+        //                 Prescription 
+        //                 <span class="text-xs text-gray-500">
+        //                     #${prescription.prescription_number || 'N/A'}
+        //                 </span>
+        //             </h4>
+
+        //             <!-- Prescription Info 
+        //             <div class="overflow-x-auto mb-6">
+        //                 <table class="min-w-full border border-gray-200 rounded-lg">
+        //                     <tbody>
+        //                         <tr class="border-b">
+        //                             <th class="px-4 py-2 bg-gray-50 text-left">Diagnosis</th>
+        //                             <td class="px-4 py-2">${prescription.diagnosis || '-'}</td>
+        //                         </tr>
+        //                     </tbody>
+        //                 </table>
+        //             </div>-->
+
+        //             <!-- MEDICATION TABLE -->
+        //             <h5 class="font-semibold mb-2">Medications</h5>
+        //             <div class="overflow-x-auto mb-6">
+        //                 <table class="min-w-full border border-gray-200 rounded-lg">
+        //                     <thead class="bg-gray-100">
+        //                         <tr>
+        //                             <th class="px-3 py-2">Medicine</th>
+        //                             <th class="px-3 py-2">Dosage</th>
+        //                             <th class="px-3 py-2">Frequency</th>
+        //                             <th class="px-3 py-2">Duration</th>
+        //                             <th class="px-3 py-2">Quantity</th>
+        //                         </tr>
+        //                     </thead>
+        //                     <tbody>
+        //                         ${medicationsRows}
+        //                     </tbody>
+        //                 </table>
+        //             </div>
+
+        //             <!-- VITAL SIGNS TABLE -->
+        //             <h5 class="font-semibold mb-2">Vital Signs</h5>
+        //             <div class="overflow-x-auto">
+        //                 <table class="min-w-full border border-gray-200 rounded-lg">
+        //                     <thead class="bg-gray-100">
+        //                         <tr>
+        //                             <th class="px-3 py-2">#</th>
+        //                             <th class="px-3 py-2">Recorded At</th>
+        //                             <th class="px-3 py-2">Height</th>
+        //                             <th class="px-3 py-2">Weight</th>
+        //                             <th class="px-3 py-2">Temp</th>
+        //                             <th class="px-3 py-2">Heart Rate</th>
+        //                             <th class="px-3 py-2">BP</th>
+        //                             <th class="px-3 py-2">SpO₂</th>
+        //                         </tr>
+        //                     </thead>
+        //                     <tbody>
+        //                         ${vitalsRows}
+        //                     </tbody>
+        //                 </table>
+        //             </div>
+        //         </div>
+        //     `;
+        // }
 
         function generateAppointmentDetailsHTML(apt) {
             const normalizedStatus = apt.status.toLowerCase().replace(' ', '_');

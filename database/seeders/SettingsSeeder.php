@@ -29,11 +29,12 @@ class SettingsSeeder extends Seeder
                 'value' => '20',
                 'type' => 'integer',
                 'setting_category_id' => 1,
+                'status' => 0,
                 'description' => 'Maximum number of appointments allowed per day',
             ],
             [
                 'key' => 'whatsapp_notifications',
-                'value' => '1',
+                'value' => '0',
                 'type' => 'boolean',
                 'setting_category_id' => 3,
                 'description' => 'Enable or disable whatsapp notifications',
