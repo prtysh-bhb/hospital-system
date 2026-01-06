@@ -198,11 +198,11 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4">
             <div class="md:col-span-2">
                 <input type="text" id="searchInput" placeholder="Search by name, specialty, email, phone..."
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             </div>
             <div>
                 <select id="specialtyFilter"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Specialties</option>
                     @foreach ($specialties as $specialty)
                         <option value="{{ $specialty->id }}">{{ $specialty->name }}</option>
@@ -211,7 +211,7 @@
             </div>
             <div>
                 <select id="statusFilter"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Status</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -442,7 +442,7 @@
             // Apply color to modal header
             if (colorData && colorData.gradient) {
                 modalHeader.className =
-                `bg-gradient-to-r ${colorData.gradient} px-6 py-4 flex justify-between items-center`;
+                    `bg-gradient-to-r ${colorData.gradient} px-6 py-4 flex justify-between items-center`;
             } else {
                 modalHeader.className =
                     'bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-4 flex justify-between items-center';

@@ -1,6 +1,6 @@
 <div id="appointment-booking-modal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto">
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-6">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl p-8 relative max-h-[95vh] overflow-y-auto">
         <!-- Close Button -->
         <button
             class="close-appointment-booking absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-full p-1">
@@ -12,7 +12,8 @@
         <h3 class="text-xl font-semibold text-gray-800 mb-6">Appointment Booking</h3>
         <hr>
 
-        <form class="space-y-6" id="appointmentForm" action="{{ route('patient.store.appointment') }}" method="post" enctype="multipart/form-data">
+        <form class="space-y-6" id="appointmentForm" action="{{ route('patient.store.appointment') }}" method="post"
+            enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="patient_id" value="{{ auth()->user()->id }}">
 
@@ -39,7 +40,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Type <span
                             class="text-red-600">*</span></label>
                     <select id="type_select" name="appointment_type"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm">
                         <option value="">Select type...</option>
                         <option value="consultation">Consultation</option>
                         <option value="follow_up">Follow Up</option>
@@ -55,10 +56,9 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Date <span
                             class="text-red-600">*</span></label>
-                    <input type="date" name="appointment_date" id="appointment_date" 
-                        min="{{ date('Y-m-d') }}"
+                    <input type="date" name="appointment_date" id="appointment_date" min="{{ date('Y-m-d') }}"
                         max="{{ date('Y-m-d', strtotime("+{$advanceBookingDays} days")) }}"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm">
                     <span id="appointment_date_error" class="text-xs text-red-500 hidden"></span>
                 </div>
 
@@ -66,7 +66,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Time <span
                             class="text-red-600">*</span></label>
                     <select name="appointment_time" id="appointment_time"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm">
                         <option value="">Select date first</option>
                     </select>
                     <span id="appointment_time_error" class="text-xs text-red-500 hidden"></span>
@@ -79,7 +79,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Visit <span
                             class="text-red-600">*</span></label>
                     <textarea name="reason_for_visit" id="reason_for_visit" rows="3" maxlength="1000"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
                         placeholder="Enter reason for visit..."></textarea>
                     <div class="flex justify-between mt-1">
                         <span id="reason_for_visit_error" class="text-xs text-red-500 hidden"></span>
@@ -90,7 +90,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
                     <textarea name="notes" id="notes" rows="2" maxlength="500"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm"
                         placeholder="Enter any additional notes..."></textarea>
                     <div class="flex justify-between mt-1">
                         <span id="notes_error" class="text-xs text-red-500 hidden"></span>
@@ -112,17 +112,17 @@
     </div>
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         // ========== Character Counters ==========
         const reasonForVisit = document.getElementById('reason_for_visit');
         const reasonCount = document.getElementById('reason_count');
-        reasonForVisit.addEventListener('input', function () {
+        reasonForVisit.addEventListener('input', function() {
             reasonCount.textContent = reasonForVisit.value.length;
-        }); 
-        
+        });
+
         const notes = document.getElementById('notes');
         const notesCount = document.getElementById('notes_count');
-        notes.addEventListener('input', function () {
+        notes.addEventListener('input', function() {
             notesCount.textContent = notes.value.length;
         });
 
@@ -147,9 +147,9 @@
                             data.forEach(time => {
                                 const option = document.createElement('option');
                                 // Convert to 24-hour format if in 12-hour format
-                                const timeValue = time.includes('AM') || time.includes('PM') 
-                                    ? convertTo24Hour(time) 
-                                    : time;
+                                const timeValue = time.includes('AM') || time.includes('PM') ?
+                                    convertTo24Hour(time) :
+                                    time;
                                 option.value = timeValue;
                                 option.textContent = time;
                                 appointmentTime.appendChild(option);
@@ -176,13 +176,13 @@
             const [time, period] = time12.split(' ');
             let [hours, minutes] = time.split(':');
             hours = parseInt(hours);
-            
+
             if (period === 'AM') {
                 if (hours === 12) hours = 0;
             } else {
                 if (hours !== 12) hours += 12;
             }
-            
+
             return `${String(hours).padStart(2, '0')}:${minutes}`;
         }
 
@@ -193,7 +193,7 @@
         function clearFieldError(fieldName) {
             const errorElement = document.getElementById(`${fieldName}_error`);
             const field = document.querySelector(`[name="${fieldName}"]`) || document.getElementById(fieldName);
-            
+
             if (field) {
                 field.classList.remove('border-red-500');
             }
@@ -206,7 +206,7 @@
         function showFieldError(fieldName, message) {
             const errorElement = document.getElementById(`${fieldName}_error`);
             const field = document.querySelector(`[name="${fieldName}"]`) || document.getElementById(fieldName);
-            
+
             if (field) {
                 field.classList.add('border-red-500');
             }
@@ -288,67 +288,73 @@
             // Disable submit button and show loading state
             submitBtn.disabled = true;
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Creating...';
+            submitBtn.innerHTML =
+                '<svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Creating...';
 
             // Prepare form data
             const formData = new FormData(this);
 
             // Send AJAX request
             fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success || data.status === 200) {
-                    toastr.success(data.message || 'Appointment created successfully!', 'Success', {
-                        closeButton: true,
-                        progressBar: true,
-                        timeOut: 3000
-                    });
-                    
-                    // Close modal and reset form
-                    document.getElementById('appointment-booking-modal').classList.add('hidden');
-                    appointmentForm.reset();
-                    clearAllErrors();
-                    reasonCount.textContent = '0';
-                    notesCount.textContent = '0';
-                    appointmentTime.innerHTML = '<option value="">Select date first</option>';
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success || data.status === 200) {
+                        toastr.success(data.message || 'Appointment created successfully!',
+                            'Success', {
+                                closeButton: true,
+                                progressBar: true,
+                                timeOut: 3000
+                            });
 
-                } else {
-                    toastr.error(data.message || 'Failed to create appointment', 'Error', {
-                        closeButton: true,
-                        progressBar: true,
-                        timeOut: 5000
-                    });
+                        // Close modal and reset form
+                        document.getElementById('appointment-booking-modal').classList.add(
+                            'hidden');
+                        appointmentForm.reset();
+                        clearAllErrors();
+                        reasonCount.textContent = '0';
+                        notesCount.textContent = '0';
+                        appointmentTime.innerHTML = '<option value="">Select date first</option>';
+
+                    } else {
+                        toastr.error(data.message || 'Failed to create appointment', 'Error', {
+                            closeButton: true,
+                            progressBar: true,
+                            timeOut: 5000
+                        });
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+
+                        // Display validation errors if any
+                        if (data.errors && typeof data.errors === 'object') {
+                            Object.keys(data.errors).forEach(fieldName => {
+                                const errorMessage = Array.isArray(data.errors[fieldName]) ?
+                                    data.errors[fieldName][0] :
+                                    data.errors[fieldName];
+                                showFieldError(fieldName, errorMessage);
+                            });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error(
+                        'An error occurred while creating the appointment. Please try again.',
+                        'Error', {
+                            closeButton: true,
+                            progressBar: true,
+                            timeOut: 5000
+                        });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
-
-                    // Display validation errors if any
-                    if (data.errors && typeof data.errors === 'object') {
-                        Object.keys(data.errors).forEach(fieldName => {
-                            const errorMessage = Array.isArray(data.errors[fieldName]) 
-                                ? data.errors[fieldName][0] 
-                                : data.errors[fieldName];
-                            showFieldError(fieldName, errorMessage);
-                        });
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                toastr.error('An error occurred while creating the appointment. Please try again.', 'Error', {
-                    closeButton: true,
-                    progressBar: true,
-                    timeOut: 5000
                 });
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            });
         });
 
         // Clear error on field change

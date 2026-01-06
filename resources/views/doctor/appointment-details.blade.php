@@ -47,7 +47,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Change Appointment Status</label>
                         <div class="flex gap-3">
                             <select id="status-select"
-                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                                 <option value="">Select status...</option>
                                 <option value="confirmed">Confirmed</option>
                                 <option value="checked_in">Checked In</option>
@@ -179,7 +179,7 @@
                     </button>
                 </div>
                 <textarea id="consultation-notes"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm sm:text-base"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
                     rows="6" placeholder="Enter consultation notes, diagnosis, and treatment plan..."></textarea>
                 <p id="notes-message" class="mt-2 text-sm hidden"></p>
             </div>
@@ -265,32 +265,32 @@
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Blood Pressure</span>
                         <input type="text" id="vital-bp" placeholder="120/80"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Heart Rate (bpm)</span>
                         <input type="text" id="vital-hr" placeholder="72"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Temperature (°F)</span>
                         <input type="text" id="vital-temp" placeholder="98.6"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Oxygen Sat (%)</span>
                         <input type="text" id="vital-o2" placeholder="98"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Weight (lbs)</span>
                         <input type="text" id="vital-weight" placeholder="180"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-xs sm:text-sm text-gray-600">Height (in)</span>
                         <input type="text" id="vital-height" placeholder="70"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                 </div>
                 <button id="save-vitals-btn"
@@ -307,13 +307,13 @@
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Follow-up Date</label>
                         <input type="date" id="followup-date"
-                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base"
+                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-0 focus:border-gray-300"
                             min="{{ date('Y-m-d', strtotime('+1 day')) }}">
                     </div>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Time</label>
                         <select id="followup-time"
-                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base">
+                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-0 focus:border-gray-300">
                             <option value="">Select a date first</option>
                         </select>
                         <p id="followup-time-loading" class="text-xs text-gray-500 mt-1 hidden">Loading available slots...
@@ -322,7 +322,7 @@
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason (Optional)</label>
                         <input type="text" id="followup-reason"
-                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base"
+                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-0 focus:border-gray-300"
                             placeholder="Follow-up reason">
                     </div>
                     <button id="schedule-followup-btn"
@@ -371,13 +371,13 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Diagnosis</label>
                     <input type="text" id="med-diagnosis"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
                         placeholder="e.g., Hypertension">
                 </div>
                 <div class="relative">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Medication Name</label>
                     <input type="text" id="med-name"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
                         placeholder="e.g., Paracetamol">
                     <ul id="med-suggestions"
                         class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto hidden">
@@ -387,23 +387,26 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Dosage</label>
                     <input type="text" id="med-dosage"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g., 25mg">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+                        placeholder="e.g., 25mg">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Frequency</label>
                     <input type="text" id="med-frequency"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
                         placeholder="e.g., Twice daily">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
                     <input type="text" id="med-duration"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g., 30 days">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+                        placeholder="e.g., 30 days">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
                     <input type="text" id="med-quantity"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g., 60 tablets">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+                        placeholder="e.g., 60 tablets">
                 </div>
             </div>
             <div class="flex gap-3 mt-6">
@@ -1413,8 +1416,14 @@
                 });
 
                 // Complete Appointment - Show Modal
-                document.getElementById('complete-appointment-btn').addEventListener('click', function() {
-                    document.getElementById('complete-appointment-modal').classList.remove('hidden');
+                document.addEventListener('DOMContentLoaded', function() {
+                    document
+                        .getElementById('complete-appointment-btn')
+                        .addEventListener('click', function() {
+                            document
+                                .getElementById('complete-appointment-modal')
+                                .classList.remove('hidden');
+                        });
                 });
 
                 // Cancel Complete Modal

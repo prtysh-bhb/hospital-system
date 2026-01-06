@@ -63,7 +63,7 @@
                         <div>
                             {{-- <label class="block text-sm font-medium mb-1">Doctor <span class="text-red-500">*</span></label> --}}
                             <select name="doctor_id"
-                                class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition">
+                                class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-0 focus:border-gray-300 transition">
                                 <option value="">Select Doctor</option>
                                 @foreach ($doctors as $doctor)
                                     <option value="{{ $doctor->id }}">
@@ -178,7 +178,7 @@
                     <div>
                         <label class="block text-sm font-medium mb-1">Reason <span class="text-red-500">*</span></label>
                         <textarea name="reason" rows="3"
-                            class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
+                            class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-0 focus:border-gray-300 transition"
                             placeholder="Enter reason for leave..."></textarea>
                     </div>
 
@@ -936,11 +936,11 @@
                                 if (typeof toastr !== 'undefined') {
                                     toastr.success(data.message ||
                                         'Leave added and appointments cancelled successfully'
-                                        );
+                                    );
                                 } else {
                                     alert(data.message ||
                                         'Leave added and appointments cancelled successfully'
-                                        );
+                                    );
                                 }
                             } else {
                                 const errorBox = document.getElementById('formError');

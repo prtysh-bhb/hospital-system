@@ -18,17 +18,17 @@
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">From Date</label>
                 <input type="date" id="from_date" max="{{ date('Y-m-d') }}"
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
             </div>
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">To Date</label>
                 <input type="date" id="to_date" max="{{ date('Y-m-d') }}"
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
             </div>
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status</label>
                 <select id="status_filter"
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                     <option value="all">All Status</option>
                     <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
@@ -38,7 +38,7 @@
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Search</label>
                 <input type="text" id="search_input" placeholder="Patient or Doctor name..."
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
             </div>
             <div class="flex items-end">
                 <button onclick="loadHistory(1)"
@@ -542,32 +542,32 @@
                 </div>
 
                 ${appointment.reason_for_visit ? `
-                            <div class="border-t pt-4">
-                                <label class="text-sm font-medium text-gray-500">Reason for Visit</label>
-                                <p class="mt-1 text-base text-gray-900">${appointment.reason_for_visit}</p>
-                            </div>
-                        ` : ''}
+                                <div class="border-t pt-4">
+                                    <label class="text-sm font-medium text-gray-500">Reason for Visit</label>
+                                    <p class="mt-1 text-base text-gray-900">${appointment.reason_for_visit}</p>
+                                </div>
+                            ` : ''}
 
                 ${appointment.symptoms ? `
-                            <div class="border-t pt-4">
-                                <label class="text-sm font-medium text-gray-500">Symptoms</label>
-                                <p class="mt-1 text-base text-gray-900">${appointment.symptoms}</p>
-                            </div>
-                        ` : ''}
+                                <div class="border-t pt-4">
+                                    <label class="text-sm font-medium text-gray-500">Symptoms</label>
+                                    <p class="mt-1 text-base text-gray-900">${appointment.symptoms}</p>
+                                </div>
+                            ` : ''}
 
                 ${appointment.notes ? `
-                            <div class="border-t pt-4">
-                                <label class="text-sm font-medium text-gray-500">Notes</label>
-                                <p class="mt-1 text-base text-gray-900">${appointment.notes}</p>
-                            </div>
-                        ` : ''}
+                                <div class="border-t pt-4">
+                                    <label class="text-sm font-medium text-gray-500">Notes</label>
+                                    <p class="mt-1 text-base text-gray-900">${appointment.notes}</p>
+                                </div>
+                            ` : ''}
 
                 ${appointment.cancellation_reason ? `
-                            <div class="border-t pt-4">
-                                <label class="text-sm font-medium text-gray-500">Cancellation Reason</label>
-                                <p class="mt-1 text-base text-red-600">${appointment.cancellation_reason}</p>
-                            </div>
-                        ` : ''}
+                                <div class="border-t pt-4">
+                                    <label class="text-sm font-medium text-gray-500">Cancellation Reason</label>
+                                    <p class="mt-1 text-base text-red-600">${appointment.cancellation_reason}</p>
+                                </div>
+                            ` : ''}
             </div>
             `;
 

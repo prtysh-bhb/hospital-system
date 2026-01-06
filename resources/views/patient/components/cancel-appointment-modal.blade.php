@@ -18,7 +18,7 @@
                     Reason for Cancellation <span class="text-red-600">*</span>
                 </label>
                 <textarea id="cancellation-reason" name="cancellation_reason" rows="4"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                     placeholder="Please provide a reason for cancelling this appointment (minimum 10 characters)..."></textarea>
                 <p id="cancellation-reason-error" class="text-xs text-red-500 mt-1 hidden"></p>
             </div>

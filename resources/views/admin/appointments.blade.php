@@ -17,12 +17,12 @@
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Search</label>
                 <input type="text" id="filterSearch" placeholder="Patient name, ID..."
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             </div>
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Doctor</label>
                 <select id="filterDoctor"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Doctors</option>
                     @foreach ($doctors as $doctor)
                         <option value="{{ $doctor->id }}">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</option>
@@ -32,12 +32,12 @@
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date</label>
                 <input type="date" id="filterDate"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             </div>
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status</label>
                 <select id="filterStatus"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Status</option>
                     <option value="pending">Pending</option>
                     <option value="confirmed">Confirmed</option>
@@ -502,22 +502,22 @@
                         </div>
 
                         ${appointment.status === 'cancelled' && appointment.cancellation_reason ? `
-                                    <div class="border-t pt-4">
-                                        <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Cancellation Reason</label>
-                                        <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                                            <p class="text-sm text-red-700">${appointment.cancellation_reason}</p>
-                                        </div>
-                                    </div>
-                                ` : ''}
+                                                    <div class="border-t pt-4">
+                                                        <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Cancellation Reason</label>
+                                                        <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                                                            <p class="text-sm text-red-700">${appointment.cancellation_reason}</p>
+                                                        </div>
+                                                    </div>
+                                                ` : ''}
 
                         ${appointment.notes ? `
-                                    <div class="border-t pt-4">
-                                        <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Additional Notes</label>
-                                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                            <p class="text-sm text-gray-700">${appointment.notes}</p>
-                                        </div>
-                                    </div>
-                                ` : ''}
+                                                    <div class="border-t pt-4">
+                                                        <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Additional Notes</label>
+                                                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                                            <p class="text-sm text-gray-700">${appointment.notes}</p>
+                                                        </div>
+                                                    </div>
+                                                ` : ''}
 
                         <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
                             <button type="button" onclick="closeEditModal()"

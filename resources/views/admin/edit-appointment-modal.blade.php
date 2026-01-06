@@ -7,7 +7,7 @@
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Select Patient <span
                 class="text-red-600">*</span></label>
         <select id="edit_select_patient" name="patient_id"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             <option value="">Search or select patient...</option>
             @foreach ($patients as $patient)
                 <option value="{{ $patient->id }}"
@@ -24,7 +24,7 @@
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Select Doctor <span
                 class="text-red-600">*</span></label>
         <select id="edit_doctor_select" name="doctor_id"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             <option value="">Search or select doctor...</option>
             @foreach ($doctors as $doctor)
                 <option value="{{ $doctor->id }}"
@@ -45,14 +45,14 @@
             <input type="date" id="edit_appointment_date" name="appointment_date"
                 value="{{ $appointment ? $appointment->appointment_date->format('Y-m-d') : '' }}"
                 min="{{ date('Y-m-d') }}"
-                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             <p id="date_error" class="text-xs text-red-500 mt-1 hidden"></p>
         </div>
         <div>
             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Time <span
                     class="text-red-600">*</span></label>
             <select id="edit_appointment_time" name="appointment_time"
-                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                 <option value="">Select doctor and date first...</option>
                 @if ($appointment)
                     <option value="{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('H:i') }}"
@@ -71,7 +71,7 @@
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Type <span
                 class="text-red-600">*</span></label>
         <select id="edit_type_select" name="appointment_type"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             <option value="">Select type...</option>
             <option value="consultation"
                 {{ $appointment && $appointment->appointment_type == 'consultation' ? 'selected' : '' }}>Consultation
@@ -93,7 +93,7 @@
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason for Visit <span
                 class="text-red-600">*</span></label>
         <textarea id="edit_reason_for_visit" name="reason_for_visit"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
             rows="4" placeholder="Enter reason for visit or symptoms">{{ $appointment ? $appointment->reason_for_visit : '' }}</textarea>
         <p id="reason_error" class="text-xs text-red-500 mt-1 hidden"></p>
     </div>
@@ -102,7 +102,7 @@
     <div>
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
         <textarea id="edit_notes" name="notes"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
             rows="3" placeholder="Any additional information (optional)">{{ $appointment ? $appointment->notes : '' }}</textarea>
     </div>
 
@@ -113,7 +113,7 @@
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Emergency Contact Name</label>
                 <input type="text" id="edit_emergency_contact_name" name="emergency_contact_name"
                     value="{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->emergency_contact_name : '' }}"
-                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                     placeholder="Contact person name">
             </div>
 
@@ -121,7 +121,7 @@
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Emergency Contact Phone</label>
                 <input type="text" id="edit_emergency_contact_phone" name="emergency_contact_phone"
                     value="{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->emergency_contact_phone : '' }}"
-                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                     placeholder="Contact phone number">
             </div>
         </div>
@@ -131,7 +131,7 @@
         <div>
             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Blood Group</label>
             <select id="edit_blood_group" name="blood_group"
-                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                 <option value="">Select blood group</option>
                 @php $currentBloodGroup = $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->blood_group : ''; @endphp
                 <option value="A+" {{ $currentBloodGroup == 'A+' ? 'selected' : '' }}>A+</option>
@@ -150,7 +150,7 @@
         <div>
             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Medical History</label>
             <textarea id="edit_medical_history" name="medical_history"
-                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                 rows="3" placeholder="Any past medical conditions, surgeries, etc.">{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->medical_history : '' }}</textarea>
         </div>
     @endif
@@ -159,7 +159,7 @@
         <div>
             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Current Medications</label>
             <textarea id="edit_current_medications" name="current_medications"
-                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                 rows="3" placeholder="List any medications currently taking">{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->current_medications : '' }}</textarea>
         </div>
     @endif
@@ -170,7 +170,7 @@
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Insurance Provider</label>
                 <input type="text" id="edit_insurance_provider" name="insurance_provider"
                     value="{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->insurance_provider : '' }}"
-                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                     placeholder="Insurance company name">
             </div>
 
@@ -178,7 +178,7 @@
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Insurance Number</label>
                 <input type="text" id="edit_insurance_number" name="insurance_number"
                     value="{{ $appointment && $appointment->patient && $appointment->patient->patientProfile ? $appointment->patient->patientProfile->insurance_number : '' }}"
-                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                     placeholder="Policy/Member number">
             </div>
         </div>
@@ -188,7 +188,7 @@
     <div>
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status</label>
         <select id="edit_status" name="status"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             <option value="pending" {{ $appointment && $appointment->status == 'pending' ? 'selected' : '' }}>Pending
             </option>
             <option value="confirmed" {{ $appointment && $appointment->status == 'confirmed' ? 'selected' : '' }}>
@@ -212,7 +212,7 @@
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Cancellation Reason <span
                 class="text-red-600">*</span></label>
         <textarea id="edit_cancellation_reason" name="cancellation_reason"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
             rows="3" placeholder="Please provide a reason for cancellation">{{ $appointment ? $appointment->cancellation_reason : '' }}</textarea>
     </div>
 

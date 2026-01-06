@@ -11,12 +11,12 @@
             <div class="col-span-1 md:col-span-2">
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Search Patient</label>
                 <input type="text" id="searchInput" placeholder="Search by name, email, phone, or ID..."
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
             </div>
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Gender</label>
                 <select id="genderFilter"
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                     <option value="all">All Genders</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -132,7 +132,7 @@
                                 class="text-red-600">*</span></label>
                         <input type="text" id="edit_first_name" data-error="edit_first_name_error"
                             placeholder="Enter first name"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_first_name_error"></span>
                     </div>
 
@@ -142,7 +142,7 @@
                                 class="text-red-600">*</span></label>
                         <input type="text" id="edit_last_name" data-error="edit_last_name_error"
                             placeholder="Enter last name"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_last_name_error"></span>
                     </div>
 
@@ -151,7 +151,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email <span
                                 class="text-red-600">*</span></label>
                         <input type="email" id="edit_email" data-error="edit_email_error" placeholder="Enter email"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_email_error"></span>
                     </div>
 
@@ -161,7 +161,7 @@
                                 class="text-red-600">*</span></label>
                         <input type="tel" id="edit_phone" data-error="edit_phone_error"
                             placeholder="Enter phone number"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_phone_error"></span>
                     </div>
 
@@ -170,7 +170,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth <span
                                 class="text-red-600">*</span></label>
                         <input type="date" id="edit_date_of_birth" data-error="edit_date_of_birth_error"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_date_of_birth_error"></span>
                     </div>
 
@@ -179,7 +179,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Gender <span
                                 class="text-red-600">*</span></label>
                         <select id="edit_gender" data-error="edit_gender_error"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                             <option value="">Select Gender</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
@@ -192,7 +192,7 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
                         <textarea id="edit_address" data-error="edit_address_error" placeholder="Enter address..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500"></textarea>
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"></textarea>
                         <span class="text-xs text-red-500 hidden" id="edit_address_error"></span>
                     </div>
 
@@ -201,7 +201,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Blood Group</label>
                         <input type="text" id="edit_blood_group" data-error="edit_blood_group_error"
                             placeholder="Enter blood group"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_blood_group_error"></span>
                     </div>
 
@@ -210,7 +210,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Name</label>
                         <input type="text" id="edit_emergency_contact_name"
                             data-error="edit_emergency_contact_name_error" placeholder="Enter emergency contact name"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_emergency_contact_name_error"></span>
                     </div>
 
@@ -219,7 +219,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Phone</label>
                         <input type="tel" id="edit_emergency_contact_phone"
                             data-error="edit_emergency_contact_phone_error" placeholder="Enter emergency phone number"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_emergency_contact_phone_error"></span>
                     </div>
                 </div>
@@ -232,7 +232,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Medical History</label>
                             <textarea id="edit_medical_history" data-error="edit_medical_history_error"
                                 placeholder="Any past medical conditions, surgeries, allergies, etc."
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" rows="3"></textarea>
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
+                                rows="3"></textarea>
                             <span class="text-xs text-red-500 hidden" id="edit_medical_history_error"></span>
                         </div>
 
@@ -240,7 +241,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Current Medications</label>
                             <textarea id="edit_current_medications" data-error="edit_current_medications_error"
                                 placeholder="List any medications currently taking"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" rows="3"></textarea>
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
+                                rows="3"></textarea>
                             <span class="text-xs text-red-500 hidden" id="edit_current_medications_error"></span>
                         </div>
                     </div>
@@ -254,7 +256,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Insurance Provider</label>
                             <input type="text" id="edit_insurance_provider" data-error="edit_insurance_provider_error"
                                 placeholder="Insurance company name"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                             <span class="text-xs text-red-500 hidden" id="edit_insurance_provider_error"></span>
                         </div>
 
@@ -262,7 +264,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Insurance Number</label>
                             <input type="text" id="edit_insurance_number" data-error="edit_insurance_number_error"
                                 placeholder="Policy/Member number"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                             <span class="text-xs text-red-500 hidden" id="edit_insurance_number_error"></span>
                         </div>
                     </div>
@@ -458,7 +460,7 @@
                     </td>
                     <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                         ${lastVisit ? `<p class="text-xs sm:text-sm text-gray-900">${formatDate(lastVisit.appointment_date)}</p>
-                                            <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name ?? ''} ${lastVisit.doctor?.last_name ?? ''}</p>`
+                                                                                                                <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name ?? ''} ${lastVisit.doctor?.last_name ?? ''}</p>`
                              : '<p class="text-xs sm:text-sm text-gray-500">No visits yet</p>'}
                     </td>
                     <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">
@@ -544,120 +546,136 @@
             const content = document.getElementById('viewModalContent');
 
             content.innerHTML = `
-            <div class="space-y-6">
-                <div class="flex items-center gap-4 pb-4 border-b">
-                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.full_name)}&background=0ea5e9&color=fff&size=80"
-                         class="w-20 h-20 rounded-full" alt="Patient">
-                    <div>
-                        <h4 class="text-xl font-semibold text-gray-800">${patient.full_name}</h4>
-                        <p class="text-sm text-gray-500">Patient ID: PT-${String(patient.id).padStart(4, '0')}</p>
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4 pb-4 border-b">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.full_name)}&background=0ea5e9&color=fff&size=80"
+                            class="w-20 h-20 rounded-full" alt="Patient">
+                        <div>
+                            <h4 class="text-xl font-semibold text-gray-800">${patient.full_name}</h4>
+                            <p class="text-sm text-gray-500">Patient ID: PT-${String(patient.id).padStart(4, '0')}</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Email</p>
-                        <p class="text-sm text-gray-900">${patient.email || 'N/A'}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Email</p>
+                            <p class="text-sm text-gray-900">${patient.email || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Phone</p>
+                            <p class="text-sm text-gray-900">${patient.phone || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Date of Birth</p>
+                            <p class="text-sm text-gray-900">${formatDate(patient.date_of_birth)} (${age} years)</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Gender</p>
+                            <p class="text-sm text-gray-900">${capitalizeFirst(patient.gender)}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-sm font-medium text-gray-500">Address</p>
+                            <p class="text-sm text-gray-900">${patient.address || 'Not provided'}</p>
+                        </div>
+                        ${patient.blood_group ? `<div><p class="text-sm font-medium text-gray-500">Blood Group</p>
+                                                                        <p class="text-sm text-gray-900">
+                                                                            <span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">${patient.blood_group}</span>
+                                                                        </p>
+                                                                    </div>` : ''}
+
+                        ${patient.emergency_contact_name || patient.emergency_contact_phone ? ` <div> <p class="text-sm font-medium text-gray-500">Emergency Contact</p>
+                                                                            <p class="text-sm text-gray-900">${patient.emergency_contact_name || 'N/A'}</p>
+                                                                            ${patient.emergency_contact_phone ? `<p class="text-xs text-gray-600">${patient.emergency_contact_phone}</p>` : ''}
+                                                                    </div>` : ''}
                     </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Phone</p>
-                        <p class="text-sm text-gray-900">${patient.phone || 'N/A'}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Date of Birth</p>
-                        <p class="text-sm text-gray-900">${formatDate(patient.date_of_birth)} (${age} years)</p>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Gender</p>
-                        <p class="text-sm text-gray-900">${capitalizeFirst(patient.gender)}</p>
-                    </div>
-                    <div class="md:col-span-2">
-                        <p class="text-sm font-medium text-gray-500">Address</p>
-                        <p class="text-sm text-gray-900">${patient.address || 'Not provided'}</p>
-                    </div>
-                    ${patient.blood_group ? `
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Blood Group</p>
-                                    <p class="text-sm text-gray-900">
-                                        <span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">
-                                            ${patient.blood_group}
-                                        </span>
-                                    </p>
+
+                    ${patient.medical_history || patient.current_medications ? `
+                                                                    <div class="border-t pt-4">
+                                                                        <h5 class="text-base font-semibold text-gray-800 mb-3">Medical Information</h5>
+
+                                                                        ${patient.medical_history ? `
+                                <div class="mb-3">
+                                    <p class="text-sm font-medium text-gray-500">Medical History</p>
+                                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
+                                        <p class="text-sm text-gray-700">${patient.medical_history}</p>
+                                    </div>
                                 </div>
                             ` : ''}
-                    ${patient.emergency_contact_name || patient.emergency_contact_phone ? `
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Emergency Contact</p>
-                                    <p class="text-sm text-gray-900">${patient.emergency_contact_name || 'N/A'}</p>
-                                    ${patient.emergency_contact_phone ? `<p class="text-xs text-gray-600">${patient.emergency_contact_phone}</p>` : ''}
-                                </div>
-                            ` : ''}
-                </div>
 
-                ${patient.medical_history || patient.current_medications ? `
-                            <div class="border-t pt-4">
-                                <h5 class="text-base font-semibold text-gray-800 mb-3">Medical Information</h5>
-                                ${patient.medical_history ? `
-                            <div class="mb-3">
-                                <p class="text-sm font-medium text-gray-500">Medical History</p>
-                                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
-                                    <p class="text-sm text-gray-700">${patient.medical_history}</p>
-                                </div>
-                            </div>
-                        ` : ''}
-                                ${patient.current_medications ? `
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Current Medications</p>
-                                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
-                                    <p class="text-sm text-gray-700">${patient.current_medications}</p>
-                                </div>
-                            </div>
-                        ` : ''}
-                            </div>
-                        ` : ''}
+                                                                        ${patient.current_medications ? (() => {
+                                                                            const med = patient.current_medications;
 
-                ${patient.insurance_provider || patient.insurance_number ? `
-                            <div class="border-t pt-4">
-                                <h5 class="text-base font-semibold text-gray-800 mb-3">Insurance Information</h5>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    ${patient.insurance_provider ? `
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Provider</p>
+                                                                            // Split by newlines
+                                                                            const lines = med.split('\n').map(line => line.trim());
+
+                                                                            // Extract fields
+                                                                            let name = lines.find(line => line.startsWith('Name:')) || '';
+                                                                            let dosage = lines.find(line => line.startsWith('Dosage:')) || '';
+                                                                            let frequency = lines.find(line => line.startsWith('Frequency:')) || '';
+                                                                            let duration = lines.find(line => line.startsWith('Duration:')) || '';
+                                                                            let quantity = lines.find(line => line.startsWith('Quantity:')) || '';
+
+                                                                            // Remove prefixes
+                                                                            name = name.replace(/^Name:\s*/i, '');
+                                                                            dosage = dosage.replace(/^Dosage:\s*/i, '');
+                                                                            frequency = frequency.replace(/^Frequency:\s*/i, '');
+                                                                            duration = duration.replace(/^Duration:\s*/i, '');
+                                                                            quantity = quantity.replace(/^Quantity:\s*/i, '');
+
+                                                                            return `
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Current Medications</p>
+                                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1 flex justify-center overflow-x-auto">
+                                            <table class="text-sm text-gray-700 text-center">
+                                                <thead class="border-b">
+                                                    <tr>
+                                                        <th class="px-4 py-2">Medication Name</th>
+                                                        <th class="px-4 py-2">Dosage</th>
+                                                        <th class="px-4 py-2">Frequency</th>
+                                                        <th class="px-4 py-2">Duration</th>
+                                                        <th class="px-4 py-2">Quantity</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="border-b">
+                                                        <td class="px-4 py-2 max-w-xs break-words">${name}</td>
+                                                        <td class="px-4 py-2">${dosage}</td>
+                                                        <td class="px-4 py-2">${frequency}</td>
+                                                        <td class="px-4 py-2">${duration}</td>
+                                                        <td class="px-4 py-2">${quantity}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                `;
+                                                                        })() : ''}
+                                                                    </div>
+                                                                ` : ''}
+
+                    ${patient.insurance_provider || patient.insurance_number ? `
+                                                                    <div class="border-t pt-4">
+                                                                        <h5 class="text-base font-semibold text-gray-800 mb-3">Insurance Information</h5>
+                                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                            ${patient.insurance_provider ? ` <div> <p class="text-sm font-medium text-gray-500">Provider</p>
                                     <p class="text-sm text-gray-900">${patient.insurance_provider}</p>
-                                </div>
-                            ` : ''}
-                                    ${patient.insurance_number ? `
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Policy Number</p>
+                                </div> ` : ''}
+
+                                                                            ${patient.insurance_number ? ` <div> <p class="text-sm font-medium text-gray-500">Policy Number</p>
                                     <p class="text-sm text-gray-900">${patient.insurance_number}</p>
-                                </div>
-                            ` : ''}
-                                </div>
-                            </div>
-                        ` : ''}
+                                </div> ` : ''}
+                                                                        </div>
+                                                                    </div>
+                                                                ` : ''}
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    ${patient.last_appointment ? `
-                                                                                                                                                                                                                                    <div class="md:col-span-2 pt-4 border-t">
-                                                                                                                                                                                                                                        <p class="text-sm font-medium text-gray-500 mb-2">Last Appointment</p>
-                                                                                                                                                                                                                                        <p class="text-sm text-gray-900">Date: ${formatDate(patient.last_appointment.date)}</p>
-                                                                                                                                                                                                                                        <p class="text-sm text-gray-900">Doctor: ${patient.last_appointment.doctor}</p>
-                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                ` : ''}
-                </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> ${patient.last_appointment ? ` ` : ''} </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t">
-                    <button onclick="closeViewModal()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                        Close
-                    </button>
-                    <button onclick="openEditModal(${patient.id})" 
-                            class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700">
-                        Edit Patient
-                    </button>
+                    <div class="flex justify-end gap-3 pt-4 border-t">
+                        <button onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"> Close </button>
+                        <button onclick="openEditModal(${patient.id})" class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700"> Edit Patient </button>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
         }
 
         function openEditModal(id) {

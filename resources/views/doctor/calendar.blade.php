@@ -28,7 +28,7 @@
                     Today
                 </button>
                 <input type="date" id="jumpToDate"
-                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                     title="Jump to date">
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
@@ -842,10 +842,10 @@
 
                     html += `<div class="flex items-center gap-2 flex-1">`;
                     html +=
-                        `<input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="${startTime}">`;
+                        `<input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none focus:outline-none focus:ring-0 focus:border-gray-300" value="${startTime}">`;
                     html += `<span class="text-gray-500 text-xs sm:text-sm">to</span>`;
                     html +=
-                        `<input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="${endTime}">`;
+                        `<input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none focus:outline-none focus:ring-0 focus:border-gray-300" value="${endTime}">`;
                     html += `</div>`;
                 } else {
                     html += `<span class="text-gray-400 text-sm sm:text-base unavailable-text">Unavailable</span>`;
@@ -909,9 +909,9 @@
                     // Add time inputs
                     const timeInputsHtml = `
                         <div class="flex items-center gap-2 flex-1">
-                            <input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="09:00">
+                            <input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none focus:outline-none focus:ring-0 focus:border-gray-300" value="09:00">
                             <span class="text-gray-500 text-xs sm:text-sm">to</span>
-                            <input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="17:00">
+                            <input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none focus:outline-none focus:ring-0 focus:border-gray-300" value="17:00">
                         </div>
                     `;
                     $container.append(timeInputsHtml);
@@ -1089,13 +1089,13 @@
                                             <span class="text-gray-700">${apt.type}</span>
                                         </div>
                                         ${apt.reason ? `
-                                                                                                                                            <div class="flex items-start text-sm">
-                                                                                                                                                <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                                                                                                                </svg>
-                                                                                                                                                <span class="text-gray-600">${apt.reason}</span>
-                                                                                                                                            </div>
-                                                                                                                                            ` : ''}
+                                                                                                                                                    <div class="flex items-start text-sm">
+                                                                                                                                                        <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                                                                                                        </svg>
+                                                                                                                                                        <span class="text-gray-600">${apt.reason}</span>
+                                                                                                                                                    </div>
+                                                                                                                                                    ` : ''}
                                     </div>
                                 </div>
                             `).join('');

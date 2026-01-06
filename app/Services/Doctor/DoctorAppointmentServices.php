@@ -4,6 +4,8 @@ namespace App\Services\Doctor;
 
 use App\Models\Appointment;
 use App\Models\Prescription;
+use App\Models\PatientProfile;
+use Illuminate\Support\Facades\DB;
 use App\Services\AppointmentSlotService;
 
 class DoctorAppointmentServices
@@ -155,6 +157,7 @@ class DoctorAppointmentServices
         if (!$appointment) {
             return null;
         }
+        DB::beginTransaction();
 
         try {
             // Get or create prescription
@@ -196,10 +199,35 @@ class DoctorAppointmentServices
                     'medications' => $mergedMedications,
                 ]);
             }
+            /**
+             * Update patient_profiles.current_medications
+             * Only latest medications (from current request)
+             */
+            $medicationText = '';
+
+            foreach ($newMedications as $med) {
+                $medicationText .=
+                    'Name: ' . ($med['name'] ?? '-') . "\n" .
+                    'Dosage: ' . ($med['dosage'] ?? '-') . "\n" .
+                    'Frequency: ' . ($med['frequency'] ?? '-') . "\n" .
+                    'Duration: ' . ($med['duration'] ?? '-') . "\n" .
+                    'Quantity: ' . ($med['quantity'] ?? '-') . "\n\n";
+                    // 'Type: ' . ($med['type'] ?? 'medications') . "\n\n";
+            }
+
+            $patientProfile = PatientProfile::where('user_id', $appointment->patient_id)->first();
+
+            if ($patientProfile) {
+                $patientProfile->update([
+                    'current_medications' => trim($medicationText)
+                ]);
+            }
+            DB::commit();
 
             return $prescription;
 
         } catch (\Exception $e) {
+            DB::rollBack();
             \Log::error('Failed to save prescription', [
                 'error' => $e->getMessage(),
                 'appointment_id' => $appointmentId,

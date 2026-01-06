@@ -226,7 +226,7 @@
                                         <div class="mt-6 space-y-2">
                                             <label class="text-sm font-medium text-gray-700">Value</label>
                                             <input type="text"
-                                                class="setting-input w-full border-2 border-gray-100 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-sky-100 focus:border-sky-400 transition-all duration-200 hover:border-gray-200"
+                                                class="setting-input w-full border-2 border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-0 focus:border-gray-300 transition-all duration-200 hover:border-gray-200"
                                                 data-setting-key="site_name"
                                                 data-category-id="{{ $settings['site_name']['category_id'] }}"
                                                 data-setting-type="{{ $settings['site_name']['type'] }}"
@@ -251,7 +251,7 @@
                                         <div class="mt-6 space-y-2">
                                             <label class="text-sm font-medium text-gray-700">Value</label>
                                             <input type="number"
-                                                class="setting-input w-full border-2 border-gray-100 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-sky-100 focus:border-sky-400 transition-all duration-200 hover:border-gray-200"
+                                                class="setting-input w-full border-2 border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-0 focus:border-transparent transition-all duration-200 hover:border-gray-200"
                                                 data-setting-key="max_appointments_per_day"
                                                 data-category-id="{{ $settings['max_appointments_per_day']['category_id'] }}"
                                                 data-setting-type="{{ $settings['max_appointments_per_day']['type'] }}"
@@ -322,7 +322,7 @@
                                         <div class="mt-6 space-y-2">
                                             <label class="text-sm font-medium text-gray-700">Value</label>
                                             <input type="number"
-                                                class="setting-input w-full border-2 border-gray-100 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-sky-100 focus:border-sky-400 transition-all duration-200 hover:border-gray-200"
+                                                class="setting-input w-full border-2 border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-0 focus:border-gray-300 transition-all duration-200 hover:border-gray-200"
                                                 data-setting-key="appointment_booking_days"
                                                 data-category-id="{{ $settings['appointment_booking_days']['category_id'] }}"
                                                 data-setting-type="{{ $settings['appointment_booking_days']['type'] }}"

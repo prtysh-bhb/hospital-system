@@ -112,10 +112,10 @@
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date Range</label>
                     <div class="flex items-center space-x-2">
                         <input type="date" id="filterStartDate"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-gray-500">to</span>
                         <input type="date" id="filterEndDate"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                 </div>
 
@@ -123,7 +123,7 @@
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Leave Type</label>
                     <select id="filterLeaveType"
-                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <option value="">All Types</option>
                         <option value="full_day">Full Day</option>
                         <option value="half_day">Half Day</option>
@@ -135,7 +135,7 @@
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Doctor</label>
                     <select id="filterDoctor"
-                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <option value="">All Doctors</option>
                         @foreach ($doctors as $doctor)
                             <option value="{{ $doctor->id }}">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}
@@ -148,7 +148,7 @@
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status</label>
                     <select id="filterStatus"
-                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <option value="">All Status</option>
                         <option value="pending">Pending</option>
                         <option value="approved">Approved</option>
@@ -190,7 +190,7 @@
                             class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden lg:table-cell">
                             Duration
                         </th>
-                        <th 
+                        <th
                             class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             Availability
                         </th>
@@ -301,48 +301,63 @@
                         // Generate availability display
                         let availabilityHTML = '';
                         if (item.leave_type === 'full_day') {
-                            availabilityHTML = `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300">Full Day</span>`;
+                            availabilityHTML =
+                                `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300">Full Day</span>`;
                         } else if (item.leave_type === 'custom') {
                             // Custom leave with half days
                             let availabilityParts = [];
-                            
+
                             // Start date
                             if (item.start_date_type === 'half_day') {
-                                availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.start_half_slot)} Half (${startDate})</span>`);
+                                availabilityParts.push(
+                                    `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.start_half_slot)} Half (${startDate})</span>`
+                                );
                             } else if (item.start_date_type === 'full_day') {
-                                availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${startDate})</span>`);
+                                availabilityParts.push(
+                                    `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${startDate})</span>`
+                                );
                             }
 
                             // Middle dates (if any)
                             let start = new Date(item.start_date);
                             let end = new Date(item.end_date);
                             let daysDiff = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-                            
+
                             if (daysDiff > 1) {
                                 let middleStart = new Date(start);
                                 middleStart.setDate(middleStart.getDate() + 1);
                                 let middleEnd = new Date(end);
                                 middleEnd.setDate(middleEnd.getDate() - 1);
-                                
+
                                 if (middleStart <= middleEnd) {
-                                    let middleStartStr = formatDate(middleStart.toISOString().split('T')[0]);
-                                    let middleEndStr = formatDate(middleEnd.toISOString().split('T')[0]);
-                                    availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${middleStartStr} to ${middleEndStr})</span>`);
+                                    let middleStartStr = formatDate(middleStart.toISOString()
+                                        .split('T')[0]);
+                                    let middleEndStr = formatDate(middleEnd.toISOString().split(
+                                        'T')[0]);
+                                    availabilityParts.push(
+                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${middleStartStr} to ${middleEndStr})</span>`
+                                    );
                                 }
                             }
 
                             // End date (if different from start)
                             if (item.end_date !== item.start_date) {
                                 if (item.end_date_type === 'half_day') {
-                                    availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.end_half_slot)} Half (${endDate})</span>`);
+                                    availabilityParts.push(
+                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.end_half_slot)} Half (${endDate})</span>`
+                                    );
                                 } else if (item.end_date_type === 'full_day') {
-                                    availabilityParts.push(`<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${endDate})</span>`);
+                                    availabilityParts.push(
+                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${endDate})</span>`
+                                    );
                                 }
                             }
 
-                            availabilityHTML = `<div class="flex flex-wrap gap-1">${availabilityParts.join('')}</div>`;
+                            availabilityHTML =
+                                `<div class="flex flex-wrap gap-1">${availabilityParts.join('')}</div>`;
                         } else {
-                            availabilityHTML = `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-700 border-gray-300">-</span>`;
+                            availabilityHTML =
+                                `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-700 border-gray-300">-</span>`;
                         }
 
                         tbody.innerHTML += `

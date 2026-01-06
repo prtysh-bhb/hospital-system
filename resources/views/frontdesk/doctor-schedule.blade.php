@@ -11,12 +11,12 @@
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date</label>
                 <input type="date" id="schedule_date"
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
             </div>
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Specialty</label>
                 <select id="specialty_filter"
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                     <option value="all">All Specialties</option>
                     <!-- Dynamically populated -->
                 </select>
@@ -24,7 +24,7 @@
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Availability</label>
                 <select id="availability_filter"
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                     <option value="all">All Doctors</option>
                     <option value="available">Available</option>
                     <option value="busy">Busy</option>
@@ -228,7 +228,7 @@
                                         <span class="text-xs px-2 py-1 ${statusColors[doctor.availability_status] || 'bg-gray-100 text-gray-700'} rounded-full border">
                                             ${statusLabels[doctor.availability_status] || 'Unknown'}
                                         </span>
-                                        <span class="text-xs text-gray-500">Room ${doctor.room || 'N/A'}</span>
+                                        <!-- <span class="text-xs text-gray-500">Room ${doctor.room || 'N/A'}</span>--!>
                                     </div>
                                 </div>
                             </div>

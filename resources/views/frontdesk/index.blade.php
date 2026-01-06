@@ -17,12 +17,12 @@
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Search</label>
                 <input type="text" id="filterSearch" placeholder="Patient name"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             </div>
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Doctor</label>
                 <select id="filterDoctor"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Doctors</option>
                     @foreach ($doctors as $doctor)
                         <option value="{{ $doctor->id }}">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</option>
@@ -32,12 +32,12 @@
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date</label>
                 <input type="date" id="filterDate"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             </div>
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status</label>
                 <select id="filterStatus"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Status</option>
                     @foreach (['pending', 'confirmed', 'completed', 'cancelled'] as $st)
                         <option value="{{ $st }}" @selected(request('status') == $st)>
@@ -49,7 +49,7 @@
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Type</label>
                 <select id="filterType"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Type</option>
                     @foreach (['consultation', 'follow_up', 'emergency', 'check_up'] as $tp)
                         <option value="{{ $tp }}" @selected(request('type') == $tp)>

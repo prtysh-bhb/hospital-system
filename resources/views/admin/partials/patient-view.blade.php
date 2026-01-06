@@ -116,8 +116,45 @@
             <div>
                 <label class="text-sm font-medium text-gray-600">Current Medications</label>
                 <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
-                    <p class="text-sm text-gray-700">{{ $patient->current_medications ?? 'No medications recorded' }}
-                    </p>
+                    <table class="text-sm text-gray-700 text-center">
+                        <thead class="border-b">
+                            <tr>
+                                <th class="px-4 py-2">Medication Name</th>
+                                <th class="px-4 py-2">Dosage</th>
+                                <th class="px-4 py-2">Frequency</th>
+                                <th class="px-4 py-2">Duration</th>
+                                <th class="px-4 py-2">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                // Assuming the $patient->current_medications is a single text string
+                                $medicationText = $patient->current_medications;
+
+                                // Using regular expressions to extract the parts of the string
+                                preg_match('/Name:\s*(.*?)(?=\s*Dosage:)/', $medicationText, $name);
+                                preg_match('/Dosage:\s*(.*?)(?=\s*Frequency:)/', $medicationText, $dosage);
+                                preg_match('/Frequency:\s*(.*?)(?=\s*Duration:)/', $medicationText, $frequency);
+                                preg_match('/Duration:\s*(.*?)(?=\s*Quantity:)/', $medicationText, $duration);
+                                preg_match('/Quantity:\s*(.*)/', $medicationText, $quantity);
+
+                                // Extracted values
+                                $name = $name[1] ?? 'N/A';
+                                $dosage = $dosage[1] ?? 'N/A';
+                                $frequency = $frequency[1] ?? 'N/A';
+                                $duration = $duration[1] ?? 'N/A';
+                                $quantity = $quantity[1] ?? 'N/A';
+                            @endphp
+
+                            <tr class="border-b">
+                                <td class="px-4 py-2">{{ $name }}</td>
+                                <td class="px-4 py-2">{{ $dosage }}</td>
+                                <td class="px-4 py-2">{{ $frequency }}</td>
+                                <td class="px-4 py-2">{{ $duration }}</td>
+                                <td class="px-4 py-2">{{ $quantity }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
