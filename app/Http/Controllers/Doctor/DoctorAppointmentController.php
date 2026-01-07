@@ -265,6 +265,39 @@ class DoctorAppointmentController extends Controller
                     'created_at' => optional($presc->created_at)->format('F d, Y h:i A'),
                 ];
             });
+            // dd($patient->patientProfile->current_medications);
+            $rawMedications = $patient->patientProfile->current_medications;
+
+            // agar null ya empty ho
+            if (!$rawMedications) {
+                $medications = [];
+            } else {
+
+                // string ko lines me tod do
+                $lines = preg_split("/\r\n|\n|\r/", trim($rawMedications));
+
+                $medication = [];
+
+                foreach ($lines as $line) {
+                    if (str_contains($line, 'Name:')) {
+                        $medication['name'] = trim(str_replace('Name:', '', $line));
+                    } elseif (str_contains($line, 'Dosage:')) {
+                        $medication['dosage'] = trim(str_replace('Dosage:', '', $line));
+                    } elseif (str_contains($line, 'Frequency:')) {
+                        $medication['frequency'] = trim(str_replace('Frequency:', '', $line));
+                    } elseif (str_contains($line, 'Duration:')) {
+                        $medication['duration'] = trim(str_replace('Duration:', '', $line));
+                    } elseif (str_contains($line, 'Quantity:')) {
+                        $medication['quantity'] = trim(str_replace('Quantity:', '', $line));
+                    } elseif (str_contains($line, 'Created Date:')) {
+                        $medication['created_at'] = trim(str_replace('Created Date:', '', $line));
+                    }
+
+                }
+
+                // frontend ke liye array banaya
+                $medications = [$medication];
+            }
 
             $data = [
                 'appointment' => [

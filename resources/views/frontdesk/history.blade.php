@@ -254,32 +254,27 @@
             });
 
             fetch(`/frontdesk/history?${params}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-                    if (data.success) {
-                        updateStatistics(data.statistics);
-                        displayAppointments(data.appointments);
-                        updatePagination(data.pagination);
-                        updateDateRangeText(fromDate, toDate);
-                    } else {
-                        showError('Failed to load appointments: ' + (data.message || 'Unknown error'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showError('Failed to load appointments: ' + error.message);
-                });
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                return response.json();
+            }).then(data => {
+                if (data.success) {
+                    updateStatistics(data.statistics);
+                    displayAppointments(data.appointments);
+                    updatePagination(data.pagination);
+                    updateDateRangeText(fromDate, toDate);
+                } else {
+                    showError('Failed to load appointments: ' + (data.message || 'Unknown error'));
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                showError('Failed to load appointments: ' + error.message);
+            });
         }
 
         // Update statistics cards
@@ -542,32 +537,32 @@
                 </div>
 
                 ${appointment.reason_for_visit ? `
-                                <div class="border-t pt-4">
-                                    <label class="text-sm font-medium text-gray-500">Reason for Visit</label>
-                                    <p class="mt-1 text-base text-gray-900">${appointment.reason_for_visit}</p>
-                                </div>
-                            ` : ''}
+                                                <div class="border-t pt-4">
+                                                    <label class="text-sm font-medium text-gray-500">Reason for Visit</label>
+                                                    <p class="mt-1 text-base text-gray-900">${appointment.reason_for_visit}</p>
+                                                </div>
+                                            ` : ''}
 
                 ${appointment.symptoms ? `
-                                <div class="border-t pt-4">
-                                    <label class="text-sm font-medium text-gray-500">Symptoms</label>
-                                    <p class="mt-1 text-base text-gray-900">${appointment.symptoms}</p>
-                                </div>
-                            ` : ''}
+                                                <div class="border-t pt-4">
+                                                    <label class="text-sm font-medium text-gray-500">Symptoms</label>
+                                                    <p class="mt-1 text-base text-gray-900">${appointment.symptoms}</p>
+                                                </div>
+                                            ` : ''}
 
                 ${appointment.notes ? `
-                                <div class="border-t pt-4">
-                                    <label class="text-sm font-medium text-gray-500">Notes</label>
-                                    <p class="mt-1 text-base text-gray-900">${appointment.notes}</p>
-                                </div>
-                            ` : ''}
+                                                <div class="border-t pt-4">
+                                                    <label class="text-sm font-medium text-gray-500">Notes</label>
+                                                    <p class="mt-1 text-base text-gray-900">${appointment.notes}</p>
+                                                </div>
+                                            ` : ''}
 
                 ${appointment.cancellation_reason ? `
-                                <div class="border-t pt-4">
-                                    <label class="text-sm font-medium text-gray-500">Cancellation Reason</label>
-                                    <p class="mt-1 text-base text-red-600">${appointment.cancellation_reason}</p>
-                                </div>
-                            ` : ''}
+                                                <div class="border-t pt-4">
+                                                    <label class="text-sm font-medium text-gray-500">Cancellation Reason</label>
+                                                    <p class="mt-1 text-base text-red-600">${appointment.cancellation_reason}</p>
+                                                </div>
+                                            ` : ''}
             </div>
             `;
 

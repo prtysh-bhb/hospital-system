@@ -256,8 +256,6 @@
                 }
             }
 
-            console.log('Document ready, loading calendar for:', currentMonth);
-
             // Load weekly schedule FIRST, then initialize the view
             // This prevents race condition where week/day views render before schedule data is loaded
             loadWeeklySchedule(function() {
@@ -677,8 +675,6 @@
         }
 
         function loadCalendar(month) {
-            console.log('Loading calendar for month:', month);
-
             showLoading('#calendarDays', 'Loading calendar...');
 
             $.ajax({
@@ -688,8 +684,6 @@
                     month: month
                 },
                 success: function(response) {
-                    console.log('Calendar response:', response);
-
                     if (response.success) {
                         $('#currentPeriod').text(response.data.month_name);
                         renderCalendar(response.data.days);
@@ -706,8 +700,6 @@
         }
 
         function renderCalendar(days) {
-            console.log('Rendering calendar days:', days);
-
             if (!days || !Array.isArray(days)) {
                 showError('#calendarDays', 'Invalid calendar data received');
                 return;
@@ -777,13 +769,10 @@
         }
 
         function loadWeeklySchedule(callback) {
-            console.log('Loading weekly schedule...');
-
             $.ajax({
                 url: '{{ route('doctor.calendar.schedule') }}',
                 method: 'GET',
                 success: function(response) {
-                    console.log('Schedule response:', response);
 
                     if (response.success) {
                         // Store schedule data globally for use in week/day views
@@ -811,7 +800,6 @@
         }
 
         function renderWeeklySchedule(schedule) {
-            console.log('Rendering schedule:', schedule);
 
             if (!schedule || !Array.isArray(schedule)) {
                 showError('#weeklySchedule', 'Invalid schedule data');
@@ -1089,13 +1077,13 @@
                                             <span class="text-gray-700">${apt.type}</span>
                                         </div>
                                         ${apt.reason ? `
-                                                                                                                                                    <div class="flex items-start text-sm">
-                                                                                                                                                        <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                                                                                                                        </svg>
-                                                                                                                                                        <span class="text-gray-600">${apt.reason}</span>
-                                                                                                                                                    </div>
-                                                                                                                                                    ` : ''}
+                                                                                                                                                                                        <div class="flex items-start text-sm">
+                                                                                                                                                                                            <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                                                                                                                                            </svg>
+                                                                                                                                                                                            <span class="text-gray-600">${apt.reason}</span>
+                                                                                                                                                                                        </div>
+                                                                                                                                                                                        ` : ''}
                                     </div>
                                 </div>
                             `).join('');

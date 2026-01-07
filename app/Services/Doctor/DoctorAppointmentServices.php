@@ -86,7 +86,20 @@ class DoctorAppointmentServices
 
         $appointment->notes = $notes;
 
-        return $appointment->save();
+        $appointment->save();
+
+        // Update or Create Prescription notes
+        Prescription::updateOrCreate(
+            [
+                'appointment_id' => $appointment->id,
+            ],
+            [
+                'patient_id' => $appointment->patient_id,
+                'doctor_id' => $doctorId,
+                'notes' => $notes,
+            ]
+        );
+        return true;
     }
 
     /**
@@ -206,12 +219,17 @@ class DoctorAppointmentServices
             $medicationText = '';
 
             foreach ($newMedications as $med) {
+                $createdAt = '-';
+                if (!empty($med['created_at'])) {
+                    $createdAt = date('d M Y h:i A', strtotime($med['created_at']));
+                }
                 $medicationText .=
                     'Name: ' . ($med['name'] ?? '-') . "\n" .
                     'Dosage: ' . ($med['dosage'] ?? '-') . "\n" .
                     'Frequency: ' . ($med['frequency'] ?? '-') . "\n" .
                     'Duration: ' . ($med['duration'] ?? '-') . "\n" .
-                    'Quantity: ' . ($med['quantity'] ?? '-') . "\n\n";
+                    'Quantity: ' . ($med['quantity'] ?? '-') . "\n\n".
+                    'Created Date: ' . $createdAt . "\n\n";
                     // 'Type: ' . ($med['type'] ?? 'medications') . "\n\n";
             }
 
@@ -292,6 +310,18 @@ class DoctorAppointmentServices
 
         try {
             $appointment = Appointment::create($data);
+            
+            // Update or Create Prescription follow_up_date
+            Prescription::updateOrCreate(
+                [
+                    'appointment_id' => $originalAppointment->id,
+                ],
+                [
+                    'patient_id' => $originalAppointment->patient_id,
+                    'doctor_id' => $doctorId,
+                    'follow_up_date' => $followUpData['appointment_date'],
+                ]
+            );
 
             return $appointment;
         } catch (\Exception $e) {

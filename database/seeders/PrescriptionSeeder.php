@@ -101,7 +101,11 @@ class PrescriptionSeeder extends Seeder
 
         for ($i = 0; $i < $numMeds; $i++) {
             $med = $commonMeds[$i];
-            $med['instructions'] = 'Take with food'.(rand(0, 1) ? ', avoid alcohol' : '');
+
+            $med['instructions'] = 'Take with food' . (rand(0, 1) ? ', avoid alcohol' : '');
+            $med['type'] = 'medication';
+            $med['created_at'] = now();
+
             $medications[] = $med;
         }
 

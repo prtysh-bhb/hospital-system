@@ -154,8 +154,7 @@
 
                     <div id="medications-container">
                         <p class="text-xs sm:text-sm font-medium text-gray-700 mb-2">Current Medications</p>
-                        <ul id="medications-list"
-                            class="list-disc list-inside space-y-1 text-xs sm:text-sm text-gray-600">
+                        <ul id="medications-list" class="space-y-1 text-xs sm:text-sm text-gray-600">
                             <li class="text-gray-500 italic list-none">No current medications</li>
                         </ul>
                     </div>
@@ -441,22 +440,19 @@
 
                 timer = setTimeout(() => {
                     fetch(
-                            `https://rxnav.nlm.nih.gov/REST/approximateTerm.json?term=${encodeURIComponent(q)}&maxEntries=30`
-                        )
-                        .then(res => res.json())
-                        .then(data => {
-                            const raw = data.approximateGroup?.candidate || [];
+                        `https://rxnav.nlm.nih.gov/REST/approximateTerm.json?term=${encodeURIComponent(q)}&maxEntries=30`
+                    ).then(res => res.json()).then(data => {
+                        const raw = data.approximateGroup?.candidate || [];
 
-                            // FILTER: undefined / empty / mismatch
-                            suggestions = raw.filter(item =>
-                                item &&
-                                item.name &&
-                                item.name.toLowerCase().includes(q)
-                            );
+                        // FILTER: undefined / empty / mismatch
+                        suggestions = raw.filter(item =>
+                            item &&
+                            item.name &&
+                            item.name.toLowerCase().includes(q)
+                        );
 
-                            renderList();
-                        })
-                        .catch(err => console.error(err));
+                        renderList();
+                    }).catch(err => console.error(err));
                 }, 300);
             });
 
@@ -557,9 +553,7 @@
                     hideList();
                 }
             });
-        </script>
 
-        <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const appointmentId = {{ $appointment->id }};
                 let appointmentData = null;
@@ -569,8 +563,7 @@
                 loadAppointmentDetails();
 
                 function loadAppointmentDetails() {
-                    fetch(`/doctor/appointments/${appointmentId}/details-json`)
-                        .then(response => response.json())
+                    fetch(`/doctor/appointments/${appointmentId}/details-json`).then(response => response.json())
                         .then(result => {
                             if (result.status === 200) {
                                 appointmentData = result.data;
@@ -581,8 +574,7 @@
                             } else {
                                 showError();
                             }
-                        })
-                        .catch(error => {
+                        }).catch(error => {
                             console.error('Error:', error);
                             showError();
                         });
@@ -633,7 +625,6 @@
                     // Patient Info
                     const patientName = data.patient.name;
                     const dob = data.patient.date_of_birth;
-                    console.log(dob);
 
                     function calculateAge(dob) {
                         const birth = new Date(Date.parse(dob));
@@ -688,9 +679,16 @@
 
                     const medicationsList = document.getElementById('medications-list');
                     if (data.patient.current_medications && data.patient.current_medications.length > 0) {
-                        medicationsList.innerHTML = data.patient.current_medications.map(med =>
-                            `<li>${med}</li>`
-                        ).join('');
+                        medicationsList.innerHTML = data.patient.current_medications.map(med => `
+                            <li class="mb-4 p-3 border rounded">
+                                <p><strong>Date:</strong> ${med.created_at}</p>
+                                <p><strong>Name:</strong> ${med.name}</p>
+                                <p><strong>Dosage:</strong> ${med.dosage}</p>
+                                <p><strong>Frequency:</strong> ${med.frequency}</p>
+                                <p><strong>Duration:</strong> ${med.duration}</p>
+                                <p><strong>Quantity:</strong> ${med.quantity}</p>
+                            </li>
+                        `).join('');
                     } else {
                         medicationsList.innerHTML =
                             '<li class="text-gray-500 italic list-none">No current medications</li>';
@@ -717,91 +715,6 @@
                     // Existing Prescriptions - Always show section
                     const prescriptionsList = document.getElementById('existing-prescriptions-list');
                     prescriptionsList.classList.remove('max-h-[600px]', 'overflow-y-auto');
-
-                    // if (data.prescriptions && data.prescriptions.length > 0) {
-
-                    //     // Add scroll if more than 2 prescriptions
-                    //     if (data.prescriptions.length > 2) {
-                    //         prescriptionsList.classList.add('max-h-[600px]', 'overflow-y-auto');
-                    //     }
-
-                    //     prescriptionsList.innerHTML = data.prescriptions.map(presc => {
-
-                    //         console.log('data------------', presc.medications);
-
-                    //         // Separate medicines
-                    //         const medicines = presc.medications.filter(item => !item.type);
-
-                    //         // Separate all vital_signs
-                    //         const vitalsList = presc.medications
-                    //             .filter(item => item.type === 'vital_signs' && item.recorded_at)
-                    //             .sort((a, b) => new Date(b.recorded_at) - new Date(a
-                    //                 .recorded_at)); // Latest first
-
-                    //         // Medicines HTML
-                    //         const medsHtml = medicines.length ?
-                    //             medicines.map(med => `
-            //                 <li class="border-b pb-2">
-            //                     ${med.name ? `<div><strong>Medicine Name:</strong> ${med.name}</div>` : ''}
-            //                     ${med.dosage ? `<div><strong>Dosage:</strong> ${med.dosage}</div>` : ''}
-            //                     ${med.frequency ? `<div><strong>Frequency:</strong> ${med.frequency}</div>` : ''}
-            //                     ${med.duration ? `<div><strong>Duration:</strong> ${med.duration}</div>` : ''}
-            //                     ${med.quantity ? `<div><strong>Quantity:</strong> ${med.quantity}</div>` : ''}
-            //                 </li>
-            //             `).join('') : '<li class="text-gray-400 italic">No medications</li>';
-
-                    //         // Vitals HTML (show all)
-                    //         let vitalsHtml = '';
-                    //         if (vitalsList.length) {
-                    //             vitalsHtml = `
-            //                 <div class="mt-4 bg-sky-50 p-3 rounded-lg border border-sky-100">
-            //                     <p class="text-xs font-semibold text-sky-700 mb-2">Vital Signs:</p>
-            //                     <ul class="text-sm text-gray-700 space-y-3">
-            //                         ${vitalsList.map(vitals => `<li class="border-b pb-2">
-                    //                                                             ${vitals.blood_pressure ? `<div>Blood Pressure: ${vitals.blood_pressure}</div>` : ''}
-                    //                                                             ${vitals.heart_rate ? `<div>Heart Rate: ${vitals.heart_rate}</div>` : ''}
-                    //                                                             ${vitals.temperature ? `<div>Temperature: ${vitals.temperature}</div>` : ''}
-                    //                                                             ${vitals.oxygen_saturation ? `<div>Oxygen Saturation: ${vitals.oxygen_saturation}</div>` : ''}
-                    //                                                             ${vitals.height ? `<div>Height: ${vitals.height}</div>` : ''}
-                    //                                                             ${vitals.weight ? `<div>Weight: ${vitals.weight}</div>` : ''}
-                    //                                                             ${vitals.recorded_at ? `<div class="text-xs text-gray-500 mt-1">Recorded at: ${vitals.recorded_at}</div>` : ''}
-                    //                                                         </li>
-                    //                                                     `).join('')}
-            //                     </ul>
-            //                 </div>
-            //             `;
-                    //         }
-
-                    //         // Final Prescription Card
-                    //         return `
-            //             <div class="p-4 border-2 border-gray-200 rounded-lg hover:border-sky-300 transition-colors bg-gradient-to-br from-white to-gray-50">
-            //                 <div class="flex justify-between items-start mb-3">
-            //                     <div>
-            //                         <span class="text-sm font-bold text-sky-700">${presc.prescription_number}</span>
-            //                         ${presc.diagnosis ? `<p class="text-sm font-semibold text-gray-800 mt-1"> Diagnosis: ${presc.diagnosis} </p>` : '' }
-            //                     </div>
-            //                     <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            //                         ${presc.created_at}
-            //                     </span>
-            //                 </div>
-
-            //                 <div class="bg-white p-3 rounded-lg border border-gray-100">
-            //                     <p class="text-xs font-semibold text-gray-600 mb-2">Medications:</p>
-            //                     <ul class="text-sm text-gray-700 space-y-2">
-            //                         ${medsHtml}
-            //                     </ul>
-            //                 </div>
-
-            //                 ${vitalsHtml}
-            //                 ${presc.instructions ? `<p class="text-sm text-gray-600 mt-3 italic bg-blue-50 p-2 rounded"><strong>Instructions:</strong> ${presc.instructions}</p>` : '' }
-            //             </div>
-            //         `;
-                    //     }).join('');
-
-                    // } else {
-                    //     prescriptionsList.innerHTML =
-                    //         '<p class="text-sm text-gray-500 italic">No prescriptions available</p>';
-                    // }
 
                     if (data.prescriptions && data.prescriptions.length > 0) {
                         // Table with pagination implementation
@@ -927,10 +840,10 @@
                                 // Page numbers
                                 for (let i = 1; i <= totalPages; i++) {
                                     tableHtml += `
-                                                            <button onclick="changePrescriptionPage(${i})" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold ${i === currentPage ? 'z-10 bg-sky-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'}">
-                                                                ${i}
-                                                            </button>
-                                                        `;
+                                        <button onclick="changePrescriptionPage(${i})" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold ${i === currentPage ? 'z-10 bg-sky-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'}">
+                                            ${i}
+                                        </button>
+                                    `;
                                 }
 
                                 tableHtml += `
@@ -989,14 +902,14 @@
 
                             medicines.forEach(med => {
                                 detailsHtml += `
-                                                    <tr class="hover:bg-gray-50">
-                                                        <td class="px-4 py-2 border">${med.name || 'N/A'}</td>
-                                                        <td class="px-4 py-2 border">${med.dosage || 'N/A'}</td>
-                                                        <td class="px-4 py-2 border">${med.frequency || 'N/A'}</td>
-                                                        <td class="px-4 py-2 border">${med.duration || 'N/A'}</td>
-                                                        <td class="px-4 py-2 border">${med.quantity || 'N/A'}</td>
-                                                    </tr>
-                                                `;
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 border">${med.name || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.dosage || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.frequency || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.duration || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.quantity || 'N/A'}</td>
+                                    </tr>
+                                `;
                             });
 
                             detailsHtml += `</tbody></table></div></div>`;
@@ -1034,18 +947,17 @@
 
                             vitalsList.forEach(vital => {
                                 detailsHtml += `
-                                                        <tr class="hover:bg-gray-50">
-                                                            <td class="px-4 py-2 border">${formatDateTime(vital.recorded_at)}</td>
-                                                            <td class="px-4 py-2 border">${vital.blood_pressure || 'N/A'}</td>
-                                                            <td class="px-4 py-2 border">${vital.heart_rate || 'N/A'}</td>
-                                                            <td class="px-4 py-2 border">${vital.temperature || 'N/A'}</td>
-                                                            <td class="px-4 py-2 border">${vital.oxygen_saturation || 'N/A'}</td>
-                                                            <td class="px-4 py-2 border">${vital.weight || 'N/A'}</td>
-                                                            <td class="px-4 py-2 border">${vital.height || 'N/A'}</td>
-                                                        </tr>
-                                                    `;
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 border">${formatDateTime(vital.recorded_at)}</td>
+                                        <td class="px-4 py-2 border">${vital.blood_pressure || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.heart_rate || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.temperature || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.oxygen_saturation || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.weight || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.height || 'N/A'}</td>
+                                    </tr>
+                                `;
                             });
-
                             detailsHtml += `</tbody></table></div></div>`;
 
                             showModal('Vital Signs Details', detailsHtml);
@@ -1139,27 +1051,24 @@
                     }
 
                     fetch(`/doctor/appointments/${appointmentId}/notes`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                notes
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            notes
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                showMessage(messageEl, result.msg, 'success');
-                            } else {
-                                showMessage(messageEl, result.msg || 'Failed to save notes', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showMessage(messageEl, 'An error occurred', 'error');
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, result.msg, 'success');
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to save notes', 'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    });
                 });
 
                 // Medication Modal
@@ -1247,33 +1156,30 @@
                     }
 
                     fetch(`/doctor/appointments/${appointmentId}/prescription`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                diagnosis,
-                                medications
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            diagnosis,
+                            medications
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                showMessage(messageEl, result.msg, 'success');
-                                medications = [];
-                                window.currentDiagnosis = '';
-                                renderMedications();
-                                setTimeout(() => loadAppointmentDetails(), 2000);
-                            } else {
-                                showMessage(messageEl, result.msg || 'Failed to save prescription',
-                                    'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showMessage(messageEl, 'An error occurred', 'error');
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, result.msg, 'success');
+                            medications = [];
+                            window.currentDiagnosis = '';
+                            renderMedications();
+                            setTimeout(() => loadAppointmentDetails(), 2000);
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to save prescription',
+                                'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    });
                 });
 
                 // Load available time slots when date changes
@@ -1292,8 +1198,7 @@
                     timeSelect.innerHTML = '<option value="">Loading...</option>';
                     timeSelect.disabled = true;
 
-                    fetch(`/doctor/appointments/available-slots?date=${date}`)
-                        .then(response => response.json())
+                    fetch(`/doctor/appointments/available-slots?date=${date}`).then(response => response.json())
                         .then(result => {
                             loadingMsg.classList.add('hidden');
                             timeSelect.disabled = false;
@@ -1310,8 +1215,7 @@
                             } else {
                                 timeSelect.innerHTML = '<option value="">Error loading slots</option>';
                             }
-                        })
-                        .catch(error => {
+                        }).catch(error => {
                             console.error('Error:', error);
                             loadingMsg.classList.add('hidden');
                             timeSelect.disabled = false;
@@ -1332,33 +1236,30 @@
                     }
 
                     fetch(`/doctor/appointments/${appointmentId}/follow-up`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                appointment_date: date,
-                                appointment_time: time,
-                                reason
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            appointment_date: date,
+                            appointment_time: time,
+                            reason
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                showMessage(messageEl, result.msg, 'success');
-                                document.getElementById('followup-date').value = '';
-                                document.getElementById('followup-time').value = '';
-                                document.getElementById('followup-reason').value = '';
-                            } else {
-                                showMessage(messageEl, result.msg || 'Failed to schedule follow-up',
-                                    'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showMessage(messageEl, 'An error occurred', 'error');
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, result.msg, 'success');
+                            document.getElementById('followup-date').value = '';
+                            document.getElementById('followup-time').value = '';
+                            document.getElementById('followup-reason').value = '';
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to schedule follow-up',
+                                'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    });
                 });
 
                 // Save Vital Signs
@@ -1378,52 +1279,44 @@
 
                     // Send vitals to backend
                     fetch(`/doctor/appointments/${appointmentId}/vital-signs`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                blood_pressure: bp,
-                                heart_rate: hr,
-                                temperature: temp,
-                                oxygen_saturation: o2,
-                                weight: weight,
-                                height: height
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            blood_pressure: bp,
+                            heart_rate: hr,
+                            temperature: temp,
+                            oxygen_saturation: o2,
+                            weight: weight,
+                            height: height
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                showMessage(messageEl, result.msg, 'success');
-                                // Clear inputs
-                                document.getElementById('vital-bp').value = '';
-                                document.getElementById('vital-hr').value = '';
-                                document.getElementById('vital-temp').value = '';
-                                document.getElementById('vital-o2').value = '';
-                                document.getElementById('vital-weight').value = '';
-                                document.getElementById('vital-height').value = '';
-                                // Reload appointment to show updated notes
-                                setTimeout(() => loadAppointmentDetails(), 1500);
-                            } else {
-                                showMessage(messageEl, result.msg || 'Failed to save vital signs', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showMessage(messageEl, 'An error occurred', 'error');
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, result.msg, 'success');
+                            // Clear inputs
+                            document.getElementById('vital-bp').value = '';
+                            document.getElementById('vital-hr').value = '';
+                            document.getElementById('vital-temp').value = '';
+                            document.getElementById('vital-o2').value = '';
+                            document.getElementById('vital-weight').value = '';
+                            document.getElementById('vital-height').value = '';
+                            // Reload appointment to show updated notes
+                            setTimeout(() => loadAppointmentDetails(), 1500);
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to save vital signs', 'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    });
                 });
 
                 // Complete Appointment - Show Modal
-                document.addEventListener('DOMContentLoaded', function() {
-                    document
-                        .getElementById('complete-appointment-btn')
-                        .addEventListener('click', function() {
-                            document
-                                .getElementById('complete-appointment-modal')
-                                .classList.remove('hidden');
-                        });
+                document.getElementById('complete-appointment-btn')?.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('complete-appointment-modal').classList.remove('hidden');
                 });
 
                 // Cancel Complete Modal
@@ -1440,32 +1333,29 @@
                     btn.textContent = 'Processing...';
 
                     fetch(`/doctor/appointments/${appointmentId}/complete`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                modal.classList.add('hidden');
-                                toastr.success(result.msg);
-                                setTimeout(() => {
-                                    window.location.href = '{{ route('doctor.appointments') }}';
-                                }, 1000);
-                            } else {
-                                toastr.error(result.msg || 'Failed to complete appointment');
-                                btn.disabled = false;
-                                btn.textContent = 'Confirm';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            toastr.error('An error occurred');
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            modal.classList.add('hidden');
+                            toastr.success(result.msg);
+                            setTimeout(() => {
+                                window.location.href = '{{ route('doctor.appointments') }}';
+                            }, 1000);
+                        } else {
+                            toastr.error(result.msg || 'Failed to complete appointment');
                             btn.disabled = false;
                             btn.textContent = 'Confirm';
-                        });
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        toastr.error('An error occurred');
+                        btn.disabled = false;
+                        btn.textContent = 'Confirm';
+                    });
                 });
 
                 // Update Status Options based on current status
@@ -1525,35 +1415,31 @@
                     this.textContent = 'Updating...';
 
                     fetch(`/doctor/appointments/${appointmentId}/update-status`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                status: newStatus
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                showMessage(messageEl, 'Status updated successfully!', 'success');
-                                // Reload appointment details
-                                setTimeout(() => {
-                                    loadAppointmentDetails();
-                                }, 1000);
-                            } else {
-                                showMessage(messageEl, result.msg || 'Failed to update status', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showMessage(messageEl, 'An error occurred', 'error');
-                        })
-                        .finally(() => {
-                            this.disabled = false;
-                            this.textContent = 'Update';
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, 'Status updated successfully!', 'success');
+                            // Reload appointment details
+                            setTimeout(() => {
+                                loadAppointmentDetails();
+                            }, 1000);
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to update status', 'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    }).finally(() => {
+                        this.disabled = false;
+                        this.textContent = 'Update';
+                    });
                 });
 
                 function showMessage(element, message, type) {

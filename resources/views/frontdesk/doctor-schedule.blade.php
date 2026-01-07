@@ -103,41 +103,36 @@
             });
 
             fetch(`/frontdesk/doctor-schedule?${params}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    const contentType = response.headers.get('content-type');
-                    console.log('Content-Type:', contentType);
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin'
+            }).then(response => {
+                const contentType = response.headers.get('content-type');
 
-                    // Check if response is JSON
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        return response.text().then(text => {
-                            throw new Error(`Expected JSON but got HTML. Please check the server response.`);
-                        });
-                    }
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-                    if (data.success) {
-                        updateTitle(data.date, data.day_name);
-                        populateSpecializations(data.specializations);
-                        displayDoctors(data.doctors);
-                    } else {
-                        showError('Failed to load schedule: ' + (data.message || 'Unknown error'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showError('Failed to load schedule: ' + error.message);
-                });
+
+                // Check if response is JSON
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(`Expected JSON but got HTML. Please check the server response.`);
+                    });
+                }
+            }).then(data => {
+                if (data.success) {
+                    updateTitle(data.date, data.day_name);
+                    populateSpecializations(data.specializations);
+                    displayDoctors(data.doctors);
+                } else {
+                    showError('Failed to load schedule: ' + (data.message || 'Unknown error'));
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                showError('Failed to load schedule: ' + error.message);
+            });
         }
 
         // Update title
@@ -204,7 +199,6 @@
 
                 // Generate time slots HTML
                 const slotsHTML = doctor.slots ? doctor.slots.map(slot => {
-                    console.log('doctor data-------', doctor);
                     return `
                     <div class="p-2 sm:p-3 border-2 ${slotColors[slot.status] || 'border-gray-300 bg-gray-50 text-gray-700'} rounded-lg text-center">
                         <p class="text-xs sm:text-sm font-medium">${slot.time || 'N/A'}</p>

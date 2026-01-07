@@ -478,7 +478,8 @@ class DashboardController extends Controller
     {
         try {
             $user = auth()->user();
-
+            $latestMedication = null;
+            
             $prescription = Prescription::with([
                 'appointment.patient',
                 'appointment.doctor.doctorProfile.specialty',
@@ -488,17 +489,25 @@ class DashboardController extends Controller
                 abort(403, 'Unauthorized access to prescription.');
             }
 
-            // REMOVE vital_signs from medications
+            // REMOVE vital_signs and get latest medication only
             if (!empty($prescription->medications)) {
-                $prescription->medications = collect($prescription->medications)
-                    ->reject(function ($medication) {
-                        return ($medication['type'] ?? null) === 'vital_signs';
-                    })
-                    ->sortByDesc(function ($medication) {
-                        return $medication['created_at'] ?? null;
-                    })
+
+                // Remove vital_signs
+                $filtered = collect($prescription->medications)
+                    ->reject(fn($m) => ($m['type'] ?? null) === 'vital_signs');
+
+                // Get latest created_at date
+                $latestDate = $filtered
+                    ->max(fn($m) => $m['created_at'] ?? null);
+
+                // Get all medications with same latest date
+                $latestMedications = $filtered
+                    ->filter(fn($m) => ($m['created_at'] ?? null) === $latestDate)
                     ->values()
                     ->all();
+
+                // overwrite medications
+                $prescription->medications = $latestMedications;
             }
 
             $appointment = $prescription->appointment;
@@ -512,7 +521,9 @@ class DashboardController extends Controller
                 'doctor' => $doctor,
                 'doctorProfile' => $doctorProfile,
                 'patient' => $patient,
-                'date' => Carbon::parse($prescription->created_at)->format('F j, Y'),
+                'date' => $latestMedication && !empty($latestMedication['created_at'])
+                    ? Carbon::parse($latestMedication['created_at'])->format('F j, Y')
+                    : Carbon::parse($prescription->created_at)->format('F j, Y'),
             ];
 
             $pdf = Pdf::loadView('prescriptions.pdf', $data);

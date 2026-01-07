@@ -143,12 +143,12 @@
                         <tr>
                             <th class="px-3 py-2">#</th>
                             <th class="px-3 py-2">Recorded At</th>
-                            <th class="px-3 py-2">Height</th>
-                            <th class="px-3 py-2">Weight</th>
-                            <th class="px-3 py-2">Temp</th>
-                            <th class="px-3 py-2">Heart Rate</th>
+                            <th class="px-3 py-2">Height (in)</th>
+                            <th class="px-3 py-2">Weight (lbs)</th>
+                            <th class="px-3 py-2">Temperature (°F)</th>
+                            <th class="px-3 py-2">Heart Rate (bpm)</th>
                             <th class="px-3 py-2">BP</th>
-                            <th class="px-3 py-2">SpO₂</th>
+                            <th class="px-3 py-2">Oxygen Sat (%)</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -373,25 +373,22 @@
             patientToDeleteId = null;
 
             fetch(`{{ url('frontdesk/patients') }}/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        toastr.success(data.message);
-                        loadPatients(currentPage);
-                    } else {
-                        toastr.error(data.message || 'Failed to delete patient');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('An error occurred while deleting the patient');
-                });
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    toastr.success(data.message);
+                    loadPatients(currentPage);
+                } else {
+                    toastr.error(data.message || 'Failed to delete patient');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred while deleting the patient');
+            });
         });
 
         function loadPatients(page = 1) {
@@ -400,21 +397,18 @@
             currentPage = page;
 
             fetch(`{{ route('frontdesk.patients') }}?search=${encodeURIComponent(search)}&gender=${gender}&page=${page}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayPatients(data.patients);
-                        updatePagination(data.pagination);
-                        document.getElementById('totalPatients').textContent = data.pagination.total;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading patients:', error);
-                });
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    displayPatients(data.patients);
+                    updatePagination(data.pagination);
+                    document.getElementById('totalPatients').textContent = data.pagination.total;
+                }
+            }).catch(error => {
+                console.error('Error loading patients:', error);
+            });
         }
 
         function displayPatients(patients) {
@@ -422,61 +416,60 @@
 
             if (patients.length === 0) {
                 tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                        No patients found
-                    </td>
-                </tr>
-            `;
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            No patients found
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
             tbody.innerHTML = patients.map(patient => {
                 const age = calculateAge(patient.date_of_birth);
                 const lastVisit = patient.patient_appointments && patient.patient_appointments.length > 0 ? patient
-                    .patient_appointments[
-                        0] : null;
+                    .patient_appointments[0] : null;
 
                 return `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                        <p class="text-xs sm:text-sm font-medium text-gray-900">PT-${String(patient.id).padStart(4, '0')}</p>
-                    </td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2 sm:gap-3">
-                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.first_name + ' ' + patient.last_name)}&background=0ea5e9&color=fff"
-                                 class="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Patient">
-                            <div>
-                                <p class="text-xs sm:text-sm font-medium text-gray-900">${patient.first_name} ${patient.last_name}</p>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <p class="text-xs sm:text-sm font-medium text-gray-900">PT-${String(patient.id).padStart(4, '0')}</p>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-2 sm:gap-3">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.first_name + ' ' + patient.last_name)}&background=0ea5e9&color=fff"
+                                    class="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Patient">
+                                <div>
+                                    <p class="text-xs sm:text-sm font-medium text-gray-900">${patient.first_name} ${patient.last_name}</p>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                        <p class="text-xs sm:text-sm text-gray-900">${age} • ${capitalizeFirst(patient.gender)}</p>
-                    </td>
-                    <td class="px-3 sm:px-6 py-4">
-                        <p class="text-xs sm:text-sm text-gray-900 break-all">${patient.email || 'N/A'}</p>
-                        <p class="text-xs sm:text-sm text-gray-500">${patient.phone || 'N/A'}</p>
-                    </td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
-                        ${lastVisit ? `<p class="text-xs sm:text-sm text-gray-900">${formatDate(lastVisit.appointment_date)}</p>
-                                                                                                                <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name ?? ''} ${lastVisit.doctor?.last_name ?? ''}</p>`
-                             : '<p class="text-xs sm:text-sm text-gray-500">No visits yet</p>'}
-                    </td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">
-                        <div class="flex gap-2">
-                            <button onclick="viewPatient(${patient.id})" 
-                                    class="px-2 sm:px-3 py-1 bg-sky-100 text-sky-700 rounded hover:bg-sky-200 text-xs sm:text-sm">
-                                View
-                            </button>
-                            <button onclick="deletePatient(${patient.id})" 
-                                    class="px-2 sm:px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs sm:text-sm">
-                                Delete
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                            <p class="text-xs sm:text-sm text-gray-900">${age} • ${capitalizeFirst(patient.gender)}</p>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4">
+                            <p class="text-xs sm:text-sm text-gray-900 break-all">${patient.email || 'N/A'}</p>
+                            <p class="text-xs sm:text-sm text-gray-500">${patient.phone || 'N/A'}</p>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                            ${lastVisit ? `<p class="text-xs sm:text-sm text-gray-900">${formatDate(lastVisit.appointment_date)}</p>
+                                                                                                                                                                                                                                                                                                                                <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name ?? ''} ${lastVisit.doctor?.last_name ?? ''}</p>`
+                                : '<p class="text-xs sm:text-sm text-gray-500">No visits yet</p>'}
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">
+                            <div class="flex gap-2">
+                                <button onclick="viewPatient(${patient.id})" 
+                                        class="px-2 sm:px-3 py-1 bg-sky-100 text-sky-700 rounded hover:bg-sky-200 text-xs sm:text-sm">
+                                    View
+                                </button>
+                                <button onclick="deletePatient(${patient.id})" 
+                                        class="px-2 sm:px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs sm:text-sm">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }).join('');
         }
 
@@ -489,12 +482,12 @@
 
             // Previous button
             html += `
-            <button onclick="loadPatients(${pagination.current_page - 1})" 
-                    ${pagination.current_page === 1 ? 'disabled' : ''}
-                    class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-xs sm:text-sm ${pagination.current_page === 1 ? 'opacity-50 cursor-not-allowed' : ''}">
-                Previous
-            </button>
-        `;
+                <button onclick="loadPatients(${pagination.current_page - 1})" 
+                        ${pagination.current_page === 1 ? 'disabled' : ''}
+                        class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-xs sm:text-sm ${pagination.current_page === 1 ? 'opacity-50 cursor-not-allowed' : ''}">
+                    Previous
+                </button>
+            `;
 
             // Page numbers
             for (let i = 1; i <= Math.min(pagination.last_page, 5); i++) {
@@ -511,42 +504,85 @@
 
             // Next button
             html += `
-            <button onclick="loadPatients(${pagination.current_page + 1})"
-                    ${pagination.current_page === pagination.last_page ? 'disabled' : ''}
-                    class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-xs sm:text-sm ${pagination.current_page === pagination.last_page ? 'opacity-50 cursor-not-allowed' : ''}">
-                Next
-            </button>
-        `;
+                <button onclick="loadPatients(${pagination.current_page + 1})"
+                        ${pagination.current_page === pagination.last_page ? 'disabled' : ''}
+                        class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-xs sm:text-sm ${pagination.current_page === pagination.last_page ? 'opacity-50 cursor-not-allowed' : ''}">
+                    Next
+                </button>
+            `;
 
             buttons.innerHTML = html;
         }
 
         function viewPatient(id) {
             fetch(`{{ url('frontdesk/patients') }}/${id}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        currentPatient = data.patient;
-                        displayPatientDetails(data.patient);
-                        document.getElementById('viewModal').classList.remove('hidden');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading patient:', error);
-                    alert('Failed to load patient details');
-                });
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    currentPatient = data.patient;
+                    displayPatientDetails(data.patient);
+                    document.getElementById('viewModal').classList.remove('hidden');
+                }
+            }).catch(error => {
+                console.error('Error loading patient:', error);
+                alert('Failed to load patient details');
+            });
         }
 
         function displayPatientDetails(patient) {
             const age = calculateAge(patient.date_of_birth);
             const content = document.getElementById('viewModalContent');
 
+            // Prepare Current Medications HTML only if it exists
+            let medicationsHTML = '';
+            if (patient.current_medications?.trim()) {
+                const med = patient.current_medications.trim();
+                const isStructured = /Name:\s*.+/i.test(med) && /Dosage:\s*.+/i.test(med);
+
+                if (isStructured) {
+                    const lines = med.split('\n').map(l => l.trim());
+                    const name = lines.find(l => l.startsWith('Name:'))?.replace(/^Name:\s*/i, '') || '';
+                    const dosage = lines.find(l => l.startsWith('Dosage:'))?.replace(/^Dosage:\s*/i, '') || '';
+                    const frequency = lines.find(l => l.startsWith('Frequency:'))?.replace(/^Frequency:\s*/i, '') || '';
+                    const duration = lines.find(l => l.startsWith('Duration:'))?.replace(/^Duration:\s*/i, '') || '';
+                    const quantity = lines.find(l => l.startsWith('Quantity:'))?.replace(/^Quantity:\s*/i, '') || '';
+
+                    medicationsHTML = `
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1 overflow-x-auto">
+                            <table class="text-sm text-gray-700 text-center w-full">
+                                <thead class="border-b">
+                                    <tr>
+                                        <th class="px-4 py-2">Medication Name</th>
+                                        <th class="px-4 py-2">Dosage</th>
+                                        <th class="px-4 py-2">Frequency</th>
+                                        <th class="px-4 py-2">Duration</th>
+                                        <th class="px-4 py-2">Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="px-4 py-2 max-w-xs break-words">${name}</td>
+                                        <td class="px-4 py-2">${dosage}</td>
+                                        <td class="px-4 py-2">${frequency}</td>
+                                        <td class="px-4 py-2">${duration}</td>
+                                        <td class="px-4 py-2">${quantity}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    // Plain text medication
+                    medicationsHTML = `<p class="text-sm text-gray-700">${med}</p>`;
+                }
+            }
+
             content.innerHTML = `
                 <div class="space-y-6">
+
+                    <!-- Patient Header -->
                     <div class="flex items-center gap-4 pb-4 border-b">
                         <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.full_name)}&background=0ea5e9&color=fff&size=80"
                             class="w-20 h-20 rounded-full" alt="Patient">
@@ -556,6 +592,7 @@
                         </div>
                     </div>
 
+                    <!-- Basic Info -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <p class="text-sm font-medium text-gray-500">Email</p>
@@ -577,102 +614,20 @@
                             <p class="text-sm font-medium text-gray-500">Address</p>
                             <p class="text-sm text-gray-900">${patient.address || 'Not provided'}</p>
                         </div>
-                        ${patient.blood_group ? `<div><p class="text-sm font-medium text-gray-500">Blood Group</p>
-                                                                        <p class="text-sm text-gray-900">
-                                                                            <span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">${patient.blood_group}</span>
-                                                                        </p>
-                                                                    </div>` : ''}
+                        ${patient.blood_group ? `<div><p class="text-sm font-medium text-gray-500">Blood Group</p><p class="text-sm text-gray-900"><span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">${patient.blood_group}</span></p></div>` : ''}
 
-                        ${patient.emergency_contact_name || patient.emergency_contact_phone ? ` <div> <p class="text-sm font-medium text-gray-500">Emergency Contact</p>
-                                                                            <p class="text-sm text-gray-900">${patient.emergency_contact_name || 'N/A'}</p>
-                                                                            ${patient.emergency_contact_phone ? `<p class="text-xs text-gray-600">${patient.emergency_contact_phone}</p>` : ''}
-                                                                    </div>` : ''}
+                        ${patient.emergency_contact_name || patient.emergency_contact_phone ? `<div><p class="text-sm font-medium text-gray-500">Emergency Contact</p><p class="text-sm text-gray-900">${patient.emergency_contact_name || 'N/A'}</p>${patient.emergency_contact_phone ? `<p class="text-xs text-gray-600">${patient.emergency_contact_phone}</p>` : ''}</div>` : ''}</div>
+
+                        <!-- Medical Info -->
+                        ${patient.medical_history || medicationsHTML ? `<div class="border-t pt-4"><h5 class="text-base font-semibold text-gray-800 mb-3">Medical Information</h5>${patient.medical_history ? `<div class="mb-3"><p class="text-sm font-medium text-gray-500">Medical History</p><div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1"><p class="text-sm text-gray-700">${patient.medical_history}</p></div></div>` : ''}${medicationsHTML ? `<div><p class="text-sm font-medium text-gray-500">Current Medications</p></div> <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1"><p class="text-sm text-gray-700">${medicationsHTML}</p></div>` : ''}</div>` : ''}
+
+                        <!-- Insurance Info -->
+                        ${patient.insurance_provider || patient.insurance_number ? `<div class="border-t pt-4"> <h5 class="text-base font-semibold text-gray-800 mb-3">Insurance Information</h5> <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> ${patient.insurance_provider ? `<div> <p class="text-sm font-medium text-gray-500">Provider</p> <p class="text-sm text-gray-900">${patient.insurance_provider}</p> </div>` : ''} ${patient.insurance_number ? `<div> <p class="text-sm font-medium text-gray-500">Policy Number</p> <p class="text-sm text-gray-900">${patient.insurance_number}</p> </div>` : ''} </div> </div>` : ''}
                     </div>
-
-                    ${patient.medical_history || patient.current_medications ? `
-                                                                    <div class="border-t pt-4">
-                                                                        <h5 class="text-base font-semibold text-gray-800 mb-3">Medical Information</h5>
-
-                                                                        ${patient.medical_history ? `
-                                <div class="mb-3">
-                                    <p class="text-sm font-medium text-gray-500">Medical History</p>
-                                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
-                                        <p class="text-sm text-gray-700">${patient.medical_history}</p>
-                                    </div>
-                                </div>
-                            ` : ''}
-
-                                                                        ${patient.current_medications ? (() => {
-                                                                            const med = patient.current_medications;
-
-                                                                            // Split by newlines
-                                                                            const lines = med.split('\n').map(line => line.trim());
-
-                                                                            // Extract fields
-                                                                            let name = lines.find(line => line.startsWith('Name:')) || '';
-                                                                            let dosage = lines.find(line => line.startsWith('Dosage:')) || '';
-                                                                            let frequency = lines.find(line => line.startsWith('Frequency:')) || '';
-                                                                            let duration = lines.find(line => line.startsWith('Duration:')) || '';
-                                                                            let quantity = lines.find(line => line.startsWith('Quantity:')) || '';
-
-                                                                            // Remove prefixes
-                                                                            name = name.replace(/^Name:\s*/i, '');
-                                                                            dosage = dosage.replace(/^Dosage:\s*/i, '');
-                                                                            frequency = frequency.replace(/^Frequency:\s*/i, '');
-                                                                            duration = duration.replace(/^Duration:\s*/i, '');
-                                                                            quantity = quantity.replace(/^Quantity:\s*/i, '');
-
-                                                                            return `
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-500">Current Medications</p>
-                                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1 flex justify-center overflow-x-auto">
-                                            <table class="text-sm text-gray-700 text-center">
-                                                <thead class="border-b">
-                                                    <tr>
-                                                        <th class="px-4 py-2">Medication Name</th>
-                                                        <th class="px-4 py-2">Dosage</th>
-                                                        <th class="px-4 py-2">Frequency</th>
-                                                        <th class="px-4 py-2">Duration</th>
-                                                        <th class="px-4 py-2">Quantity</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="border-b">
-                                                        <td class="px-4 py-2 max-w-xs break-words">${name}</td>
-                                                        <td class="px-4 py-2">${dosage}</td>
-                                                        <td class="px-4 py-2">${frequency}</td>
-                                                        <td class="px-4 py-2">${duration}</td>
-                                                        <td class="px-4 py-2">${quantity}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                `;
-                                                                        })() : ''}
-                                                                    </div>
-                                                                ` : ''}
-
-                    ${patient.insurance_provider || patient.insurance_number ? `
-                                                                    <div class="border-t pt-4">
-                                                                        <h5 class="text-base font-semibold text-gray-800 mb-3">Insurance Information</h5>
-                                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                            ${patient.insurance_provider ? ` <div> <p class="text-sm font-medium text-gray-500">Provider</p>
-                                    <p class="text-sm text-gray-900">${patient.insurance_provider}</p>
-                                </div> ` : ''}
-
-                                                                            ${patient.insurance_number ? ` <div> <p class="text-sm font-medium text-gray-500">Policy Number</p>
-                                    <p class="text-sm text-gray-900">${patient.insurance_number}</p>
-                                </div> ` : ''}
-                                                                        </div>
-                                                                    </div>
-                                                                ` : ''}
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> ${patient.last_appointment ? ` ` : ''} </div>
-
+                    <!-- Footer Buttons -->
                     <div class="flex justify-end gap-3 pt-4 border-t">
-                        <button onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"> Close </button>
-                        <button onclick="openEditModal(${patient.id})" class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700"> Edit Patient </button>
+                        <button onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Close</button>
+                        <button onclick="openEditModal(${patient.id})" class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700">Edit Patient</button>
                     </div>
                 </div>
             `;
@@ -685,21 +640,18 @@
                 populateEditForm(currentPatient);
             } else {
                 fetch(`{{ url('frontdesk/patients') }}/${id}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            currentPatient = data.patient;
-                            populateEditForm(data.patient);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading patient:', error);
-                        alert('Failed to load patient details');
-                    });
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(response => response.json()).then(data => {
+                    if (data.success) {
+                        currentPatient = data.patient;
+                        populateEditForm(data.patient);
+                    }
+                }).catch(error => {
+                    console.error('Error loading patient:', error);
+                    alert('Failed to load patient details');
+                });
             }
         }
 
@@ -770,33 +722,30 @@
             saveBtn.textContent = 'Saving...';
 
             fetch(`{{ url('frontdesk/patients') }}/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify(formData)
-                })
-                .then(async response => {
-                    saveBtn.disabled = false;
-                    saveBtn.textContent = 'Save Changes';
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(formData)
+            }).then(async response => {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Changes';
 
-                    if (response.status === 422) {
-                        const data = await response.json();
-                        showFieldErrors(data.errors);
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(data => {
-                    if (data && data.success) {
-                        toastr.success(data.message);
-                        closeEditModal();
-                        loadPatients(currentPage);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+                if (response.status === 422) {
+                    const data = await response.json();
+                    showFieldErrors(data.errors);
+                } else {
+                    return response.json();
+                }
+            }).then(data => {
+                if (data && data.success) {
+                    toastr.success(data.message);
+                    closeEditModal();
+                    loadPatients(currentPage);
+                }
+            }).catch(error => console.error('Error:', error));
         }
 
         function showFieldErrors(errors) {

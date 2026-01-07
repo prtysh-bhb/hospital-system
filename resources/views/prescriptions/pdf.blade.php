@@ -251,12 +251,12 @@
         <p style="color: #666; font-style: italic; margin-bottom: 15px;">No medications prescribed.</p>
     @endif
 
-    @if ($prescription->instructions)
+    {{-- @if ($prescription->instructions)
         <div class="section-title">Instructions</div>
         <div class="instructions-box">
             <p>{{ $prescription->instructions }}</p>
         </div>
-    @endif
+    @endif --}}
 
     @if ($prescription->follow_up_date)
         <div class="follow-up-box">
