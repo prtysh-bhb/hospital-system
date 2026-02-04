@@ -6,8 +6,6 @@
   },
 
   "deploy": {
-    "startCommand": "php artisan serve --host=0.0.0.0 --port=$PORT",
-
-    "preDeployCommand": "php artisan config:clear || true"
+    "startCommand": "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
   }
 }
