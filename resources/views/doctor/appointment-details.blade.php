@@ -37,6 +37,30 @@
                     </span>
                 </div>
 
+                <!-- Status Change Section -->
+
+                @if (
+                    $appointment->status !== 'completed' ||
+                        $appointment->status !== 'cancelled' ||
+                        $appointment->status !== 'in_progress')
+                    <div id="status-change-section" class="mb-6 p-4 bg-gray-50 rounded-lg hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Change Appointment Status</label>
+                        <div class="flex gap-3">
+                            <select id="status-select"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
+                                <option value="">Select status...</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="checked_in">Checked In</option>
+                                <option value="in_progress">In Progress</option>
+                            </select>
+                            <button id="update-status-btn"
+                                class="px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 font-medium">
+                                Update
+                            </button>
+                        </div>
+                        <p id="status-message" class="mt-2 text-sm hidden"></p>
+                    </div>
+                @endif
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                         <p class="text-xs sm:text-sm text-gray-500 mb-1">Appointment ID</p>
@@ -130,8 +154,7 @@
 
                     <div id="medications-container">
                         <p class="text-xs sm:text-sm font-medium text-gray-700 mb-2">Current Medications</p>
-                        <ul id="medications-list"
-                            class="list-disc list-inside space-y-1 text-xs sm:text-sm text-gray-600">
+                        <ul id="medications-list" class="space-y-1 text-xs sm:text-sm text-gray-600">
                             <li class="text-gray-500 italic list-none">No current medications</li>
                         </ul>
                     </div>
@@ -155,7 +178,7 @@
                     </button>
                 </div>
                 <textarea id="consultation-notes"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm sm:text-base"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
                     rows="6" placeholder="Enter consultation notes, diagnosis, and treatment plan..."></textarea>
                 <p id="notes-message" class="mt-2 text-sm hidden"></p>
             </div>
@@ -189,7 +212,6 @@
                     <p class="text-sm text-gray-500 italic">No prescriptions available</p>
                 </div>
             </div>
-            {{-- @dd($appointment->status); --}}
 
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
 
@@ -242,32 +264,32 @@
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Blood Pressure</span>
                         <input type="text" id="vital-bp" placeholder="120/80"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Heart Rate (bpm)</span>
                         <input type="text" id="vital-hr" placeholder="72"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Temperature (°F)</span>
                         <input type="text" id="vital-temp" placeholder="98.6"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Oxygen Sat (%)</span>
                         <input type="text" id="vital-o2" placeholder="98"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b">
                         <span class="text-xs sm:text-sm text-gray-600">Weight (lbs)</span>
                         <input type="text" id="vital-weight" placeholder="180"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-xs sm:text-sm text-gray-600">Height (in)</span>
                         <input type="text" id="vital-height" placeholder="70"
-                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right">
+                            class="w-20 sm:w-24 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded text-right focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                 </div>
                 <button id="save-vitals-btn"
@@ -284,13 +306,13 @@
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Follow-up Date</label>
                         <input type="date" id="followup-date"
-                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base"
+                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-0 focus:border-gray-300"
                             min="{{ date('Y-m-d', strtotime('+1 day')) }}">
                     </div>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Time</label>
                         <select id="followup-time"
-                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base">
+                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-0 focus:border-gray-300">
                             <option value="">Select a date first</option>
                         </select>
                         <p id="followup-time-loading" class="text-xs text-gray-500 mt-1 hidden">Loading available slots...
@@ -299,7 +321,7 @@
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason (Optional)</label>
                         <input type="text" id="followup-reason"
-                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base"
+                            class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-0 focus:border-gray-300"
                             placeholder="Follow-up reason">
                     </div>
                     <button id="schedule-followup-btn"
@@ -308,6 +330,33 @@
                     </button>
                     <p id="followup-message" class="text-sm hidden"></p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Appointment Confirmation Modal -->
+    <div id="complete-appointment-modal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Complete Appointment</h3>
+                <p class="text-sm text-gray-600 mb-6">Are you sure you want to mark this appointment as completed? This
+                    action cannot be undone.</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancel-complete-btn"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
+                    Cancel
+                </button>
+                <button id="confirm-complete-btn"
+                    class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                    Confirm
+                </button>
             </div>
         </div>
     </div>
@@ -321,34 +370,42 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Diagnosis</label>
                     <input type="text" id="med-diagnosis"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
                         placeholder="e.g., Hypertension">
                 </div>
-                <div>
+                <div class="relative">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Medication Name</label>
                     <input type="text" id="med-name"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g., Metoprolol">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+                        placeholder="e.g., Paracetamol">
+                    <ul id="med-suggestions"
+                        class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto hidden">
+                    </ul>
                 </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Dosage</label>
                     <input type="text" id="med-dosage"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g., 25mg">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+                        placeholder="e.g., 25mg">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Frequency</label>
                     <input type="text" id="med-frequency"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
                         placeholder="e.g., Twice daily">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
                     <input type="text" id="med-duration"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g., 30 days">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+                        placeholder="e.g., 30 days">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
                     <input type="text" id="med-quantity"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g., 60 tablets">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+                        placeholder="e.g., 60 tablets">
                 </div>
             </div>
             <div class="flex gap-3 mt-6">
@@ -362,6 +419,141 @@
 
     @push('scripts')
         <script>
+            const medInput = document.getElementById('med-name');
+            const listBox = document.getElementById('med-suggestions');
+            const dosageInput = document.getElementById('med-dosage');
+
+            let timer = null;
+            let suggestions = [];
+            let activeIndex = -1;
+
+            // ================= FETCH MEDICINES =================
+            medInput.addEventListener('input', function() {
+                const q = this.value.trim().toLowerCase();
+
+                if (q.length < 3) {
+                    hideList();
+                    return;
+                }
+
+                clearTimeout(timer);
+
+                timer = setTimeout(() => {
+                    fetch(
+                        `https://rxnav.nlm.nih.gov/REST/approximateTerm.json?term=${encodeURIComponent(q)}&maxEntries=30`
+                    ).then(res => res.json()).then(data => {
+                        const raw = data.approximateGroup?.candidate || [];
+
+                        // FILTER: undefined / empty / mismatch
+                        suggestions = raw.filter(item =>
+                            item &&
+                            item.name &&
+                            item.name.toLowerCase().includes(q)
+                        );
+
+                        renderList();
+                    }).catch(err => console.error(err));
+                }, 300);
+            });
+
+            // ================= RENDER LIST =================
+            function renderList() {
+                listBox.innerHTML = '';
+                activeIndex = -1;
+
+                if (!suggestions.length) {
+                    hideList();
+                    return;
+                }
+
+                suggestions.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = item.name;
+                    li.className =
+                        'px-3 py-2 text-sm cursor-pointer hover:bg-sky-100';
+
+                    li.addEventListener('click', () => selectItem(index));
+                    listBox.appendChild(li);
+                });
+
+                listBox.classList.remove('hidden');
+            }
+
+            // ================= KEYBOARD NAVIGATION =================
+            medInput.addEventListener('keydown', function(e) {
+                if (listBox.classList.contains('hidden')) return;
+
+                const items = listBox.querySelectorAll('li');
+
+                if (!items.length) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                    updateActive(items);
+                }
+
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = Math.max(activeIndex - 1, 0);
+                    updateActive(items);
+                }
+
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (activeIndex >= 0) {
+                        selectItem(activeIndex);
+                    }
+                }
+
+                if (e.key === 'Escape') {
+                    hideList();
+                }
+            });
+
+            // ================= UPDATE ACTIVE + SCROLL =================
+            function updateActive(items) {
+                items.forEach((li, i) => {
+                    li.classList.toggle('bg-sky-200', i === activeIndex);
+                });
+
+                // AUTO SCROLL INTO VIEW
+                if (items[activeIndex]) {
+                    items[activeIndex].scrollIntoView({
+                        block: 'nearest',
+                        behavior: 'smooth'
+                    });
+                }
+            }
+
+            // ================= SELECT ITEM =================
+            function selectItem(index) {
+                const name = suggestions[index].name;
+                medInput.value = name;
+                hideList();
+
+                // Auto dosage
+                const dose = name.match(/\d+\s?(mg|ml|mcg)/i);
+                if (dose) {
+                    dosageInput.value = dose[0];
+                }
+            }
+
+            // ================= HIDE LIST =================
+            function hideList() {
+                listBox.classList.add('hidden');
+                listBox.innerHTML = '';
+                suggestions = [];
+                activeIndex = -1;
+            }
+
+            // ================= CLICK OUTSIDE =================
+            document.addEventListener('click', function(e) {
+                if (!medInput.contains(e.target) && !listBox.contains(e.target)) {
+                    hideList();
+                }
+            });
+
             document.addEventListener('DOMContentLoaded', function() {
                 const appointmentId = {{ $appointment->id }};
                 let appointmentData = null;
@@ -371,8 +563,7 @@
                 loadAppointmentDetails();
 
                 function loadAppointmentDetails() {
-                    fetch(`/doctor/appointments/${appointmentId}/details-json`)
-                        .then(response => response.json())
+                    fetch(`/doctor/appointments/${appointmentId}/details-json`).then(response => response.json())
                         .then(result => {
                             if (result.status === 200) {
                                 appointmentData = result.data;
@@ -383,8 +574,7 @@
                             } else {
                                 showError();
                             }
-                        })
-                        .catch(error => {
+                        }).catch(error => {
                             console.error('Error:', error);
                             showError();
                         });
@@ -410,6 +600,16 @@
                         `px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full ${statusColors[data.appointment.status] || 'bg-gray-100 text-gray-700'}`;
                     document.getElementById('appointment-status').textContent = data.appointment.status.charAt(0)
                         .toUpperCase() + data.appointment.status.slice(1).replace('_', ' ');
+
+                    // Show/hide status change section based on current status
+                    const currentStatus = data.appointment.status;
+                    if (currentStatus !== 'completed' && currentStatus !== 'cancelled') {
+                        document.getElementById('status-change-section').classList.remove('hidden');
+                        updateStatusOptions(currentStatus);
+                    } else {
+                        document.getElementById('status-change-section').classList.add('hidden');
+                    }
+
                     document.getElementById('appointment-number').textContent = data.appointment.appointment_number;
                     document.getElementById('appointment-datetime').textContent =
                         `${data.appointment.date} • ${data.appointment.time}`;
@@ -425,7 +625,6 @@
                     // Patient Info
                     const patientName = data.patient.name;
                     const dob = data.patient.date_of_birth;
-                    console.log(dob);
 
                     function calculateAge(dob) {
                         const birth = new Date(Date.parse(dob));
@@ -480,9 +679,16 @@
 
                     const medicationsList = document.getElementById('medications-list');
                     if (data.patient.current_medications && data.patient.current_medications.length > 0) {
-                        medicationsList.innerHTML = data.patient.current_medications.map(med =>
-                            `<li>${med}</li>`
-                        ).join('');
+                        medicationsList.innerHTML = data.patient.current_medications.map(med => `
+                            <li class="mb-4 p-3 border rounded">
+                                <p><strong>Date:</strong> ${med.created_at}</p>
+                                <p><strong>Name:</strong> ${med.name}</p>
+                                <p><strong>Dosage:</strong> ${med.dosage}</p>
+                                <p><strong>Frequency:</strong> ${med.frequency}</p>
+                                <p><strong>Duration:</strong> ${med.duration}</p>
+                                <p><strong>Quantity:</strong> ${med.quantity}</p>
+                            </li>
+                        `).join('');
                     } else {
                         medicationsList.innerHTML =
                             '<li class="text-gray-500 italic list-none">No current medications</li>';
@@ -492,9 +698,9 @@
                     if (data.patient.previous_appointments && data.patient.previous_appointments.length > 0) {
                         visitsList.innerHTML = data.patient.previous_appointments.map(visit =>
                             `<div class="p-3 bg-gray-50 rounded-lg">
-                    <p class="text-xs sm:text-sm font-medium text-gray-800">${visit.date} - ${visit.reason}</p>
-                    <p class="text-xs text-gray-600 mt-1">${visit.doctor} - ${visit.specialty}</p>
-                </div>`
+                                <p class="text-xs sm:text-sm font-medium text-gray-800">${visit.date} - ${visit.reason}</p>
+                                <p class="text-xs text-gray-600 mt-1">${visit.doctor} - ${visit.specialty}</p>
+                            </div>`
                         ).join('');
                     } else {
                         visitsList.innerHTML =
@@ -509,35 +715,322 @@
                     // Existing Prescriptions - Always show section
                     const prescriptionsList = document.getElementById('existing-prescriptions-list');
                     prescriptionsList.classList.remove('max-h-[600px]', 'overflow-y-auto');
-                    if (data.prescriptions && data.prescriptions.length > 0) {
-                        // Add scroll if more than 2 prescriptions
-                        if (data.prescriptions.length > 2) {
-                            prescriptionsList.classList.add('max-h-[600px]', 'overflow-y-auto');
-                        }
-                        prescriptionsList.innerHTML = data.prescriptions.map(presc => {
-                            const medsHtml = presc.medications.map(med =>
-                                `<li><strong>${med.name} ${med.dosage}</strong> - ${med.frequency}, ${med.duration}${med.quantity ? `, Qty: ${med.quantity}` : ''}</li>`
-                            ).join('');
 
-                            return `<div class="p-4 border-2 border-gray-200 rounded-lg hover:border-sky-300 transition-colors bg-gradient-to-br from-white to-gray-50">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <span class="text-sm font-bold text-sky-700">${presc.prescription_number}</span>
-                            ${presc.diagnosis ? `<p class="text-sm font-semibold text-gray-800 mt-1">Diagnosis: ${presc.diagnosis}</p>` : ''}
-                        </div>
-                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${presc.created_at}</span>
-                    </div>
-                    <div class="bg-white p-3 rounded-lg border border-gray-100">
-                        <p class="text-xs font-semibold text-gray-600 mb-2">Medications:</p>
-                        <ul class="text-sm text-gray-700 space-y-2">${medsHtml}</ul>
-                    </div>
-                    ${presc.instructions ? `<p class="text-sm text-gray-600 mt-3 italic bg-blue-50 p-2 rounded"><strong>Instructions:</strong> ${presc.instructions}</p>` : ''}
-                </div>`;
-                        }).join('');
+                    if (data.prescriptions && data.prescriptions.length > 0) {
+                        // Table with pagination implementation
+                        const prescriptionsPerPage = 3;
+                        let currentPage = 1;
+
+                        // Function to render prescriptions table with pagination
+                        function renderPrescriptionsTable(page) {
+                            const startIndex = (page - 1) * prescriptionsPerPage;
+                            const endIndex = startIndex + prescriptionsPerPage;
+                            const pagePrescriptions = data.prescriptions.slice(startIndex, endIndex);
+
+                            let tableHtml = `
+                                <div class="overflow-x-auto">
+                                    <table class="w-full border-collapse">
+                                        <thead>
+                                            <tr class="bg-gray-50">
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Prescription #</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Date</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Diagnosis</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Medications</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b">Vital Signs</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            `;
+
+                            pagePrescriptions.forEach(presc => {
+                                // Medicines: filter out vital_signs, sort by created_at descending
+                                const medicines = presc.medications
+                                    .filter(item => item.type === 'medications')
+                                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                                // Display latest 3 meds
+                                let medDisplay = medicines.slice(0, 3).map(med =>
+                                    `${med.name || ''} ${med.dosage || ''}`
+                                ).join(', ');
+
+                                if (medicines.length > 3) {
+                                    medDisplay += ` +${medicines.length - 3} more`;
+                                }
+
+                                if (!medDisplay.trim()) medDisplay = 'No medications';
+
+                                // Vital signs: filter type vital_signs, sort by recorded_at descending
+                                const vitalsList = presc.medications
+                                    .filter(item => item.type === 'vital_signs' && item.recorded_at)
+                                    .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at));
+
+                                let vitalsDisplay = 'No vitals';
+
+                                if (vitalsList.length > 0) {
+                                    const latestVitals = vitalsList[0];
+                                    const vitals = [];
+                                    if (latestVitals.blood_pressure) vitals.push(
+                                        `BP: ${latestVitals.blood_pressure}`);
+                                    if (latestVitals.heart_rate) vitals.push(`HR: ${latestVitals.heart_rate}`);
+                                    if (latestVitals.temperature) vitals.push(
+                                        `Temp: ${latestVitals.temperature}`);
+
+                                    vitalsDisplay = vitals.join(', ');
+                                    if (latestVitals.recorded_at) {
+                                        vitalsDisplay +=
+                                            `<br><span class="text-xs text-gray-500">${formatDateTime(latestVitals.recorded_at)}</span>`;
+                                    }
+                                }
+
+                                tableHtml += `
+                                                    <tr class="hover:bg-gray-50">
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm font-medium text-sky-700">${presc.prescription_number || 'N/A'}</div>
+                                                        </td>
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm text-gray-900">${presc.created_at || 'N/A'}</div>
+                                                        </td>
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm text-gray-900">${presc.diagnosis || 'No diagnosis'}</div>
+                                                        </td>
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm text-gray-900">${medDisplay}</div>
+                                                            ${medicines.length > 0 ? 
+                                                                `<button onclick="showMedicationDetails('${presc.prescription_number}')" class="mt-1 text-xs text-sky-600 hover:text-sky-800 underline">View Details</button>` : ''
+                                                            }
+                                                        </td>
+                                                        <td class="px-4 py-3 border-b">
+                                                            <div class="text-sm text-gray-900">${vitalsDisplay}</div>
+                                                            ${vitalsList.length > 0 ? 
+                                                                `<button onclick="showVitalDetails('${presc.prescription_number}')" class="mt-1 text-xs text-sky-600 hover:text-sky-800 underline">View All</button>` : ''
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                `;
+                            });
+
+                            tableHtml += `</tbody></table></div>`;
+
+                            // Pagination controls
+                            const totalPages = Math.ceil(data.prescriptions.length / prescriptionsPerPage);
+                            if (totalPages > 1) {
+                                tableHtml += `
+                                    <div class="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6 mt-4">
+                                        <div class="flex flex-1 justify-between sm:hidden">
+                                            <button onclick="changePrescriptionPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                                            <button onclick="changePrescriptionPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                                        </div>
+                                        
+                                        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                            <div>
+                                                <p class="text-sm text-gray-700">
+                                                    Showing <span class="font-medium">${startIndex + 1}</span> to <span class="font-medium">${Math.min(endIndex, data.prescriptions.length)}</span> of <span class="font-medium">${data.prescriptions.length}</span> results
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                                    <button onclick="changePrescriptionPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        <span class="sr-only">Previous</span>
+                                                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>`;
+
+                                // Page numbers
+                                for (let i = 1; i <= totalPages; i++) {
+                                    tableHtml += `
+                                        <button onclick="changePrescriptionPage(${i})" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold ${i === currentPage ? 'z-10 bg-sky-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'}">
+                                            ${i}
+                                        </button>
+                                    `;
+                                }
+
+                                tableHtml += `
+                                                    <button onclick="changePrescriptionPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        <span class="sr-only">Next</span>
+                                                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l4.5 4.25a.75.75 0 01-1.06.02z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </nav>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+
+                            prescriptionsList.innerHTML = tableHtml;
+                        }
+
+                        // Initial render
+                        renderPrescriptionsTable(currentPage);
+
+                        // Global function to change page
+                        window.changePrescriptionPage = function(page) {
+                            const totalPages = Math.ceil(data.prescriptions.length / prescriptionsPerPage);
+                            if (page < 1 || page > totalPages) return;
+                            currentPage = page;
+                            renderPrescriptionsTable(currentPage);
+                        };
+
+                        // Show medication details
+                        window.showMedicationDetails = function(prescriptionNumber) {
+                            const prescription = data.prescriptions.find(p => p.prescription_number ===
+                                prescriptionNumber);
+                            if (!prescription) return;
+
+                            const medicines = prescription.medications
+                                .filter(item => item.type === 'medications')
+                                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                            let detailsHtml = `
+                                <div class="p-4 bg-white rounded-lg shadow-lg">
+                                    <h4 class="text-lg font-semibold mb-3">Medication Details - ${prescriptionNumber}</h4>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full border-collapse">
+                                            <thead>
+                                                <tr class="bg-gray-50">
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Medicine Name</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Dosage</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Frequency</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Duration</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Quantity</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>`;
+
+                            medicines.forEach(med => {
+                                detailsHtml += `
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 border">${med.name || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.dosage || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.frequency || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.duration || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${med.quantity || 'N/A'}</td>
+                                    </tr>
+                                `;
+                            });
+
+                            detailsHtml += `</tbody></table></div></div>`;
+
+                            showModal('Medication Details', detailsHtml);
+                        };
+
+                        // Show vital signs details
+                        window.showVitalDetails = function(prescriptionNumber) {
+                            const prescription = data.prescriptions.find(p => p.prescription_number ===
+                                prescriptionNumber);
+                            if (!prescription) return;
+
+                            const vitalsList = prescription.medications
+                                .filter(item => item.type === 'vital_signs' && item.recorded_at)
+                                .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at));
+
+                            let detailsHtml = `
+                                <div class="p-4 bg-white rounded-lg shadow-lg">
+                                    <h4 class="text-lg font-semibold mb-3">Vital Signs Details - ${prescriptionNumber}</h4>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full border-collapse">
+                                            <thead>
+                                                <tr class="bg-gray-50">
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Date & Time</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Blood Pressure</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Heart Rate</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Temperature</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Oxygen</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Weight</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 border">Height</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>`;
+
+                            vitalsList.forEach(vital => {
+                                detailsHtml += `
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 border">${formatDateTime(vital.recorded_at)}</td>
+                                        <td class="px-4 py-2 border">${vital.blood_pressure || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.heart_rate || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.temperature || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.oxygen_saturation || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.weight || 'N/A'}</td>
+                                        <td class="px-4 py-2 border">${vital.height || 'N/A'}</td>
+                                    </tr>
+                                `;
+                            });
+                            detailsHtml += `</tbody></table></div></div>`;
+
+                            showModal('Vital Signs Details', detailsHtml);
+                        };
 
                     } else {
-                        prescriptionsList.innerHTML =
-                            '<p class="text-sm text-gray-500 italic">No prescriptions available</p>';
+                        prescriptionsList.innerHTML = `
+                            <div class="text-center py-8">
+                                <div class="text-gray-400 mb-3">
+                                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-500">No prescriptions available</p>
+                            </div>
+                        `;
+                    }
+
+                    // Modal show click to View Details in Prescriptions History
+                    function showModal(title, content) {
+                        // Remove existing modal if any
+                        const existingModal = document.getElementById('details-modal');
+                        if (existingModal) {
+                            existingModal.remove();
+                        }
+
+                        const modalHtml = `
+                            <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                                <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                                    <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-semibold text-gray-900">${title}</h3>
+                                            <button onclick="document.getElementById('details-modal').remove()" 
+                                                    class="text-gray-400 hover:text-gray-600">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="p-6 overflow-y-auto flex-grow">
+                                        ${content}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    }
+
+                    function formatDateTime(isoString) {
+                        if (!isoString) return '-';
+                        const date = new Date(isoString);
+
+                        let day = date.getDate();
+                        let month = date.getMonth() + 1; // Months are 0-based
+                        const year = date.getFullYear();
+
+                        let hours = date.getHours();
+                        const minutes = date.getMinutes();
+
+                        // Add leading zeros
+                        day = day < 10 ? '0' + day : day;
+                        month = month < 10 ? '0' + month : month;
+                        const mins = minutes < 10 ? '0' + minutes : minutes;
+
+                        // AM/PM
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        hours = hours % 12;
+                        hours = hours ? hours : 12; // 0 => 12
+                        const hrs = hours < 10 ? '0' + hours : hours;
+
+                        return `${day}-${month}-${year} ${hrs}:${mins} ${ampm}`;
                     }
 
                     // Set minimum date for follow-up
@@ -545,6 +1038,7 @@
                     tomorrow.setDate(tomorrow.getDate() + 1);
                     document.getElementById('followup-date').min = tomorrow.toISOString().split('T')[0];
                 }
+
 
                 // Save Consultation Notes
                 document.getElementById('save-notes-btn').addEventListener('click', function() {
@@ -557,27 +1051,24 @@
                     }
 
                     fetch(`/doctor/appointments/${appointmentId}/notes`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                notes
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            notes
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                showMessage(messageEl, result.msg, 'success');
-                            } else {
-                                showMessage(messageEl, result.msg || 'Failed to save notes', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showMessage(messageEl, 'An error occurred', 'error');
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, result.msg, 'success');
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to save notes', 'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    });
                 });
 
                 // Medication Modal
@@ -605,7 +1096,7 @@
                     const quantity = document.getElementById('med-quantity').value.trim();
 
                     if (!name || !dosage || !frequency || !duration) {
-                        alert('Please fill in all required fields (Name, Dosage, Frequency, Duration)');
+                        toastr.error('Please fill in all required medication fields');
                         return;
                     }
 
@@ -625,23 +1116,28 @@
 
                 function renderMedications() {
                     const container = document.getElementById('medications-prescription-list');
+
                     if (medications.length === 0) {
                         container.innerHTML =
                             '<p class="text-sm text-gray-500 italic">No medications added yet. Click "Add Medication" to start.</p>';
                         return;
                     }
-                    container.innerHTML = medications.map((med, index) =>
-                        `<div class="p-3 sm:p-4 border border-gray-200 rounded-lg">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                    <div>
-                        <p class="font-medium text-gray-800 text-sm sm:text-base">${med.name} ${med.dosage}</p>
-                        <p class="text-xs sm:text-sm text-gray-600 mt-1">${med.frequency}</p>
-                        <p class="text-xs text-gray-500 mt-1">Duration: ${med.duration}${med.quantity ? ` • Quantity: ${med.quantity}` : ''}</p>
-                    </div>
-                    <button onclick="removeMedication(${index})" class="text-red-600 hover:text-red-700 text-xs sm:text-sm self-start sm:self-auto">Remove</button>
-                </div>
-            </div>`
-                    ).join('');
+
+                    container.innerHTML = medications.map((med, index) => `
+                        <div class="relative p-3 sm:p-4 border border-gray-200 rounded-lg">
+                            <button onclick="removeMedication(${index})" class="absolute top-3 right-3 text-red-600 hover:text-red-700 text-xs sm:text-sm">
+                                Remove
+                            </button>
+
+                            <div class="space-y-1 mt-0">
+                                <p class="text-sm sm:text-base"><span class="font-medium">Name:</span> ${med.name}</p>
+                                <p class="text-sm sm:text-base"><span class="font-medium">Dosage:</span> ${med.dosage}</p>
+                                <p class="text-sm sm:text-base"><span class="font-medium">Frequency:</span> ${med.frequency}</p>
+                                <p class="text-sm sm:text-base"><span class="font-medium">Duration:</span> ${med.duration}</p>
+                                ${med.quantity ? `<p class="text-sm sm:text-base"><span class="font-medium">Quantity:</span> ${med.quantity}</p>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
                 }
 
                 window.removeMedication = function(index) {
@@ -660,33 +1156,30 @@
                     }
 
                     fetch(`/doctor/appointments/${appointmentId}/prescription`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                diagnosis,
-                                medications
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            diagnosis,
+                            medications
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                showMessage(messageEl, result.msg, 'success');
-                                medications = [];
-                                window.currentDiagnosis = '';
-                                renderMedications();
-                                setTimeout(() => loadAppointmentDetails(), 2000);
-                            } else {
-                                showMessage(messageEl, result.msg || 'Failed to save prescription',
-                                    'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showMessage(messageEl, 'An error occurred', 'error');
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, result.msg, 'success');
+                            medications = [];
+                            window.currentDiagnosis = '';
+                            renderMedications();
+                            setTimeout(() => loadAppointmentDetails(), 2000);
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to save prescription',
+                                'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    });
                 });
 
                 // Load available time slots when date changes
@@ -705,8 +1198,7 @@
                     timeSelect.innerHTML = '<option value="">Loading...</option>';
                     timeSelect.disabled = true;
 
-                    fetch(`/doctor/appointments/available-slots?date=${date}`)
-                        .then(response => response.json())
+                    fetch(`/doctor/appointments/available-slots?date=${date}`).then(response => response.json())
                         .then(result => {
                             loadingMsg.classList.add('hidden');
                             timeSelect.disabled = false;
@@ -723,8 +1215,7 @@
                             } else {
                                 timeSelect.innerHTML = '<option value="">Error loading slots</option>';
                             }
-                        })
-                        .catch(error => {
+                        }).catch(error => {
                             console.error('Error:', error);
                             loadingMsg.classList.add('hidden');
                             timeSelect.disabled = false;
@@ -745,33 +1236,30 @@
                     }
 
                     fetch(`/doctor/appointments/${appointmentId}/follow-up`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                appointment_date: date,
-                                appointment_time: time,
-                                reason
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            appointment_date: date,
+                            appointment_time: time,
+                            reason
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                showMessage(messageEl, result.msg, 'success');
-                                document.getElementById('followup-date').value = '';
-                                document.getElementById('followup-time').value = '';
-                                document.getElementById('followup-reason').value = '';
-                            } else {
-                                showMessage(messageEl, result.msg || 'Failed to schedule follow-up',
-                                    'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showMessage(messageEl, 'An error occurred', 'error');
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, result.msg, 'success');
+                            document.getElementById('followup-date').value = '';
+                            document.getElementById('followup-time').value = '';
+                            document.getElementById('followup-reason').value = '';
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to schedule follow-up',
+                                'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    });
                 });
 
                 // Save Vital Signs
@@ -791,69 +1279,167 @@
 
                     // Send vitals to backend
                     fetch(`/doctor/appointments/${appointmentId}/vital-signs`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                blood_pressure: bp,
-                                heart_rate: hr,
-                                temperature: temp,
-                                oxygen_saturation: o2,
-                                weight: weight,
-                                height: height
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            blood_pressure: bp,
+                            heart_rate: hr,
+                            temperature: temp,
+                            oxygen_saturation: o2,
+                            weight: weight,
+                            height: height
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                showMessage(messageEl, result.msg, 'success');
-                                // Clear inputs
-                                document.getElementById('vital-bp').value = '';
-                                document.getElementById('vital-hr').value = '';
-                                document.getElementById('vital-temp').value = '';
-                                document.getElementById('vital-o2').value = '';
-                                document.getElementById('vital-weight').value = '';
-                                document.getElementById('vital-height').value = '';
-                                // Reload appointment to show updated notes
-                                setTimeout(() => loadAppointmentDetails(), 1500);
-                            } else {
-                                showMessage(messageEl, result.msg || 'Failed to save vital signs', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showMessage(messageEl, 'An error occurred', 'error');
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, result.msg, 'success');
+                            // Clear inputs
+                            document.getElementById('vital-bp').value = '';
+                            document.getElementById('vital-hr').value = '';
+                            document.getElementById('vital-temp').value = '';
+                            document.getElementById('vital-o2').value = '';
+                            document.getElementById('vital-weight').value = '';
+                            document.getElementById('vital-height').value = '';
+                            // Reload appointment to show updated notes
+                            setTimeout(() => loadAppointmentDetails(), 1500);
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to save vital signs', 'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    });
                 });
 
-                // Complete Appointment
-                document.getElementById('complete-appointment-btn').addEventListener('click', function() {
-                    if (!confirm('Are you sure you want to mark this appointment as completed?')) {
+                // Complete Appointment - Show Modal
+                document.getElementById('complete-appointment-btn')?.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('complete-appointment-modal').classList.remove('hidden');
+                });
+
+                // Cancel Complete Modal
+                document.getElementById('cancel-complete-btn').addEventListener('click', function() {
+                    document.getElementById('complete-appointment-modal').classList.add('hidden');
+                });
+
+                // Confirm Complete Appointment
+                document.getElementById('confirm-complete-btn').addEventListener('click', function() {
+                    const modal = document.getElementById('complete-appointment-modal');
+                    const btn = this;
+
+                    btn.disabled = true;
+                    btn.textContent = 'Processing...';
+
+                    fetch(`/doctor/appointments/${appointmentId}/complete`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            modal.classList.add('hidden');
+                            toastr.success(result.msg);
+                            setTimeout(() => {
+                                window.location.href = '{{ route('doctor.appointments') }}';
+                            }, 1000);
+                        } else {
+                            toastr.error(result.msg || 'Failed to complete appointment');
+                            btn.disabled = false;
+                            btn.textContent = 'Confirm';
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        toastr.error('An error occurred');
+                        btn.disabled = false;
+                        btn.textContent = 'Confirm';
+                    });
+                });
+
+                // Update Status Options based on current status
+                function updateStatusOptions(currentStatus) {
+                    const select = document.getElementById('status-select');
+                    select.innerHTML = '<option value="">Select status...</option>';
+
+                    // Define allowed transitions
+                    const allowedTransitions = {
+                        'pending': ['confirmed'],
+                        'confirmed': ['checked_in', 'in_progress'],
+                        'checked_in': ['in_progress'],
+                        'in_progress': []
+                    };
+
+                    const statusLabels = {
+                        'confirmed': 'Confirmed',
+                        'checked_in': 'Checked In',
+                        'in_progress': 'In Progress'
+                    };
+
+                    const allowedStatuses = allowedTransitions[currentStatus] || [];
+                    allowedStatuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = statusLabels[status];
+                        select.appendChild(option);
+                    });
+                }
+
+                // Update Status Handler
+                document.getElementById('update-status-btn').addEventListener('click', function() {
+                    const newStatus = document.getElementById('status-select').value;
+                    const messageEl = document.getElementById('status-message');
+
+                    if (!newStatus) {
+                        showMessage(messageEl, 'Please select a status', 'error');
                         return;
                     }
 
-                    fetch(`/doctor/appointments/${appointmentId}/complete`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
+                    // Validate status transition
+                    const currentStatus = appointmentData.appointment.status;
+                    const allowedTransitions = {
+                        'pending': ['confirmed'],
+                        'confirmed': ['checked_in', 'in_progress'],
+                        'checked_in': ['in_progress'],
+                        'in_progress': []
+                    };
+
+                    if (!allowedTransitions[currentStatus] || !allowedTransitions[currentStatus].includes(
+                            newStatus)) {
+                        showMessage(messageEl, 'Invalid status transition', 'error');
+                        return;
+                    }
+
+                    this.disabled = true;
+                    this.textContent = 'Updating...';
+
+                    fetch(`/doctor/appointments/${appointmentId}/update-status`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.status === 200) {
-                                alert(result.msg);
-                                window.location.href = '{{ route('doctor.appointments') }}';
-                            } else {
-                                alert(result.msg || 'Failed to complete appointment');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('An error occurred');
-                        });
+                    }).then(response => response.json()).then(result => {
+                        if (result.status === 200) {
+                            showMessage(messageEl, 'Status updated successfully!', 'success');
+                            // Reload appointment details
+                            setTimeout(() => {
+                                loadAppointmentDetails();
+                            }, 1000);
+                        } else {
+                            showMessage(messageEl, result.msg || 'Failed to update status', 'error');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        showMessage(messageEl, 'An error occurred', 'error');
+                    }).finally(() => {
+                        this.disabled = false;
+                        this.textContent = 'Update';
+                    });
                 });
 
                 function showMessage(element, message, type) {

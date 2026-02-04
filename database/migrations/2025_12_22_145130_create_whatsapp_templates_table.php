@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('username')->nullable()->after('email');
+        Schema::create('whatsapp_templates', function (Blueprint $table) {
+            $table->string('id', 50)->primary();   // STRING PRIMARY KEY
+            $table->string('name', 100);
+            $table->text('message');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('username');
-        });
+        Schema::dropIfExists('whatsapp_templates');
     }
 };

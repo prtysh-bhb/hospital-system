@@ -15,7 +15,7 @@
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Select Patient</label>
                     <select id="select_patient" name="patient_id"
-                        class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+                        class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <option value="">Search or select patient... (or leave empty to create new)</option>
                         @foreach ($patients as $patient)
                             <option value="{{ $patient->id }}">{{ $patient->first_name }} {{ $patient->last_name }} -
@@ -37,7 +37,7 @@
                                 class="text-red-600">*</span></label>
                         <input type="text" name="first_name" id="first_name" placeholder="Enter first name"
                             maxlength="25"
-                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                         <span id="first_name_error" class="text-xs text-red-500 hidden"></span>
                         <span class="text-xs text-gray-400"><span id="first_name_count">0</span>/25 characters</span>
                     </div>
@@ -46,7 +46,7 @@
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Last Name <span
                                 class="text-red-600">*</span></label>
                         <input type="text" name="last_name" id="last_name" placeholder="Enter last name" maxlength="25"
-                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                         <span id="last_name_error" class="text-xs text-red-500 hidden"></span>
                         <span class="text-xs text-gray-400"><span id="last_name_count">0</span>/25 characters</span>
                     </div>
@@ -55,7 +55,7 @@
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email <span
                                 class="text-red-600">*</span></label>
                         <input type="email" name="email" id="email" placeholder="Enter email" maxlength="50"
-                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                         <span id="email_error" class="text-xs text-red-500 hidden"></span>
                         <span class="text-xs text-gray-400"><span id="email_count">0</span>/50 characters</span>
                     </div>
@@ -64,7 +64,7 @@
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Phone <span
                                 class="text-red-600">*</span></label>
                         <input type="tel" name="phone" id="phone" placeholder="Enter phone number" maxlength="15"
-                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                         <span id="phone_error" class="text-xs text-red-500 hidden"></span>
                         <span class="text-xs text-gray-400"><span id="phone_count">0</span>/15 characters</span>
                     </div>
@@ -74,7 +74,7 @@
                                 class="text-red-600">*</span></label>
                         <input type="date" name="date_of_birth" id="date_of_birth"
                             max="{{ now()->subDay()->format('Y-m-d') }}"
-                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                         <span id="date_of_birth_error" class="text-xs text-red-500 hidden"></span>
                     </div>
 
@@ -82,7 +82,7 @@
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Gender <span
                                 class="text-red-600">*</span></label>
                         <select name="gender" id="gender"
-                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                             <option value="">Select Gender</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
@@ -94,11 +94,88 @@
                     <div class="col-span-1 md:col-span-2">
                         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Address</label>
                         <textarea name="address" id="address" rows="2" maxlength="100"
-                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
+                            class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
                             placeholder="Enter full address..."></textarea>
                         <span id="address_error" class="text-xs text-red-500 hidden"></span>
                         <span class="text-xs text-gray-400"><span id="address_count">0</span>/100 characters</span>
                     </div>
+
+                    <!-- Emergency Contact (Conditional) -->
+                    @if (isset($formSettings['show_emergency_contact']) && $formSettings['show_emergency_contact'])
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Emergency Contact
+                                Name</label>
+                            <input type="text" name="emergency_contact_name" id="emergency_contact_name"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
+                                placeholder="Contact person name">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Emergency Contact
+                                Phone</label>
+                            <input type="text" name="emergency_contact_phone" id="emergency_contact_phone"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
+                                placeholder="Contact phone number">
+                        </div>
+                    @endif
+
+                    <!-- Blood Group (Conditional) -->
+                    @if (isset($formSettings['show_blood_group']) && $formSettings['show_blood_group'])
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Blood Group</label>
+                            <select name="blood_group" id="blood_group"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
+                                <option value="">Select blood group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                    @endif
+
+                    <!-- Medical History (Conditional) -->
+                    @if (isset($formSettings['show_medical_history']) && $formSettings['show_medical_history'])
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Medical History</label>
+                            <textarea name="medical_history" id="medical_history" rows="2"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
+                                placeholder="Any past medical conditions, surgeries, etc."></textarea>
+                        </div>
+                    @endif
+
+                    <!-- Current Medications (Conditional) -->
+                    @if (isset($formSettings['show_current_medications']) && $formSettings['show_current_medications'])
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Current
+                                Medications</label>
+                            <textarea name="current_medications" id="current_medications" rows="2"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
+                                placeholder="List any medications currently taking"></textarea>
+                        </div>
+                    @endif
+
+                    <!-- Insurance Details (Conditional) -->
+                    @if (isset($formSettings['show_insurance_details']) && $formSettings['show_insurance_details'])
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Insurance
+                                Provider</label>
+                            <input type="text" name="insurance_provider" id="insurance_provider"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
+                                placeholder="Insurance company name">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Insurance Number</label>
+                            <input type="text" name="insurance_number" id="insurance_number"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
+                                placeholder="Policy/Member number">
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Appointment Details Section -->
@@ -110,7 +187,7 @@
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Select Doctor <span
                                     class="text-red-600">*</span></label>
                             <select id="doctor_select" name="doctor_id"
-                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                                 <option value="">Search or select doctor...</option>
                                 @foreach ($doctors as $doctor)
                                     <option value="{{ $doctor->id }}">{{ $doctor->first_name }} {{ $doctor->last_name }}
@@ -128,7 +205,7 @@
                                 <span class="text-red-600">*</span></label>
                             <input type="date" name="appointment_date" id="appointment_date"
                                 min="{{ date('Y-m-d') }}"
-                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                             <span id="appointment_date_error" class="text-xs text-red-500 hidden"></span>
                         </div>
 
@@ -136,7 +213,7 @@
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Time
                                 <span class="text-red-600">*</span></label>
                             <select name="appointment_time" id="appointment_time"
-                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                                 <option value="">Select date first</option>
                             </select>
                             <span id="appointment_time_error" class="text-xs text-red-500 hidden"></span>
@@ -146,7 +223,7 @@
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Appointment Type
                                 <span class="text-red-600">*</span></label>
                             <select id="type_select" name="appointment_type"
-                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                                 <option value="">Select type...</option>
                                 <option value="consultation">Consultation</option>
                                 <option value="follow_up">Follow Up</option>
@@ -160,7 +237,7 @@
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status <span
                                     class="text-red-600">*</span></label>
                             <select name="status" id="status"
-                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
                             </select>
@@ -170,7 +247,7 @@
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason for Visit
                                 <span class="text-red-600">*</span></label>
                             <textarea name="reason_for_visit" id="reason_for_visit" rows="3" maxlength="1000"
-                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
                                 placeholder="Enter reason for visit..."></textarea>
                             <span id="reason_for_visit_error" class="text-xs text-red-500 hidden"></span>
                             <span class="text-xs text-gray-400"><span id="reason_count">0</span>/1000 characters</span>
@@ -179,7 +256,7 @@
                         <div class="col-span-1 md:col-span-2">
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
                             <textarea name="notes" id="notes" rows="2" maxlength="500"
-                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base"
                                 placeholder="Enter any additional notes..."></textarea>
                             <span id="notes_error" class="text-xs text-red-500 hidden"></span>
                             <span class="text-xs text-gray-400"><span id="notes_count">0</span>/500 characters</span>

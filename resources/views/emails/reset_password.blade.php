@@ -16,7 +16,7 @@
                     <tr>
                         <td style="padding:28px; text-align:center; background:#ffffff;">
                             <div style="font-size:22px; font-weight:700; color:#2d2d2d; letter-spacing:-0.2px;">
-                                MediCare HMS
+                                {{ $site_name }}
                             </div>
                             <div style="font-size:13px; color:#6a6a6a; margin-top:4px;">
                                 Hospital Management System
@@ -74,7 +74,7 @@
 
                             <p style="margin:28px 0 0 0;">
                                 Regards,<br>
-                                <strong>MediCare HMS Team</strong>
+                                <strong>{{ $site_name }}</strong>
                             </p>
                         </td>
                     </tr>
@@ -87,7 +87,7 @@
                     <!-- FOOTER -->
                     <tr>
                         <td style="padding:18px; text-align:center; font-size:12px; color:#9a9a9a; background:#fafafa;">
-                            © {{ date('Y') }} MediCare HMS. All rights reserved.<br>
+                            © {{ date('Y') }} {{ $site_name }}. All rights reserved.<br>
                             This is an automated email — please do not reply.
                         </td>
                     </tr>

@@ -19,7 +19,7 @@ class AuthService
 
         // Attempt to authenticate with username instead of email
         if (
-            !Auth::attempt([
+            ! Auth::attempt([
                 'username' => $credentials['username'],
                 'password' => $credentials['password'],
             ], $remember)
@@ -30,6 +30,14 @@ class AuthService
         }
 
         $user = Auth::user();
+
+        // Prevent patients from logging in through staff login
+        if ($user->role === 'patient') {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'username' => ['Patients cannot login here. Please use the Patient Portal.'],
+            ]);
+        }
 
         // Check if user is active
         if ($user->status !== 'active') {

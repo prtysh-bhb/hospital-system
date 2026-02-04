@@ -13,7 +13,7 @@
                 class="text-red-600">*</span></label>
         <input type="text" name="name" id="name" value="{{ $data->name ?? '' }}" pattern="^[a-zA-Z\s]+$"
             title="Only letters and spaces are allowed" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
             placeholder="Enter specialty name">
         <span class="text-red-600 text-sm error name_error"></span>
         <p class="text-xs text-gray-500 mt-1">Only letters and spaces allowed</p>
@@ -24,7 +24,7 @@
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Description <span
                 class="text-red-600">*</span></label>
         <input type="text" name="description" id="description" value="{{ $data->description ?? '' }}"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
             placeholder="Enter description">
         <span class="text-red-600 text-sm error description_error"></span>
     </div>
@@ -34,7 +34,7 @@
         <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status <span
                 class="text-red-600">*</span></label>
         <select name="status" id="status"
-            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-600 focus:border-transparent">
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             <option value="">Select Status</option>
             <option value="active" {{ ($data->status ?? '') == 'active' ? 'selected' : '' }}>Active</option>
             <option value="inactive" {{ ($data->status ?? '') == 'inactive' ? 'selected' : '' }}>Inactive</option>

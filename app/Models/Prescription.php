@@ -11,6 +11,8 @@ class Prescription extends Model
 {
     use HasFactory, LogsActivity;
 
+    protected $table = 'prescriptions';
+
     protected $fillable = [
         'prescription_number',
         'appointment_id',

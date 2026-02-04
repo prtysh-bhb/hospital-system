@@ -1,0 +1,522 @@
+@extends('layouts.admin')
+
+@section('title', 'Leave Management')
+@section('page-title', 'Leave Management')
+
+@section('content')
+
+    <!-- Message Container -->
+    <div id="messageContainer" class="hidden mb-4 p-4 rounded-lg"></div>
+
+    <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
+        <div>
+            <!-- Leave Statistics -->
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-6">
+
+                <!-- Total Leaves -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-md">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-xs text-gray-500">Total Leaves</p>
+                            <p class="text-lg font-bold text-gray-800" id="totalLeaves">
+                                {{ $leaves->count() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-md">
+                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-xs text-gray-500">Pending</p>
+                            <p class="text-lg font-bold text-yellow-600" id="pendingLeaves">
+                                {{ $leaves->where('status', 'pending')->count() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approved -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-md">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-xs text-gray-500">Approved</p>
+                            <p class="text-lg font-bold text-green-600" id="approvedLeaves">
+                                {{ $leaves->where('status', 'approved')->count() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rejected -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-orange-100 rounded-md">
+                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-xs text-gray-500">Rejected</p>
+                            <p class="text-lg font-bold text-orange-600" id="rejectedLeaves">
+                                {{ $leaves->where('status', 'rejected')->count() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cancelled -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-md">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-xs text-gray-500">Cancelled</p>
+                            <p class="text-lg font-bold text-red-600" id="cancelledLeaves">
+                                {{ $leaves->where('status', 'cancelled')->count() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 sm:gap-4">
+
+                <!-- Date Range -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="date" id="filterStartDate"
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
+                        <span class="text-gray-500">to</span>
+                        <input type="date" id="filterEndDate"
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
+                    </div>
+                </div>
+
+                <!-- Leave Type -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Leave Type</label>
+                    <select id="filterLeaveType"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
+                        <option value="">All Types</option>
+                        <option value="full_day">Full Day</option>
+                        <option value="half_day">Half Day</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+
+                <!-- Doctor -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Doctor</label>
+                    <select id="filterDoctor"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
+                        <option value="">All Doctors</option>
+                        @foreach ($doctors as $doctor)
+                            <option value="{{ $doctor->id }}">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="filterStatus"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            #
+                        </th>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Doctor
+                        </th>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Leave Type
+                        </th>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden md:table-cell">
+                            Start Date
+                        </th>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            End Date
+                        </th>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden lg:table-cell">
+                            Duration
+                        </th>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Availability
+                        </th>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Reason
+                        </th>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Applied On
+                        </th>
+                        <th
+                            class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Status
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="leaveTableBody" class="divide-y divide-gray-200">
+                    <!-- Dynamic Rows will load here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div
+            class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
+            <div id="paginationInfo" class="text-xs sm:text-sm text-gray-600"></div>
+            <div id="paginationContainer" class="flex flex-wrap gap-2 justify-center"></div>
+        </div>
+    </div>
+
+@endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            window.loaddoctorsleaves = function(page = 1) {
+
+                let start_date = document.getElementById('filterStartDate').value;
+                let end_date = document.getElementById('filterEndDate').value;
+                let leave_type = document.getElementById('filterLeaveType').value;
+                let doctor_id = document.getElementById('filterDoctor').value;
+                let status = document.getElementById('filterStatus').value;
+
+                let query = `?page=${page}
+                &doctor_id=${doctor_id}
+                &status=${status}
+                &leave_type=${leave_type}
+                &start_date=${start_date}
+                &end_date=${end_date}`;
+
+                function getStatusClass(status) {
+                    return status === 'pending' ?
+                        'bg-yellow-100 text-yellow-700 border-yellow-300' :
+                        status === 'approved' ?
+                        'bg-green-100 text-green-700 border-green-300' :
+                        status === 'rejected' ?
+                        'bg-orange-100 text-orange-700 border-orange-300' :
+                        status === 'cancelled' ?
+                        'bg-red-100 text-red-700 border-red-300' :
+                        'bg-blue-100 text-blue-700 border-blue-300';
+                }
+
+                fetch(`{{ route('admin.leaves') }}${query}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(res => res.json()).then(res => {
+
+                    let tbody = document.getElementById("leaveTableBody");
+                    tbody.innerHTML = '';
+
+                    if (!res.data || res.data.length === 0) {
+                        tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="9" class="text-center py-6 text-gray-500">
+                                        No Leaves Found
+                                    </td>
+                                </tr>
+                            `;
+                        document.getElementById("paginationContainer").innerHTML = '';
+                        document.getElementById("paginationInfo").innerHTML = '';
+                        return;
+                    }
+
+                    res.data.forEach((item, index) => {
+
+                        let statusColor =
+                            item.status === 'pending' ? 'bg-yellow-100 text-yellow-600' :
+                            item.status === 'approved' ? 'bg-green-100 text-green-600' :
+                            item.status === 'rejected' ? 'bg-red-100 text-red-600' :
+                            item.status === 'cancelled' ? 'bg-gray-100 text-gray-600' :
+                            'bg-blue-100 text-blue-600'; // default/fallback
+
+                        let startDate = formatDate(item.start_date);
+                        let endDate = formatDate(item.end_date);
+                        let createdAt = formatDate(item.created_at);
+
+                        let duration = '';
+                        if (item.start_date && item.end_date) {
+                            let start = new Date(item.start_date);
+                            let end = new Date(item.end_date);
+                            let days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                            duration = days + (days > 1 ? ' days' : ' day');
+                        }
+                        // Generate availability display
+                        let availabilityHTML = '';
+                        if (item.leave_type === 'full_day') {
+                            availabilityHTML =
+                                `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300">Full Day</span>`;
+                        } else if (item.leave_type === 'custom') {
+                            // Custom leave with half days
+                            let availabilityParts = [];
+
+                            // Start date
+                            if (item.start_date_type === 'half_day') {
+                                availabilityParts.push(
+                                    `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.start_half_slot)} Half (${startDate})</span>`
+                                );
+                            } else if (item.start_date_type === 'full_day') {
+                                availabilityParts.push(
+                                    `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${startDate})</span>`
+                                );
+                            }
+
+                            // Middle dates (if any)
+                            let start = new Date(item.start_date);
+                            let end = new Date(item.end_date);
+                            let daysDiff = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+
+                            if (daysDiff > 1) {
+                                let middleStart = new Date(start);
+                                middleStart.setDate(middleStart.getDate() + 1);
+                                let middleEnd = new Date(end);
+                                middleEnd.setDate(middleEnd.getDate() - 1);
+
+                                if (middleStart <= middleEnd) {
+                                    let middleStartStr = formatDate(middleStart.toISOString()
+                                        .split('T')[0]);
+                                    let middleEndStr = formatDate(middleEnd.toISOString().split(
+                                        'T')[0]);
+                                    availabilityParts.push(
+                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${middleStartStr} to ${middleEndStr})</span>`
+                                    );
+                                }
+                            }
+
+                            // End date (if different from start)
+                            if (item.end_date !== item.start_date) {
+                                if (item.end_date_type === 'half_day') {
+                                    availabilityParts.push(
+                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.end_half_slot)} Half (${endDate})</span>`
+                                    );
+                                } else if (item.end_date_type === 'full_day') {
+                                    availabilityParts.push(
+                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${endDate})</span>`
+                                    );
+                                }
+                            }
+
+                            availabilityHTML =
+                                `<div class="flex flex-wrap gap-1">${availabilityParts.join('')}</div>`;
+                        } else {
+                            availabilityHTML =
+                                `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-700 border-gray-300">-</span>`;
+                        }
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="px-4 py-3">
+                                    ${(res.pagination.current_page - 1) * res.pagination.per_page + index + 1}
+                                </td>
+                                <td class="px-4 py-3">
+                                    Dr. ${item.doctor?.first_name ?? ''} ${item.doctor?.last_name ?? ''}
+                                </td>
+                                <td class="px-4 py-3">${formatLeaveType(item.leave_type)}</td>
+                                <td class="px-4 py-3">${startDate}</td>
+                                <td class="px-4 py-3">${endDate}</td>
+                                <td class="px-4 py-3">${duration}</td>
+                                <td class="px-4 py-3">
+                                    ${availabilityHTML}
+                                </td>
+                                <td class="px-4 py-3">${item.reason ?? ''}</td>
+                                <td class="px-4 py-3">${createdAt}</td>
+                                <td class="px-4 py-3">
+                                    <select
+                                        class="px-3 py-1 text-xs font-medium rounded-full border focus:ring-2 focus:ring-sky-500
+                                        ${getStatusClass(item.status)}"
+                                        onchange="updateLeaveStatus(${item.id}, this.value);
+                                            this.className = 'px-3 py-1 text-xs font-medium rounded-full border focus:ring-2 focus:ring-sky-500 ' + getStatusClass(this.value);
+                                    ">
+                                        <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="approved" ${item.status === 'approved' ? 'selected' : ''}>Approved</option>
+                                        <option value="rejected" ${item.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+                                        <option value="cancelled" ${item.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    updatePagination(res.pagination);
+                });
+            }
+
+            // PAGINATION
+            function updatePagination(pagination) {
+                let container = document.getElementById("paginationContainer");
+                container.innerHTML = '';
+
+                container.innerHTML += `
+                    <button
+                        ${pagination.current_page > 1 ? `onclick="loaddoctorsleaves(${pagination.current_page - 1})"` : ''}
+                        class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg
+                        ${pagination.current_page > 1
+                            ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                            : 'text-gray-400 bg-gray-100 cursor-not-allowed'}"
+                        ${pagination.current_page <= 1 ? 'disabled' : ''}>
+                        Previous
+                    </button>
+                `;
+
+                for (let i = 1; i <= pagination.last_page; i++) {
+                    container.innerHTML += `
+                        <button
+                            onclick="loaddoctorsleaves(${i})"
+                            class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg
+                            ${i === pagination.current_page
+                                ? 'text-white bg-sky-600'
+                                : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'}">
+                            ${i}
+                        </button>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <button
+                        ${pagination.current_page < pagination.last_page ? `onclick="loaddoctorsleaves(${pagination.current_page + 1})"` : ''}
+                        class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg
+                        ${pagination.current_page < pagination.last_page
+                            ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                            : 'text-gray-400 bg-gray-100 cursor-not-allowed'}"
+                        ${pagination.current_page >= pagination.last_page ? 'disabled' : ''}>
+                        Next
+                    </button>
+                `;
+
+                document.getElementById("paginationInfo").innerHTML = `
+                    Showing <span class="font-medium">${pagination.from}</span>
+                    to <span class="font-medium">${pagination.to}</span>
+                    of <span class="font-medium">${pagination.total}</span> results
+                `;
+            }
+
+            function formatDate(date) {
+                if (!date) return '';
+                let d = new Date(date);
+                return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+            }
+
+            function formatLeaveType(type) {
+                if (!type) return '';
+                return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            }
+
+            function capitalize(str) {
+                if (!str) return '';
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            // Filter change events
+            ['filterStartDate', 'filterEndDate', 'filterLeaveType', 'filterDoctor', 'filterStatus']
+            .forEach(id => {
+                document.getElementById(id).addEventListener('change', () => loaddoctorsleaves(1));
+            });
+
+            // Initial load
+            loaddoctorsleaves();
+
+            // Update Status Leave approved or cancelled
+            window.updateLeaveStatus = function(leaveId, status) {
+                fetch(`{{ route('admin.leaves.update-status') }}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            leave_id: leaveId,
+                            status: status
+                        })
+                    })
+                    .then(async response => {
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            toastr.success(data.message);
+                            updateLeaveCounts(data.counts);
+                            window.loaddoctorsleaves();
+                            return;
+                        }
+
+                        if (response.status === 422) {
+                            toastr.error(data.message);
+                            return;
+                        }
+
+                        toastr.error(data.message || 'Something went wrong');
+                    })
+                    .catch(() => {
+                        toastr.error('Server error. Please try again.');
+                    });
+            };
+
+            // Update Leave counts
+            function updateLeaveCounts(counts) {
+                document.getElementById('totalLeaves').innerText = counts.total;
+                document.getElementById('pendingLeaves').innerText = counts.pending;
+                document.getElementById('approvedLeaves').innerText = counts.approved;
+                document.getElementById('rejectedLeaves').innerText = counts.rejected;
+                document.getElementById('cancelledLeaves').innerText = counts.cancelled;
+            }
+            window.loaddoctorsleaves();
+        });
+    </script>
+@endpush

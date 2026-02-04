@@ -28,7 +28,7 @@
                     Today
                 </button>
                 <input type="date" id="jumpToDate"
-                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                     title="Jump to date">
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
@@ -256,18 +256,18 @@
                 }
             }
 
-            console.log('Document ready, loading calendar for:', currentMonth);
-
-            // Load appropriate view based on URL (pass false to avoid re-updating URL)
-            if (currentView === 'week') {
-                switchView('week', false);
-            } else if (currentView === 'day') {
-                switchView('day', false);
-            } else {
-                switchView('month', false);
-            }
-
-            loadWeeklySchedule();
+            // Load weekly schedule FIRST, then initialize the view
+            // This prevents race condition where week/day views render before schedule data is loaded
+            loadWeeklySchedule(function() {
+                // Load appropriate view based on URL (pass false to avoid re-updating URL)
+                if (currentView === 'week') {
+                    switchView('week', false);
+                } else if (currentView === 'day') {
+                    switchView('day', false);
+                } else {
+                    switchView('month', false);
+                }
+            });
 
             // View switchers
             $('#viewMonth').on('click', function() {
@@ -675,8 +675,6 @@
         }
 
         function loadCalendar(month) {
-            console.log('Loading calendar for month:', month);
-
             showLoading('#calendarDays', 'Loading calendar...');
 
             $.ajax({
@@ -686,8 +684,6 @@
                     month: month
                 },
                 success: function(response) {
-                    console.log('Calendar response:', response);
-
                     if (response.success) {
                         $('#currentPeriod').text(response.data.month_name);
                         renderCalendar(response.data.days);
@@ -704,8 +700,6 @@
         }
 
         function renderCalendar(days) {
-            console.log('Rendering calendar days:', days);
-
             if (!days || !Array.isArray(days)) {
                 showError('#calendarDays', 'Invalid calendar data received');
                 return;
@@ -774,14 +768,11 @@
             });
         }
 
-        function loadWeeklySchedule() {
-            console.log('Loading weekly schedule...');
-
+        function loadWeeklySchedule(callback) {
             $.ajax({
                 url: '{{ route('doctor.calendar.schedule') }}',
                 method: 'GET',
                 success: function(response) {
-                    console.log('Schedule response:', response);
 
                     if (response.success) {
                         // Store schedule data globally for use in week/day views
@@ -790,16 +781,25 @@
                     } else {
                         showError('#weeklySchedule', response.message || 'Failed to load schedule');
                     }
+
+                    // Call the callback after schedule is loaded (success or with error data)
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error('Schedule AJAX error:', error);
                     showError('#weeklySchedule', 'Failed to load schedule');
+
+                    // Still call callback on error so views can render (with empty schedule)
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
                 }
             });
         }
 
         function renderWeeklySchedule(schedule) {
-            console.log('Rendering schedule:', schedule);
 
             if (!schedule || !Array.isArray(schedule)) {
                 showError('#weeklySchedule', 'Invalid schedule data');
@@ -830,10 +830,10 @@
 
                     html += `<div class="flex items-center gap-2 flex-1">`;
                     html +=
-                        `<input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="${startTime}">`;
+                        `<input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none focus:outline-none focus:ring-0 focus:border-gray-300" value="${startTime}">`;
                     html += `<span class="text-gray-500 text-xs sm:text-sm">to</span>`;
                     html +=
-                        `<input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="${endTime}">`;
+                        `<input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none focus:outline-none focus:ring-0 focus:border-gray-300" value="${endTime}">`;
                     html += `</div>`;
                 } else {
                     html += `<span class="text-gray-400 text-sm sm:text-base unavailable-text">Unavailable</span>`;
@@ -897,9 +897,9 @@
                     // Add time inputs
                     const timeInputsHtml = `
                         <div class="flex items-center gap-2 flex-1">
-                            <input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="09:00">
+                            <input type="time" class="start-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none focus:outline-none focus:ring-0 focus:border-gray-300" value="09:00">
                             <span class="text-gray-500 text-xs sm:text-sm">to</span>
-                            <input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none" value="17:00">
+                            <input type="time" class="end-time px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm sm:text-base flex-1 sm:flex-none focus:outline-none focus:ring-0 focus:border-gray-300" value="17:00">
                         </div>
                     `;
                     $container.append(timeInputsHtml);
@@ -939,13 +939,13 @@
                 const endTime = $(this).find('.end-time').val();
 
                 if (isAvailable && (!startTime || !endTime)) {
-                    alert('Please set both start and end times for all available days');
+                    toastr.error('Please set both start and end times for all available days');
                     hasError = true;
                     return false;
                 }
 
                 if (isAvailable && startTime >= endTime) {
-                    alert('End time must be after start time for all days');
+                    toastr.error('End time must be after start time for all days');
                     hasError = true;
                     return false;
                 }
@@ -996,7 +996,7 @@
                         // Reload schedule
                         renderWeeklySchedule(response.schedule);
                     } else {
-                        alert('Failed to update schedule: ' + (response.message || 'Unknown error'));
+                        toastr.error('Failed to update schedule: ' + (response.message || 'Unknown error'));
                     }
                 },
                 error: function(xhr) {
@@ -1008,7 +1008,7 @@
                         errorMsg = xhr.responseJSON.message;
                     }
 
-                    alert(errorMsg);
+                    toastr.error(errorMsg);
                 },
                 complete: function() {
                     $('#saveSchedule').prop('disabled', false).html('Save Changes');
@@ -1077,13 +1077,13 @@
                                             <span class="text-gray-700">${apt.type}</span>
                                         </div>
                                         ${apt.reason ? `
-                                                                                                                            <div class="flex items-start text-sm">
-                                                                                                                                <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                                                                                                </svg>
-                                                                                                                                <span class="text-gray-600">${apt.reason}</span>
-                                                                                                                            </div>
-                                                                                                                            ` : ''}
+                                                                                                                                                                                        <div class="flex items-start text-sm">
+                                                                                                                                                                                            <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                                                                                                                                            </svg>
+                                                                                                                                                                                            <span class="text-gray-600">${apt.reason}</span>
+                                                                                                                                                                                        </div>
+                                                                                                                                                                                        ` : ''}
                                     </div>
                                 </div>
                             `).join('');
@@ -1312,5 +1312,73 @@
                 closeModal();
             }
         });
+
+        // Validate time inputs for 30-minute intervals
+        function validateTimeInterval(timeValue) {
+            if (!timeValue) return true;
+
+            const [hours, minutes] = timeValue.split(':');
+            const mins = parseInt(minutes, 10);
+
+            // Allow only 00 and 30 for minutes
+            return mins === 0 || mins === 30;
+        }
+
+        // Add validation to time inputs when they are created/updated
+        function attachTimeValidation() {
+            $('input[type="time"]').off('change blur').on('change', function() {
+                if ($(this).val() && !validateTimeInterval($(this).val())) {
+                    toastr.error('Please select a time in 30-minute intervals (e.g., 11:00 or 11:30)');
+                    $(this).val('');
+                }
+            }).on('blur', function() {
+                if ($(this).val() && !validateTimeInterval($(this).val())) {
+                    toastr.warning('Time must be in 30-minute intervals');
+                    $(this).val('');
+                }
+            });
+        }
+
+        // Validate schedule times before saving
+        window.validateScheduleTimes = function() {
+            const timeInputs = document.querySelectorAll('input[type="time"]');
+            let hasInvalidTime = false;
+
+            timeInputs.forEach(input => {
+                if (input.value && !validateTimeInterval(input.value)) {
+                    hasInvalidTime = true;
+                    toastr.error('All times must be in 30-minute intervals (e.g., 11:00, 11:30)');
+                }
+            });
+
+            return !hasInvalidTime;
+        };
+
+        // Override saveSchedule to validate times before saving
+        const originalSaveSchedule = window.saveSchedule;
+        window.saveSchedule = function() {
+            if (!validateScheduleTimes()) {
+                return;
+            }
+            if (typeof originalSaveSchedule === 'function') {
+                originalSaveSchedule.call(this);
+            }
+        };
+
+        // Attach validation when page loads and when schedule is rendered
+        $(document).ready(function() {
+            attachTimeValidation();
+        });
+
+        // Override renderWeeklySchedule to attach validation after rendering
+        const originalRenderWeeklySchedule = window.renderWeeklySchedule;
+        window.renderWeeklySchedule = function(schedule) {
+            if (typeof originalRenderWeeklySchedule === 'function') {
+                originalRenderWeeklySchedule.call(this, schedule);
+            }
+            // Add step attribute to all time inputs for 30-minute intervals
+            $('input[type="time"]').attr('step', '1800');
+            attachTimeValidation();
+        };
     </script>
 @endpush

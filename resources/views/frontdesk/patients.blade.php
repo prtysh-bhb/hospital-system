@@ -11,12 +11,12 @@
             <div class="col-span-1 md:col-span-2">
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Search Patient</label>
                 <input type="text" id="searchInput" placeholder="Search by name, email, phone, or ID..."
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
             </div>
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Gender</label>
                 <select id="genderFilter"
-                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 text-sm sm:text-base">
+                    class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300 text-sm sm:text-base">
                     <option value="all">All Genders</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -132,7 +132,7 @@
                                 class="text-red-600">*</span></label>
                         <input type="text" id="edit_first_name" data-error="edit_first_name_error"
                             placeholder="Enter first name"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_first_name_error"></span>
                     </div>
 
@@ -142,7 +142,7 @@
                                 class="text-red-600">*</span></label>
                         <input type="text" id="edit_last_name" data-error="edit_last_name_error"
                             placeholder="Enter last name"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_last_name_error"></span>
                     </div>
 
@@ -151,7 +151,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email <span
                                 class="text-red-600">*</span></label>
                         <input type="email" id="edit_email" data-error="edit_email_error" placeholder="Enter email"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_email_error"></span>
                     </div>
 
@@ -161,7 +161,7 @@
                                 class="text-red-600">*</span></label>
                         <input type="tel" id="edit_phone" data-error="edit_phone_error"
                             placeholder="Enter phone number"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_phone_error"></span>
                     </div>
 
@@ -170,7 +170,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth <span
                                 class="text-red-600">*</span></label>
                         <input type="date" id="edit_date_of_birth" data-error="edit_date_of_birth_error"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_date_of_birth_error"></span>
                     </div>
 
@@ -179,7 +179,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Gender <span
                                 class="text-red-600">*</span></label>
                         <select id="edit_gender" data-error="edit_gender_error"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                             <option value="">Select Gender</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
@@ -192,7 +192,7 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
                         <textarea id="edit_address" data-error="edit_address_error" placeholder="Enter address..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500"></textarea>
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"></textarea>
                         <span class="text-xs text-red-500 hidden" id="edit_address_error"></span>
                     </div>
 
@@ -201,7 +201,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Blood Group</label>
                         <input type="text" id="edit_blood_group" data-error="edit_blood_group_error"
                             placeholder="Enter blood group"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_blood_group_error"></span>
                     </div>
 
@@ -210,7 +210,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Name</label>
                         <input type="text" id="edit_emergency_contact_name"
                             data-error="edit_emergency_contact_name_error" placeholder="Enter emergency contact name"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_emergency_contact_name_error"></span>
                     </div>
 
@@ -219,8 +219,54 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Phone</label>
                         <input type="tel" id="edit_emergency_contact_phone"
                             data-error="edit_emergency_contact_phone_error" placeholder="Enter emergency phone number"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-xs text-red-500 hidden" id="edit_emergency_contact_phone_error"></span>
+                    </div>
+                </div>
+
+                <!-- Medical Information -->
+                <div class="pt-4 border-t border-gray-200">
+                    <h5 class="text-base font-semibold text-gray-800 mb-4">Medical Information</h5>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Medical History</label>
+                            <textarea id="edit_medical_history" data-error="edit_medical_history_error"
+                                placeholder="Any past medical conditions, surgeries, allergies, etc."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
+                                rows="3"></textarea>
+                            <span class="text-xs text-red-500 hidden" id="edit_medical_history_error"></span>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Medications</label>
+                            <textarea id="edit_current_medications" data-error="edit_current_medications_error"
+                                placeholder="List any medications currently taking"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
+                                rows="3"></textarea>
+                            <span class="text-xs text-red-500 hidden" id="edit_current_medications_error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insurance Information -->
+                <div class="pt-4 border-t border-gray-200">
+                    <h5 class="text-base font-semibold text-gray-800 mb-4">Insurance Information</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Insurance Provider</label>
+                            <input type="text" id="edit_insurance_provider" data-error="edit_insurance_provider_error"
+                                placeholder="Insurance company name"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
+                            <span class="text-xs text-red-500 hidden" id="edit_insurance_provider_error"></span>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Insurance Number</label>
+                            <input type="text" id="edit_insurance_number" data-error="edit_insurance_number_error"
+                                placeholder="Policy/Member number"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
+                            <span class="text-xs text-red-500 hidden" id="edit_insurance_number_error"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -311,6 +357,14 @@
             document.getElementById('deletePatientModal').classList.add('hidden');
         });
 
+        // Close delete modal when clicking outside
+        document.getElementById('deletePatientModal').addEventListener('click', (e) => {
+            if (e.target.id === 'deletePatientModal') {
+                patientToDeleteId = null;
+                document.getElementById('deletePatientModal').classList.add('hidden');
+            }
+        });
+
         document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
             if (!patientToDeleteId) return;
 
@@ -319,25 +373,22 @@
             patientToDeleteId = null;
 
             fetch(`{{ url('frontdesk/patients') }}/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        toastr.success(data.message);
-                        loadPatients(currentPage);
-                    } else {
-                        toastr.error(data.message || 'Failed to delete patient');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('An error occurred while deleting the patient');
-                });
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    toastr.success(data.message);
+                    loadPatients(currentPage);
+                } else {
+                    toastr.error(data.message || 'Failed to delete patient');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred while deleting the patient');
+            });
         });
 
         function loadPatients(page = 1) {
@@ -346,21 +397,18 @@
             currentPage = page;
 
             fetch(`{{ route('frontdesk.patients') }}?search=${encodeURIComponent(search)}&gender=${gender}&page=${page}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayPatients(data.patients);
-                        updatePagination(data.pagination);
-                        document.getElementById('totalPatients').textContent = data.pagination.total;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading patients:', error);
-                });
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    displayPatients(data.patients);
+                    updatePagination(data.pagination);
+                    document.getElementById('totalPatients').textContent = data.pagination.total;
+                }
+            }).catch(error => {
+                console.error('Error loading patients:', error);
+            });
         }
 
         function displayPatients(patients) {
@@ -368,61 +416,60 @@
 
             if (patients.length === 0) {
                 tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                        No patients found
-                    </td>
-                </tr>
-            `;
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            No patients found
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
             tbody.innerHTML = patients.map(patient => {
                 const age = calculateAge(patient.date_of_birth);
                 const lastVisit = patient.patient_appointments && patient.patient_appointments.length > 0 ? patient
-                    .patient_appointments[
-                        0] : null;
+                    .patient_appointments[0] : null;
 
                 return `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                        <p class="text-xs sm:text-sm font-medium text-gray-900">PT-${String(patient.id).padStart(4, '0')}</p>
-                    </td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2 sm:gap-3">
-                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.first_name + ' ' + patient.last_name)}&background=0ea5e9&color=fff"
-                                 class="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Patient">
-                            <div>
-                                <p class="text-xs sm:text-sm font-medium text-gray-900">${patient.first_name} ${patient.last_name}</p>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <p class="text-xs sm:text-sm font-medium text-gray-900">PT-${String(patient.id).padStart(4, '0')}</p>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-2 sm:gap-3">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.first_name + ' ' + patient.last_name)}&background=0ea5e9&color=fff"
+                                    class="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Patient">
+                                <div>
+                                    <p class="text-xs sm:text-sm font-medium text-gray-900">${patient.first_name} ${patient.last_name}</p>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                        <p class="text-xs sm:text-sm text-gray-900">${age} • ${capitalizeFirst(patient.gender)}</p>
-                    </td>
-                    <td class="px-3 sm:px-6 py-4">
-                        <p class="text-xs sm:text-sm text-gray-900 break-all">${patient.email || 'N/A'}</p>
-                        <p class="text-xs sm:text-sm text-gray-500">${patient.phone || 'N/A'}</p>
-                    </td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
-                        ${lastVisit ? `<p class="text-xs sm:text-sm text-gray-900">${formatDate(lastVisit.appointment_date)}</p>
-                                    <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name ?? ''} ${lastVisit.doctor?.last_name ?? ''}</p>`
-                             : '<p class="text-xs sm:text-sm text-gray-500">No visits yet</p>'}
-                    </td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">
-                        <div class="flex gap-2">
-                            <button onclick="viewPatient(${patient.id})" 
-                                    class="px-2 sm:px-3 py-1 bg-sky-100 text-sky-700 rounded hover:bg-sky-200 text-xs sm:text-sm">
-                                View
-                            </button>
-                            <button onclick="deletePatient(${patient.id})" 
-                                    class="px-2 sm:px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs sm:text-sm">
-                                Delete
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                            <p class="text-xs sm:text-sm text-gray-900">${age} • ${capitalizeFirst(patient.gender)}</p>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4">
+                            <p class="text-xs sm:text-sm text-gray-900 break-all">${patient.email || 'N/A'}</p>
+                            <p class="text-xs sm:text-sm text-gray-500">${patient.phone || 'N/A'}</p>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                            ${lastVisit ? `<p class="text-xs sm:text-sm text-gray-900">${formatDate(lastVisit.appointment_date)}</p>
+                                                                                                                                                                                                                                                                                                                                <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name ?? ''} ${lastVisit.doctor?.last_name ?? ''}</p>`
+                                : '<p class="text-xs sm:text-sm text-gray-500">No visits yet</p>'}
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">
+                            <div class="flex gap-2">
+                                <button onclick="viewPatient(${patient.id})" 
+                                        class="px-2 sm:px-3 py-1 bg-sky-100 text-sky-700 rounded hover:bg-sky-200 text-xs sm:text-sm">
+                                    View
+                                </button>
+                                <button onclick="deletePatient(${patient.id})" 
+                                        class="px-2 sm:px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs sm:text-sm">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }).join('');
         }
 
@@ -435,12 +482,12 @@
 
             // Previous button
             html += `
-            <button onclick="loadPatients(${pagination.current_page - 1})" 
-                    ${pagination.current_page === 1 ? 'disabled' : ''}
-                    class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-xs sm:text-sm ${pagination.current_page === 1 ? 'opacity-50 cursor-not-allowed' : ''}">
-                Previous
-            </button>
-        `;
+                <button onclick="loadPatients(${pagination.current_page - 1})" 
+                        ${pagination.current_page === 1 ? 'disabled' : ''}
+                        class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-xs sm:text-sm ${pagination.current_page === 1 ? 'opacity-50 cursor-not-allowed' : ''}">
+                    Previous
+                </button>
+            `;
 
             // Page numbers
             for (let i = 1; i <= Math.min(pagination.last_page, 5); i++) {
@@ -457,93 +504,133 @@
 
             // Next button
             html += `
-            <button onclick="loadPatients(${pagination.current_page + 1})"
-                    ${pagination.current_page === pagination.last_page ? 'disabled' : ''}
-                    class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-xs sm:text-sm ${pagination.current_page === pagination.last_page ? 'opacity-50 cursor-not-allowed' : ''}">
-                Next
-            </button>
-        `;
+                <button onclick="loadPatients(${pagination.current_page + 1})"
+                        ${pagination.current_page === pagination.last_page ? 'disabled' : ''}
+                        class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-xs sm:text-sm ${pagination.current_page === pagination.last_page ? 'opacity-50 cursor-not-allowed' : ''}">
+                    Next
+                </button>
+            `;
 
             buttons.innerHTML = html;
         }
 
         function viewPatient(id) {
             fetch(`{{ url('frontdesk/patients') }}/${id}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        currentPatient = data.patient;
-                        displayPatientDetails(data.patient);
-                        document.getElementById('viewModal').classList.remove('hidden');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading patient:', error);
-                    alert('Failed to load patient details');
-                });
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    currentPatient = data.patient;
+                    displayPatientDetails(data.patient);
+                    document.getElementById('viewModal').classList.remove('hidden');
+                }
+            }).catch(error => {
+                console.error('Error loading patient:', error);
+                alert('Failed to load patient details');
+            });
         }
 
         function displayPatientDetails(patient) {
             const age = calculateAge(patient.date_of_birth);
             const content = document.getElementById('viewModalContent');
 
+            // Prepare Current Medications HTML only if it exists
+            let medicationsHTML = '';
+            if (patient.current_medications?.trim()) {
+                const med = patient.current_medications.trim();
+                const isStructured = /Name:\s*.+/i.test(med) && /Dosage:\s*.+/i.test(med);
+
+                if (isStructured) {
+                    const lines = med.split('\n').map(l => l.trim());
+                    const name = lines.find(l => l.startsWith('Name:'))?.replace(/^Name:\s*/i, '') || '';
+                    const dosage = lines.find(l => l.startsWith('Dosage:'))?.replace(/^Dosage:\s*/i, '') || '';
+                    const frequency = lines.find(l => l.startsWith('Frequency:'))?.replace(/^Frequency:\s*/i, '') || '';
+                    const duration = lines.find(l => l.startsWith('Duration:'))?.replace(/^Duration:\s*/i, '') || '';
+                    const quantity = lines.find(l => l.startsWith('Quantity:'))?.replace(/^Quantity:\s*/i, '') || '';
+
+                    medicationsHTML = `
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1 overflow-x-auto">
+                            <table class="text-sm text-gray-700 text-center w-full">
+                                <thead class="border-b">
+                                    <tr>
+                                        <th class="px-4 py-2">Medication Name</th>
+                                        <th class="px-4 py-2">Dosage</th>
+                                        <th class="px-4 py-2">Frequency</th>
+                                        <th class="px-4 py-2">Duration</th>
+                                        <th class="px-4 py-2">Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="px-4 py-2 max-w-xs break-words">${name}</td>
+                                        <td class="px-4 py-2">${dosage}</td>
+                                        <td class="px-4 py-2">${frequency}</td>
+                                        <td class="px-4 py-2">${duration}</td>
+                                        <td class="px-4 py-2">${quantity}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    // Plain text medication
+                    medicationsHTML = `<p class="text-sm text-gray-700">${med}</p>`;
+                }
+            }
+
             content.innerHTML = `
-            <div class="space-y-6">
-                <div class="flex items-center gap-4 pb-4 border-b">
-                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.full_name)}&background=0ea5e9&color=fff&size=80"
-                         class="w-20 h-20 rounded-full" alt="Patient">
-                    <div>
-                        <h4 class="text-xl font-semibold text-gray-800">${patient.full_name}</h4>
-                        <p class="text-sm text-gray-500">Patient ID: PT-${String(patient.id).padStart(4, '0')}</p>
-                    </div>
-                </div>
+                <div class="space-y-6">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Email</p>
-                        <p class="text-sm text-gray-900">${patient.email || 'N/A'}</p>
+                    <!-- Patient Header -->
+                    <div class="flex items-center gap-4 pb-4 border-b">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.full_name)}&background=0ea5e9&color=fff&size=80"
+                            class="w-20 h-20 rounded-full" alt="Patient">
+                        <div>
+                            <h4 class="text-xl font-semibold text-gray-800">${patient.full_name}</h4>
+                            <p class="text-sm text-gray-500">Patient ID: PT-${String(patient.id).padStart(4, '0')}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Phone</p>
-                        <p class="text-sm text-gray-900">${patient.phone || 'N/A'}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Date of Birth</p>
-                        <p class="text-sm text-gray-900">${formatDate(patient.date_of_birth)} (${age} years)</p>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Gender</p>
-                        <p class="text-sm text-gray-900">${capitalizeFirst(patient.gender)}</p>
-                    </div>
-                    <div class="md:col-span-2">
-                        <p class="text-sm font-medium text-gray-500">Address</p>
-                        <p class="text-sm text-gray-900">${patient.address || 'Not provided'}</p>
-                    </div>
-                    ${patient.last_appointment ? `
-                                                                                                                                                                                                                            <div class="md:col-span-2 pt-4 border-t">
-                                                                                                                                                                                                                                <p class="text-sm font-medium text-gray-500 mb-2">Last Appointment</p>
-                                                                                                                                                                                                                                <p class="text-sm text-gray-900">Date: ${formatDate(patient.last_appointment.date)}</p>
-                                                                                                                                                                                                                                <p class="text-sm text-gray-900">Doctor: ${patient.last_appointment.doctor}</p>
-                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                        ` : ''}
-                </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t">
-                    <button onclick="closeViewModal()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                        Close
-                    </button>
-                    <button onclick="openEditModal(${patient.id})" 
-                            class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700">
-                        Edit Patient
-                    </button>
+                    <!-- Basic Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Email</p>
+                            <p class="text-sm text-gray-900">${patient.email || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Phone</p>
+                            <p class="text-sm text-gray-900">${patient.phone || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Date of Birth</p>
+                            <p class="text-sm text-gray-900">${formatDate(patient.date_of_birth)} (${age} years)</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Gender</p>
+                            <p class="text-sm text-gray-900">${capitalizeFirst(patient.gender)}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-sm font-medium text-gray-500">Address</p>
+                            <p class="text-sm text-gray-900">${patient.address || 'Not provided'}</p>
+                        </div>
+                        ${patient.blood_group ? `<div><p class="text-sm font-medium text-gray-500">Blood Group</p><p class="text-sm text-gray-900"><span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">${patient.blood_group}</span></p></div>` : ''}
+
+                        ${patient.emergency_contact_name || patient.emergency_contact_phone ? `<div><p class="text-sm font-medium text-gray-500">Emergency Contact</p><p class="text-sm text-gray-900">${patient.emergency_contact_name || 'N/A'}</p>${patient.emergency_contact_phone ? `<p class="text-xs text-gray-600">${patient.emergency_contact_phone}</p>` : ''}</div>` : ''}</div>
+
+                        <!-- Medical Info -->
+                        ${patient.medical_history || medicationsHTML ? `<div class="border-t pt-4"><h5 class="text-base font-semibold text-gray-800 mb-3">Medical Information</h5>${patient.medical_history ? `<div class="mb-3"><p class="text-sm font-medium text-gray-500">Medical History</p><div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1"><p class="text-sm text-gray-700">${patient.medical_history}</p></div></div>` : ''}${medicationsHTML ? `<div><p class="text-sm font-medium text-gray-500">Current Medications</p></div> <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1"><p class="text-sm text-gray-700">${medicationsHTML}</p></div>` : ''}</div>` : ''}
+
+                        <!-- Insurance Info -->
+                        ${patient.insurance_provider || patient.insurance_number ? `<div class="border-t pt-4"> <h5 class="text-base font-semibold text-gray-800 mb-3">Insurance Information</h5> <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> ${patient.insurance_provider ? `<div> <p class="text-sm font-medium text-gray-500">Provider</p> <p class="text-sm text-gray-900">${patient.insurance_provider}</p> </div>` : ''} ${patient.insurance_number ? `<div> <p class="text-sm font-medium text-gray-500">Policy Number</p> <p class="text-sm text-gray-900">${patient.insurance_number}</p> </div>` : ''} </div> </div>` : ''}
+                    </div>
+                    <!-- Footer Buttons -->
+                    <div class="flex justify-end gap-3 pt-4 border-t">
+                        <button onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Close</button>
+                        <button onclick="openEditModal(${patient.id})" class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700">Edit Patient</button>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
         }
 
         function openEditModal(id) {
@@ -553,21 +640,18 @@
                 populateEditForm(currentPatient);
             } else {
                 fetch(`{{ url('frontdesk/patients') }}/${id}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            currentPatient = data.patient;
-                            populateEditForm(data.patient);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading patient:', error);
-                        alert('Failed to load patient details');
-                    });
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(response => response.json()).then(data => {
+                    if (data.success) {
+                        currentPatient = data.patient;
+                        populateEditForm(data.patient);
+                    }
+                }).catch(error => {
+                    console.error('Error loading patient:', error);
+                    alert('Failed to load patient details');
+                });
             }
         }
 
@@ -580,6 +664,13 @@
             document.getElementById('edit_date_of_birth').value = patient.date_of_birth.split('T')[0];
             document.getElementById('edit_gender').value = patient.gender;
             document.getElementById('edit_address').value = patient.address || '';
+            document.getElementById('edit_blood_group').value = patient.blood_group || '';
+            document.getElementById('edit_emergency_contact_name').value = patient.emergency_contact_name || '';
+            document.getElementById('edit_emergency_contact_phone').value = patient.emergency_contact_phone || '';
+            document.getElementById('edit_medical_history').value = patient.medical_history || '';
+            document.getElementById('edit_current_medications').value = patient.current_medications || '';
+            document.getElementById('edit_insurance_provider').value = patient.insurance_provider || '';
+            document.getElementById('edit_insurance_number').value = patient.insurance_number || '';
 
             document.getElementById('editModal').classList.remove('hidden');
         }
@@ -620,6 +711,10 @@
                 blood_group: document.getElementById('edit_blood_group').value,
                 emergency_contact_name: document.getElementById('edit_emergency_contact_name').value,
                 emergency_contact_phone: document.getElementById('edit_emergency_contact_phone').value,
+                medical_history: document.getElementById('edit_medical_history').value,
+                current_medications: document.getElementById('edit_current_medications').value,
+                insurance_provider: document.getElementById('edit_insurance_provider').value,
+                insurance_number: document.getElementById('edit_insurance_number').value,
             };
 
             const saveBtn = document.getElementById('savePatientBtn');
@@ -627,33 +722,30 @@
             saveBtn.textContent = 'Saving...';
 
             fetch(`{{ url('frontdesk/patients') }}/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify(formData)
-                })
-                .then(async response => {
-                    saveBtn.disabled = false;
-                    saveBtn.textContent = 'Save Changes';
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(formData)
+            }).then(async response => {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Changes';
 
-                    if (response.status === 422) {
-                        const data = await response.json();
-                        showFieldErrors(data.errors);
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(data => {
-                    if (data && data.success) {
-                        toastr.success(data.message);
-                        closeEditModal();
-                        loadPatients(currentPage);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+                if (response.status === 422) {
+                    const data = await response.json();
+                    showFieldErrors(data.errors);
+                } else {
+                    return response.json();
+                }
+            }).then(data => {
+                if (data && data.success) {
+                    toastr.success(data.message);
+                    closeEditModal();
+                    loadPatients(currentPage);
+                }
+            }).catch(error => console.error('Error:', error));
         }
 
         function showFieldErrors(errors) {

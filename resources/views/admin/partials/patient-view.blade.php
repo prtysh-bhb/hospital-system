@@ -101,6 +101,81 @@
         </div>
     </div>
 
+    <!-- Medical Information Section -->
+    <div class="pt-6 border-t border-gray-200">
+        <h5 class="text-lg font-semibold text-gray-800 mb-3">Medical Information</h5>
+        <div class="grid grid-cols-1 gap-4">
+            <div>
+                <label class="text-sm font-medium text-gray-600">Medical History</label>
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
+                    <p class="text-sm text-gray-700">{{ $patient->medical_history ?? 'No medical history recorded' }}
+                    </p>
+                </div>
+            </div>
+
+            <div>
+                <label class="text-sm font-medium text-gray-600">Current Medications</label>
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
+                    <table class="text-sm text-gray-700 text-center">
+                        <thead class="border-b">
+                            <tr>
+                                <th class="px-4 py-2">Medication Name</th>
+                                <th class="px-4 py-2">Dosage</th>
+                                <th class="px-4 py-2">Frequency</th>
+                                <th class="px-4 py-2">Duration</th>
+                                <th class="px-4 py-2">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                // Assuming the $patient->current_medications is a single text string
+                                $medicationText = $patient->current_medications;
+
+                                // Using regular expressions to extract the parts of the string
+                                preg_match('/Name:\s*(.*?)(?=\s*Dosage:)/', $medicationText, $name);
+                                preg_match('/Dosage:\s*(.*?)(?=\s*Frequency:)/', $medicationText, $dosage);
+                                preg_match('/Frequency:\s*(.*?)(?=\s*Duration:)/', $medicationText, $frequency);
+                                preg_match('/Duration:\s*(.*?)(?=\s*Quantity:)/', $medicationText, $duration);
+                                preg_match('/Quantity:\s*(.*)/', $medicationText, $quantity);
+
+                                // Extracted values
+                                $name = $name[1] ?? 'N/A';
+                                $dosage = $dosage[1] ?? 'N/A';
+                                $frequency = $frequency[1] ?? 'N/A';
+                                $duration = $duration[1] ?? 'N/A';
+                                $quantity = $quantity[1] ?? 'N/A';
+                            @endphp
+
+                            <tr class="border-b">
+                                <td class="px-4 py-2">{{ $name }}</td>
+                                <td class="px-4 py-2">{{ $dosage }}</td>
+                                <td class="px-4 py-2">{{ $frequency }}</td>
+                                <td class="px-4 py-2">{{ $duration }}</td>
+                                <td class="px-4 py-2">{{ $quantity }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insurance Information Section -->
+    <div class="pt-6 border-t border-gray-200">
+        <h5 class="text-lg font-semibold text-gray-800 mb-3">Insurance Information</h5>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-sm font-medium text-gray-600">Insurance Provider</label>
+                <p class="text-gray-800">{{ $patient->insurance_provider ?? 'N/A' }}</p>
+            </div>
+
+            <div>
+                <label class="text-sm font-medium text-gray-600">Insurance Number</label>
+                <p class="text-gray-800">{{ $patient->insurance_number ?? 'N/A' }}</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Medical History Section -->
     <div class="pt-6 border-t border-gray-200">
         <h5 class="text-lg font-semibold text-gray-800 mb-3">Medical History</h5>

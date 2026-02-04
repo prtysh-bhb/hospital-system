@@ -49,7 +49,7 @@ class AuthController extends Controller
                 'success' => true,
                 'message' => 'Login successful!',
                 'redirect_url' => $result['redirect_url'],
-                'user' => $result['user']
+                'user' => $result['user'],
             ], 200);
 
         } catch (ValidationException $e) {
@@ -160,7 +160,14 @@ class AuthController extends Controller
 
     public function reset_password_form($token)
     {
-        return view('auth.reset_password_form', compact('token'));
+        $record = DB::table('password_reset_tokens')->where('token', $token)->first();
+
+        if (!$record) {
+            return redirect()->route('login');
+        }
+        $email = $record->email;
+
+        return view('auth.reset_password_form', compact('token', 'email'));
     }
 
     public function reset_password(Request $request)

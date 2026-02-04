@@ -10,11 +10,11 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4">
             <div class="md:col-span-2">
                 <input type="text" id="searchInput" placeholder="Search by name, ID, phone..."
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
             </div>
             <div>
                 <select id="bloodGroupFilter"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Blood Groups</option>
                     <option value="A+">A+</option>
                     <option value="A-">A-</option>
@@ -28,7 +28,7 @@
             </div>
             <div>
                 <select id="statusFilter"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Status</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -277,9 +277,27 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deletePatientModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+            <h3 class="text-lg font-semibold mb-4">Confirm Deletion</h3>
+            <p class="mb-6">Are you sure you want to delete this patient? This action cannot be undone.</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelDeleteBtn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let searchTimeout;
         let currentPage = 1;
+        let patientToDeleteId = null;
 
         function goToPage(page) {
             currentPage = page;
@@ -342,9 +360,31 @@
         }
 
         function deletePatient(patientId) {
-            if (!confirm('Are you sure you want to delete this patient? This action cannot be undone.')) {
-                return;
+            patientToDeleteId = patientId;
+            document.getElementById('deletePatientModal').classList.remove('hidden');
+        }
+
+        // Cancel delete button
+        document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+            patientToDeleteId = null;
+            document.getElementById('deletePatientModal').classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('deletePatientModal').addEventListener('click', (e) => {
+            if (e.target.id === 'deletePatientModal') {
+                patientToDeleteId = null;
+                document.getElementById('deletePatientModal').classList.add('hidden');
             }
+        });
+
+        // Confirm delete button
+        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+            if (!patientToDeleteId) return;
+
+            const patientId = patientToDeleteId;
+            document.getElementById('deletePatientModal').classList.add('hidden');
+            patientToDeleteId = null;
 
             fetch(`/admin/patients/${patientId}`, {
                     method: 'DELETE',
@@ -367,7 +407,7 @@
                     console.error('Error:', error);
                     toastr.error('An error occurred while deleting the patient. Please try again.');
                 });
-        }
+        });
 
         function closePatientEditModal() {
             document.getElementById('editPatientModal').classList.add('hidden');
@@ -445,7 +485,8 @@
                 const input = document.querySelector(`#editPatientForm [name="${fieldName}"]`);
                 if (input) {
                     // Add error styling to input
-                    input.classList.remove('border-gray-300', 'focus:ring-sky-500', 'focus:border-transparent');
+                    input.classList.remove('border-gray-300', 'focus:ring-sky-500',
+                        'focus:border-transparent');
                     input.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
 
                     // Show error message below input

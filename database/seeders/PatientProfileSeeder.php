@@ -2,48 +2,57 @@
 
 namespace Database\Seeders;
 
+use App\Models\PatientProfile;
+use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class PatientProfileSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run()
+    public function run(): void
     {
-        $patients = DB::table('users')->where('role', 'patient')->get();
+        // Get patients using User MODEL
+        $patients = User::where('role', 'patient')->get();
+
+        if ($patients->isEmpty()) {
+            $this->command->warn('No patients found. PatientProfileSeeder skipped.');
+
+            return;
+        }
 
         $bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
-        $allergies = ['Penicillin', 'Aspirin', 'Dust', 'Pollen', 'Shellfish', 'Latex', 'None'];
-        $medications = ['Metformin', 'Insulin', 'Lisinopril', 'Atorvastatin', 'Levothyroxine', 'None'];
+        $allergies = ['Penicillin', 'Aspirin', 'Dust', 'Pollen', 'Shellfish', 'Latex'];
+        $medications = ['Metformin', 'Insulin', 'Lisinopril', 'Atorvastatin', 'Levothyroxine'];
         $insuranceProviders = ['MediHealth', 'CarePlus', 'HealthGuard', 'SecureLife', 'Wellness Inc'];
 
-        $patientProfiles = [];
-
         foreach ($patients as $patient) {
+
             $hasAllergies = rand(0, 1);
             $hasMeds = rand(0, 1);
 
-            $patientProfiles[] = [
-                'user_id' => $patient->id,
-                'emergency_contact_name' => 'Emergency Contact '.$patient->last_name,
-                'emergency_contact_phone' => '+1-555-EMER-'.rand(100, 999),
-                'blood_group' => $bloodGroups[array_rand($bloodGroups)],
-                'allergies' => $hasAllergies ? $allergies[array_rand($allergies)] : 'None',
-                'medical_history' => $this->generateMedicalHistory(),
-                'current_medications' => $hasMeds ? $medications[array_rand($medications)] : 'None',
-                'insurance_provider' => $insuranceProviders[array_rand($insuranceProviders)],
-                'insurance_number' => 'INS-'.rand(100000, 999999),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            PatientProfile::updateOrCreate(
+                [
+                    'user_id' => $patient->id,
+                ],
+                [
+                    'emergency_contact_name' => 'Emergency Contact '.$patient->last_name,
+                    'emergency_contact_phone' => $this->Phonegenerator(),
+                    'blood_group' => $bloodGroups[array_rand($bloodGroups)],
+                    'allergies' => $hasAllergies
+                        ? $allergies[array_rand($allergies)]
+                        : 'None',
+                    'medical_history' => $this->generateMedicalHistory(),
+                    'current_medications' => $hasMeds
+                        ? $medications[array_rand($medications)]
+                        : 'None',
+                    'insurance_provider' => $insuranceProviders[array_rand($insuranceProviders)],
+                    'insurance_number' => 'INS-'.rand(100000, 999999),
+                    'updated_at' => now(),
+                ]
+            );
         }
-
-        DB::table('patient_profiles')->insert($patientProfiles);
     }
 
-    private function generateMedicalHistory()
+    private function generateMedicalHistory(): string
     {
         $conditions = ['Hypertension', 'Diabetes', 'Asthma', 'Arthritis', 'Migraine'];
         $history = [];
@@ -56,6 +65,13 @@ class PatientProfileSeeder extends Seeder
             $history[] = 'Previous surgery in '.(2010 + rand(0, 12));
         }
 
-        return empty($history) ? 'No significant medical history' : implode(', ', $history);
+        return empty($history)
+            ? 'No significant medical history'
+            : implode(', ', $history);
+    }
+
+    private function Phonegenerator(): string
+    {
+        return '91'.rand(6000000000, 9999999999);
     }
 }

@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             PrescriptionSeeder::class,
             SettingCategories::class,
             SettingsSeeder::class,
+            WhatsappTemplateSeeder::class,
         ]);
     }
 }

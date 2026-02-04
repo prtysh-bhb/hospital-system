@@ -13,6 +13,8 @@ class PatientProfile extends Model
 {
     use HasFactory, LogsActivity ,SoftDeletes;
 
+    protected $table = 'patient_profiles';
+
     protected $fillable = [
         'user_id',
         'emergency_contact_name',
@@ -23,7 +25,6 @@ class PatientProfile extends Model
         'current_medications',
         'insurance_provider',
         'insurance_number',
-        'delete_at',
     ];
 
     /**

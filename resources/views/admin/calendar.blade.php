@@ -16,7 +16,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Doctor</label>
                 <select id="doctorFilter"
-                    class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <option value="">All Doctors</option>
                     @foreach ($doctors as $doctor)
                         <option value="{{ $doctor['id'] }}" {{ $doctorId == $doctor['id'] ? 'selected' : '' }}>
@@ -28,7 +28,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Jump to Date</label>
                 <input type="date" id="jumpToDate"
-                    class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                    class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
                     value="{{ date('Y-m-d') }}">
             </div>
             <div class="flex items-end">

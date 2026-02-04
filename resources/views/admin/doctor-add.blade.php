@@ -34,7 +34,7 @@
                         placeholder="Enter first name" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
                         title="Name can only contain letters and spaces (minimum 2 characters)"
                         oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
-                        class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border {{ $errors->has('first_name') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border {{ $errors->has('first_name') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <span id="first_name_error" class="text-red-600 text-sm mt-1 hidden"></span>
                     @error('first_name')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -48,9 +48,23 @@
                         placeholder="Enter last name" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
                         title="Name can only contain letters and spaces (minimum 2 characters)"
                         oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
-                        class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border {{ $errors->has('last_name') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border {{ $errors->has('last_name') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <span id="last_name_error" class="text-red-600 text-sm mt-1 hidden"></span>
                     @error('last_name')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">UserName <span
+                            class="text-red-600">*</span></label>
+                    <input type="text" name="username" value="{{ old('username', $doctor->user->username ?? '') }}"
+                        placeholder="Enter username" minlength="2" maxlength="100" pattern="[a-zA-Z\s]+"
+                        title="Name can only contain letters and spaces (minimum 2 characters)"
+                        oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
+                        class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border {{ $errors->has('username') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
+                    <span id="username_error" class="text-red-600 text-sm mt-1 hidden"></span>
+                    @error('username')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -59,9 +73,10 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Gender <span
                             class="text-red-600">*</span></label>
                     <select name="gender"
-                        class="w-full px-4 py-2 border {{ $errors->has('gender') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('gender') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <option value="">Select Gender</option>
-                        <option value="male" {{ old('gender', $doctor->user->gender ?? '') == 'male' ? 'selected' : '' }}>
+                        <option value="male"
+                            {{ old('gender', $doctor->user->gender ?? '') == 'male' ? 'selected' : '' }}>
                             Male</option>
                         <option value="female"
                             {{ old('gender', $doctor->user->gender ?? '') == 'female' ? 'selected' : '' }}>
@@ -80,7 +95,7 @@
                             class="text-red-600">*</span></label>
                     <input type="email" name="email" value="{{ old('email', $doctor->user->email ?? '') }}"
                         placeholder="Enter email address"
-                        class="w-full px-4 py-2 border {{ $errors->has('email') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('email') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <span id="email_error" class="text-red-600 text-sm mt-1 hidden"></span>
                     @error('email')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -96,7 +111,7 @@
                         maxlength="15" pattern="[0-9]{10,15}"
                         title="Phone number must be 10-15 digits only (cannot be all zeros)"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 15)"
-                        class="w-full px-4 py-2 border {{ $errors->has('phone') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('phone') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     <span id="phone_error" class="text-red-600 text-sm mt-1 hidden"></span>
                     @error('phone')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -109,18 +124,27 @@
                     <input type="date" name="date_of_birth"
                         value="{{ old('date_of_birth', isset($doctor) && $doctor->user->date_of_birth && strtotime($doctor->user->date_of_birth) ? date('Y-m-d', strtotime($doctor->user->date_of_birth)) : '') }}"
                         max="{{ date('Y-m-d') }}"
-                        class="w-full px-4 py-2 border {{ $errors->has('date_of_birth') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('date_of_birth') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     @error('date_of_birth')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Address <span
+                            class="text-red-600">*</span></label>
+                    <textarea name="address" rows="1" placeholder="Enter address" minlength="10" maxlength="500"
+                        title="Address must be at least 10 characters"
+                        class="w-full px-4 py-2 border {{ $errors->has('address') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">{{ old('address', $doctor->user->address ?? '') }}</textarea>
+                    @error('address')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
                 @if (isset($doctor))
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status <span
                                 class="text-red-600">*</span></label>
                         <select name="status"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                             <option value="active"
                                 {{ old('status', $doctor->user->status ?? '') == 'active' ? 'selected' : '' }}>Active
                             </option>
@@ -137,7 +161,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Available for Booking <span
                                 class="text-red-600">*</span></label>
                         <select name="available_for_booking"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                             <option value="1"
                                 {{ old('available_for_booking', $doctor->available_for_booking ?? 1) == 1 ? 'selected' : '' }}>
                                 Yes</option>
@@ -148,16 +172,7 @@
                     </div>
                 @endif
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Address <span
-                            class="text-red-600">*</span></label>
-                    <textarea name="address" rows="3" placeholder="Enter address" minlength="10" maxlength="500"
-                        title="Address must be at least 10 characters"
-                        class="w-full px-4 py-2 border {{ $errors->has('address') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">{{ old('address', $doctor->user->address ?? '') }}</textarea>
-                    @error('address')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
                     @if (isset($doctor) && $doctor->user->profile_image)
@@ -168,7 +183,7 @@
                         </div>
                     @endif
                     <input type="file" name="profile_image" accept="image/jpeg,image/jpg,image/png"
-                        class="w-full px-4 py-2 border {{ $errors->has('profile_image') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('profile_image') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     @error('profile_image')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -188,7 +203,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Specialty <span
                             class="text-red-600">*</span></label>
                     <select id="specialty_select" name="specialty_id"
-                        class="w-full px-4 py-2 border {{ $errors->has('specialty_id') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('specialty_id') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <option value="">Select Specialty</option>
                         @foreach ($specialties as $specialty)
                             <option value="{{ $specialty->id }}"
@@ -208,7 +223,7 @@
                     <input type="text" name="qualification"
                         value="{{ old('qualification', $doctor->qualification ?? '') }}" placeholder="MBBS, MD"
                         minlength="2" maxlength="255"
-                        class="w-full px-4 py-2 border {{ $errors->has('qualification') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('qualification') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     @error('qualification')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -220,7 +235,7 @@
                     <input type="number" name="experience_years"
                         value="{{ old('experience_years', $doctor->experience_years ?? '') }}" min="0"
                         max="70" placeholder="10"
-                        class="w-full px-4 py-2 border {{ $errors->has('experience_years') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('experience_years') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     @error('experience_years')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -232,7 +247,7 @@
                     <input type="text" name="license_number"
                         value="{{ old('license_number', $doctor->license_number ?? '') }}" placeholder="MCI12345"
                         minlength="3" maxlength="50"
-                        class="w-full px-4 py-2 border {{ $errors->has('license_number') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('license_number') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     @error('license_number')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -245,7 +260,7 @@
                         value="{{ old('consultation_fee', $doctor->consultation_fee ?? '') }}" min="0"
                         max="100000" step="0.01" placeholder="800"
                         oninput="if(this.value > 100000) this.value = 100000"
-                        class="w-full px-4 py-2 border {{ $errors->has('consultation_fee') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('consultation_fee') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     @error('consultation_fee')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -255,7 +270,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Slot Duration (Minutes) <span
                             class="text-red-600">*</span></label>
                     <select name="slot_duration"
-                        class="w-full px-4 py-2 border {{ $errors->has('slot_duration') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('slot_duration') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         @php
                             $currentSlotDuration = isset($doctor)
                                 ? $doctor->user->doctorSchedules->first()->slot_duration ?? 30
@@ -279,7 +294,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Languages Spoken</label>
                     <input type="text" name="languages" value="{{ old('languages', $doctor->bio ?? '') }}"
                         placeholder="English, Hindi, Marathi"
-                        class="w-full px-4 py-2 border {{ $errors->has('languages') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:ring-2 focus:border-transparent">
+                        class="w-full px-4 py-2 border {{ $errors->has('languages') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-sky-500' }} rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     @error('languages')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -334,12 +349,12 @@
                         <label for="day{{ $dayNum }}"
                             class="w-32 text-sm font-medium text-gray-700">{{ $dayName }}</label>
                         <input type="time" name="schedules[{{ $dayNum }}][start_time]"
-                            value="{{ $startTime }}"
-                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            value="{{ $startTime }}" step="1800"
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                         <span class="text-gray-500">to</span>
                         <input type="time" name="schedules[{{ $dayNum }}][end_time]"
-                            value="{{ $endTime }}"
-                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            value="{{ $endTime }}" step="1800"
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300">
                     </div>
                 @endforeach
             </div>
@@ -684,6 +699,56 @@
                 }
                 return field.name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
             }
+
+            // Validate time inputs for 30-minute intervals
+            function validateTimeInterval(timeValue) {
+                if (!timeValue) return true; // Empty is valid (not required at input level)
+
+                const [hours, minutes] = timeValue.split(':');
+                const mins = parseInt(minutes, 10);
+
+                // Allow only 00 and 30 for minutes
+                return mins === 0 || mins === 30;
+            }
+
+            // Add validation to all time inputs
+            document.querySelectorAll('input[type="time"]').forEach(timeInput => {
+                timeInput.addEventListener('change', function() {
+                    if (this.value && !validateTimeInterval(this.value)) {
+                        toastr.error(
+                            'Please select a time in 30-minute intervals (e.g., 11:00 or 11:30)'
+                        );
+                        this.value = ''; // Clear invalid value
+                    }
+                });
+
+                // Prevent manual input of invalid times
+                timeInput.addEventListener('blur', function() {
+                    if (this.value && !validateTimeInterval(this.value)) {
+                        toastr.warning('Time must be in 30-minute intervals');
+                        this.value = '';
+                    }
+                });
+            });
+
+            // Validate schedule times before form submission
+            form.addEventListener('submit', function(e) {
+                const timeInputs = form.querySelectorAll('input[type="time"]');
+                let hasInvalidTime = false;
+
+                timeInputs.forEach(input => {
+                    if (input.value && !validateTimeInterval(input.value)) {
+                        hasInvalidTime = true;
+                        toastr.error(
+                            'All times must be in 30-minute intervals (e.g., 11:00, 11:30)');
+                    }
+                });
+
+                if (hasInvalidTime) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
         });
     </script>
 @endsection

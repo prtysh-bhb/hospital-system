@@ -2,6 +2,10 @@
 
 namespace App\Services\Doctor;
 
+use App\Models\Appointment;
+use App\Models\Prescription;
+use App\Models\PatientProfile;
+use Illuminate\Support\Facades\DB;
 use App\Services\AppointmentSlotService;
 
 class DoctorAppointmentServices
@@ -24,7 +28,7 @@ class DoctorAppointmentServices
      */
     public function getTodayAppointments(int $doctorId, array $filters = [])
     {
-        $query = \App\Models\Appointment::with(['patient.patientProfile'])
+        $query = Appointment::with(['patient.patientProfile'])
             ->where('doctor_id', $doctorId)
             ->whereDate('appointment_date', $filters['date'] ?? now()->toDateString())
             ->orderBy('appointment_date', 'desc')
@@ -50,11 +54,11 @@ class DoctorAppointmentServices
     /**
      * Get detailed appointment information with all related data.
      *
-     * @return \App\Models\Appointment|null
+     * @return Appointment|null
      */
     public function getAppointmentDetails(int $appointmentId, int $doctorId)
     {
-        return \App\Models\Appointment::with([
+        return Appointment::with([
             'patient.patientProfile',
             'prescriptions' => function ($query) {
                 $query->orderBy('created_at', 'desc');
@@ -72,7 +76,7 @@ class DoctorAppointmentServices
      */
     public function saveConsultationNotes(int $appointmentId, int $doctorId, string $notes)
     {
-        $appointment = \App\Models\Appointment::where('id', $appointmentId)
+        $appointment = Appointment::where('id', $appointmentId)
             ->where('doctor_id', $doctorId)
             ->first();
 
@@ -82,7 +86,20 @@ class DoctorAppointmentServices
 
         $appointment->notes = $notes;
 
-        return $appointment->save();
+        $appointment->save();
+
+        // Update or Create Prescription notes
+        Prescription::updateOrCreate(
+            [
+                'appointment_id' => $appointment->id,
+            ],
+            [
+                'patient_id' => $appointment->patient_id,
+                'doctor_id' => $doctorId,
+                'notes' => $notes,
+            ]
+        );
+        return true;
     }
 
     /**
@@ -92,7 +109,7 @@ class DoctorAppointmentServices
      */
     public function saveVitalSigns(int $appointmentId, int $doctorId, array $vitalsData)
     {
-        $appointment = \App\Models\Appointment::where('id', $appointmentId)
+        $appointment = Appointment::where('id', $appointmentId)
             ->where('doctor_id', $doctorId)
             ->first();
 
@@ -104,13 +121,13 @@ class DoctorAppointmentServices
 
         try {
             // Get or create prescription for this appointment
-            $prescription = \App\Models\Prescription::where('appointment_id', $appointmentId)->first();
+            $prescription = Prescription::where('appointment_id', $appointmentId)->first();
 
             if (! $prescription) {
                 // Create new prescription with vital signs
                 \Log::info('Creating new prescription with vital signs', ['appointment_id' => $appointmentId]);
-                $prescription = \App\Models\Prescription::create([
-                    'prescription_number' => 'RX-'.date('Y').'-'.str_pad(\App\Models\Prescription::count() + 1, 6, '0', STR_PAD_LEFT),
+                $prescription = Prescription::create([
+                    'prescription_number' => 'RX-'.date('Y').'-'.str_pad(Prescription::count() + 1, 6, '0', STR_PAD_LEFT),
                     'appointment_id' => $appointmentId,
                     'patient_id' => $appointment->patient_id,
                     'doctor_id' => $doctorId,
@@ -142,52 +159,112 @@ class DoctorAppointmentServices
     /**
      * Create or update prescription for an appointment.
      *
-     * @return \App\Models\Prescription|null
+     * @return Prescription|null
      */
     public function savePrescription(int $appointmentId, int $doctorId, array $prescriptionData)
     {
-        $appointment = \App\Models\Appointment::where('id', $appointmentId)
+        $appointment = Appointment::where('id', $appointmentId)
             ->where('doctor_id', $doctorId)
             ->first();
 
-        if (! $appointment) {
+        if (!$appointment) {
             return null;
         }
+        DB::beginTransaction();
 
-        // Check if prescription exists
-        $prescription = \App\Models\Prescription::where('appointment_id', $appointmentId)->first();
+        try {
+            // Get or create prescription
+            $prescription = Prescription::where('appointment_id', $appointmentId)->first();
 
-        $data = [
-            'appointment_id' => $appointmentId,
-            'patient_id' => $appointment->patient_id,
-            'doctor_id' => $doctorId,
-            'diagnosis' => $prescriptionData['diagnosis'] ?? null,
-            'medications' => $prescriptionData['medications'] ?? [],
-            'instructions' => $prescriptionData['instructions'] ?? null,
-            'follow_up_date' => $prescriptionData['follow_up_date'] ?? null,
-            'notes' => $prescriptionData['notes'] ?? null,
-        ];
+            // New medicines coming from request
+            $newMedications = $prescriptionData['medications'] ?? [];
 
-        if ($prescription) {
-            $prescription->update($data);
+            if (!$prescription) {
+
+                // Create prescription with medicines
+                $prescription = Prescription::create([
+                    'prescription_number' => 'RX-' . date('Y') . '-' . str_pad(Prescription::count() + 1, 6, '0', STR_PAD_LEFT),
+                    'appointment_id' => $appointmentId,
+                    'patient_id' => $appointment->patient_id,
+                    'doctor_id' => $doctorId,
+                    'diagnosis' => $prescriptionData['diagnosis'] ?? null,
+                    'instructions' => $prescriptionData['instructions'] ?? null,
+                    'follow_up_date' => $prescriptionData['follow_up_date'] ?? null,
+                    'notes' => $prescriptionData['notes'] ?? null,
+                    'medications' => $newMedications,
+                ]);
+
+            } else {
+
+                // Append medicines to existing medications JSON
+                $existingMedications = $prescription->medications ?? [];
+
+                $mergedMedications = array_merge(
+                    $existingMedications,
+                    $newMedications
+                );
+
+                $prescription->update([
+                    'diagnosis' => $prescriptionData['diagnosis'] ?? $prescription->diagnosis,
+                    'instructions' => $prescriptionData['instructions'] ?? $prescription->instructions,
+                    'follow_up_date' => $prescriptionData['follow_up_date'] ?? $prescription->follow_up_date,
+                    'notes' => $prescriptionData['notes'] ?? $prescription->notes,
+                    'medications' => $mergedMedications,
+                ]);
+            }
+            /**
+             * Update patient_profiles.current_medications
+             * Only latest medications (from current request)
+             */
+            $medicationText = '';
+
+            foreach ($newMedications as $med) {
+                $createdAt = '-';
+                if (!empty($med['created_at'])) {
+                    $createdAt = date('d M Y h:i A', strtotime($med['created_at']));
+                }
+                $medicationText .=
+                    'Name: ' . ($med['name'] ?? '-') . "\n" .
+                    'Dosage: ' . ($med['dosage'] ?? '-') . "\n" .
+                    'Frequency: ' . ($med['frequency'] ?? '-') . "\n" .
+                    'Duration: ' . ($med['duration'] ?? '-') . "\n" .
+                    'Quantity: ' . ($med['quantity'] ?? '-') . "\n\n".
+                    'Created Date: ' . $createdAt . "\n\n";
+                    // 'Type: ' . ($med['type'] ?? 'medications') . "\n\n";
+            }
+
+            $patientProfile = PatientProfile::where('user_id', $appointment->patient_id)->first();
+
+            if ($patientProfile) {
+                $patientProfile->update([
+                    'current_medications' => trim($medicationText)
+                ]);
+            }
+            DB::commit();
 
             return $prescription;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to save prescription', [
+                'error' => $e->getMessage(),
+                'appointment_id' => $appointmentId,
+                'prescription_data' => $prescriptionData,
+            ]);
+
+            return null;
         }
-
-        // Generate prescription number
-        $data['prescription_number'] = 'RX-'.date('Y').'-'.str_pad(\App\Models\Prescription::count() + 1, 6, '0', STR_PAD_LEFT);
-
-        return \App\Models\Prescription::create($data);
     }
+
 
     /**
      * Schedule a follow-up appointment.
      *
-     * @return \App\Models\Appointment|array
+     * @return Appointment|array
      */
     public function scheduleFollowUp(int $originalAppointmentId, int $doctorId, array $followUpData)
     {
-        $originalAppointment = \App\Models\Appointment::where('id', $originalAppointmentId)
+        $originalAppointment = Appointment::where('id', $originalAppointmentId)
             ->where('doctor_id', $doctorId)
             ->first();
 
@@ -207,7 +284,7 @@ class DoctorAppointmentServices
         }
 
         // Generate appointment number
-        $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(\App\Models\Appointment::count() + 1, 6, '0', STR_PAD_LEFT);
+        $appointmentNumber = 'APT-'.date('Y').'-'.str_pad(Appointment::count() + 1, 6, '0', STR_PAD_LEFT);
 
         // Convert time to 24-hour format if needed
         $appointmentTime = $followUpData['appointment_time'];
@@ -232,7 +309,19 @@ class DoctorAppointmentServices
         ];
 
         try {
-            $appointment = \App\Models\Appointment::create($data);
+            $appointment = Appointment::create($data);
+            
+            // Update or Create Prescription follow_up_date
+            Prescription::updateOrCreate(
+                [
+                    'appointment_id' => $originalAppointment->id,
+                ],
+                [
+                    'patient_id' => $originalAppointment->patient_id,
+                    'doctor_id' => $doctorId,
+                    'follow_up_date' => $followUpData['appointment_date'],
+                ]
+            );
 
             return $appointment;
         } catch (\Exception $e) {

@@ -10,6 +10,8 @@ class Specialty extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'specialties';
+
     protected $dates = ['deleted_at'];
 
     protected $fillable = [

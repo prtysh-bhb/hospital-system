@@ -478,16 +478,36 @@ class DashboardController extends Controller
     {
         try {
             $user = auth()->user();
-
-            // Find prescription and verify it belongs to the patient
+            $latestMedication = null;
+            
             $prescription = Prescription::with([
                 'appointment.patient',
                 'appointment.doctor.doctorProfile.specialty',
             ])->findOrFail($id);
 
-            // Verify the prescription belongs to the logged-in patient
             if ($prescription->appointment->patient_id !== $user->id) {
                 abort(403, 'Unauthorized access to prescription.');
+            }
+
+            // REMOVE vital_signs and get latest medication only
+            if (!empty($prescription->medications)) {
+
+                // Remove vital_signs
+                $filtered = collect($prescription->medications)
+                    ->reject(fn($m) => ($m['type'] ?? null) === 'vital_signs');
+
+                // Get latest created_at date
+                $latestDate = $filtered
+                    ->max(fn($m) => $m['created_at'] ?? null);
+
+                // Get all medications with same latest date
+                $latestMedications = $filtered
+                    ->filter(fn($m) => ($m['created_at'] ?? null) === $latestDate)
+                    ->values()
+                    ->all();
+
+                // overwrite medications
+                $prescription->medications = $latestMedications;
             }
 
             $appointment = $prescription->appointment;
@@ -495,26 +515,25 @@ class DashboardController extends Controller
             $doctorProfile = $doctor->doctorProfile;
             $patient = $appointment->patient;
 
-            // Prepare data for PDF
             $data = [
                 'prescription' => $prescription,
                 'appointment' => $appointment,
                 'doctor' => $doctor,
                 'doctorProfile' => $doctorProfile,
                 'patient' => $patient,
-                'date' => Carbon::parse($prescription->created_at)->format('F j, Y'),
+                'date' => $latestMedication && !empty($latestMedication['created_at'])
+                    ? Carbon::parse($latestMedication['created_at'])->format('F j, Y')
+                    : Carbon::parse($prescription->created_at)->format('F j, Y'),
             ];
 
-            // Generate PDF
             $pdf = Pdf::loadView('prescriptions.pdf', $data);
 
-            // Download PDF
-            return $pdf->download('prescription-'.$prescription->prescription_number.'.pdf');
+            return $pdf->download('prescription-' . $prescription->prescription_number . '.pdf');
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return back()->with('error', 'Prescription not found.');
         } catch (\Exception $e) {
-            \Log::error('Download prescription error: '.$e->getMessage());
-
+            \Log::error('Download prescription error: ' . $e->getMessage());
             return back()->with('error', 'An error occurred while downloading the prescription.');
         }
     }

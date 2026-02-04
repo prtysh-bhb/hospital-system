@@ -24,7 +24,7 @@ class ResetPasswordMail extends Mailable
     {
         $url = url('/reset-password/'.$this->token);
 
-        return $this->subject('Reset Your Password - MediCare HMS')
+        return $this->subject('Reset Your Password')
             ->view('emails.reset_password', ['url' => $url]);
     }
 }
