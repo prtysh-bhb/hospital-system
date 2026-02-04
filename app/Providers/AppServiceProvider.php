@@ -32,10 +32,14 @@ class AppServiceProvider extends ServiceProvider
 
         // Share settings globally
         $this->app->singleton('settings', function () {
-            $settings = Setting::pluck('value', 'key');
+
+            // If settings table does NOT exist, return empty collection
+            if (! \Schema::hasTable('settings')) {
+                return collect([]);
+            }
+            $settings = Setting::pluck('value', 'key')->toArray();
 
             return collect($settings)->map(function ($value) {
-                // Convert '1' and '0' to boolean for boolean settings
                 if ($value === '1') {
                     return true;
                 }
