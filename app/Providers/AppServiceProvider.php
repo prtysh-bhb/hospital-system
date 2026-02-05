@@ -32,23 +32,25 @@ class AppServiceProvider extends ServiceProvider
 
         // Share settings globally
         $this->app->singleton('settings', function () {
+            try {
+                if (! \Schema::hasTable('settings')) {
+                    return collect([]);
+                }
+                $settings = Setting::pluck('value', 'key')->toArray();
 
-            // If settings table does NOT exist, return empty collection
-            if (! \Schema::hasTable('settings')) {
+                return collect($settings)->map(function ($value) {
+                    if ($value === '1') {
+                        return true;
+                    }
+                    if ($value === '0') {
+                        return false;
+                    }
+
+                    return $value;
+                });
+            } catch (\Exception $e) {
                 return collect([]);
             }
-            $settings = Setting::pluck('value', 'key')->toArray();
-
-            return collect($settings)->map(function ($value) {
-                if ($value === '1') {
-                    return true;
-                }
-                if ($value === '0') {
-                    return false;
-                }
-
-                return $value;
-            });
         });
 
         // Share settings with all views
