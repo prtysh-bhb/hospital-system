@@ -182,7 +182,8 @@
                 };
 
                 try {
-                    const response = await fetch('{{ route('login.post') }}', {
+                    const response = await fetch(new URL('{{ route('login.post') }}', window.location
+                        .origin).href, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
