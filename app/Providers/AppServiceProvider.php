@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL; // <-- 1. Added this import
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 2. Force HTTPS on Railway (Production) but not on Localhost
+        if (config('app.env') !== 'local') {
+            URL::forceScheme('https');
+        }
+
         // Register @hasAccess directive for checking boolean settings
         Blade::directive('hasAccess', function ($expression) {
             return "<?php if(app('settings')->get($expression, false)): ?>";
@@ -55,7 +61,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Share settings with all views
         view()->composer('*', function ($view) {
-            // $view->with('formSettings', app('settings')->all(),);
             $settings = app('settings');
             $view->with([
                 'formSettings' => $settings->all(),
