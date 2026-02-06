@@ -77,11 +77,13 @@ class LeaveController extends Controller
             $leave->status = $request->status;
 
             // Set approved_by only when approved
-            if ($request->status === 'approved') {
-                $leave->approved_by = auth()->id();
-            } else {
-                $leave->approved_by = null;
-            }
+            // if ($request->status === 'approved') {
+            //     $leave->approved_by = auth()->id();
+            // } else {
+            //     $leave->approved_by = null;
+            // }
+            $leave->approved_by = auth()->id();
+            $leave->approval_type = 'admin';
 
             $leave->save();
 

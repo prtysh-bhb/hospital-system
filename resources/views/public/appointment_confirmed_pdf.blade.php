@@ -200,47 +200,68 @@
 
         <table>
             <tr>
-                <td>
-                    <div class="info-box">
-                        <div class="info-label">Name</div>
-                        <div class="info-value">
-                            {{ $appointment->patient->first_name }} {{ $appointment->patient->last_name }}
+                {{-- Name --}}
+                @if ($appointment->patient->first_name || $appointment->patient->last_name)
+                    <td>
+                        <div class="info-box">
+                            <div class="info-label">Name</div>
+                            <div class="info-value">
+                                {{ $appointment->patient->first_name }} {{ $appointment->patient->last_name }}
+                            </div>
                         </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="info-box">
-                        <div class="info-label">Mobile</div>
-                        <div class="info-value">{{ $appointment->patient->phone }}</div>
-                    </div>
-                </td>
+                    </td>
+                @endif
+
+                {{-- Mobile --}}
+                @if ($appointment->patient->phone)
+                    <td>
+                        <div class="info-box">
+                            <div class="info-label">Mobile</div>
+                            <div class="info-value">
+                                {{ $appointment->patient->phone }}
+                            </div>
+                        </div>
+                    </td>
+                @endif
             </tr>
 
             <tr>
-                <td>
-                    <div class="info-box">
-                        <div class="info-label">Age</div>
-                        <div class="info-value">
-                            {{ \Carbon\Carbon::parse($appointment->patient->date_of_birth)->age ?? 'N/A' }} yrs
+                {{-- Age --}}
+                @if ($appointment->patient->date_of_birth)
+                    <td>
+                        <div class="info-box">
+                            <div class="info-label">Age</div>
+                            <div class="info-value">
+                                {{ \Carbon\Carbon::parse($appointment->patient->date_of_birth)->age }} yrs
+                            </div>
                         </div>
-                    </div>
-                </td>
+                    </td>
+                @endif
 
-                <td>
-                    <div class="info-box">
-                        <div class="info-label">Gender</div>
-                        <div class="info-value">{{ $appointment->patient->gender }}</div>
-                    </div>
-                </td>
+                {{-- Gender --}}
+                @if ($appointment->patient->gender)
+                    <td>
+                        <div class="info-box">
+                            <div class="info-label">Gender</div>
+                            <div class="info-value">
+                                {{ ucfirst($appointment->patient->gender) }}
+                            </div>
+                        </div>
+                    </td>
+                @endif
             </tr>
         </table>
 
-        <!-- Reason -->
-        <div class="section-title" style="margin-top:25px;">Reason for Visit</div>
 
-        <div class="info-box" style="font-size:14px;">
-            {{ $appointment->reason_for_visit }}
-        </div>
+        @if ($appointment->reason_for_visit)
+            <!-- Reason -->
+            <div class="section-title" style="margin-top:25px;">Reason for Visit</div>
+
+            <div class="info-box" style="font-size:14px;">
+                {{ $appointment->reason_for_visit }}
+            </div>
+        @endif
+
 
         <!-- Fee -->
         <div class="info-box" style="margin-top:20px; display:flex; justify-content:space-between;">
@@ -259,7 +280,7 @@
         <!-- Footer -->
         <div class="footer">
             This is a computer-generated confirmation. No signature required.<br>
-            City General Hospital • 123 Medical Center Drive • contact@cityhospital.com
+            {{ $site_name }} • 123 Medical Center Drive • contact@cityhospital.com
         </div>
 
     </div>

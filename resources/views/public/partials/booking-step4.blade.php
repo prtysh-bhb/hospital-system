@@ -9,8 +9,8 @@
                       </svg>
                   </div>
                   <div>
-                      <h1 class="text-lg sm:text-xl font-bold text-gray-900"><a href="{{ route('home') }}">City General
-                              Hospital</a></h1>
+                      <h1 class="text-lg sm:text-xl font-bold text-gray-900"><a
+                              href="{{ route('home') }}">{{ $site_name }}</a></h1>
                       <p class="text-xs sm:text-sm text-gray-500">Book Your Appointment</p>
                   </div>
               </div>
@@ -170,35 +170,74 @@
                       </div>
 
                       <!-- Patient Details -->
-                      <div class="p-3 sm:p-4 bg-gray-50 rounded-lg">
-                          <p class="text-xs text-gray-500 mb-3">Patient Information</p>
-                          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                              <div>
-                                  <p class="text-xs text-gray-500">Name</p>
-                                  <p class="font-medium text-gray-900 text-sm">{{ $appointment->patient->first_name }}
-                                      {{ $appointment->patient->last_name }}</p>
+                      @if (
+                          $appointment->patient->first_name ||
+                              $appointment->patient->last_name ||
+                              $appointment->patient->phone ||
+                              $appointment->patient->date_of_birth ||
+                              $appointment->patient->gender ||
+                              $appointment->reason_for_visit)
+                          <div class="p-3 sm:p-4 bg-gray-50 rounded-lg">
+                              <p class="text-xs text-gray-500 mb-3">Patient Information</p>
+
+                              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+
+                                  {{-- Name --}}
+                                  @if ($appointment->patient->first_name || $appointment->patient->last_name)
+                                      <div>
+                                          <p class="text-xs text-gray-500">Name</p>
+                                          <p class="font-medium text-gray-900 text-sm">
+                                              {{ $appointment->patient->first_name }}
+                                              {{ $appointment->patient->last_name }}
+                                          </p>
+                                      </div>
+                                  @endif
+
+                                  {{-- Mobile --}}
+                                  @if ($appointment->patient->phone)
+                                      <div>
+                                          <p class="text-xs text-gray-500">Mobile</p>
+                                          <p class="font-medium text-gray-900 text-sm">
+                                              {{ $appointment->patient->phone }}
+                                          </p>
+                                      </div>
+                                  @endif
+
+                                  {{-- Age --}}
+                                  @if ($appointment->patient->date_of_birth)
+                                      <div>
+                                          <p class="text-xs text-gray-500">Age</p>
+                                          <p class="font-medium text-gray-900 text-sm">
+                                              {{ \Carbon\Carbon::parse($appointment->patient->date_of_birth)->age }}
+                                              years
+                                          </p>
+                                      </div>
+                                  @endif
+
+                                  {{-- Gender --}}
+                                  @if ($appointment->patient->gender)
+                                      <div>
+                                          <p class="text-xs text-gray-500">Gender</p>
+                                          <p class="font-medium text-gray-900 text-sm">
+                                              {{ ucfirst($appointment->patient->gender) }}
+                                          </p>
+                                      </div>
+                                  @endif
+
                               </div>
-                              <div>
-                                  <p class="text-xs text-gray-500">Mobile</p>
-                                  <p class="font-medium text-gray-900 text-sm">{{ $appointment->patient->phone }}</p>
-                              </div>
-                              <div>
-                                  <p class="text-xs text-gray-500">Age</p>
-                                  <p class="font-medium text-gray-900 text-sm">
-                                      {{ $appointment->patient->date_of_birth ? \Carbon\Carbon::parse($appointment->patient->date_of_birth)->age : 'N/A' }}
-                                      years</p>
-                              </div>
-                              <div>
-                                  <p class="text-xs text-gray-500">Gender</p>
-                                  <p class="font-medium text-gray-900 text-sm">
-                                      {{ ucfirst($appointment->patient->gender) }}</p>
-                              </div>
+
+                              {{-- Reason for Visit --}}
+                              @if ($appointment->reason_for_visit)
+                                  <div class="mt-3">
+                                      <p class="text-xs text-gray-500">Reason for Visit</p>
+                                      <p class="font-medium text-gray-900 text-sm">
+                                          {{ $appointment->reason_for_visit }}
+                                      </p>
+                                  </div>
+                              @endif
                           </div>
-                          <div class="mt-3">
-                              <p class="text-xs text-gray-500">Reason for Visit</p>
-                              <p class="font-medium text-gray-900 text-sm">{{ $appointment->reason_for_visit }}</p>
-                          </div>
-                      </div>
+                      @endif
+
 
                       <!-- Appointment Type -->
                       <div class="p-3 sm:p-4 bg-gray-50 rounded-lg">
@@ -332,7 +371,7 @@
   <footer class="bg-white border-t border-gray-200 mt-8 sm:mt-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div class="text-center text-xs sm:text-sm text-gray-500">
-              <p>&copy; 2025 City General Hospital. All rights reserved.</p>
+              <p>&copy; 2025 {{ $site_name }}. All rights reserved.</p>
               <p class="mt-1">For support, call: +91 99999 88888 | Email: support@cityhospital.com</p>
           </div>
       </div>

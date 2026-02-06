@@ -350,28 +350,39 @@
                                                 <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-400"></span>
                                                 Approved
                                             </span>
-                                            @if ($leave->approval_type == 'frontdesk')
-                                                <div class="text-xs text-gray-500 mt-1">By Frontdesk</div>
-                                            @endif
-                                        @elseif($leave->status == 'pending')
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                @if ($leave->is_adhoc == 1)
+                                                    By Adhoc
+                                                @elseif (!empty($leave->approved_by))
+                                                    By {{ ucwords(str_replace('_', ' ', $leave->approval_type)) }}
+                                                @endif
+                                            </div>
+                                        @elseif ($leave->status == 'pending')
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                                 <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-yellow-400"></span>
                                                 Pending
                                             </span>
-                                        @elseif($leave->status == 'rejected')
+                                        @elseif ($leave->status == 'rejected')
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                 <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-red-400"></span>
                                                 Rejected
                                             </span>
+
+                                            @if (!empty($leave->approval_type))
+                                                <div class="text-xs text-gray-500 mt-1">
+                                                    By {{ ucwords(str_replace('_', ' ', $leave->approval_type)) }}
+                                                </div>
+                                            @endif
                                         @else
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                {{ ucfirst($leave->status) }}
+                                                {{ ucwords(str_replace('_', ' ', $leave->status)) }}
                                             </span>
                                         @endif
                                     </td>
+
                                     <td class="px-4 py-3 border">
                                         @if ($leave->status === 'pending')
                                             <div class="flex gap-2">
@@ -436,6 +447,90 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Helper function to generate status and action HTML
+            function getStatusAndActionHTML(leaveId, status, isAdhoc) {
+                // Default to 'pending' if status not provided or is empty (for newly created leaves)
+                status = (status && status.trim()) ? status.toLowerCase().trim() : 'pending';
+
+                if (status === 'pending') {
+                    return `
+                        <td class="px-4 py-3 border">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-yellow-400"></span>
+                                Pending
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 border">
+                            <div class="flex gap-2">
+                                <button class="approve-btn bg-green-500 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-green-600 transition flex items-center gap-1" data-id="${leaveId}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Approve
+                                </button>
+                                <button class="reject-btn bg-red-500 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-red-600 transition flex items-center gap-1" data-id="${leaveId}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    Reject
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                } else if (status === 'approved') {
+                    return `
+                        <td class="px-4 py-3 border">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-400"></span>
+                                Approved
+                            </span>
+                            <div class="text-xs text-gray-500 mt-1">${isAdhoc ? 'By Adhoc' : 'By Frontdesk'}</div>
+                        </td>
+                        <td class="px-4 py-3 border">
+                            <span class="text-gray-400 text-sm">-</span>
+                        </td>
+                    `;
+                } else if (status === 'rejected') {
+                    return `
+                        <td class="px-4 py-3 border">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-red-400"></span>
+                                Rejected
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 border">
+                            <span class="text-gray-400 text-sm">-</span>
+                        </td>
+                    `;
+                } else {
+                    // For any unknown status, default to pending to show buttons
+                    return `
+                        <td class="px-4 py-3 border">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-yellow-400"></span>
+                                Pending
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 border">
+                            <div class="flex gap-2">
+                                <button class="approve-btn bg-green-500 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-green-600 transition flex items-center gap-1" data-id="${leaveId}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Approve
+                                </button>
+                                <button class="reject-btn bg-red-500 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-red-600 transition flex items-center gap-1" data-id="${leaveId}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    Reject
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            }
+
             // Format date function
             function formatDate(dateString) {
                 const date = new Date(dateString);
@@ -645,12 +740,37 @@
             document.getElementById('start_date').addEventListener('change', updateDateDisplays);
             document.getElementById('end_date').addEventListener('change', updateDateDisplays);
 
+            // Sync custom day fields with current select values
+            function syncCustomDayFields() {
+                const startHalfVal = document.getElementById('start_half_select').value;
+                const endHalfVal = document.getElementById('end_half_select').value;
+
+                if (startHalfVal === 'full_day') {
+                    document.getElementById('start_date_type').value = 'full_day';
+                    document.getElementById('start_half_slot').value = 'morning';
+                } else {
+                    document.getElementById('start_date_type').value = 'half_day';
+                    document.getElementById('start_half_slot').value = startHalfVal === 'first_half' ? 'morning' :
+                        'evening';
+                }
+
+                if (endHalfVal === 'full_day') {
+                    document.getElementById('end_date_type').value = 'full_day';
+                    document.getElementById('end_half_slot').value = 'morning';
+                } else {
+                    document.getElementById('end_date_type').value = 'half_day';
+                    document.getElementById('end_half_slot').value = endHalfVal === 'first_half' ? 'morning' :
+                        'evening';
+                }
+            }
+
             // Leave type change
             document.querySelectorAll('input[name="leave_type"]').forEach(radio => {
                 radio.addEventListener('change', function() {
                     const value = this.value;
                     if (value === 'custom') {
                         document.getElementById('customDaysSection').classList.remove('hidden');
+                        syncCustomDayFields();
                     } else {
                         document.getElementById('customDaysSection').classList.add('hidden');
                     }
@@ -741,120 +861,131 @@
                     });
 
                     fetch("{{ route('frontdesk.doctor-leaves.store') }}", {
-                            method: "POST",
-                            headers: {
-                                "X-CSRF-TOKEN": document.querySelector('input[name=_token]').value,
-                                "Accept": "application/json",
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(jsonData)
-                        })
-                        .then(async res => {
-                            const data = await res.json();
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": document.querySelector('input[name=_token]').value,
+                            "Accept": "application/json",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(jsonData)
+                    }).then(async res => {
+                        const data = await res.json();
 
-                            if (res.status === 409 && data.type === 'appointment_conflict') {
-                                showConflictModal(data.message, data.appointments);
-                                return;
-                            }
+                        if (res.status === 409 && data.type === 'appointment_conflict') {
+                            showConflictModal(data.message, data.appointments);
+                            return;
+                        }
 
-                            if (res.status === 422 && data.type === 'leave_conflict') {
-                                errorBox.textContent = data.message ||
-                                    'Doctor already has a leave for the selected dates.';
-                                errorBox.classList.remove('hidden');
-                                return;
-                            }
-
-                            if (!data.success) {
-                                errorBox.textContent = data.message ||
-                                    "Something went wrong. Please check inputs.";
-                                errorBox.classList.remove('hidden');
-                                return;
-                            }
-
-                            // Close modal and proceed with adding row
-                            closeConflictModal();
-
-                            // Add row to table
-                            const row = `
-                    <tr data-leave-id="${data.data.id}" class="hover:bg-gray-50">
-                        <td class="px-4 py-3 border">
-                            <div class="font-medium text-gray-900">${data.data.doctor}</div>
-                            ${data.data.is_adhoc ? '<span class="text-xs text-amber-600 font-medium">(Adhoc)</span>' : ''}
-                        </td>
-                        <td class="px-4 py-3 border">
-                            <div class="text-gray-900">${data.data.start_date_formatted}</div>
-                            ${data.data.start_half_slot ? `<div class="text-xs text-gray-500">${data.data.start_half_slot} Half</div>` : ''}
-                        </td>
-                        <td class="px-4 py-3 border">
-                            <div class="text-gray-900">${data.data.end_date_formatted}</div>
-                            ${data.data.end_half_slot ? `<div class="text-xs text-gray-500">${data.data.end_half_slot} Half</div>` : ''}
-                        </td>
-                        <td class="px-4 py-3 border">
-                            <div class="flex flex-col gap-1">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${data.data.leave_type === 'full_day' ? 'bg-sky-100 text-sky-800' : 'bg-purple-100 text-purple-800'}">
-                                    ${data.data.leave_type_display}
-                                </span>
-                                ${data.data.leave_type === 'custom' && data.data.records_created > 1 ? `<span class="text-xs text-gray-500">${data.data.records_created} records</span>` : ''}
-                            </div>
-                        </td>
-                        <td class="px-4 py-3 border">
-                            ${data.data.availability ? data.data.availability : '-'}
-                        </td>
-                        <td class="px-4 py-3 border text-gray-700 max-w-xs truncate">${data.data.reason}</td>
-                        <td class="px-4 py-3 border">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-400"></span>
-                                Approved
-                            </span>
-                            <div class="text-xs text-gray-500 mt-1">By Frontdesk</div>
-                        </td>
-                        <td class="px-4 py-3 border">
-                            <span class="text-gray-400 text-sm">-</span>
-                        </td>
-                    </tr>
-                `;
-
-                            const tableBody = document.getElementById('leaveTableBody');
-                            if (!tableBody || tableBody.innerHTML.includes('No leaves found')) {
-                                // If table doesn't exist or shows "no leaves", replace the whole section
-                                const newTable = `
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full border text-sm">
-                                    <thead class="bg-gray-100">
-                                        <tr>
-                                            <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
-                                            <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
-                                            <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
-                                            <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                            <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
-                                            <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="leaveTableBody">
-                                        ${row}
-                                    </tbody>
-                                </table>
-                            </div>
-                        `;
-                                document.querySelector(
-                                        '.bg-white.rounded-xl.shadow.p-6 > div:last-child')
-                                    .innerHTML = newTable;
-                            } else {
-                                tableBody.insertAdjacentHTML('afterbegin', row);
-                            }
-
-                            hideForm();
-                            if (typeof toastr !== 'undefined') {
-                                toastr.success(data.message || 'Leave added successfully');
-                            } else {
-                                alert(data.message || 'Leave added successfully');
-                            }
-                        })
-                        .catch(() => {
-                            errorBox.textContent = "Something went wrong. Please check inputs.";
+                        if (res.status === 422 && data.type === 'leave_conflict') {
+                            errorBox.textContent = data.message ||
+                                'Doctor already has a leave for the selected dates.';
                             errorBox.classList.remove('hidden');
-                        });
+                            return;
+                        }
+
+                        if (!data.success) {
+                            errorBox.textContent = data.message ||
+                                "Something went wrong. Please check inputs.";
+                            errorBox.classList.remove('hidden');
+                            return;
+                        }
+
+                        // Close modal and proceed with adding row
+                        closeConflictModal();
+
+                        // Add row to table
+                        const row = `
+                                <tr data-leave-id="${data.data.id}" class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 border">
+                                        <div class="font-medium text-gray-900">${data.data.doctor}</div>
+                                        ${data.data.is_adhoc ? '<span class="text-xs text-amber-600 font-medium">(Adhoc)</span>' : ''}
+                                    </td>
+                                    <td class="px-4 py-3 border">
+                                        <div class="text-gray-900">${data.data.start_date_formatted}</div>
+                                        ${data.data.leave_type === 'custom' && data.data.start_date_type && data.data.start_date_type.toLowerCase() === 'half_day' && data.data.start_half_slot ? `<div class="text-xs text-gray-500">${data.data.start_half_slot.charAt(0).toUpperCase() + data.data.start_half_slot.slice(1)} Half <span class="text-gray-400">${data.data.start_half_slot.toLowerCase() === 'morning' ? '(9 AM - 1 PM)' : '(2 PM - 6 PM)'}</span></div>` : ''}
+                                    </td>
+                                    <td class="px-4 py-3 border">
+                                        <div class="text-gray-900">${data.data.end_date_formatted}</div>
+                                        ${data.data.leave_type === 'custom' && data.data.end_date_type && data.data.end_date_type.toLowerCase() === 'half_day' && data.data.end_half_slot ? `<div class="text-xs text-gray-500">${data.data.end_half_slot.charAt(0).toUpperCase() + data.data.end_half_slot.slice(1)} Half <span class="text-gray-400">${data.data.end_half_slot.toLowerCase() === 'morning' ? '(9 AM - 1 PM)' : '(2 PM - 6 PM)'}</span></div>` : ''}
+                                    </td>
+                                    <td class="px-4 py-3 border">
+                                        <div class="flex flex-col gap-1">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${data.data.leave_type === 'full_day' ? 'bg-sky-100 text-sky-800' : 'bg-purple-100 text-purple-800'}">
+                                                ${data.data.leave_type_display}
+                                            </span>
+                                            ${data.data.leave_type === 'custom' && data.data.records_created > 1 ? `<span class="text-xs text-gray-500">${data.data.records_created} records</span>` : ''}
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 border">
+                                        ${data.data.leave_type === 'custom' ? (() => {
+                                            const isSingleDay = data.data.start_date === data.data.end_date;
+                                            if (isSingleDay && data.data.start_date_type === 'half_day' && data.data.end_date_type === 'half_day') {
+                                                return data.data.start_half_slot.charAt(0).toUpperCase() + data.data.start_half_slot.slice(1) + ' Half';
+                                            } else if (isSingleDay && data.data.start_date_type === 'half_day') {
+                                                return data.data.start_half_slot.charAt(0).toUpperCase() + data.data.start_half_slot.slice(1) + ' Half';
+                                            } else if (isSingleDay && data.data.end_date_type === 'half_day') {
+                                                return data.data.end_half_slot.charAt(0).toUpperCase() + data.data.end_half_slot.slice(1) + ' Half';
+                                            } else {
+                                                let result = '';
+                                                if (data.data.start_date_type === 'half_day') {
+                                                    result += data.data.start_half_slot.charAt(0).toUpperCase() + data.data.start_half_slot.slice(1) + ' Half (Start)';
+                                                }
+                                                if (data.data.end_date_type === 'half_day') {
+                                                    if (result) result += ' ';
+                                                    result += data.data.end_half_slot.charAt(0).toUpperCase() + data.data.end_half_slot.slice(1) + ' Half (End)';
+                                                }
+                                                return result || '-';
+                                            }
+                                        })() : '-'}
+                                    </td>
+                                    <td class="px-4 py-3 border text-gray-700 max-w-xs truncate">${data.data.reason}</td>
+                                    ${getStatusAndActionHTML(data.data.id, data.data.status, data.data.is_adhoc)}
+                                </tr>
+                            `;
+
+                        const tableBody = document.getElementById('leaveTableBody');
+                        if (!tableBody || tableBody.innerHTML.includes('No leaves found')) {
+                            // If table doesn't exist or shows "no leaves", replace the whole section
+                            const newTable = `
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full border text-sm">
+                                            <thead class="bg-gray-100">
+                                                <tr>
+                                                    <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
+                                                    <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
+                                                    <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
+                                                    <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                                    <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Availability</th>
+                                                    <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                                                    <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th class="px-4 py-3 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="leaveTableBody">
+                                                ${row}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                `;
+
+                            document.querySelector(
+                                    '.bg-white.rounded-xl.shadow.p-6 > div:last-child')
+                                .innerHTML = newTable;
+                        } else {
+                            tableBody.insertAdjacentHTML('afterbegin', row);
+                        }
+
+                        hideForm();
+
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(data.message || 'Leave added successfully');
+                        } else {
+                            alert(data.message || 'Leave added successfully');
+                        }
+                    }).catch(() => {
+                        errorBox.textContent = "Something went wrong. Please check inputs.";
+                        errorBox.classList.remove('hidden');
+                    });
                 }
                 submitLeave(false);
             });
@@ -873,97 +1004,107 @@
                     jsonData['force'] = '1';
 
                     fetch("{{ route('frontdesk.doctor-leaves.store') }}", {
-                            method: "POST",
-                            headers: {
-                                "X-CSRF-TOKEN": document.querySelector('input[name=_token]')
-                                    .value,
-                                "Accept": "application/json",
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(jsonData)
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Close modal
-                                closeConflictModal();
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": document.querySelector('input[name=_token]')
+                                .value,
+                            "Accept": "application/json",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(jsonData)
 
-                                // Add row to table
-                                const row = `
-                        <tr data-leave-id="${data.data.id}" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 border">
-                                <div class="font-medium text-gray-900">${data.data.doctor}</div>
-                                ${data.data.is_adhoc ? '<span class="text-xs text-amber-600 font-medium">(Adhoc)</span>' : ''}
-                            </td>
-                            <td class="px-4 py-3 border">
-                                <div class="text-gray-900">${data.data.start_date_formatted}</div>
-                                ${data.data.start_half_slot ? `<div class="text-xs text-gray-500">${data.data.start_half_slot} Half</div>` : ''}
-                            </td>
-                            <td class="px-4 py-3 border">
-                                <div class="text-gray-900">${data.data.end_date_formatted}</div>
-                                ${data.data.end_half_slot ? `<div class="text-xs text-gray-500">${data.data.end_half_slot} Half</div>` : ''}
-                            </td>
-                            <td class="px-4 py-3 border">
-                                <div class="flex flex-col gap-1">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${data.data.leave_type === 'full_day' ? 'bg-sky-100 text-sky-800' : 'bg-purple-100 text-purple-800'}">
-                                        ${data.data.leave_type_display}
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 border">
-                                ${data.data.availability ? data.data.availability : '-'}
-                            </td>
-                            <td class="px-4 py-3 border text-gray-700 max-w-xs truncate">${data.data.reason}</td>
-                            <td class="px-4 py-3 border">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-400"></span>
-                                    Approved
-                                </span>
-                                <div class="text-xs text-gray-500 mt-1">By Frontdesk</div>
-                            </td>
-                            <td class="px-4 py-3 border">
-                                <span class="text-gray-400 text-sm">-</span>
-                            </td>
-                        </tr>
-                    `;
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            // Close modal
+                            closeConflictModal();
 
-                                const tableBody = document.getElementById('leaveTableBody');
-                                if (tableBody) {
-                                    tableBody.insertAdjacentHTML('afterbegin', row);
-                                }
+                            // Add row to table
+                            const row = `
+                                    <tr data-leave-id="${data.data.id}" class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 border">
+                                            <div class="font-medium text-gray-900">${data.data.doctor}</div>
+                                            ${data.data.is_adhoc ? '<span class="text-xs text-amber-600 font-medium">(Adhoc)</span>' : ''}
+                                        </td>
+                                        <td class="px-4 py-3 border">
+                                            <div class="text-gray-900">${data.data.start_date_formatted}</div>
+                                            ${data.data.leave_type === 'custom' && data.data.start_date_type && data.data.start_date_type.toLowerCase() === 'half_day' && data.data.start_half_slot ? `<div class="text-xs text-gray-500">${data.data.start_half_slot.charAt(0).toUpperCase() + data.data.start_half_slot.slice(1)} Half <span class="text-gray-400">${data.data.start_half_slot.toLowerCase() === 'morning' ? '(9 AM - 1 PM)' : '(2 PM - 6 PM)'}</span></div>` : ''}
+                                        </td>
+                                        <td class="px-4 py-3 border">
+                                            <div class="text-gray-900">${data.data.end_date_formatted}</div>
+                                            ${data.data.leave_type === 'custom' && data.data.end_date_type && data.data.end_date_type.toLowerCase() === 'half_day' && data.data.end_half_slot ? `<div class="text-xs text-gray-500">${data.data.end_half_slot.charAt(0).toUpperCase() + data.data.end_half_slot.slice(1)} Half <span class="text-gray-400">${data.data.end_half_slot.toLowerCase() === 'morning' ? '(9 AM - 1 PM)' : '(2 PM - 6 PM)'}</span></div>` : ''}
+                                        </td>
+                                        <td class="px-4 py-3 border">
+                                            <div class="flex flex-col gap-1">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${data.data.leave_type === 'full_day' ? 'bg-sky-100 text-sky-800' : 'bg-purple-100 text-purple-800'}">
+                                                    ${data.data.leave_type_display}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 border">
+                                            ${data.data.leave_type === 'custom' ? (() => {
+                                                const isSingleDay = data.data.start_date === data.data.end_date;
+                                                if (isSingleDay && data.data.start_date_type === 'half_day' && data.data.end_date_type === 'half_day') {
+                                                    return data.data.start_half_slot.charAt(0).toUpperCase() + data.data.start_half_slot.slice(1) + ' Half';
+                                                } else if (isSingleDay && data.data.start_date_type === 'half_day') {
+                                                    return data.data.start_half_slot.charAt(0).toUpperCase() + data.data.start_half_slot.slice(1) + ' Half';
+                                                } else if (isSingleDay && data.data.end_date_type === 'half_day') {
+                                                    return data.data.end_half_slot.charAt(0).toUpperCase() + data.data.end_half_slot.slice(1) + ' Half';
+                                                } else {
+                                                    let result = '';
+                                                    if (data.data.start_date_type === 'half_day') {
+                                                        result += data.data.start_half_slot.charAt(0).toUpperCase() + data.data.start_half_slot.slice(1) + ' Half (Start)';
+                                                    }
+                                                    if (data.data.end_date_type === 'half_day') {
+                                                        if (result) result += ' ';
+                                                        result += data.data.end_half_slot.charAt(0).toUpperCase() + data.data.end_half_slot.slice(1) + ' Half (End)';
+                                                    }
+                                                    return result || '-';
+                                                }
+                                            })() : '-'}
+                                        </td>
+                                        <td class="px-4 py-3 border text-gray-700 max-w-xs truncate">${data.data.reason}</td>
+                                        ${getStatusAndActionHTML(data.data.id, data.data.status, data.data.is_adhoc)}
+                                    </tr>
+                                `;
 
-                                hideForm();
-                                if (typeof toastr !== 'undefined') {
-                                    toastr.success(data.message ||
-                                        'Leave added and appointments cancelled successfully'
-                                    );
-                                } else {
-                                    alert(data.message ||
-                                        'Leave added and appointments cancelled successfully'
-                                    );
-                                }
-                            } else {
-                                const errorBox = document.getElementById('formError');
-                                errorBox.textContent = data.message ||
-                                    'Failed to process leave with forced appointment cancellation.';
-                                errorBox.classList.remove('hidden');
+                            const tableBody = document.getElementById('leaveTableBody');
+
+                            if (tableBody) {
+                                tableBody.insertAdjacentHTML('afterbegin', row);
                             }
-                        })
-                        .catch(() => {
+
+                            hideForm();
+
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(data.message ||
+                                    'Leave added and appointments cancelled successfully'
+                                );
+                            } else {
+                                alert(data.message ||
+                                    'Leave added and appointments cancelled successfully'
+                                );
+                            }
+                        } else {
                             const errorBox = document.getElementById('formError');
-                            errorBox.textContent =
-                                "Something went wrong while processing the request.";
+                            errorBox.textContent = data.message ||
+                                'Failed to process leave with forced appointment cancellation.';
                             errorBox.classList.remove('hidden');
-                        })
-                        .finally(() => {
-                            conflictProceedBtn.disabled = false;
-                            conflictProceedBtn.innerHTML = 'Proceed & Cancel Appointments';
-                        });
+                        }
+                    }).catch(() => {
+                        const errorBox = document.getElementById('formError');
+                        errorBox.textContent =
+                            "Something went wrong while processing the request.";
+                        errorBox.classList.remove('hidden');
+                    }).finally(() => {
+                        conflictProceedBtn.disabled = false;
+                        conflictProceedBtn.innerHTML = 'Proceed & Cancel Appointments';
+                    });
                 }, 300);
             });
 
             // Approve/Reject buttons (delegated event handling)
             document.addEventListener('click', function(e) {
+
                 if (e.target.closest('.approve-btn')) {
                     e.preventDefault();
                     const button = e.target.closest('.approve-btn');
@@ -1046,25 +1187,27 @@
                             modal = document.createElement('div');
                             modal.id = 'approvalModal';
                             modal.innerHTML = `
-                        <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                            <div class="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 animate-fade-in">
-                                <div class="p-6">
-                                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Approve Leave</h2>
-                                    <p class="mb-6 text-gray-700">Are you sure you want to approve this leave? Any conflicting appointments will be cancelled.</p>
-                                    <div class="flex justify-end gap-3">
-                                        <button id="cancelApprovalBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700">Cancel</button>
-                                        <button id="confirmApprovalBtn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Approve</button>
+                                <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                                    <div class="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 animate-fade-in">
+                                        <div class="p-6">
+                                            <h2 class="text-lg font-semibold text-gray-800 mb-4">Approve Leave</h2>
+                                            <p class="mb-6 text-gray-700">Are you sure you want to approve this leave? Any conflicting appointments will be cancelled.</p>
+                                            <div class="flex justify-end gap-3">
+                                                <button id="cancelApprovalBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700">Cancel</button>
+                                                <button id="confirmApprovalBtn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Approve</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    `;
+                            `;
                             document.body.appendChild(modal);
                         }
+
                         modal.style.display = 'flex';
                         document.getElementById('cancelApprovalBtn').onclick = function() {
                             modal.style.display = 'none';
                         };
+
                         document.getElementById('confirmApprovalBtn').onclick = function() {
                             modal.style.display = 'none';
                             if (onConfirm) onConfirm();
@@ -1078,27 +1221,29 @@
                             modal = document.createElement('div');
                             modal.id = 'conflictModal';
                             modal.innerHTML = `
-                        <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                            <div class="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 animate-fade-in">
-                                <div class="p-6">
-                                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Appointment Conflict</h2>
-                                    <p class="mb-6 text-gray-700">${message}</p>
-                                    <div class="flex justify-end gap-3">
-                                        <button id="cancelConflictBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700">Cancel</button>
-                                        <button id="proceedConflictBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Proceed Anyway</button>
+                                <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                                    <div class="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 animate-fade-in">
+                                        <div class="p-6">
+                                            <h2 class="text-lg font-semibold text-gray-800 mb-4">Appointment Conflict</h2>
+                                            <p class="mb-6 text-gray-700">${message}</p>
+                                            <div class="flex justify-end gap-3">
+                                                <button id="cancelConflictBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700">Cancel</button>
+                                                <button id="proceedConflictBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Proceed Anyway</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    `;
+                            `;
                             document.body.appendChild(modal);
                         } else {
                             modal.querySelector('p').textContent = message;
                         }
+
                         modal.style.display = 'flex';
                         document.getElementById('cancelConflictBtn').onclick = function() {
                             modal.style.display = 'none';
                         };
+
                         document.getElementById('proceedConflictBtn').onclick = function() {
                             modal.style.display = 'none';
                             if (onProceed) onProceed();
@@ -1109,70 +1254,151 @@
                     function updateRowApproved(id, message) {
                         const row = document.querySelector(`tr[data-leave-id='${id}']`);
                         row.querySelector('td:nth-child(7)').innerHTML = `
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-400"></span>
-                        Approved
-                    </span>
-                    <div class="text-xs text-gray-500 mt-1">By Frontdesk</div>
-                `;
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-400"></span>
+                                Approved
+                            </span>
+                            <div class="text-xs text-gray-500 mt-1">By Frontdesk</div>
+                        `;
+
                         row.querySelector('td:nth-child(8)').innerHTML =
                             '<span class="text-gray-400 text-sm">-</span>';
+
                         if (typeof toastr !== 'undefined') {
                             toastr.success(message || 'Leave approved successfully');
                         }
                     }
                 }
 
+                // Reject status update start
                 if (e.target.closest('.reject-btn')) {
                     e.preventDefault();
                     const button = e.target.closest('.reject-btn');
                     const id = button.getAttribute('data-id');
 
-                    if (!confirm('Are you sure you want to reject this leave?')) {
-                        return;
-                    }
+                    showRejectModal({
+                        onConfirm: function() {
+                            button.disabled = true;
+                            button.innerHTML = `
+                            <span class="flex items-center gap-1">
+                                <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg> Rejecting...
+                            </span>`;
 
-                    button.disabled = true;
-                    button.innerHTML =
-                        '<span class="flex items-center gap-1"><svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Rejecting...</span>';
+                            fetch(`/frontdesk/doctor-leaves/${id}/reject`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'input[name=_token]').value,
+                                    'Accept': 'application/json'
+                                }
+                            }).then(res => res.json()).then(res => {
+                                if (res.success) {
+                                    const row = document.querySelector(
+                                        `tr[data-leave-id='${id}']`);
 
-                    fetch(`/frontdesk/doctor-leaves/${id}/reject`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
-                            'Accept': 'application/json'
-                        }
-                    }).then(res => res.json()).then(res => {
-                        if (res.success) {
-                            const row = document.querySelector(`tr[data-leave-id='${id}']`);
-                            row.querySelector('td:nth-child(6)').innerHTML = `
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-red-400"></span>
-                            Rejected
-                        </span>
-                    `;
-                            row.querySelector('td:nth-child(7)').innerHTML =
-                                '<span class="text-gray-400 text-sm">-</span>';
-                            if (typeof toastr !== 'undefined') {
-                                toastr.success(res.message || 'Leave rejected successfully');
-                            }
-                        } else {
-                            button.disabled = false;
-                            button.innerHTML =
-                                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Reject';
-                            if (typeof toastr !== 'undefined') {
-                                toastr.error(res.message || 'Failed to reject leave');
-                            }
-                        }
-                    }).catch(() => {
-                        button.disabled = false;
-                        button.innerHTML =
-                            '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Reject';
-                        if (typeof toastr !== 'undefined') {
-                            toastr.error('Failed to reject leave');
+                                    // Use backend data for who rejected
+                                    const rejectedBy = res.approval_type || 'Unknown';
+
+                                    // Update Status column with Rejected + By XYZ
+                                    row.querySelector('td:nth-child(7)').innerHTML = `
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-red-400"></span>
+                                                Rejected
+                                            </span>
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                By ${capitalizeWords(rejectedBy.replace('_', ' '))}
+                                            </div>
+                                        `;
+
+                                    // Disable action buttons
+                                    row.querySelector('td:nth-child(8)').innerHTML =
+                                        `<span class="text-gray-400 text-sm">-</span>`;
+
+                                    if (typeof toastr !== 'undefined') {
+                                        toastr.success(res.message ||
+                                            'Leave rejected successfully');
+                                    }
+                                } else {
+                                    button.disabled = false;
+                                    button.innerHTML = `
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg> Reject
+                                        `;
+
+                                    if (typeof toastr !== 'undefined') {
+                                        toastr.error(res.message ||
+                                            'Failed to reject leave');
+                                    }
+                                }
+                            }).catch(() => {
+                                button.disabled = false;
+                                button.innerHTML = `
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg> Reject
+                                    `;
+
+                                if (typeof toastr !== 'undefined') {
+                                    toastr.error('Failed to reject leave');
+                                }
+                            });
                         }
                     });
                 }
+
+                function capitalizeWords(str) {
+                    return str.replace(/\b\w/g, char => char.toUpperCase());
+                }
+
+                // Reject Modal
+                function showRejectModal({
+                    onConfirm
+                }) {
+                    let modal = document.getElementById('rejectModal');
+                    if (!modal) {
+                        modal = document.createElement('div');
+                        modal.id = 'rejectModal';
+                        modal.innerHTML = `
+                        <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                            <div class="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 animate-fade-in">
+                                <div class="p-6">
+                                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Reject Leave</h2>
+                                    <p class="mb-6 text-gray-700">Are you sure you want to reject this leave?</p>
+                                    <div class="flex justify-end gap-3">
+                                        <button id="cancelRejectBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700">Cancel</button>
+                                        <button id="confirmRejectBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Reject</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                        document.body.appendChild(modal);
+                    }
+
+                    modal.style.display = 'flex';
+
+                    const cancelBtn = modal.querySelector('#cancelRejectBtn');
+                    const confirmBtn = modal.querySelector('#confirmRejectBtn');
+
+                    cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+                    confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+
+                    const newCancelBtn = modal.querySelector('#cancelRejectBtn');
+                    const newConfirmBtn = modal.querySelector('#confirmRejectBtn');
+
+                    newCancelBtn.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                    });
+
+                    newConfirmBtn.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        if (onConfirm) onConfirm();
+                    });
+                }
+                // Reject status update End
             });
         });
     </script>

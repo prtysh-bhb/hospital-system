@@ -228,9 +228,13 @@
                     }
 
                     data.data.forEach(app => {
-                        let patientFirstName = app.patient && app.patient.first_name ? app.patient.first_name :
-                            '';
-                        let patientLastName = app.patient && app.patient.last_name ? app.patient.last_name : '';
+                        // let patientFirstName = app.patient && app.patient.first_name ? app.patient.first_name : '';
+                        // let patientLastName = app.patient && app.patient.last_name ? app.patient.last_name : '';
+                        const patientName = [
+                            app.patient?.first_name,
+                            app.patient?.last_name
+                        ].filter(Boolean).join(' ');
+
                         let patientPhone = app.patient && app.patient.phone ? app.patient.phone : '';
 
                         let doctorFirstName = app.doctor && app.doctor.first_name ? app.doctor.first_name : '';
@@ -244,10 +248,10 @@
                                 <td class="px-4 py-3">
                                     <div class="flex items-center">
                                         <div class="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 font-semibold z-10">
-                                            ${patientLastName.substring(0, 2).toUpperCase()}
+                                            ${patientName.substring(0, 2).toUpperCase()}
                                         </div>
                                         <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-800">${patientFirstName} ${patientLastName}</p>
+                                            <p class="text-sm font-medium text-gray-800">${patientName} </p>
                                             <p class="text-xs text-gray-500">${patientPhone}</p>
                                         </div>
                                     </div>
@@ -427,6 +431,22 @@
 
 
             function loadViewAppointmentTemplate(appointment) {
+                const patientName = [
+                    appointment.patient?.first_name,
+                    appointment.patient?.last_name
+                ].filter(Boolean).join(' ');
+
+                const patientPhone = [
+                    appointment.patient?.phone
+                ].filter(Boolean).join(' ');
+
+                const doctorName = [
+                    appointment.doctor?.first_name,
+                    appointment.doctor?.last_name
+                ].filter(Boolean).join(' ');
+
+                const doctorSpecialty = appointment.doctor?.doctor_profile?.specialty?.name ?? '';
+
                 var html = `
                     <div class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -449,11 +469,11 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Patient Name</label>
-                                    <p class="text-sm sm:text-base text-gray-800">${appointment.patient.first_name} ${appointment.patient.last_name}</p>
+                                    <p class="text-sm sm:text-base text-gray-800">${patientName}</p>
                                 </div>
                                 <div>
                                     <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Phone</label>
-                                    <p class="text-sm sm:text-base text-gray-800">${appointment.patient.phone || 'N/A'}</p>
+                                    <p class="text-sm sm:text-base text-gray-800">${patientPhone}</p>
                                 </div>
                             </div>
                         </div>
@@ -463,11 +483,11 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Doctor Name</label>
-                                    <p class="text-sm sm:text-base text-gray-800">Dr. ${appointment.doctor.first_name} ${appointment.doctor.last_name}</p>
+                                    <p class="text-sm sm:text-base text-gray-800">Dr. ${doctorName}</p>
                                 </div>
                                 <div>
                                     <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Specialty</label>
-                                    <p class="text-sm sm:text-base text-gray-800">${appointment.doctor.doctor_profile.specialty.name}</p>
+                                    <p class="text-sm sm:text-base text-gray-800">${doctorSpecialty}</p>
                                 </div>
                             </div>
                         </div>
@@ -494,30 +514,11 @@
                             </div>
                         </div>
 
-                        <div class="border-t pt-4">
-                            <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Reason for Visit</label>
-                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                <p class="text-sm text-gray-700">${appointment.reason_for_visit}</p>
-                            </div>
-                        </div>
+                        ${appointment.reason_for_visit ? `<div class="border-t pt-4"> <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Reason for Visit</label> <div class="bg-gray-50 p-3 rounded-lg border border-gray-200"> <p class="text-sm text-gray-700">${appointment.reason_for_visit}</p> </div> </div> ` : ''}
 
-                        ${appointment.status === 'cancelled' && appointment.cancellation_reason ? `
-                                                    <div class="border-t pt-4">
-                                                        <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Cancellation Reason</label>
-                                                        <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                                                            <p class="text-sm text-red-700">${appointment.cancellation_reason}</p>
-                                                        </div>
-                                                    </div>
-                                                ` : ''}
+                        ${appointment.status === 'cancelled' && appointment.cancellation_reason ? `<div class="border-t pt-4"> <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Cancellation Reason</label> <div class="bg-red-50 p-3 rounded-lg border border-red-200"> <p class="text-sm text-red-700">${appointment.cancellation_reason}</p> </div> </div> ` : ''}
 
-                        ${appointment.notes ? `
-                                                    <div class="border-t pt-4">
-                                                        <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Additional Notes</label>
-                                                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                                            <p class="text-sm text-gray-700">${appointment.notes}</p>
-                                                        </div>
-                                                    </div>
-                                                ` : ''}
+                        ${appointment.notes ? `<div class="border-t pt-4"> <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-2">Additional Notes</label> <div class="bg-gray-50 p-3 rounded-lg border border-gray-200"> <p class="text-sm text-gray-700">${appointment.notes}</p> </div> </div> ` : ''}
 
                         <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
                             <button type="button" onclick="closeEditModal()"

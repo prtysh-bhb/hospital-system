@@ -366,8 +366,8 @@ class AppointmentController extends Controller
                     'in:consultation,follow_up,emergency,check_up',
                 ],
                 'reason_for_visit' => [
-                    'required',
-                    'string',
+                    // 'required',
+                    // 'string',
                     'max:1000',
                 ],
                 'status' => [
@@ -398,7 +398,7 @@ class AppointmentController extends Controller
                 'appointment_time.date_format' => 'Please provide a valid time in the format HH:MM.',
                 'appointment_type.required' => 'Please select the appointment type.',
                 'appointment_type.in' => 'Please select a valid appointment type.',
-                'reason_for_visit.required' => 'Reason for visit is required.',
+                // 'reason_for_visit.required' => 'Reason for visit is required.',
                 'reason_for_visit.max' => 'Reason for visit cannot be longer than 1000 characters.',
                 'status.required' => 'Status is required.',
                 'status.in' => 'Please select a valid status.',

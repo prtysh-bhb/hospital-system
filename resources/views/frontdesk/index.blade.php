@@ -137,7 +137,7 @@
                                 @elseif ($appointment->status == 'confirmed') bg-blue-100 text-blue-700
                                 @elseif ($appointment->status == 'completed') bg-green-100 text-green-700
                                 @else bg-red-100 text-red-700 @endif">
-                                    {{ ucfirst($appointment->status) }}
+                                    {{ ucwords(str_replace('_', ' ', $appointment->status)) }}
                                 </span>
                             </td>
 

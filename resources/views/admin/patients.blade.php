@@ -95,44 +95,67 @@
                             );
                             $age = $patient->user?->date_of_birth
                                 ? \Carbon\Carbon::parse($patient->user?->date_of_birth)->age
-                                : 'N/A';
+                                : null;
                             $lastVisit = $patient->appointments()->latest()->first();
                         @endphp
                         <tr class="hover:bg-gray-50">
+                            <!-- Patient ID -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span
-                                    class="text-sm font-medium text-sky-600">#PT{{ str_pad($patient->id, 6, '0', STR_PAD_LEFT) }}</span>
+                                <span class="text-sm font-medium text-sky-600">
+                                    #PT{{ str_pad($patient->id, 6, '0', STR_PAD_LEFT) }}
+                                </span>
                             </td>
+
+                            <!-- Name + Email -->
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
+                                    <!-- Initials Circle -->
                                     <div
                                         class="w-10 h-10 {{ $colorClass }} rounded-full flex items-center justify-center font-semibold text-sm">
-                                        {{ $initials }}
+                                        {{ $initials ?: '?' }}
                                     </div>
+
                                     <div class="ml-3">
-                                        <p class="text-sm font-medium text-gray-800">{{ $patient->user?->full_name }}</p>
-                                        <p class="text-xs text-gray-500">{{ $patient->user?->email }}</p>
+                                        <!-- Full Name -->
+                                        @if ($patient->user?->full_name)
+                                            <p class="text-sm font-medium text-gray-800">{{ $patient->user->full_name }}</p>
+                                        @endif
+
+                                        <!-- Email (only if exists) -->
+                                        @if ($patient->user?->email)
+                                            <p class="text-xs text-gray-500">{{ $patient->user->email }}</p>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
+
+
+                            <!-- Age / Gender -->
                             <td class="px-6 py-4 hidden lg:table-cell">
-                                <p class="text-sm text-gray-800">{{ $age }} /
-                                    {{ ucfirst($patient->user?->gender ?? 'N/A') }}</p>
+                                @if ($age || $patient->user?->gender)
+                                    <p class="text-sm text-gray-800">
+                                        {{ $age ?? '' }}{{ $age && $patient->user?->gender ? ' / ' : '' }}
+                                        {{ ucfirst($patient->user?->gender ?? '') }}
+                                    </p>
+                                @endif
                             </td>
+
+                            <!-- Blood Group -->
                             <td class="px-6 py-4 hidden md:table-cell">
                                 @if ($patient->blood_group)
-                                    <span
-                                        class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">{{ $patient->blood_group }}</span>
-                                @else
-                                    <span class="text-sm text-gray-500">N/A</span>
+                                    <span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">
+                                        {{ $patient->blood_group }}
+                                    </span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 hidden lg:table-cell">
-                                <p class="text-sm text-gray-800">{{ $patient->user?->phone ?? 'N/A' }}</p>
+                                <p class="text-sm text-gray-800">{{ $patient->user?->phone ? $patient->user->phone : '' }}
+                                </p>
                             </td>
                             <td class="px-6 py-4 hidden md:table-cell">
                                 @if ($lastVisit)
-                                    <p class="text-sm text-gray-800">{{ $lastVisit->appointment_date->diffForHumans() }}</p>
+                                    <p class="text-sm text-gray-800">{{ $lastVisit->appointment_date->diffForHumans() }}
+                                    </p>
                                     <p class="text-xs text-gray-500">{{ $lastVisit->appointment_date->format('d M Y') }}
                                     </p>
                                 @else

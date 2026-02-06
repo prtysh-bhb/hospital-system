@@ -437,23 +437,29 @@
                         </td>
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-2 sm:gap-3">
-                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.first_name + ' ' + patient.last_name)}&background=0ea5e9&color=fff"
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.first_name ?? '' + ' ' + patient.last_name ?? '')}&background=0ea5e9&color=fff"
                                     class="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Patient">
                                 <div>
-                                    <p class="text-xs sm:text-sm font-medium text-gray-900">${patient.first_name} ${patient.last_name}</p>
+                                    <p class="text-xs sm:text-sm font-medium text-gray-900">${patient.first_name} ${patient.last_name ?? ''}</p>
                                 </div>
                             </div>
                         </td>
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                            <p class="text-xs sm:text-sm text-gray-900">${age} • ${capitalizeFirst(patient.gender)}</p>
+                            ${
+                                patient.date_of_birth
+                                    ? `<p class="text-xs sm:text-sm text-gray-900">
+                                                                                                                                    ${calculateAge(patient.date_of_birth)} • ${capitalizeFirst(patient.gender ?? '')}
+                                                                                                                                </p>`
+                                    : ''
+                            }
                         </td>
                         <td class="px-3 sm:px-6 py-4">
-                            <p class="text-xs sm:text-sm text-gray-900 break-all">${patient.email || 'N/A'}</p>
-                            <p class="text-xs sm:text-sm text-gray-500">${patient.phone || 'N/A'}</p>
+                            <p class="text-xs sm:text-sm text-gray-900 break-all">${patient.email || ''}</p>
+                            <p class="text-xs sm:text-sm text-gray-500">${patient.phone || ''}</p>
                         </td>
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                             ${lastVisit ? `<p class="text-xs sm:text-sm text-gray-900">${formatDate(lastVisit.appointment_date)}</p>
-                                                                                                                                                                                                                                                                                                                                <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name ?? ''} ${lastVisit.doctor?.last_name ?? ''}</p>`
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                <p class="text-xs sm:text-sm text-gray-500">${lastVisit.doctor?.first_name ?? ''} ${lastVisit.doctor?.last_name ?? ''}</p>`
                                 : '<p class="text-xs sm:text-sm text-gray-500">No visits yet</p>'}
                         </td>
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">
@@ -594,26 +600,16 @@
 
                     <!-- Basic Info -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Email</p>
-                            <p class="text-sm text-gray-900">${patient.email || 'N/A'}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Phone</p>
-                            <p class="text-sm text-gray-900">${patient.phone || 'N/A'}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Date of Birth</p>
-                            <p class="text-sm text-gray-900">${formatDate(patient.date_of_birth)} (${age} years)</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Gender</p>
-                            <p class="text-sm text-gray-900">${capitalizeFirst(patient.gender)}</p>
-                        </div>
-                        <div class="md:col-span-2">
-                            <p class="text-sm font-medium text-gray-500">Address</p>
-                            <p class="text-sm text-gray-900">${patient.address || 'Not provided'}</p>
-                        </div>
+                        ${patient.email ? `<div> <p class="text-sm font-medium text-gray-500">Email</p> <p class="text-sm text-gray-900">${patient.email}</p> </div> ` : ''}
+
+                        ${patient.phone ? `<div> <p class="text-sm font-medium text-gray-500">Phone</p> <p class="text-sm text-gray-900">${patient.phone}</p> </div> ` : ''}
+
+                        ${patient.date_of_birth ? `<div> <p class="text-sm font-medium text-gray-500">Date of Birth</p> <p class="text-sm text-gray-900"> ${formatDate(patient.date_of_birth)} (${calculateAge(patient.date_of_birth)} years) </p> </div> ` : ''}
+
+                        ${patient.gender ? `<div> <p class="text-sm font-medium text-gray-500">Gender</p> <p class="text-sm text-gray-900">${capitalizeFirst(patient.gender)}</p> </div> ` : ''}
+
+                        ${patient.address ? `<div class="md:col-span-2"> <p class="text-sm font-medium text-gray-500">Address</p> <p class="text-sm text-gray-900">${patient.address}</p> </div> ` : ''}
+
                         ${patient.blood_group ? `<div><p class="text-sm font-medium text-gray-500">Blood Group</p><p class="text-sm text-gray-900"><span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">${patient.blood_group}</span></p></div>` : ''}
 
                         ${patient.emergency_contact_name || patient.emergency_contact_phone ? `<div><p class="text-sm font-medium text-gray-500">Emergency Contact</p><p class="text-sm text-gray-900">${patient.emergency_contact_name || 'N/A'}</p>${patient.emergency_contact_phone ? `<p class="text-xs text-gray-600">${patient.emergency_contact_phone}</p>` : ''}</div>` : ''}</div>
@@ -639,38 +635,45 @@
             if (currentPatient && currentPatient.id === id) {
                 populateEditForm(currentPatient);
             } else {
-                fetch(`{{ url('frontdesk/patients') }}/${id}`, {
+                $.ajax({
+                    url: `{{ url('frontdesk/patients') }}/${id}`,
+                    type: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(data) {
+                        if (data.success) {
+                            currentPatient = data.patient;
+                            populateEditForm(data.patient);
+                        } else {
+                            toastr.error('Patient details not found');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error(xhr);
+                        toastr.error('Failed to load patient details');
                     }
-                }).then(response => response.json()).then(data => {
-                    if (data.success) {
-                        currentPatient = data.patient;
-                        populateEditForm(data.patient);
-                    }
-                }).catch(error => {
-                    console.error('Error loading patient:', error);
-                    alert('Failed to load patient details');
                 });
             }
         }
 
         function populateEditForm(patient) {
             document.getElementById('edit_patient_id').value = patient.id;
-            document.getElementById('edit_first_name').value = patient.first_name;
-            document.getElementById('edit_last_name').value = patient.last_name;
-            document.getElementById('edit_email').value = patient.email;
-            document.getElementById('edit_phone').value = patient.phone;
-            document.getElementById('edit_date_of_birth').value = patient.date_of_birth.split('T')[0];
-            document.getElementById('edit_gender').value = patient.gender;
-            document.getElementById('edit_address').value = patient.address || '';
-            document.getElementById('edit_blood_group').value = patient.blood_group || '';
-            document.getElementById('edit_emergency_contact_name').value = patient.emergency_contact_name || '';
-            document.getElementById('edit_emergency_contact_phone').value = patient.emergency_contact_phone || '';
-            document.getElementById('edit_medical_history').value = patient.medical_history || '';
-            document.getElementById('edit_current_medications').value = patient.current_medications || '';
-            document.getElementById('edit_insurance_provider').value = patient.insurance_provider || '';
-            document.getElementById('edit_insurance_number').value = patient.insurance_number || '';
+            document.getElementById('edit_first_name').value = patient.first_name ?? '';
+            document.getElementById('edit_last_name').value = patient.last_name ?? '';
+            document.getElementById('edit_email').value = patient.email ?? '';
+            document.getElementById('edit_phone').value = patient.phone ?? '';
+            document.getElementById('edit_date_of_birth').value = patient.date_of_birth ? patient.date_of_birth.split('T')[
+                0] : '';
+            document.getElementById('edit_gender').value = patient.gender ?? '';
+            document.getElementById('edit_address').value = patient.address ?? '';
+            document.getElementById('edit_blood_group').value = patient.blood_group ?? '';
+            document.getElementById('edit_emergency_contact_name').value = patient.emergency_contact_name ?? '';
+            document.getElementById('edit_emergency_contact_phone').value = patient.emergency_contact_phone ?? '';
+            document.getElementById('edit_medical_history').value = patient.medical_history ?? '';
+            document.getElementById('edit_current_medications').value = patient.current_medications ?? '';
+            document.getElementById('edit_insurance_provider').value = patient.insurance_provider ?? '';
+            document.getElementById('edit_insurance_number').value = patient.insurance_number ?? '';
 
             document.getElementById('editModal').classList.remove('hidden');
         }

@@ -294,12 +294,12 @@
 
             if (!appointments || appointments.length === 0) {
                 tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                    No appointments found
-                </td>
-            </tr>
-        `;
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            No appointments found
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
@@ -308,8 +308,7 @@
 
                 const patient = appointment.patient ?? {};
                 const doctor = appointment.doctor ?? {};
-                const specialty =
-                    doctor.doctor_profile?.specialty?.name ?? 'N/A';
+                const specialty = doctor.doctor_profile?.specialty?.name ?? '';
 
                 const statusColors = {
                     pending: 'bg-gray-100 text-gray-700',
@@ -331,59 +330,54 @@
                     no_show: 'No-Show'
                 };
 
-                const patientName = patient.first_name ?
-                    `${patient.first_name} ${patient.last_name}` :
-                    'N/A';
-
-                const doctorName = doctor.first_name ?
-                    `Dr. ${doctor.first_name} ${doctor.last_name}` :
-                    'N/A';
+                const patientName = [patient.first_name, patient.last_name].filter(Boolean).join(' ');
+                const patientEmail = patient.email ? `<p class="text-xs text-gray-500">${patient.email}</p>` : '';
+                const doctorName = doctor.first_name ? `Dr. ${doctor.first_name} ${doctor.last_name}` : '';
 
                 return `
-        <tr class="hover:bg-gray-50">
-            <td class="px-3 sm:px-6 py-4 text-sm font-medium text-gray-900">
-                ${appointment.appointment_number ?? 'N/A'}
-            </td>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 sm:px-6 py-4 text-sm font-medium text-gray-900">
+                            ${appointment.appointment_number ?? ''}
+                        </td>
 
-            <td class="px-3 sm:px-6 py-4">
-                <p class="text-sm text-gray-900">
-                    ${formatDate(item.appointment_date)}
-                </p>
-                <p class="text-sm text-gray-500">
-                    ${formatTime(item.appointment_time)}
-                </p>
-            </td>
+                        <td class="px-3 sm:px-6 py-4">
+                            <p class="text-sm text-gray-900">
+                                ${formatDate(item.appointment_date)}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                ${formatTime(item.appointment_time)}
+                            </p>
+                        </td>
 
-            <td class="px-3 sm:px-6 py-4">
-                <p class="text-sm font-medium text-gray-900">
-                    ${patientName}
-                </p>
-                <p class="text-xs text-gray-500">
-                    ${patient.email ?? 'N/A'}
-                </p>
-            </td>
+                        <td class="px-3 sm:px-6 py-4">
+                            ${patientName
+                                ? `<p class="text-sm font-medium text-gray-900">${patientName}</p>`
+                                : ''
+                            }
+                            ${patientEmail}
+                        </td>
 
-            <td class="px-3 sm:px-6 py-4 hidden md:table-cell">
-                <p class="text-sm text-gray-900">${doctorName}</p>
-                <p class="text-xs text-gray-500">${specialty}</p>
-            </td>
+                        <td class="px-3 sm:px-6 py-4 hidden md:table-cell">
+                            <p class="text-sm text-gray-900">${doctorName}</p>
+                            <p class="text-xs text-gray-500">${specialty}</p>
+                        </td>
 
-            <td class="px-3 sm:px-6 py-4">
-                <span class="px-3 py-1 text-xs font-medium rounded-full
-                    ${statusColors[item.status] ?? ''}">
-                    ${statusLabels[item.status] ?? 'N/A'}
-                </span>
-            </td>
+                        <td class="px-3 sm:px-6 py-4">
+                            <span class="px-3 py-1 text-xs font-medium rounded-full
+                                ${statusColors[item.status] ?? ''}">
+                                ${statusLabels[item.status] ?? 'N/A'}
+                            </span>
+                        </td>
 
-            <td class="px-3 sm:px-6 py-4">
-                <button
-                    onclick="viewAppointment(${item.id})"
-                    class="text-sky-600 hover:text-sky-800 text-sm">
-                    View
-                </button>
-            </td>
-        </tr>
-        `;
+                        <td class="px-3 sm:px-6 py-4">
+                            <button
+                                onclick="viewAppointment(${item.id})"
+                                class="text-sky-600 hover:text-sky-800 text-sm">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                `;
             }).join('');
         }
 
@@ -470,100 +464,108 @@
             };
 
             let html = `
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Appointment Number</label>
-                        <p class="mt-1 text-base font-semibold text-gray-900">${appointment.appointment_number}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Status</label>
-                        <p class="mt-1">
-                            <span class="px-3 py-1 ${statusColors[appointment.status]} text-sm font-medium rounded-full">
-                                ${statusLabels[appointment.status]}
-                            </span>
-                        </p>
-                    </div>
-                </div>
+                <div class="space-y-4">
 
-                <div class="border-t pt-4">
-                    <h4 class="font-semibold text-gray-800 mb-3">Patient Information</h4>
+                    <!-- Appointment Info -->
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
+                        ${appointment.appointment_number ? ` <div>
+                            <label class="text-sm font-medium text-gray-500">Appointment Number</label>
+                            <p class="mt-1 text-base font-semibold text-gray-900">${appointment.appointment_number}</p>
+                        </div>` : ''}
+
+                        ${appointment.status ? ` <div>
+                            <label class="text-sm font-medium text-gray-500">Status</label>
+                            <p class="mt-1">
+                                <span class="px-3 py-1 ${statusColors[appointment.status]} text-sm font-medium rounded-full">
+                                    ${statusLabels[appointment.status]}
+                                </span>
+                            </p>
+                        </div>` : ''}
+                    </div>
+
+                    <!-- Patient Information -->
+                    ${(appointment.patient_name || appointment.patient_email || appointment.patient_phone) ? ` <div class="border-t pt-4">
+                        <h4 class="font-semibold text-gray-800 mb-3">Patient Information</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            
+                            ${appointment.patient_name ? ` <div>
                             <label class="text-sm font-medium text-gray-500">Name</label>
                             <p class="mt-1 text-base text-gray-900">${appointment.patient_name}</p>
-                        </div>
-                        <div>
+                        </div>` : ''}
+
+                            ${appointment.patient_email ? ` <div>
                             <label class="text-sm font-medium text-gray-500">Email</label>
                             <p class="mt-1 text-base text-gray-900">${appointment.patient_email}</p>
-                        </div>
-                        <div>
+                        </div>` : ''}
+
+                            ${appointment.patient_phone ? ` <div>
                             <label class="text-sm font-medium text-gray-500">Phone</label>
                             <p class="mt-1 text-base text-gray-900">${appointment.patient_phone}</p>
+                        </div>` : ''}
                         </div>
-                    </div>
-                </div>
+                            </div>` : ''}
 
-                <div class="border-t pt-4">
-                    <h4 class="font-semibold text-gray-800 mb-3">Doctor Information</h4>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
+                    <!-- Doctor Information -->
+                    ${(appointment.doctor_name || appointment.specialization) ? ` <div class="border-t pt-4">
+                        <h4 class="font-semibold text-gray-800 mb-3">Doctor Information</h4>
+                        <div class="grid grid-cols-2 gap-4">
+
+                            ${appointment.doctor_name ? ` <div>
                             <label class="text-sm font-medium text-gray-500">Name</label>
                             <p class="mt-1 text-base text-gray-900">${appointment.doctor_name}</p>
-                        </div>
-                        <div>
+                        </div>` : ''}
+
+                                ${appointment.specialization ? ` <div>
                             <label class="text-sm font-medium text-gray-500">Specialization</label>
                             <p class="mt-1 text-base text-gray-900">${appointment.specialization}</p>
+                        </div>` : ''}
                         </div>
-                    </div>
-                </div>
+                    </div>` : ''}
 
-                <div class="border-t pt-4">
-                    <h4 class="font-semibold text-gray-800 mb-3">Appointment Details</h4>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
+                    <!-- Appointment Details -->
+                    ${(appointment.appointment_date || appointment.appointment_time || appointment.appointment_type) ? ` <div class="border-t pt-4">
+                        <h4 class="font-semibold text-gray-800 mb-3">Appointment Details</h4>
+                        <div class="grid grid-cols-2 gap-4">
+
+                            ${appointment.appointment_date ? ` <div>
                             <label class="text-sm font-medium text-gray-500">Date</label>
                             <p class="mt-1 text-base text-gray-900">${appointment.appointment_date}</p>
-                        </div>
-                        <div>
+                        </div>` : ''}
+
+                            ${appointment.appointment_time ? ` <div>
                             <label class="text-sm font-medium text-gray-500">Time</label>
                             <p class="mt-1 text-base text-gray-900">${appointment.appointment_time}</p>
-                        </div>
-                        <div>
+                        </div>` : ''}
+
+                            ${appointment.appointment_type ? ` <div>
                             <label class="text-sm font-medium text-gray-500">Type</label>
-                            <p class="mt-1 text-base text-gray-900">${capitalizeFirst(appointment.appointment_type)}</p>
+                            <p class="mt-1 text-base text-gray-900">
+                                ${capitalizeFirst(appointment.appointment_type)}
+                            </p>
+                        </div>` : ''}
                         </div>
-                    </div>
+                    </div>` : ''}
+
+                    ${appointment.reason_for_visit ? ` <div class="border-t pt-4">
+                        <label class="text-sm font-medium text-gray-500">Reason for Visit</label>
+                        <p class="mt-1 text-base text-gray-900">${appointment.reason_for_visit}</p>
+                    </div>` : ''}
+
+                    ${appointment.symptoms ? ` <div class="border-t pt-4">
+                        <label class="text-sm font-medium text-gray-500">Symptoms</label>
+                        <p class="mt-1 text-base text-gray-900">${appointment.symptoms}</p>
+                    </div>` : ''}
+
+                    ${appointment.notes ? ` <div class="border-t pt-4">
+                        <label class="text-sm font-medium text-gray-500">Notes</label>
+                        <p class="mt-1 text-base text-gray-900">${appointment.notes}</p>
+                    </div>` : ''}
+
+                    ${appointment.cancellation_reason ? ` <div class="border-t pt-4">
+                        <label class="text-sm font-medium text-gray-500">Cancellation Reason</label>
+                        <p class="mt-1 text-base text-red-600">${appointment.cancellation_reason}</p>
+                    </div>` : ''}
                 </div>
-
-                ${appointment.reason_for_visit ? `
-                                                <div class="border-t pt-4">
-                                                    <label class="text-sm font-medium text-gray-500">Reason for Visit</label>
-                                                    <p class="mt-1 text-base text-gray-900">${appointment.reason_for_visit}</p>
-                                                </div>
-                                            ` : ''}
-
-                ${appointment.symptoms ? `
-                                                <div class="border-t pt-4">
-                                                    <label class="text-sm font-medium text-gray-500">Symptoms</label>
-                                                    <p class="mt-1 text-base text-gray-900">${appointment.symptoms}</p>
-                                                </div>
-                                            ` : ''}
-
-                ${appointment.notes ? `
-                                                <div class="border-t pt-4">
-                                                    <label class="text-sm font-medium text-gray-500">Notes</label>
-                                                    <p class="mt-1 text-base text-gray-900">${appointment.notes}</p>
-                                                </div>
-                                            ` : ''}
-
-                ${appointment.cancellation_reason ? `
-                                                <div class="border-t pt-4">
-                                                    <label class="text-sm font-medium text-gray-500">Cancellation Reason</label>
-                                                    <p class="mt-1 text-base text-red-600">${appointment.cancellation_reason}</p>
-                                                </div>
-                                            ` : ''}
-            </div>
             `;
 
             document.getElementById('appointment-details').innerHTML = html;

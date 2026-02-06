@@ -90,8 +90,7 @@
 
     <!-- Reason -->
     <div>
-        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason for Visit <span
-                class="text-red-600">*</span></label>
+        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Reason for Visit </label>
         <textarea id="edit_reason_for_visit" name="reason_for_visit"
             class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-300"
             rows="4" placeholder="Enter reason for visit or symptoms">{{ $appointment ? $appointment->reason_for_visit : '' }}</textarea>
@@ -578,16 +577,16 @@
             }
 
             // Validate Reason for Visit
-            const reasonError = document.getElementById('reason_error');
-            if (!reasonTextarea.value.trim()) {
-                reasonTextarea.classList.add('border-red-500');
-                reasonError.textContent = 'Please provide a reason for visit.';
-                reasonError.classList.remove('hidden');
-                isValid = false;
-            } else {
-                reasonTextarea.classList.remove('border-red-500');
-                reasonError.classList.add('hidden');
-            }
+            // const reasonError = document.getElementById('reason_error');
+            // if (!reasonTextarea.value.trim()) {
+            //     reasonTextarea.classList.add('border-red-500');
+            //     reasonError.textContent = 'Please provide a reason for visit.';
+            //     reasonError.classList.remove('hidden');
+            //     isValid = false;
+            // } else {
+            //     reasonTextarea.classList.remove('border-red-500');
+            //     reasonError.classList.add('hidden');
+            // }
 
             // Validate Cancellation Reason if status is cancelled
             const cancellationReasonError = document.getElementById('cancellation_reason_error');

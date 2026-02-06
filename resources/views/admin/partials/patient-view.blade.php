@@ -1,6 +1,8 @@
 @php
-    $age = $patient->user->date_of_birth ? \Carbon\Carbon::parse($patient->user->date_of_birth)->age : 'N/A';
-    $initials = strtoupper(substr($patient->user->first_name, 0, 1) . substr($patient->user->last_name, 0, 1));
+    $user = $patient->user;
+    $age = $user?->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->age : null;
+    $initials = $user ? strtoupper(substr($user->first_name ?? '', 0, 1) . substr($user->last_name ?? '', 0, 1)) : '?';
+    $lastVisit = $patient->appointments()->latest()->first();
 @endphp
 
 <div class="space-y-6">
@@ -10,193 +12,171 @@
             {{ $initials }}
         </div>
         <div>
-            <h4 class="text-2xl font-bold text-gray-800">{{ $patient->user->full_name }}</h4>
+            @if ($user?->full_name)
+                <h4 class="text-2xl font-bold text-gray-800">{{ $user->full_name }}</h4>
+            @endif
             <p class="text-sm text-gray-500">Patient ID: #PT{{ str_pad($patient->id, 6, '0', STR_PAD_LEFT) }}</p>
         </div>
     </div>
 
     <!-- Patient Information Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
         <!-- Personal Information -->
         <div class="space-y-4">
             <h5 class="text-lg font-semibold text-gray-800 mb-3">Personal Information</h5>
 
-            <div>
-                <label class="text-sm font-medium text-gray-600">Email</label>
-                <p class="text-gray-800">{{ $patient->user->email }}</p>
-            </div>
+            @if ($user?->email)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Email</label>
+                    <p class="text-gray-800">{{ $user->email }}</p>
+                </div>
+            @endif
 
-            <div>
-                <label class="text-sm font-medium text-gray-600">Phone</label>
-                <p class="text-gray-800">{{ $patient->user->phone ?? 'N/A' }}</p>
-            </div>
+            @if ($user?->phone)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Phone</label>
+                    <p class="text-gray-800">{{ $user->phone }}</p>
+                </div>
+            @endif
 
-            <div>
-                <label class="text-sm font-medium text-gray-600">Date of Birth</label>
-                <p class="text-gray-800">
-                    @if ($patient->user->date_of_birth)
-                        {{ \Carbon\Carbon::parse($patient->user->date_of_birth)->format('d M Y') }}
-                        <span class="text-sm text-gray-500">({{ $age }} years)</span>
-                    @else
-                        N/A
-                    @endif
-                </p>
-            </div>
+            @if ($user?->date_of_birth)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Date of Birth</label>
+                    <p class="text-gray-800">
+                        {{ \Carbon\Carbon::parse($user->date_of_birth)->format('d M Y') }}
+                        @if ($age)
+                            <span class="text-sm text-gray-500">({{ $age }} years)</span>
+                        @endif
+                    </p>
+                </div>
+            @endif
 
-            <div>
-                <label class="text-sm font-medium text-gray-600">Gender</label>
-                <p class="text-gray-800">{{ ucfirst($patient->user->gender ?? 'N/A') }}</p>
-            </div>
+            @if ($user?->gender)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Gender</label>
+                    <p class="text-gray-800">{{ ucfirst($user->gender) }}</p>
+                </div>
+            @endif
 
-            <div>
-                <label class="text-sm font-medium text-gray-600">Blood Group</label>
-                <p class="text-gray-800">
-                    @if ($patient->blood_group)
+            @if ($patient->blood_group)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Blood Group</label>
+                    <p class="text-gray-800">
                         <span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">
                             {{ $patient->blood_group }}
                         </span>
-                    @else
-                        N/A
-                    @endif
-                </p>
-            </div>
+                    </p>
+                </div>
+            @endif
         </div>
 
         <!-- Additional Information -->
         <div class="space-y-4">
             <h5 class="text-lg font-semibold text-gray-800 mb-3">Additional Information</h5>
 
-            <div>
-                <label class="text-sm font-medium text-gray-600">Status</label>
-                <p>
-                    <span
-                        class="px-3 py-1 text-xs font-medium rounded-full
-                        @if ($patient->user->status === 'active') bg-green-100 text-green-700
-                        @elseif($patient->user->status === 'inactive') bg-gray-100 text-gray-700
+            @if ($user?->status)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Status</label>
+                    <p>
+                        <span
+                            class="px-3 py-1 text-xs font-medium rounded-full
+                        @if ($user->status === 'active') bg-green-100 text-green-700
+                        @elseif($user->status === 'inactive') bg-gray-100 text-gray-700
                         @else bg-amber-100 text-amber-700 @endif">
-                        {{ ucfirst($patient->user->status) }}
-                    </span>
-                </p>
-            </div>
-
-            <div>
-                <label class="text-sm font-medium text-gray-600">Address</label>
-                <p class="text-gray-800">{{ $patient->user->address ?? 'N/A' }}</p>
-            </div>
-
-            <div>
-                <label class="text-sm font-medium text-gray-600">Emergency Contact Name</label>
-                <p class="text-gray-800">{{ $patient->emergency_contact_name ?? 'N/A' }}</p>
-            </div>
-
-            <div>
-                <label class="text-sm font-medium text-gray-600">Emergency Contact Phone</label>
-                <p class="text-gray-800">{{ $patient->emergency_contact_phone ?? 'N/A' }}</p>
-            </div>
-
-            <div>
-                <label class="text-sm font-medium text-gray-600">Registered On</label>
-                <p class="text-gray-800">{{ $patient->created_at->addHours(1.0)->format('d M Y, h:i A') }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Medical Information Section -->
-    <div class="pt-6 border-t border-gray-200">
-        <h5 class="text-lg font-semibold text-gray-800 mb-3">Medical Information</h5>
-        <div class="grid grid-cols-1 gap-4">
-            <div>
-                <label class="text-sm font-medium text-gray-600">Medical History</label>
-                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
-                    <p class="text-sm text-gray-700">{{ $patient->medical_history ?? 'No medical history recorded' }}
+                            {{ ucfirst($user->status) }}
+                        </span>
                     </p>
                 </div>
-            </div>
+            @endif
 
-            <div>
-                <label class="text-sm font-medium text-gray-600">Current Medications</label>
-                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
-                    <table class="text-sm text-gray-700 text-center">
-                        <thead class="border-b">
-                            <tr>
-                                <th class="px-4 py-2">Medication Name</th>
-                                <th class="px-4 py-2">Dosage</th>
-                                <th class="px-4 py-2">Frequency</th>
-                                <th class="px-4 py-2">Duration</th>
-                                <th class="px-4 py-2">Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                // Assuming the $patient->current_medications is a single text string
-                                $medicationText = $patient->current_medications;
-
-                                // Using regular expressions to extract the parts of the string
-                                preg_match('/Name:\s*(.*?)(?=\s*Dosage:)/', $medicationText, $name);
-                                preg_match('/Dosage:\s*(.*?)(?=\s*Frequency:)/', $medicationText, $dosage);
-                                preg_match('/Frequency:\s*(.*?)(?=\s*Duration:)/', $medicationText, $frequency);
-                                preg_match('/Duration:\s*(.*?)(?=\s*Quantity:)/', $medicationText, $duration);
-                                preg_match('/Quantity:\s*(.*)/', $medicationText, $quantity);
-
-                                // Extracted values
-                                $name = $name[1] ?? 'N/A';
-                                $dosage = $dosage[1] ?? 'N/A';
-                                $frequency = $frequency[1] ?? 'N/A';
-                                $duration = $duration[1] ?? 'N/A';
-                                $quantity = $quantity[1] ?? 'N/A';
-                            @endphp
-
-                            <tr class="border-b">
-                                <td class="px-4 py-2">{{ $name }}</td>
-                                <td class="px-4 py-2">{{ $dosage }}</td>
-                                <td class="px-4 py-2">{{ $frequency }}</td>
-                                <td class="px-4 py-2">{{ $duration }}</td>
-                                <td class="px-4 py-2">{{ $quantity }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            @if ($user?->address)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Address</label>
+                    <p class="text-gray-800">{{ $user->address }}</p>
                 </div>
-            </div>
+            @endif
+
+            @if ($patient->emergency_contact_name)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Emergency Contact Name</label>
+                    <p class="text-gray-800">{{ $patient->emergency_contact_name }}</p>
+                </div>
+            @endif
+
+            @if ($patient->emergency_contact_phone)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Emergency Contact Phone</label>
+                    <p class="text-gray-800">{{ $patient->emergency_contact_phone }}</p>
+                </div>
+            @endif
+
+            @if ($patient->created_at)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Registered On</label>
+                    <p class="text-gray-800">{{ $patient->created_at->addHours(1)->format('d M Y, h:i A') }}</p>
+                </div>
+            @endif
         </div>
     </div>
 
-    <!-- Insurance Information Section -->
-    <div class="pt-6 border-t border-gray-200">
-        <h5 class="text-lg font-semibold text-gray-800 mb-3">Insurance Information</h5>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="text-sm font-medium text-gray-600">Insurance Provider</label>
-                <p class="text-gray-800">{{ $patient->insurance_provider ?? 'N/A' }}</p>
-            </div>
+    <!-- Medical Information -->
+    @if ($patient->medical_history || $patient->current_medications)
+        <div class="pt-6 border-t border-gray-200">
+            <h5 class="text-lg font-semibold text-gray-800 mb-3">Medical Information</h5>
 
-            <div>
-                <label class="text-sm font-medium text-gray-600">Insurance Number</label>
-                <p class="text-gray-800">{{ $patient->insurance_number ?? 'N/A' }}</p>
+            @if ($patient->medical_history)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Medical History</label>
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
+                        <p class="text-sm text-gray-700">{{ $patient->medical_history }}</p>
+                    </div>
+                </div>
+            @endif
+
+            @if ($patient->current_medications)
+                <div>
+                    <label class="text-sm font-medium text-gray-600">Current Medications</label>
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1">
+                        {{-- Table or text display for medications --}}
+                        <p class="text-sm text-gray-700">{{ $patient->current_medications }}</p>
+                    </div>
+                </div>
+            @endif
+        </div>
+    @endif
+
+    <!-- Insurance Information -->
+    @if ($patient->insurance_provider || $patient->insurance_number)
+        <div class="pt-6 border-t border-gray-200">
+            <h5 class="text-lg font-semibold text-gray-800 mb-3">Insurance Information</h5>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @if ($patient->insurance_provider)
+                    <div>
+                        <label class="text-sm font-medium text-gray-600">Insurance Provider</label>
+                        <p class="text-gray-800">{{ $patient->insurance_provider }}</p>
+                    </div>
+                @endif
+
+                @if ($patient->insurance_number)
+                    <div>
+                        <label class="text-sm font-medium text-gray-600">Insurance Number</label>
+                        <p class="text-gray-800">{{ $patient->insurance_number }}</p>
+                    </div>
+                @endif
             </div>
         </div>
-    </div>
+    @endif
 
-    <!-- Medical History Section -->
-    <div class="pt-6 border-t border-gray-200">
-        <h5 class="text-lg font-semibold text-gray-800 mb-3">Medical History</h5>
-        @if ($patient->appointments && $patient->appointments->count() > 0)
-            <div class="space-y-2">
-                <p class="text-sm text-gray-600">Total Appointments: {{ $patient->appointments->count() }}</p>
-                <p class="text-sm text-gray-600">Last Visit:
-                    @php
-                        $lastVisit = $patient->appointments()->latest()->first();
-                    @endphp
-                    @if ($lastVisit)
-                        {{ $lastVisit->appointment_date->format('d M Y') }}
-                    @else
-                        N/A
-                    @endif
-                </p>
-            </div>
-        @else
-            <p class="text-gray-500">No appointment history</p>
-        @endif
-    </div>
+    <!-- Appointments / Medical History -->
+    @if ($patient->appointments && $patient->appointments->count() > 0)
+        <div class="pt-6 border-t border-gray-200">
+            <h5 class="text-lg font-semibold text-gray-800 mb-3">Appointment History</h5>
+            <p class="text-sm text-gray-600">Total Appointments: {{ $patient->appointments->count() }}</p>
+            <p class="text-sm text-gray-600">Last Visit: {{ $lastVisit?->appointment_date?->format('d M Y') ?? 'N/A' }}
+            </p>
+        </div>
+    @endif
 
     <!-- Action Buttons -->
     <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">

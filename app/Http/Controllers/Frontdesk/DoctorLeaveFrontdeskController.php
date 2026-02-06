@@ -278,14 +278,16 @@ class DoctorLeaveFrontdeskController extends Controller
             $leave->update([
                 'status' => 'rejected',
                 'approved_by' => auth()->id(),
+                'approval_type' => 'frontdesk',
             ]);
 
             return response()->json([
                 'success' => true,
+                'approval_type' => $leave->approval_type,
                 'message' => 'Leave rejected successfully.',
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to reject leave: '.$e->getMessage());
+            \Log::error('Failed to reject leave: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
