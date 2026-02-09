@@ -122,9 +122,10 @@ class DoctorCSVService
      * Import doctors from CSV file
      *
      * @param $file
+     * @param array|null $columnMapping - Optional mapping of CSV columns to database fields
      * @return array ['success' => count, 'failed' => count, 'errors' => []]
      */
-    public function importDoctorsFromCSV($file)
+    public function importDoctorsFromCSV($file, $columnMapping = null)
     {
         $results = [
             'success' => 0,
@@ -171,8 +172,8 @@ class DoctorCSVService
                         $row = array_pad($row, $headerCount, '');
                     }
 
-                    // Map CSV columns to variables
-                    $data = $this->mapCSVRowToData($row, $headers);
+                    // Map CSV columns to variables, with optional custom column mapping
+                    $data = $this->mapCSVRowToData($row, $headers, $columnMapping);
 
                     // Validate required fields
                     $validation = $this->validateDoctorData($data);
@@ -208,77 +209,109 @@ class DoctorCSVService
      *
      * @param array $row
      * @param array $headers
+     * @param array|null $columnMapping - Optional custom mapping of CSV columns to database fields
      * @return array
      */
-    private function mapCSVRowToData($row, $headers)
+    private function mapCSVRowToData($row, $headers, $columnMapping = null)
     {
         $data = [];
 
         foreach ($headers as $index => $header) {
             $value = (string) ($row[$index] ?? '');
-
-            // Trim the value
             $value = trim($value);
-
-            // Normalize header names and map to data
             $header = trim($header);
 
-            switch ($header) {
-                case 'First Name':
-                    $data['first_name'] = $value;
-                    break;
-                case 'Last Name':
-                    $data['last_name'] = $value;
-                    break;
-                case 'Username':
-                    $data['username'] = $value;
-                    break;
-                case 'Email':
-                    $data['email'] = strtolower($value);
-                    break;
-                case 'Phone':
-                    $data['phone'] = $this->cleanPhoneNumber($value);
-                    break;
-                case 'Date of Birth':
-                    $data['date_of_birth'] = $value;
-                    break;
-                case 'Gender':
-                    $data['gender'] = strtolower($value);
-                    break;
-                case 'Address':
-                    $data['address'] = $value;
-                    break;
-                case 'Specialty':
-                    $data['specialty_name'] = $value;
-                    break;
-                case 'Qualification':
-                    $data['qualification'] = $value;
-                    break;
-                case 'Experience Years':
-                    $data['experience_years'] = is_numeric($value) ? (int) $value : 0;
-                    break;
-                case 'License Number':
-                    $data['license_number'] = $value;
-                    break;
-                case 'Consultation Fee':
-                    $data['consultation_fee'] = is_numeric($value) ? (float) $value : 0.0;
-                    break;
-                case 'Status':
-                    $data['status'] = !empty($value) ? strtolower($value) : 'active';
-                    break;
-                case 'Available for Booking':
-                    $data['available_for_booking'] = strtolower($value) === 'yes';
-                    break;
-                case 'Working Days':
-                    $data['working_days'] = $value;
-                    break;
-                case 'Bio':
-                    $data['bio'] = $value;
-                    break;
+            // If custom column mapping is provided, use it
+            if ($columnMapping && isset($columnMapping[$header])) {
+                $fieldName = $columnMapping[$header];
+                if (empty($fieldName)) {
+                    // Skip this column if mapping is empty
+                    continue;
+                }
+            } else {
+                // Fallback to default header-based mapping
+                $fieldName = $this->getDefaultFieldMapping($header);
+                if (empty($fieldName)) {
+                    continue;
+                }
             }
+
+            // Process the value based on the field type
+            $this->setFieldValue($data, $fieldName, $value);
         }
 
         return $data;
+    }
+
+    /**
+     * Get default field name from CSV header
+     *
+     * @param string $header
+     * @return string|null
+     */
+    private function getDefaultFieldMapping($header)
+    {
+        $mapping = [
+            'First Name' => 'first_name',
+            'Last Name' => 'last_name',
+            'Username' => 'username',
+            'Email' => 'email',
+            'Phone' => 'phone',
+            'Date of Birth' => 'date_of_birth',
+            'Gender' => 'gender',
+            'Address' => 'address',
+            'Specialty' => 'specialty_name',
+            'Qualification' => 'qualification',
+            'Experience Years' => 'experience_years',
+            'License Number' => 'license_number',
+            'Consultation Fee' => 'consultation_fee',
+            'Status' => 'status',
+            'Available for Booking' => 'available_for_booking',
+            'Working Days' => 'working_days',
+            'Bio' => 'bio',
+        ];
+
+        return $mapping[$header] ?? null;
+    }
+
+    /**
+     * Set field value in data array with proper type conversion
+     *
+     * @param array $data
+     * @param string $fieldName
+     * @param string $value
+     */
+    private function setFieldValue(&$data, $fieldName, $value)
+    {
+        switch ($fieldName) {
+            case 'email':
+                $data['email'] = strtolower($value);
+                break;
+            case 'phone':
+                $data['phone'] = $this->cleanPhoneNumber($value);
+                break;
+            case 'gender':
+                $data['gender'] = strtolower($value);
+                break;
+            case 'experience_years':
+                $data['experience_years'] = is_numeric($value) ? (int) $value : 0;
+                break;
+            case 'consultation_fee':
+                $data['consultation_fee'] = is_numeric($value) ? (float) $value : 0.0;
+                break;
+            case 'status':
+                $data['status'] = !empty($value) ? strtolower($value) : 'active';
+                break;
+            case 'available_for_booking':
+                $data['available_for_booking'] = strtolower($value) === 'yes' || strtolower($value) === '1';
+                break;
+            case 'slot_duration':
+                $data['slot_duration'] = is_numeric($value) ? (int) $value : 30;
+                break;
+            default:
+                $data[$fieldName] = $value;
+                break;
+        }
     }
 
     /**

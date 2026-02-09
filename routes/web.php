@@ -110,6 +110,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // CSV Import/Export routes
     Route::get('/doctors/export/csv', [DoctorsController::class, 'exportCSV'])->name('doctors.export-csv');
     Route::post('/doctors/import/csv', [DoctorsController::class, 'importCSV'])->name('doctors.import-csv');
+    Route::post('/doctors/csv-headers', [DoctorsController::class, 'getCSVHeaders'])->name('doctors.csv-headers');
 
     Route::get('/patients', [PatientController::class, 'index'])->name('patients');
     Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patient-view');

@@ -430,9 +430,10 @@ class DoctorsController extends Controller
     public function importCSV(Request $request)
     {
         try {
-            // Always validate first
+            // Validate file upload
             $validated = $request->validate([
                 'csv_file' => 'required|file|mimes:csv,txt|max:5120', // 5MB max
+                'column_mapping' => 'nullable|json', // Column mapping is optional but must be valid JSON if provided
             ], [
                 'csv_file.required' => 'Please select a CSV file',
                 'csv_file.mimes' => 'File must be a CSV file',
@@ -445,8 +446,18 @@ class DoctorsController extends Controller
                 throw new \Exception('File upload failed or file is invalid');
             }
 
-            // Import the CSV
-            $result = $this->csvService->importDoctorsFromCSV($file);
+            // Parse column mapping if provided
+            $columnMapping = null;
+            if ($request->has('column_mapping')) {
+                try {
+                    $columnMapping = json_decode($request->input('column_mapping'), true);
+                } catch (\Exception $e) {
+                    throw new \Exception('Invalid column mapping format');
+                }
+            }
+
+            // Import the CSV with optional column mapping
+            $result = $this->csvService->importDoctorsFromCSV($file, $columnMapping);
 
             $message = "Import completed! Successfully imported {$result['success']} doctor(s).";
             if ($result['failed'] > 0) {
@@ -486,6 +497,100 @@ class DoctorsController extends Controller
             }
 
             return back()->with('error', 'Import failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get CSV headers for field mapping
+     */
+    public function getCSVHeaders(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'csv_file' => 'required|file|mimes:csv,txt|max:5120',
+            ], [
+                'csv_file.required' => 'Please select a CSV file',
+                'csv_file.mimes' => 'File must be a CSV file',
+                'csv_file.max' => 'File size must not exceed 5MB',
+            ]);
+
+            $file = $request->file('csv_file');
+
+            if (!$file || !$file->isValid()) {
+                throw new \Exception('File upload failed or file is invalid');
+            }
+
+            // Read file and extract headers
+            $fileHandle = fopen($file->getRealPath(), 'r');
+            if ($fileHandle === false) {
+                throw new \Exception('Unable to open CSV file');
+            }
+
+            $headers = fgetcsv($fileHandle);
+            fclose($fileHandle);
+
+            if ($headers === false || empty($headers)) {
+                throw new \Exception('CSV file is empty or invalid');
+            }
+
+            // Trim and clean headers
+            $headers = array_map('trim', $headers);
+            $headers = array_filter($headers); // Remove empty headers
+            $headers = array_values($headers); // Reindex array
+
+            // Define available form fields for mapping
+            $formFields = [
+                'first_name' => 'First Name',
+                'last_name' => 'Last Name',
+                'username' => 'Username',
+                'email' => 'Email',
+                'phone' => 'Phone',
+                'date_of_birth' => 'Date of Birth',
+                'gender' => 'Gender',
+                'address' => 'Address',
+                'specialty_name' => 'Specialty',
+                'qualification' => 'Qualification',
+                'experience_years' => 'Experience Years',
+                'license_number' => 'License Number',
+                'consultation_fee' => 'Consultation Fee',
+                'status' => 'Status',
+                'available_for_booking' => 'Available for Booking',
+                'working_days' => 'Working Days',
+                'bio' => 'Bio',
+            ];
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'msg' => 'CSV headers retrieved successfully',
+                    'csv_headers' => $headers,
+                    'form_fields' => $formFields,
+                ], 200);
+            }
+
+            return back()->with('headers', $headers)->with('form_fields', $formFields);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+            return back()->withErrors($e->errors())->withInput();
+
+        } catch (\Exception $e) {
+            \Log::error('CSV Header Extraction Error: ' . $e->getMessage());
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 }
