@@ -102,6 +102,7 @@
                         <div class="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
                             <span id="patient-age" class="text-gray-600">-</span>
                             <span class="text-gray-400">•</span>
+
                             <span id="patient-gender" class="text-gray-600">-</span>
                             <span id="patient-blood-separator" class="text-gray-400">•</span>
                             <span id="patient-blood" class="text-gray-600">Blood Type: N/A</span>
@@ -622,14 +623,21 @@
                     document.getElementById('appointment-symptoms').textContent = data.appointment.symptoms ||
                         'Not specified';
 
+                    // =======================
                     // Patient Info
-                    const patientName = data.patient.name;
-                    const dob = data.patient.date_of_birth;
+                    // =======================
+                    const patient = data.patient || {};
 
+                    // -----------------------
+                    // Helpers
+                    // -----------------------
                     function calculateAge(dob) {
-                        const birth = new Date(Date.parse(dob));
+                        if (!dob) return null;
+
+                        const birth = new Date(dob);
                         const today = new Date();
                         let age = today.getFullYear() - birth.getFullYear();
+
                         if (
                             today.getMonth() < birth.getMonth() ||
                             (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
@@ -638,23 +646,159 @@
                         }
                         return age;
                     }
-                    const age = dob ? calculateAge(dob) : 'N/A';
 
-                    document.getElementById('patient-avatar').src = data.patient.profile_image ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(patientName)}&background=10b981&color=fff`;
-                    document.getElementById('patient-name').textContent = patientName;
-                    document.getElementById('patient-id').textContent = data.patient.patient_number;
-                    document.getElementById('patient-age').textContent = `Age: ${age}`;
-                    document.getElementById('patient-gender').textContent = data.patient.gender;
-                    document.getElementById('patient-blood').textContent =
-                        `Blood Type: ${data.patient.blood_group || 'N/A'}`;
-                    document.getElementById('patient-email').textContent = data.patient.email || 'N/A';
-                    document.getElementById('patient-phone').textContent = data.patient.phone || 'N/A';
-                    document.getElementById('patient-address').textContent = data.patient.address || 'Not provided';
-                    document.getElementById('patient-dob').textContent = data.patient.date_of_birth || 'Not provided';
-                    document.getElementById('patient-emergency').textContent = data.patient.emergency_contact_name ?
-                        `${data.patient.emergency_contact_name}: ${data.patient.emergency_contact_phone || 'N/A'}` :
-                        'Not provided';
+                    // Treat these values as EMPTY
+                    function isValid(value) {
+                        return value !== null &&
+                            value !== undefined &&
+                            value !== '' &&
+                            value !== '-' &&
+                            value !== 'N/A' &&
+                            value !== 'Unknown';
+                    }
+
+                    function show(el) {
+                        if (el) el.style.display = '';
+                    }
+
+                    function hide(el) {
+                        if (el) el.style.display = 'none';
+                    }
+
+                    // -----------------------
+                    // Name
+                    // -----------------------
+                    const patientName = isValid(patient.name) ? patient.name : '';
+
+                    if (patientName) {
+                        document.getElementById('patient-name').textContent = patientName;
+                        show(document.getElementById('patient-name'));
+                    } else {
+                        hide(document.getElementById('patient-name'));
+                    }
+
+                    // -----------------------
+                    // Avatar (always visible)
+                    // -----------------------
+                    document.getElementById('patient-avatar').src =
+                        isValid(patient.profile_image) ?
+                        patient.profile_image :
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(patientName || 'Patient')}&background=10b981&color=fff`;
+
+                    // -----------------------
+                    // Patient ID
+                    // -----------------------
+                    if (isValid(patient.patient_number)) {
+                        document.getElementById('patient-id').textContent = patient.patient_number;
+                        show(document.getElementById('patient-id'));
+                    } else {
+                        hide(document.getElementById('patient-id'));
+                    }
+
+                    // -----------------------
+                    // Age & DOB
+                    // -----------------------
+                    const dob = isValid(patient.date_of_birth) ? patient.date_of_birth : null;
+                    const age = calculateAge(dob);
+
+                    const ageEl = document.getElementById('patient-age');
+                    const ageGenderSeparator = ageEl.nextElementSibling; // • between age & gender
+
+                    if (age !== null) {
+                        ageEl.textContent = `Age: ${age}`;
+                        show(ageEl);
+                    } else {
+                        hide(ageEl);
+                    }
+
+                    // -----------------------
+                    // Gender
+                    // -----------------------
+                    const genderEl = document.getElementById('patient-gender');
+
+                    if (isValid(patient.gender)) {
+                        genderEl.textContent = patient.gender;
+                        show(genderEl);
+                    } else {
+                        hide(genderEl);
+                    }
+
+                    // Age • Gender separator
+                    if (age !== null && isValid(patient.gender)) {
+                        show(ageGenderSeparator);
+                    } else {
+                        hide(ageGenderSeparator);
+                    }
+
+                    // -----------------------
+                    // Blood Group
+                    // -----------------------
+                    const bloodEl = document.getElementById('patient-blood');
+                    const bloodSeparator = document.getElementById('patient-blood-separator');
+
+                    if (isValid(patient.blood_group)) {
+                        bloodEl.textContent = `Blood Type: ${patient.blood_group}`;
+                        show(bloodEl);
+                        show(bloodSeparator);
+                    } else {
+                        hide(bloodEl);
+                        hide(bloodSeparator);
+                    }
+
+                    // -----------------------
+                    // Email
+                    // -----------------------
+                    if (isValid(patient.email)) {
+                        document.getElementById('patient-email').textContent = patient.email;
+                        show(document.getElementById('patient-email').parentElement);
+                    } else {
+                        hide(document.getElementById('patient-email').parentElement);
+                    }
+
+                    // -----------------------
+                    // Phone
+                    // -----------------------
+                    if (isValid(patient.phone)) {
+                        document.getElementById('patient-phone').textContent = patient.phone;
+                        show(document.getElementById('patient-phone').parentElement);
+                    } else {
+                        hide(document.getElementById('patient-phone').parentElement);
+                    }
+
+                    // -----------------------
+                    // Address
+                    // -----------------------
+                    if (isValid(patient.address)) {
+                        document.getElementById('patient-address').textContent = patient.address;
+                        show(document.getElementById('patient-address-container'));
+                    } else {
+                        hide(document.getElementById('patient-address-container'));
+                    }
+
+                    // -----------------------
+                    // DOB display
+                    // -----------------------
+                    if (dob) {
+                        document.getElementById('patient-dob').textContent = dob;
+                        show(document.getElementById('patient-dob-container'));
+                    } else {
+                        hide(document.getElementById('patient-dob-container'));
+                    }
+
+                    // -----------------------
+                    // Emergency Contact
+                    // -----------------------
+                    const emergencyText =
+                        isValid(patient.emergency_contact_name) || isValid(patient.emergency_contact_phone) ?
+                        `${patient.emergency_contact_name || ''} ${patient.emergency_contact_phone || ''}`.trim() :
+                        '';
+
+                    if (isValid(emergencyText)) {
+                        document.getElementById('patient-emergency').textContent = emergencyText;
+                        show(document.getElementById('patient-emergency-container'));
+                    } else {
+                        hide(document.getElementById('patient-emergency-container'));
+                    }
 
                     // Medical History - Always show sections
                     const allergiesList = document.getElementById('allergies-list');

@@ -107,6 +107,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/doctors/{id}', [DoctorsController::class, 'update'])->name('doctors.update');
     Route::delete('/doctors/{id}', [DoctorsController::class, 'destroy'])->name('doctors.destroy');
 
+    // CSV Import/Export routes
+    Route::get('/doctors/export/csv', [DoctorsController::class, 'exportCSV'])->name('doctors.export-csv');
+    Route::post('/doctors/import/csv', [DoctorsController::class, 'importCSV'])->name('doctors.import-csv');
+
     Route::get('/patients', [PatientController::class, 'index'])->name('patients');
     Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patient-view');
     Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])->name('patient-edit');

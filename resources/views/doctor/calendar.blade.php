@@ -1077,13 +1077,13 @@
                                             <span class="text-gray-700">${apt.type}</span>
                                         </div>
                                         ${apt.reason ? `
-                                                                                                                                                                                        <div class="flex items-start text-sm">
-                                                                                                                                                                                            <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                                                                                                                                                            </svg>
-                                                                                                                                                                                            <span class="text-gray-600">${apt.reason}</span>
-                                                                                                                                                                                        </div>
-                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                            <div class="flex items-start text-sm">
+                                                                                                                                                                                                                                <svg class="w-4 h-4 mr-2 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                                                                                                                                                                                </svg>
+                                                                                                                                                                                                                                <span class="text-gray-600">${apt.reason}</span>
+                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                            ` : ''}
                                     </div>
                                 </div>
                             `).join('');
@@ -1190,90 +1190,97 @@
         }
 
         function renderAppointmentDetails(data) {
-            const apt = data.appointment;
-            const patient = data.patient;
+            const apt = data.appointment || {};
+            const patient = data.patient || {};
 
             const statusColors = {
-                'confirmed': 'bg-green-100 text-green-800',
-                'pending': 'bg-amber-100 text-amber-800',
-                'completed': 'bg-sky-100 text-sky-800',
-                'cancelled': 'bg-red-100 text-red-800'
+                confirmed: 'bg-green-100 text-green-800',
+                pending: 'bg-amber-100 text-amber-800',
+                completed: 'bg-sky-100 text-sky-800',
+                cancelled: 'bg-red-100 text-red-800'
             };
 
             const modalContent = document.getElementById('appointmentModalContent');
 
             function formatType(str) {
-                return str
-                    .split('_')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
+                if (!str) return '';
+                return str.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             }
+
+            function calculateAge(dob) {
+                if (!dob) return null;
+                const birthDate = new Date(dob);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+
+                const m = today.getMonth() - birthDate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                return age;
+            }
+
+            // Patient Name Logic
+            const fullName = [patient.first_name || '', patient.last_name || ''].filter(Boolean).join(' ');
+            const age = calculateAge(patient.date_of_birth);
 
             modalContent.innerHTML = `
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-gray-500">#${apt.appointment_number}</span>
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusColors[apt.status] || 'bg-gray-100 text-gray-800'}">
-                            ${apt.status.toUpperCase()}
-                        </span>
+                        ${apt.appointment_number ? ` <span class="text-sm font-medium text-gray-500"> #${apt.appointment_number} </span>` : ''}
+                        ${apt.status ? `<span class="px-3 py-1 rounded-full text-xs font-semibold ${statusColors[apt.status] || 'bg-gray-100 text-gray-800'}"> ${apt.status.toUpperCase()} </span>` : ''}
                     </div>
-                    
-                    <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                        <div>
-                            <p class="text-xs text-gray-500 uppercase mb-1">Date</p>
-                            <p class="text-sm font-semibold text-gray-800">${apt.date}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500 uppercase mb-1">Time</p>
-                            <p class="text-sm font-semibold text-gray-800">${apt.time}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500 uppercase mb-1">Type</p>
-                            <p class="text-sm font-semibold text-gray-800">${formatType(apt.type)}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500 uppercase mb-1">Duration</p>
-                            <p class="text-sm font-semibold text-gray-800">${apt.duration} minutes</p>
-                        </div>
-                    </div>
-                    
-                    <div class="border-t pt-4">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                            Patient Information 
-                        </h4>
-                        <div class="space-y-2 pl-7">
-                            <p class="text-sm"><span class="font-medium text-gray-700">Name:</span> ${patient.name}</p>
-                            <p class="text-sm"><span class="font-medium text-gray-700">Age:</span> ${patient.age || 'N/A'} years</p>
-                            <p class="text-sm"><span class="font-medium text-gray-700">Gender:</span> ${patient.gender}</p>
-                            <p class="text-sm"><span class="font-medium text-gray-700">Phone:</span> ${patient.phone || 'N/A'}</p>
-                            <p class="text-sm"><span class="font-medium text-gray-700">Email:</span> ${patient.email || 'N/A'}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="border-t pt-4">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Appointment Details</h4>
-                        <div class="space-y-2">
-                            <p class="text-sm"><span class="font-medium text-gray-700">Reason:</span> ${apt.reason || 'Not specified'}</p>
-                            ${apt.symptoms ? `<p class="text-sm"><span class="font-medium text-gray-700">Symptoms:</span> ${apt.symptoms}</p>` : ''}
-                            ${apt.notes ? `<p class="text-sm"><span class="font-medium text-gray-700">Notes:</span> ${apt.notes}</p>` : ''}
-                        </div>
-                    </div>
-                    
+
+                    ${(apt.date || apt.time || apt.type || apt.duration) ? `<div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg"> 
+                                ${apt.date ? `<div> <p class="text-xs text-gray-500 uppercase mb-1">Date</p> <p class="text-sm font-semibold text-gray-800">${apt.date}</p> </div>` : ''}
+
+                                ${apt.time ? `<div> <p class="text-xs text-gray-500 uppercase mb-1">Time</p> <p class="text-sm font-semibold text-gray-800">${apt.time}</p> </div>` : ''}
+
+                                ${apt.type ? `<div> <p class="text-xs text-gray-500 uppercase mb-1">Type</p> <p class="text-sm font-semibold text-gray-800">${formatType(apt.type)}</p> </div>` : ''}
+
+                                ${apt.duration ? `<div> <p class="text-xs text-gray-500 uppercase mb-1">Duration</p> <p class="text-sm font-semibold text-gray-800">${apt.duration} minutes</p> </div>` : ''}
+                            </div>` : ''}
+
+                    ${(fullName || age || patient.gender || patient.phone || patient.email) ? ` <div class="border-t pt-4">
+                                <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    Patient Information
+                                </h4>
+                                <div class="space-y-2 pl-7">
+                                    ${fullName ? `<p class="text-sm"><span class="font-medium">Name:</span> ${fullName}</p>` : ''}
+                                    ${age !== null ? `<p class="text-sm"><span class="font-medium">Age:</span> ${age} years</p>` : ''}
+                                    ${patient.gender ? `<p class="text-sm"><span class="font-medium">Gender:</span> ${patient.gender}</p>` : ''}
+                                    ${patient.phone ? `<p class="text-sm"><span class="font-medium">Phone:</span> ${patient.phone}</p>` : ''}
+                                    ${patient.email ? `<p class="text-sm"><span class="font-medium">Email:</span> ${patient.email}</p>` : ''}
+                                </div>
+                            </div>` : ''}
+
+                    ${(apt.reason || apt.symptoms || apt.notes) ? `<div class="border-t pt-4">
+                                <h4 class="text-sm font-semibold text-gray-700 mb-3">Appointment Details</h4>
+                                <div class="space-y-2">
+                                    ${apt.reason ? `<p class="text-sm"><span class="font-medium">Reason:</span> ${apt.reason}</p>` : ''}
+                                    ${apt.symptoms ? `<p class="text-sm"><span class="font-medium">Symptoms:</span> ${apt.symptoms}</p>` : ''}
+                                    ${apt.notes ? `<p class="text-sm"><span class="font-medium">Notes:</span> ${apt.notes}</p>` : ''}
+                                </div>
+                            </div>` : ''}
+
                     <div class="border-t pt-4 flex gap-3">
-                        <a href="/doctor/appointment-details/${apt.id}" 
-                           class="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 text-sm font-medium text-center">
+                        <a href="/doctor/appointment-details/${apt.id}"
+                        class="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 text-sm font-medium text-center">
                             View Full Details
                         </a>
-                        <button onclick="closeAppointmentModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium">
+                        <button onclick="closeAppointmentModal()"
+                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium">
                             Close
                         </button>
                     </div>
                 </div>
             `;
         }
+
 
         function showAppointmentError(message) {
             const modalContent = document.getElementById('appointmentModalContent');

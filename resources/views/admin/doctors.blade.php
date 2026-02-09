@@ -5,9 +5,32 @@
 @section('page-title', 'Doctors Management')
 
 @section('header-actions')
-    <a href="{{ route('admin.doctors.add') }}"
-        class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium">+ Add
-        Doctor</a>
+    <div class="flex flex-wrap gap-2">
+        <!-- Export CSV Button -->
+        <a href="{{ route('admin.doctors.export-csv') }}"
+            class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            Export CSV
+        </a>
+
+        <!-- Import CSV Button -->
+        <button onclick="openImportModal()"
+            class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            Bulk Import
+        </button>
+
+        <!-- Add Doctor Button -->
+        <a href="{{ route('admin.doctors.add') }}"
+            class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-sky-600 hover:bg-sky-700 rounded-lg font-medium">+
+            Add
+            Doctor</a>
+    </div>
 @endsection
 
 @section('content')
@@ -117,7 +140,8 @@
 
                         <!-- Professional Information -->
                         <div>
-                            <h4 class="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-4 flex items-center">
+                            <h4
+                                class="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-4 flex items-center">
                                 <svg class="w-5 h-5 mr-2 text-sky-500" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -671,5 +695,262 @@
 
         document.getElementById('specialtyFilter').addEventListener('change', fetchDoctors);
         document.getElementById('statusFilter').addEventListener('change', fetchDoctors);
+
+        // CSV Import Modal Functions
+        function openImportModal() {
+            const modal = document.getElementById('importCSVModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeImportModal() {
+            const modal = document.getElementById('importCSVModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            // Reset form
+            document.getElementById('importCSVForm').reset();
+            document.getElementById('importProgress').classList.add('hidden');
+            document.getElementById('importResultsDiv').classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Import modal backdrop close - DISABLED during import
+            const importModal = document.getElementById('importCSVModal');
+            if (importModal) {
+                importModal.addEventListener('click', function(e) {
+                    // Don't close if import is in progress
+                    const progressDiv = document.getElementById('importProgress');
+                    const isImporting = !progressDiv.classList.contains('hidden');
+
+                    if (e.target === this && !isImporting) {
+                        closeImportModal();
+                    }
+                });
+            }
+
+            // Import form submit
+            const importForm = document.getElementById('importCSVForm');
+            if (importForm) {
+                importForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const fileInput = document.getElementById('csvFileInput');
+                    const formData = new FormData();
+                    formData.append('csv_file', fileInput.files[0]);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]')
+                        .content);
+
+                    const progressDiv = document.getElementById('importProgress');
+                    const progressBar = document.getElementById('importProgressBar');
+                    const progressText = document.getElementById('importProgressText');
+                    const importBtn = document.querySelector('#importCSVForm button[type="submit"]');
+                    const cancelBtn = document.querySelector('#importCSVForm button[type="button"]');
+                    const resultsDiv = document.getElementById('importResultsDiv');
+                    const resultsContent = document.getElementById('importResultsContent');
+
+                    try {
+                        // Disable buttons and show progress
+                        importBtn.disabled = true;
+                        importBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        cancelBtn.disabled = true;
+                        cancelBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        fileInput.disabled = true;
+
+                        progressDiv.classList.remove('hidden');
+                        resultsDiv.classList.add('hidden');
+                        progressBar.style.width = '30%';
+                        progressText.textContent = '📤 Uploading file...';
+                        progressBar.classList.remove('bg-red-500', 'bg-green-500');
+                        progressBar.classList.add('bg-blue-500');
+
+                        const response = await fetch('{{ route('admin.doctors.import-csv') }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        progressBar.style.width = '60%';
+                        progressText.textContent = '⚙️ Processing doctors...';
+
+                        let data;
+                        try {
+                            data = await response.json();
+                        } catch (jsonError) {
+                            console.error('JSON Parse Error:', jsonError);
+                            const responseText = await response.text();
+                            console.error('Response Text:', responseText);
+                            throw new Error('Invalid response from server: ' + responseText.substring(0,
+                                200));
+                        }
+
+                        progressBar.style.width = '90%';
+                        progressText.textContent = '✔️ Finalizing...';
+
+                        if (!response.ok || !data.success) {
+                            throw new Error(data.message || 'Import failed');
+                        }
+
+                        // Success
+                        progressBar.style.width = '100%';
+                        progressBar.classList.remove('bg-blue-500', 'bg-red-500');
+                        progressBar.classList.add('bg-green-500');
+                        progressText.textContent = `✅ ${data.message}`;
+
+                        // Show results
+                        setTimeout(() => {
+                            resultsDiv.classList.remove('hidden');
+                            const hasErrors = data.data.failed > 0;
+                            resultsContent.innerHTML = `
+                                <div class="${hasErrors ? 'bg-yellow-50 border-l-4 border-yellow-500' : 'bg-green-50 border-l-4 border-green-500'} p-4 rounded">
+                                    <h3 class="${hasErrors ? 'font-semibold text-yellow-800 mb-2' : 'font-semibold text-green-800 mb-2'}">✓ Import Completed</h3>
+                                    <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Imported:</strong> ${data.data.success} doctor(s)</p>
+                                    <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Failed:</strong> ${data.data.failed}</p>
+                                    ${data.data.errors.length > 0 ? `
+                                                            <div class="mt-3">
+                                                                <strong class="text-red-800">Errors (showing first 10):</strong>
+                                                                <div class="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                                                                    ${data.data.errors.slice(0, 10).map(err => {
+                                                                        const match = err.match(/^\[([^\]]+)\]\s*(.*)/);
+                                                                        const field = match ? match[1] : 'General';
+                                                                        const message = match ? match[2] : err;
+                                                                        return `<div class="text-sm p-2 bg-red-100 rounded border-l-3 border-red-500 text-red-800">
+                                                                <span class="font-semibold text-red-900">[${field}]</span> ${message}
+                                                            </div>`;
+                                                                    }).join('')}
+                                                                    ${data.data.errors.length > 10 ? `<div class="text-sm p-2 bg-red-50 rounded text-red-700 font-semibold">... and ${data.data.errors.length - 10} more errors</div>` : ''}
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
+                                </div>
+                            `;
+
+                            // Re-enable buttons
+                            importBtn.disabled = false;
+                            importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            cancelBtn.disabled = false;
+                            cancelBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            fileInput.disabled = false;
+
+                            // Show notification and refresh
+                            showNotification(data.message, 'success');
+                            fetchDoctors(); // Refresh the doctors list
+
+                            // Auto-close only if no errors
+                            if (!hasErrors) {
+                                setTimeout(() => {
+                                    closeImportModal();
+                                }, 3000);
+                            }
+                        }, 800);
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        progressBar.style.width = '100%';
+                        progressBar.classList.remove('bg-blue-500', 'bg-green-500');
+                        progressBar.classList.add('bg-red-500');
+                        progressText.textContent = `❌ Error: ${error.message}`;
+
+                        // Re-enable buttons
+                        importBtn.disabled = false;
+                        importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        cancelBtn.disabled = false;
+                        cancelBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        fileInput.disabled = false;
+
+                        // Show error in results
+                        setTimeout(() => {
+                            resultsDiv.classList.remove('hidden');
+                            resultsContent.innerHTML = `
+                                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                                    <h3 class="font-semibold text-red-800 mb-2">✗ Import Failed</h3>
+                                    <p class="text-sm text-red-700">${error.message}</p>
+                                </div>
+                            `;
+                        }, 800);
+
+                        showNotification(`Import error: ${error.message}`, 'error');
+                        // DO NOT auto-close modal on error - keep it open for user review
+                    }
+                });
+            }
+        });
     </script>
+
+    <!-- Import CSV Modal -->
+    <div id="importCSVModal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white">Import Doctors from CSV</h2>
+                <button onclick="closeImportModal()" class="text-white hover:text-gray-200 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6">
+                <!-- Instructions -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <p class="text-sm text-blue-800">
+                        <strong>CSV Format Required:</strong><br>
+                        Your CSV file should include: First Name, Last Name, Username, Email, Phone, Date of Birth, Gender,
+                        Address, Specialty, Qualification, Experience Years, License Number, Consultation Fee, Status,
+                        Available for Booking, Working Days, Bio
+                    </p>
+                </div>
+
+                <!-- File Input Form -->
+                <form id="importCSVForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <label for="csvFileInput" class="block text-sm font-medium text-gray-700 mb-2">
+                            Select CSV File
+                        </label>
+                        <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <p class="text-xs text-gray-500 mt-1">Max file size: 5MB</p>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div id="importProgress" class="hidden mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <p id="importProgressText" class="text-sm font-medium text-gray-700">Importing...</p>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="importProgressBar"
+                                class="bg-blue-500 h-3 rounded-full transition-all duration-300 ease-out"
+                                style="width: 0%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Import Results -->
+                    <div id="importResultsDiv" class="hidden mb-4">
+                        <div id="importResultsContent"></div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex gap-3">
+                        <button type="submit"
+                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            Import
+                        </button>
+                        <button type="button" onclick="closeImportModal()"
+                            class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
