@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\Admin\PatientService;
+use App\Services\Admin\PatientExportImportService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class PatientController extends Controller
 {
     protected PatientService $patientService;
+    protected PatientExportImportService $csvService;
 
-    public function __construct(PatientService $patientService)
+    public function __construct(PatientService $patientService, PatientExportImportService $csvService)
     {
         $this->patientService = $patientService;
+        $this->csvService = $csvService;
     }
 
     public function index(Request $request)
@@ -173,4 +176,72 @@ class PatientController extends Controller
             return redirect()->back()->with('error', 'An error occurred while deleting the patient');
         }
     }
+
+    /**
+     * Export patients to CSV
+     */
+    public function exportCSV()
+    {
+        return $this->csvService->exportPatientsToCSV();
+    }
+
+    /**
+     * Import patients from CSV
+     */
+
+    public function importCSV(Request $request)
+    {
+        try {
+            // Validate the CSV file
+            $request->validate([
+                'csv_file' => 'required|file|mimes:csv,txt|max:5120',
+            ], [
+                'csv_file.required' => 'Please select a CSV file to import.',
+                'csv_file.mimes' => 'The file must be a CSV file.',
+                'csv_file.max' => 'The file size must not exceed 5MB.',
+            ]);
+
+            $file = $request->file('csv_file');
+
+            if (!$file || !$file->isValid()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid file upload',
+                    'errors' => ['csv_file' => ['The uploaded file is invalid.']],
+                ], 422);
+            }
+
+            // Call your CSV service
+            $result = $this->csvService->importPatientsFromCSV($file);
+
+            $message = "Import completed! Successfully imported {$result['success']} patient(s).";
+
+            if ($result['failed'] > 0) {
+                $message .= " {$result['failed']} patient(s) failed to import.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'details' => $result, // details should include success, failed, and errors array
+            ]);
+        } catch (ValidationException $e) {
+            \Log::error('CSV Import Validation Error: ' . json_encode($e->errors()));
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('CSV Import Error: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Import failed: ' . $e->getMessage(),
+                'errors' => ['csv_file' => [$e->getMessage()]],
+            ], 422);
+        }
+    }
+
 }

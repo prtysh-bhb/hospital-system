@@ -433,70 +433,45 @@ class DoctorsController extends Controller
             // Validate file upload
             $validated = $request->validate([
                 'csv_file' => 'required|file|mimes:csv,txt|max:5120', // 5MB max
-                'column_mapping' => 'nullable|json', // Column mapping is optional but must be valid JSON if provided
             ], [
-                'csv_file.required' => 'Please select a CSV file',
-                'csv_file.mimes' => 'File must be a CSV file',
-                'csv_file.max' => 'File size must not exceed 5MB',
+                'csv_file.required' => 'Please select a CSV file.',
+                'csv_file.mimes' => 'File must be a CSV file.',
+                'csv_file.max' => 'File size must not exceed 5MB.',
             ]);
 
             $file = $request->file('csv_file');
 
             if (!$file || !$file->isValid()) {
-                throw new \Exception('File upload failed or file is invalid');
+                throw new \Exception('File upload failed or file is invalid.');
             }
 
-            // Parse column mapping if provided
-            $columnMapping = null;
-            if ($request->has('column_mapping')) {
-                try {
-                    $columnMapping = json_decode($request->input('column_mapping'), true);
-                } catch (\Exception $e) {
-                    throw new \Exception('Invalid column mapping format');
-                }
-            }
+            // Import the CSV
+            $result = $this->csvService->importDoctorsFromCSV($file);
 
-            // Import the CSV with optional column mapping
-            $result = $this->csvService->importDoctorsFromCSV($file, $columnMapping);
-
-            $message = "Import completed! Successfully imported {$result['success']} doctor(s).";
+            $message = "Successfully imported {$result['success']} doctor(s).";
             if ($result['failed'] > 0) {
-                $message .= " {$result['failed']} row(s) failed.";
+                $message .= " {$result['failed']} row(s) failed kkk.";
             }
 
-            // Always return JSON for AJAX requests
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'data' => $result,
-                ], 200);
-            }
-
-            return back()->with('success', $message);
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $result,
+            ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Validation errors
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed: ' . implode(', ', array_values($e->errors())[0] ?? []),
-                ], 422);
-            }
-            return back()->withErrors($e->errors())->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => implode(', ', array_values($e->errors())[0] ?? []),
+            ], 422);
 
         } catch (\Exception $e) {
-            // Other errors
             \Log::error('CSV Import Error: ' . $e->getMessage());
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Import failed: ' . $e->getMessage(),
-                ], 422);
-            }
-
-            return back()->with('error', 'Import failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
         }
     }
 

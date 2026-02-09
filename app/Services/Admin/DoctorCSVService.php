@@ -405,6 +405,19 @@ class DoctorCSVService
         DB::beginTransaction();
 
         try {
+
+            // Check if a user exists with the given email or phone
+            $existingUser = User::where('email', $data['email'])->orWhere('phone', $data['phone'])->first();
+
+            if ($existingUser) {
+                if ($existingUser->email === $data['email'] && $existingUser->id != ($user->id ?? 0)) {
+                    throw new Exception('This email is already taken.');
+                }
+                if ($existingUser->phone === $data['phone'] && $existingUser->id != ($user->id ?? 0)) {
+                    throw new Exception('This phone number is already taken.');
+                }
+            }
+
             // Check if user already exists by email
             $user = User::where('email', $data['email'])->first();
 
@@ -420,24 +433,15 @@ class DoctorCSVService
                     'status' => $data['status'] ?? 'active',
                 ]);
             } else {
-                // Generate username if not provided
-                $username = $data['username'] ?? $this->generateUsername($data['first_name'], $data['last_name']);
-
-                // Check if username already exists
-                $usernameCount = User::where('username', $username)->count();
-                if ($usernameCount > 0) {
-                    $username = $username . ($usernameCount + 1);
-                }
-
                 // Create new user
                 $user = User::create([
                     'role' => 'doctor',
                     'first_name' => $data['first_name'],
                     'last_name' => $data['last_name'],
-                    'username' => $username,
+                    'username' => $data['email'],
                     'email' => $data['email'],
                     'phone' => $data['phone'],
-                    'password' => Hash::make($data['phone']), // Default password is phone number
+                    'password' => Hash::make($data['phone']),
                     'date_of_birth' => Carbon::parse($data['date_of_birth'])->format('Y-m-d'),
                     'gender' => $data['gender'],
                     'address' => $data['address'],

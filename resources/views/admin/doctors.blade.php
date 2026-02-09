@@ -295,6 +295,78 @@
         </div>
     </div>
 
+    <!-- Import CSV Modal -->
+    <div id="importCSVModal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white">Import Doctors from CSV</h2>
+                <button onclick="closeImportModal()" class="text-white hover:text-gray-200 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6">
+                <!-- Instructions -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <p class="text-sm text-blue-800">
+                        <strong>CSV Format Required:</strong><br>
+                        Your CSV file should include: First Name, Last Name, Username, Email, Phone, Date of Birth, Gender,
+                        Address, Specialty, Qualification, Experience Years, License Number, Consultation Fee, Status,
+                        Available for Booking, Working Days, Bio
+                    </p>
+                </div>
+
+                <!-- File Input Form -->
+                <form id="importCSVForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <label for="csvFileInput" class="block text-sm font-medium text-gray-700 mb-2">
+                            Select CSV File
+                        </label>
+                        <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <p class="text-xs text-gray-500 mt-1">Max file size: 5MB</p>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div id="importProgress" class="hidden mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <p id="importProgressText" class="text-sm font-medium text-gray-700">Importing...</p>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="importProgressBar"
+                                class="bg-blue-500 h-3 rounded-full transition-all duration-300 ease-out"
+                                style="width: 0%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Import Results -->
+                    <div id="importResultsDiv" class="hidden mb-4">
+                        <div id="importResultsContent"></div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex gap-3">
+                        <button type="submit"
+                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            Import
+                        </button>
+                        <button type="button" onclick="closeImportModal()"
+                            class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         let searchTimeout;
 
