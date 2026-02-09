@@ -4,6 +4,29 @@
 
 @section('page-title', 'Patients Management')
 
+@section('header-actions')
+    <div class="flex flex-wrap gap-2">
+        <!-- Export CSV Button -->
+        <a href="{{ route('admin.patients.export-csv') }}"
+            class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            Export CSV
+        </a>
+
+        <!-- Import CSV Button -->
+        <button onclick="openImportModal()"
+            class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            Bulk Import
+        </button>
+    </div>
+@endsection
+
 @section('content')
     <!-- Search & Filters -->
     <div class="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 mb-4 sm:mb-6">
@@ -279,7 +302,74 @@
         </div>
     </div>
 
-    <!-- Edit Patient Modal -->
+    <!-- Import Modal -->
+    <div id="importPatientModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+            onclick="event.stopPropagation()">
+            <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-gray-800">Import Patients from CSV</h3>
+                <button onclick="closeImportModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 flex-1 overflow-auto">
+                <form id="importForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select CSV File</label>
+                        <div class="relative">
+                            <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt" class="hidden"
+                                onchange="updateFileName()">
+                            <button type="button" onclick="document.getElementById('csvFileInput').click()"
+                                class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-gray-400 cursor-pointer transition">
+                                <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p id="fileNameDisplay" class="text-sm text-gray-600">Click to select a CSV file</p>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Supported format: CSV (Max: 5MB)</p>
+                    </div>
+
+                    <!-- Only errors section - NO success section -->
+                    <div id="importErrors" class="hidden mb-4">
+                        <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <p class="text-sm font-medium text-red-800 mb-2">Import Errors:</p>
+                            <ul id="errorsList"
+                                class="text-sm text-red-700 list-disc list-inside max-h-64 overflow-y-auto space-y-1">
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 mt-4">
+                        <button type="button" onclick="closeImportModal()"
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">
+                            Cancel
+                        </button>
+                        <button type="submit" id="importSubmitBtn"
+                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center">
+                            <span id="importBtnText">Import</span>
+                            <svg id="importLoadingSpinner" class="hidden w-5 h-5 ml-2 text-white animate-spin"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Edit Modal --}}
     <div id="editPatientModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
@@ -659,6 +749,175 @@
             if (e.key === 'Escape') {
                 closePatientEditModal();
                 closePatientViewModal();
+                closeImportModal();
+            }
+        });
+
+        // Import Modal Functions
+        function openImportModal() {
+            document.getElementById('importPatientModal').classList.remove('hidden');
+            document.getElementById('importForm').reset();
+            document.getElementById('csvFileInput').value = '';
+            document.getElementById('fileNameDisplay').textContent = 'Click to select a CSV file';
+            document.getElementById('importErrors').classList.add('hidden');
+            document.getElementById('errorsList').innerHTML = '';
+
+            // Reset button state
+            const submitBtn = document.getElementById('importSubmitBtn');
+            submitBtn.disabled = false;
+            document.getElementById('importBtnText').textContent = 'Import';
+            document.getElementById('importLoadingSpinner').classList.add('hidden');
+        }
+
+        function closeImportModal() {
+            // Check if there are visible errors before closing
+            const importErrors = document.getElementById('importErrors');
+            if (!importErrors.classList.contains('hidden')) {}
+
+            document.getElementById('importPatientModal').classList.add('hidden');
+            document.getElementById('importForm').reset();
+            document.getElementById('csvFileInput').value = '';
+            document.getElementById('fileNameDisplay').textContent = 'Click to select a CSV file';
+            document.getElementById('importErrors').classList.add('hidden');
+            document.getElementById('errorsList').innerHTML = '';
+        }
+
+        function updateFileName() {
+            const fileInput = document.getElementById('csvFileInput');
+            const fileName = fileInput.files[0]?.name || 'Click to select a CSV file';
+            document.getElementById('fileNameDisplay').textContent = fileName;
+        }
+
+        function showImportError(errors) {
+            const errorsList = document.getElementById('errorsList');
+            errorsList.innerHTML = '';
+
+            if (errors && errors.length > 0) {
+                errors.forEach((error) => {
+                    const li = document.createElement('li');
+                    li.className = 'py-1';
+                    li.textContent = error;
+                    errorsList.appendChild(li);
+                });
+
+                document.getElementById('importErrors').classList.remove('hidden');
+
+                // Scroll to errors
+                setTimeout(() => {
+                    document.getElementById('importErrors').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 100);
+            }
+        }
+
+        document.getElementById('importForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('csvFileInput');
+            if (!fileInput.files.length) {
+                showImportError(['Please select a CSV file']);
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const allowedExtensions = ['csv', 'txt'];
+            const fileExt = file.name.split('.').pop().toLowerCase();
+
+            if (!allowedExtensions.includes(fileExt)) {
+                showImportError(['Invalid file type. Only CSV files are allowed.']);
+                return;
+            }
+
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('importSubmitBtn');
+            const btnText = document.getElementById('importBtnText');
+            const spinner = document.getElementById('importLoadingSpinner');
+
+            // Reset previous errors
+            document.getElementById('importErrors').classList.add('hidden');
+            document.getElementById('errorsList').innerHTML = '';
+
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.textContent = 'Importing...';
+            spinner.classList.remove('hidden');
+
+            fetch('{{ route('admin.patients.import-csv') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            }).then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server error: ${response.status}`);
+                    });
+                }
+                return response.json();
+            }).then(data => {
+                if (data.success) {
+
+                    // FULL SUCCESS
+                    if (data.details && data.details.failed === 0) {
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(data.message, 'Import Successful');
+                        }
+                        setTimeout(() => {
+                            closeImportModal();
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        if (data.details && data.details.errors) {
+                            showImportError(data.details.errors);
+                        }
+                        submitBtn.disabled = false;
+                        btnText.textContent = 'Import';
+                        spinner.classList.add('hidden');
+                    }
+
+                } else {
+                    let errors = [];
+
+                    if (data.errors) {
+                        Object.values(data.errors).forEach(err => {
+                            if (Array.isArray(err)) errors.push(...err);
+                            else errors.push(err);
+                        });
+                    } else if (data.message) {
+                        errors.push(data.message);
+                    } else {
+                        errors.push('Import failed');
+                    }
+
+                    showImportError(errors);
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Import';
+                    spinner.classList.add('hidden');
+                }
+            }).catch(error => {
+                console.error('Import error:', error);
+                showImportError([`An error occurred: ${error.message}`]);
+
+                submitBtn.disabled = false;
+                btnText.textContent = 'Import';
+                spinner.classList.add('hidden');
+            });
+        });
+
+        // Close modals with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImportModal();
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('importPatientModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImportModal();
             }
         });
     </script>
