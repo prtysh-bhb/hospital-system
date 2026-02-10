@@ -564,7 +564,7 @@ class DoctorsController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'msg' => 'CSV headers retrieved successfully',
+                    'message' => 'CSV headers retrieved successfully',
                     'csv_headers' => $headers,
                     'form_fields' => $formFields,
                 ], 200);
