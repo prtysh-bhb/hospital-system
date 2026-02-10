@@ -295,30 +295,151 @@
         </div>
     </div>
 
+    <!-- Import CSV Modal -->
+    <div id="importCSVModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
+            onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800">Import CSV</h2>
+                <button onclick="closeImportModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Steps Indicator -->
+            <div class="px-6 py-4 flex items-center justify-between text-sm font-medium">
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
+                    <span id="step1Label" class="text-gray-900">Upload CSV</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-300 mx-3"></div>
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs">2</span>
+                    <span id="step2Label" class="text-gray-500">Map columns</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-300 mx-3"></div>
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs">3</span>
+                    <span id="step3Label" class="text-gray-500">Confirm import</span>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto flex-1">
+                <!-- Step 1: File Upload -->
+                <div id="importStep1" class="block">
+                    <form id="importCSVForm" enctype="multipart/form-data">
+                        @csrf
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors cursor-pointer"
+                            onclick="document.getElementById('csvFileInput').click()">
+                            <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt" required
+                                class="hidden" />
+
+                            <div id="fileUploadArea">
+                                <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p class="text-gray-600 mb-1">Drag and drop or click to replace</p>
+                                <p class="text-xs text-gray-500">CSV file</p>
+                            </div>
+
+                            <div id="fileSelectedArea" class="hidden">
+                                <svg class="w-8 h-8 text-green-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <p id="selectedFileName" class="text-gray-800 font-medium text-sm"></p>
+                                <p class="text-xs text-gray-500 mt-1">Drag and drop or click to replace</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 2: Field Mapping -->
+                <div id="importStep2" class="hidden">
+                    <div id="fieldMappingContainer" class="space-y-3">
+                        <!-- Mapping rows will be inserted here by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Step 3: Progress Bar & Results -->
+                <div id="importStep3" class="hidden">
+                    <!-- Progress Bar -->
+                    <div id="importProgress" class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Importing...</span>
+                            <span id="importProgressText" class="text-sm font-medium text-gray-600">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="importProgressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Import Results -->
+                    <div id="importResultsDiv" class="hidden mb-4">
+                        <div id="importResultsContent"
+                            class="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-48 overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer - Step 1 -->
+            <div id="step1Footer" class="border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
+                <button type="button" onclick="closeImportModal()"
+                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    Cancel
+                </button>
+                <button type="button" onclick="proceedToFieldMapping()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Prepare import
+                </button>
+            </div>
+
+            <!-- Modal Footer - Step 2 -->
+            <div id="step2Footer" class="hidden border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
+                <button type="button" onclick="backToFileUpload()"
+                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    Back
+                </button>
+                <button type="button" onclick="submitWithMapping()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Next
+                </button>
+            </div>
+
+            <!-- Modal Footer - Step 3 -->
+            <div id="step3Footer" class="hidden border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
+                <button type="button" onclick="closeImportModal()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let searchTimeout;
-
-        document.addEventListener("DOMContentLoaded", function() {
-            $(document).on('click', '.delete-doctor-btn', function() {
-                deleteDoctorId = $(this).data('doctor-id');
-                let doctorName = $(this).data('doctor-name');
-
-                document.getElementById('deleteModalText').textContent =
-                    `Are you sure you want to delete the doctor "${doctorName}"?`;
-
-                document.getElementById('customDeleteModal').classList.remove('hidden');
-            });
-
-            // Cancel button closes modal
-            document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
-                document.getElementById('customDeleteModal').classList.add('hidden');
-                deleteDoctorId = null;
-            });
-        });
+        let deleteDoctorId = null;
+        let csvHeaders = [];
+        let formFields = {};
+        let columnMapping = {};
 
         // Notification function
         function showNotification(message, type = 'success') {
             const container = document.getElementById('notificationContainer');
+            if (!container) return;
+
             const notification = document.createElement('div');
             const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' :
                 'bg-red-100 border-red-400 text-red-700';
@@ -338,12 +459,20 @@
         }
 
         function fetchDoctors() {
-            const search = document.getElementById('searchInput').value;
-            const specialty_id = document.getElementById('specialtyFilter').value;
-            const status = document.getElementById('statusFilter').value;
+            const searchInput = document.getElementById('searchInput');
+            const specialtyFilter = document.getElementById('specialtyFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const doctorsGrid = document.getElementById('doctorsGrid');
 
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            document.getElementById('doctorsGrid').style.opacity = '0.5';
+            if (!searchInput || !specialtyFilter || !statusFilter || !loadingIndicator || !doctorsGrid) return;
+
+            const search = searchInput.value;
+            const specialty_id = specialtyFilter.value;
+            const status = statusFilter.value;
+
+            loadingIndicator.classList.remove('hidden');
+            doctorsGrid.style.opacity = '0.5';
 
             const params = new URLSearchParams();
             if (search) params.append('search', search);
@@ -359,43 +488,76 @@
                 })
                 .then(response => response.text())
                 .then(html => {
-                    document.getElementById('doctorsGrid').innerHTML = html;
-                    document.getElementById('loadingIndicator').classList.add('hidden');
-                    document.getElementById('doctorsGrid').style.opacity = '1';
+                    doctorsGrid.innerHTML = html;
+                    loadingIndicator.classList.add('hidden');
+                    doctorsGrid.style.opacity = '1';
                     attachDeleteHandlers();
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('loadingIndicator').classList.add('hidden');
-                    document.getElementById('doctorsGrid').style.opacity = '1';
+                    loadingIndicator.classList.add('hidden');
+                    doctorsGrid.style.opacity = '1';
                     showNotification('An error occurred while fetching doctors.', 'error');
                 });
         }
 
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (!deleteDoctorId) return;
-            fetch(`/admin/doctors/${deleteDoctorId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        toastr.success(data.message);
-                        fetchDoctors();
-                        document.getElementById('customDeleteModal').classList.add('hidden');
-                    } else {
-                        toastr.error(data.message || 'Failed to delete doctor', 'error');
-                    }
-                })
-                .catch(error => {
-                    toastr.error('An error occurred while deleting the doctor.', 'error');
-                });
+        // Delete functionality
+        document.addEventListener("DOMContentLoaded", function() {
+            $(document).on('click', '.delete-doctor-btn', function() {
+                deleteDoctorId = $(this).data('doctor-id');
+                let doctorName = $(this).data('doctor-name');
 
+                const deleteModalText = document.getElementById('deleteModalText');
+                if (deleteModalText) {
+                    deleteModalText.textContent =
+                        `Are you sure you want to delete the doctor "${doctorName}"?`;
+                }
+
+                const customDeleteModal = document.getElementById('customDeleteModal');
+                if (customDeleteModal) customDeleteModal.classList.remove('hidden');
+            });
+
+            // Cancel button closes modal
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            if (cancelDeleteBtn) {
+                cancelDeleteBtn.addEventListener('click', function() {
+                    const customDeleteModal = document.getElementById('customDeleteModal');
+                    if (customDeleteModal) customDeleteModal.classList.add('hidden');
+                    deleteDoctorId = null;
+                });
+            }
+
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', function() {
+                    if (!deleteDoctorId) return;
+
+                    const customDeleteModal = document.getElementById('customDeleteModal');
+                    if (customDeleteModal) customDeleteModal.classList.add('hidden');
+
+                    fetch(`/admin/doctors/${deleteDoctorId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .content,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success(data.message);
+                                fetchDoctors();
+                            } else {
+                                toastr.error(data.message || 'Failed to delete doctor', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            toastr.error('An error occurred while deleting the doctor.', 'error');
+                        });
+                });
+            }
         });
 
         // Color schemes matching doctor-cards.blade.php
@@ -481,6 +643,8 @@
             const content = document.getElementById('doctorViewContent');
             const modalHeader = document.getElementById('modalHeader');
 
+            if (!modal || !loading || !content || !modalHeader) return;
+
             // Store current color for use in populateDoctorModal
             currentModalColor = colorData;
 
@@ -534,99 +698,135 @@
 
             // Profile Image with fallback
             const imgEl = document.getElementById('doctorImage');
-            imgEl.dataset.name = doctor.full_name; // Set data-name for onerror fallback
+            if (imgEl) {
+                imgEl.dataset.name = doctor.full_name; // Set data-name for onerror fallback
 
-            // Update onerror to use current color
-            imgEl.onerror = function() {
-                this.onerror = null;
-                this.src =
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(this.dataset.name || 'Doctor')}&background=${avatarBg}&color=fff&size=128`;
-            };
+                // Update onerror to use current color
+                imgEl.onerror = function() {
+                    this.onerror = null;
+                    this.src =
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(this.dataset.name || 'Doctor')}&background=${avatarBg}&color=fff&size=128`;
+                };
 
-            if (doctor.profile_image) {
-                imgEl.src = doctor.profile_image;
-            } else {
-                imgEl.src =
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.full_name)}&background=${avatarBg}&color=fff&size=128`;
+                if (doctor.profile_image) {
+                    imgEl.src = doctor.profile_image;
+                } else {
+                    imgEl.src =
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.full_name)}&background=${avatarBg}&color=fff&size=128`;
+                }
             }
 
             // Basic Info
-            document.getElementById('doctorName').textContent = doctor.full_name;
+            const doctorName = document.getElementById('doctorName');
+            if (doctorName) doctorName.textContent = doctor.full_name;
+
             const specialtyEl = document.getElementById('doctorSpecialty');
-            specialtyEl.textContent = doctor.specialty;
-            // Apply color to specialty text
-            if (currentModalColor && currentModalColor.text) {
-                specialtyEl.className = `${currentModalColor.text} font-semibold mt-1`;
-            } else {
-                specialtyEl.className = 'text-sky-600 font-semibold mt-1';
+            if (specialtyEl) {
+                specialtyEl.textContent = doctor.specialty;
+                // Apply color to specialty text
+                if (currentModalColor && currentModalColor.text) {
+                    specialtyEl.className = `${currentModalColor.text} font-semibold mt-1`;
+                } else {
+                    specialtyEl.className = 'text-sky-600 font-semibold mt-1';
+                }
             }
-            document.getElementById('doctorQualification').textContent = doctor.qualification;
+
+            const qualificationEl = document.getElementById('doctorQualification');
+            if (qualificationEl) qualificationEl.textContent = doctor.qualification;
 
             // Status Badge
             const statusEl = document.getElementById('doctorStatus');
-            if (doctor.status === 'active') {
-                statusEl.textContent = 'Active';
-                statusEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700';
-            } else {
-                statusEl.textContent = 'Inactive';
-                statusEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700';
+            if (statusEl) {
+                if (doctor.status === 'active') {
+                    statusEl.textContent = 'Active';
+                    statusEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700';
+                } else {
+                    statusEl.textContent = 'Inactive';
+                    statusEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700';
+                }
             }
 
             // Availability Badge
             const availEl = document.getElementById('doctorAvailability');
-            if (doctor.available_for_booking) {
-                availEl.textContent = 'Available for Booking';
-                availEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-sky-100 text-sky-700';
-            } else {
-                availEl.textContent = 'Not Available';
-                availEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700';
+            if (availEl) {
+                if (doctor.available_for_booking) {
+                    availEl.textContent = 'Available for Booking';
+                    availEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-sky-100 text-sky-700';
+                } else {
+                    availEl.textContent = 'Not Available';
+                    availEl.className = 'px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700';
+                }
             }
 
             // Statistics - Apply dynamic color to total appointments
             const totalAppEl = document.getElementById('totalAppointments');
-            totalAppEl.textContent = stats.total_appointments;
+            if (totalAppEl) {
+                totalAppEl.textContent = stats.total_appointments;
 
-            // Apply color to total appointments stat
-            let statTextColor = 'text-sky-600';
-            if (currentModalColor) {
-                if (currentModalColor.gradient.includes('slate')) {
-                    statTextColor = 'text-slate-700';
-                } else if (currentModalColor.gradient.includes('blue')) {
-                    statTextColor = 'text-blue-900';
-                } else if (currentModalColor.gradient.includes('teal')) {
-                    statTextColor = 'text-teal-800';
-                } else if (currentModalColor.gradient.includes('gray')) {
-                    statTextColor = 'text-gray-700';
-                } else if (currentModalColor.gradient.includes('indigo')) {
-                    statTextColor = 'text-indigo-900';
+                // Apply color to total appointments stat
+                let statTextColor = 'text-sky-600';
+                if (currentModalColor) {
+                    if (currentModalColor.gradient.includes('slate')) {
+                        statTextColor = 'text-slate-700';
+                    } else if (currentModalColor.gradient.includes('blue')) {
+                        statTextColor = 'text-blue-900';
+                    } else if (currentModalColor.gradient.includes('teal')) {
+                        statTextColor = 'text-teal-800';
+                    } else if (currentModalColor.gradient.includes('gray')) {
+                        statTextColor = 'text-gray-700';
+                    } else if (currentModalColor.gradient.includes('indigo')) {
+                        statTextColor = 'text-indigo-900';
+                    }
                 }
+                totalAppEl.className = `text-2xl font-bold ${statTextColor}`;
             }
-            totalAppEl.className = `text-2xl font-bold ${statTextColor}`;
 
-            document.getElementById('completedAppointments').textContent = stats.completed_appointments;
-            document.getElementById('upcomingAppointments').textContent = stats.upcoming_appointments;
+            const completedAppEl = document.getElementById('completedAppointments');
+            if (completedAppEl) completedAppEl.textContent = stats.completed_appointments;
+
+            const upcomingAppEl = document.getElementById('upcomingAppointments');
+            if (upcomingAppEl) upcomingAppEl.textContent = stats.upcoming_appointments;
 
             // Personal Info
-            document.getElementById('doctorEmail').textContent = doctor.email;
-            document.getElementById('doctorUsername').textContent = doctor.username;
-            document.getElementById('doctorPhone').textContent = doctor.phone || 'N/A';
-            document.getElementById('doctorGender').textContent = doctor.gender;
-            document.getElementById('doctorDob').textContent = doctor.date_of_birth;
-            document.getElementById('doctorAddress').textContent = doctor.address;
+            const doctorEmail = document.getElementById('doctorEmail');
+            if (doctorEmail) doctorEmail.textContent = doctor.email;
+
+            const doctorUsername = document.getElementById('doctorUsername');
+            if (doctorUsername) doctorUsername.textContent = doctor.username;
+
+            const doctorPhone = document.getElementById('doctorPhone');
+            if (doctorPhone) doctorPhone.textContent = doctor.phone || 'N/A';
+
+            const doctorGender = document.getElementById('doctorGender');
+            if (doctorGender) doctorGender.textContent = doctor.gender;
+
+            const doctorDob = document.getElementById('doctorDob');
+            if (doctorDob) doctorDob.textContent = doctor.date_of_birth;
+
+            const doctorAddress = document.getElementById('doctorAddress');
+            if (doctorAddress) doctorAddress.textContent = doctor.address;
 
             // Professional Info
-            document.getElementById('doctorExperience').textContent = doctor.experience_years + ' years';
-            document.getElementById('doctorLicense').textContent = doctor.license_number;
-            document.getElementById('doctorFee').textContent = '₹' + doctor.consultation_fee;
-            document.getElementById('doctorJoined').textContent = doctor.created_at;
+            const doctorExperience = document.getElementById('doctorExperience');
+            if (doctorExperience) doctorExperience.textContent = doctor.experience_years + ' years';
+
+            const doctorLicense = document.getElementById('doctorLicense');
+            if (doctorLicense) doctorLicense.textContent = doctor.license_number;
+
+            const doctorFee = document.getElementById('doctorFee');
+            if (doctorFee) doctorFee.textContent = '₹' + doctor.consultation_fee;
+
+            const doctorJoined = document.getElementById('doctorJoined');
+            if (doctorJoined) doctorJoined.textContent = doctor.created_at;
 
             // Bio
-            document.getElementById('doctorBio').textContent = doctor.bio;
+            const doctorBio = document.getElementById('doctorBio');
+            if (doctorBio) doctorBio.textContent = doctor.bio;
 
             // Schedules
             const schedulesContainer = document.getElementById('doctorSchedules');
             const noSchedules = document.getElementById('noSchedules');
-            schedulesContainer.innerHTML = '';
+            if (schedulesContainer) schedulesContainer.innerHTML = '';
 
             // Determine schedule card colors based on current modal color
             let scheduleCardBg = 'bg-sky-50';
@@ -657,8 +857,8 @@
                 }
             }
 
-            if (schedules && schedules.length > 0) {
-                noSchedules.classList.add('hidden');
+            if (schedules && schedules.length > 0 && schedulesContainer) {
+                if (noSchedules) noSchedules.classList.add('hidden');
                 schedules.forEach(schedule => {
                     const scheduleCard = document.createElement('div');
                     scheduleCard.className = `${scheduleCardBg} rounded-lg p-3 border ${scheduleCardBorder}`;
@@ -669,27 +869,31 @@
                     `;
                     schedulesContainer.appendChild(scheduleCard);
                 });
-            } else {
+            } else if (noSchedules) {
                 noSchedules.classList.remove('hidden');
             }
 
             // Edit Button - apply color
             const editBtn = document.getElementById('editDoctorBtn');
-            editBtn.href = `/admin/doctors/${doctor.id}/edit`;
+            if (editBtn) {
+                editBtn.href = `/admin/doctors/${doctor.id}/edit`;
 
-            if (currentModalColor && currentModalColor.accent && currentModalColor.hover) {
-                editBtn.className =
-                    `px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${currentModalColor.accent} ${currentModalColor.hover}`;
-            } else {
-                editBtn.className =
-                    'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors bg-sky-600 hover:bg-sky-700';
+                if (currentModalColor && currentModalColor.accent && currentModalColor.hover) {
+                    editBtn.className =
+                        `px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${currentModalColor.accent} ${currentModalColor.hover}`;
+                } else {
+                    editBtn.className =
+                        'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors bg-sky-600 hover:bg-sky-700';
+                }
             }
         }
 
         function closeDoctorViewModal() {
             const modal = document.getElementById('doctorViewModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
         }
 
         // Close modal on escape key
@@ -700,28 +904,35 @@
         });
 
         // Close modal on backdrop click
-        document.getElementById('doctorViewModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDoctorViewModal();
-            }
-        });
+        const doctorViewModal = document.getElementById('doctorViewModal');
+        if (doctorViewModal) {
+            doctorViewModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDoctorViewModal();
+                }
+            });
+        }
 
-        // Initial attachment
-        document.addEventListener('DOMContentLoaded', attachDeleteHandlers);
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => fetchDoctors(), 500);
+            });
+        }
 
-        document.getElementById('searchInput').addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => fetchDoctors(), 500);
-        });
+        const specialtyFilter = document.getElementById('specialtyFilter');
+        if (specialtyFilter) {
+            specialtyFilter.addEventListener('change', fetchDoctors);
+        }
 
-        document.getElementById('specialtyFilter').addEventListener('change', fetchDoctors);
-        document.getElementById('statusFilter').addEventListener('change', fetchDoctors);
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', fetchDoctors);
+        }
 
         // CSV Import Modal Functions with Field Mapping
-        let csvHeaders = [];
-        let formFields = {};
-        let columnMapping = {};
-
         function openImportModal() {
             const modal = document.getElementById('importCSVModal');
             if (modal) {
@@ -742,20 +953,35 @@
 
         function resetImportModal() {
             // Reset to step 1
-            document.getElementById('importStep1').classList.remove('hidden');
-            document.getElementById('importStep2').classList.add('hidden');
-            document.getElementById('importStep3').classList.add('hidden');
+            const step1 = document.getElementById('importStep1');
+            const step2 = document.getElementById('importStep2');
+            const step3 = document.getElementById('importStep3');
+            const footer1 = document.getElementById('step1Footer');
+            const footer2 = document.getElementById('step2Footer');
+            const footer3 = document.getElementById('step3Footer');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileSelectedArea = document.getElementById('fileSelectedArea');
+            const importProgress = document.getElementById('importProgress');
+            const importResultsDiv = document.getElementById('importResultsDiv');
 
-            document.getElementById('step1Footer').classList.remove('hidden');
-            document.getElementById('step2Footer').classList.add('hidden');
-            document.getElementById('step3Footer').classList.add('hidden');
+            if (step1) step1.classList.remove('hidden');
+            if (step2) step2.classList.add('hidden');
+            if (step3) step3.classList.add('hidden');
 
-            document.getElementById('modalStepTitle').textContent = 'Import Doctors from CSV';
+            if (footer1) footer1.classList.remove('hidden');
+            if (footer2) footer2.classList.add('hidden');
+            if (footer3) footer3.classList.add('hidden');
+
+            // Reset step indicators
+            updateStepIndicators(1);
 
             // Reset form
-            document.getElementById('importCSVForm').reset();
-            document.getElementById('importProgress').classList.add('hidden');
-            document.getElementById('importResultsDiv').classList.add('hidden');
+            const importForm = document.getElementById('importCSVForm');
+            if (importForm) importForm.reset();
+            if (fileUploadArea) fileUploadArea.classList.remove('hidden');
+            if (fileSelectedArea) fileSelectedArea.classList.add('hidden');
+            if (importProgress) importProgress.classList.add('hidden');
+            if (importResultsDiv) importResultsDiv.classList.add('hidden');
 
             // Reset data
             csvHeaders = [];
@@ -763,9 +989,68 @@
             columnMapping = {};
         }
 
+        // Update step indicators
+        function updateStepIndicators(currentStep) {
+            const stepLabels = [1, 2, 3];
+
+            stepLabels.forEach((step) => {
+                // Get label element
+                const label = document.getElementById(`step${step}Label`);
+                if (!label) return;
+
+                // Get the circle span which is the first child of the same parent container
+                const container = label.parentElement;
+                const circle = container ? container.querySelector('span[class*="rounded-full"]') : null;
+
+                if (!circle) return; // Skip if element doesn't exist
+
+                if (step < currentStep) {
+                    // Previous steps - green checkmark
+                    circle.className =
+                        'w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-xs';
+                    circle.innerHTML =
+                        '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>';
+                    label.className = 'text-gray-900';
+                } else if (step === currentStep) {
+                    // Current step - blue
+                    circle.className =
+                        'w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs';
+                    circle.textContent = step;
+                    label.className = 'text-gray-900';
+                } else {
+                    // Future steps - gray
+                    circle.className =
+                        'w-6 h-6 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs';
+                    circle.textContent = step;
+                    label.className = 'text-gray-500';
+                }
+            });
+        }
+
+        // Handle file selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const csvFileInput = document.getElementById('csvFileInput');
+            const selectedFileName = document.getElementById('selectedFileName');
+
+            if (csvFileInput && selectedFileName) {
+                csvFileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const fileName = this.files[0].name;
+                        selectedFileName.textContent = fileName;
+
+                        const fileUploadArea = document.getElementById('fileUploadArea');
+                        const fileSelectedArea = document.getElementById('fileSelectedArea');
+
+                        if (fileUploadArea) fileUploadArea.classList.add('hidden');
+                        if (fileSelectedArea) fileSelectedArea.classList.remove('hidden');
+                    }
+                });
+            }
+        });
+
         function proceedToFieldMapping() {
             const fileInput = document.getElementById('csvFileInput');
-            if (!fileInput.files || !fileInput.files[0]) {
+            if (!fileInput || !fileInput.files || !fileInput.files[0]) {
                 showNotification('Please select a CSV file', 'error');
                 return;
             }
@@ -776,8 +1061,10 @@
 
             // Show loading state
             const nextBtn = document.querySelector('#step1Footer button:last-child');
-            nextBtn.disabled = true;
-            nextBtn.textContent = 'Loading...';
+            if (nextBtn) {
+                nextBtn.disabled = true;
+                nextBtn.textContent = 'Loading...';
+            }
 
             fetch('{{ route('admin.doctors.csv-headers') }}', {
                     method: 'POST',
@@ -789,8 +1076,10 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    nextBtn.disabled = false;
-                    nextBtn.textContent = 'Next';
+                    if (nextBtn) {
+                        nextBtn.disabled = false;
+                        nextBtn.textContent = 'Prepare import';
+                    }
 
                     if (!data.success) {
                         showNotification(data.message || 'Failed to read CSV headers', 'error');
@@ -809,17 +1098,24 @@
                     buildFieldMappingUI();
 
                     // Switch to step 2
-                    document.getElementById('importStep1').classList.add('hidden');
-                    document.getElementById('importStep2').classList.remove('hidden');
+                    const step1 = document.getElementById('importStep1');
+                    const step2 = document.getElementById('importStep2');
+                    const footer1 = document.getElementById('step1Footer');
+                    const footer2 = document.getElementById('step2Footer');
 
-                    document.getElementById('step1Footer').classList.add('hidden');
-                    document.getElementById('step2Footer').classList.remove('hidden');
+                    if (step1) step1.classList.add('hidden');
+                    if (step2) step2.classList.remove('hidden');
+                    if (footer1) footer1.classList.add('hidden');
+                    if (footer2) footer2.classList.remove('hidden');
 
-                    document.getElementById('modalStepTitle').textContent = 'Step 2: Map CSV Fields';
+                    // Update step indicators
+                    updateStepIndicators(2);
                 })
                 .catch(error => {
-                    nextBtn.disabled = false;
-                    nextBtn.textContent = 'Next';
+                    if (nextBtn) {
+                        nextBtn.disabled = false;
+                        nextBtn.textContent = 'Prepare import';
+                    }
                     console.error('Error:', error);
                     showNotification('Error reading CSV file: ' + error.message, 'error');
                 });
@@ -827,9 +1123,27 @@
 
         function buildFieldMappingUI() {
             const container = document.getElementById('fieldMappingContainer');
+            if (!container) return;
+
             container.innerHTML = '';
 
             const requiredFields = ['first_name', 'last_name', 'email', 'phone'];
+
+            // Create a mapping of common field variations for better auto-detection
+            const fieldVariations = {
+                'first_name': ['first name', 'firstname', 'fname', 'first_name'],
+                'last_name': ['last name', 'lastname', 'lname', 'surname', 'last_name'],
+                'email': ['email', 'email address', 'e-mail'],
+                'phone': ['phone', 'phone number', 'contact', 'mobile', 'telephone'],
+                'date_of_birth': ['date of birth', 'dob', 'birth date', 'birthday'],
+                'gender': ['gender', 'sex'],
+                'address': ['address', 'street address', 'home address'],
+                'specialty_name': ['specialty', 'specialization', 'speciality', 'specialization'],
+                'experience_years': ['experience', 'years of experience', 'exp'],
+                'license_number': ['license', 'license number', 'license no', 'medical license'],
+                'consultation_fee': ['fee', 'consultation fee', 'fees', 'rate'],
+                'status': ['status']
+            };
 
             Object.entries(formFields).forEach(([fieldKey, fieldLabel]) => {
                 const isRequired = requiredFields.includes(fieldKey);
@@ -852,35 +1166,47 @@
                 select.appendChild(defaultOption);
 
                 // Add CSV header options - try to auto-select matching ones
+                let autoSelected = false;
                 csvHeaders.forEach(header => {
                     const option = document.createElement('option');
                     option.value = header;
                     option.textContent = header;
                     select.appendChild(option);
 
-                    // Auto-match if header matches field label
-                    if (header.toLowerCase() === fieldLabel.toLowerCase() ||
-                        header.toLowerCase().includes(fieldLabel.toLowerCase().split(' ')[0])) {
-                        option.selected = true;
-                        columnMapping[header] = fieldKey; // Add to mapping
+                    // Try to auto-match if not already selected
+                    if (!autoSelected) {
+                        const headerLower = header.toLowerCase().trim();
+                        const variations = fieldVariations[fieldKey] || [];
+
+                        // Check if header matches any known variations for this field
+                        const isMatch = variations.some(variation =>
+                            headerLower === variation.toLowerCase() ||
+                            headerLower.includes(variation.toLowerCase())
+                        );
+
+                        if (isMatch) {
+                            option.selected = true;
+                            // REVERSE MAPPING: dbField -> csvColumn (allows multiple db fields to use same csv column)
+                            columnMapping[fieldKey] = header;
+                            autoSelected = true;
+                        }
                     }
                 });
 
-                // Update mapping when selection changes
+                // Update mapping when selection changes - ALLOWS MULTIPLE DB FIELDS TO MAP TO SAME CSV COLUMN
                 select.addEventListener('change', (e) => {
                     const selectedHeader = e.target.value;
                     const fieldKey = e.target.dataset.field;
 
                     if (selectedHeader) {
-                        columnMapping[selectedHeader] = fieldKey;
+                        // Map: database field -> CSV column (allows multiple db fields to use same csv column)
+                        columnMapping[fieldKey] = selectedHeader;
                     } else {
-                        // Remove mapping for this field
-                        Object.keys(columnMapping).forEach(key => {
-                            if (columnMapping[key] === fieldKey) {
-                                delete columnMapping[key];
-                            }
-                        });
+                        // Remove mapping for this database field
+                        delete columnMapping[fieldKey];
                     }
+
+                    console.log('Updated columnMapping (dbField -> csvColumn):', columnMapping);
                 });
 
                 row.appendChild(label);
@@ -890,26 +1216,36 @@
         }
 
         function backToFileUpload() {
-            document.getElementById('importStep1').classList.remove('hidden');
-            document.getElementById('importStep2').classList.add('hidden');
+            const step1 = document.getElementById('importStep1');
+            const step2 = document.getElementById('importStep2');
+            const footer1 = document.getElementById('step1Footer');
+            const footer2 = document.getElementById('step2Footer');
 
-            document.getElementById('step1Footer').classList.remove('hidden');
-            document.getElementById('step2Footer').classList.add('hidden');
+            if (step1) step1.classList.remove('hidden');
+            if (step2) step2.classList.add('hidden');
+            if (footer1) footer1.classList.remove('hidden');
+            if (footer2) footer2.classList.add('hidden');
 
-            document.getElementById('modalStepTitle').textContent = 'Import Doctors from CSV';
+            // Update step indicators
+            updateStepIndicators(1);
         }
 
         function submitWithMapping() {
             const fileInput = document.getElementById('csvFileInput');
-            if (!fileInput.files || !fileInput.files[0]) {
+            if (!fileInput || !fileInput.files || !fileInput.files[0]) {
                 showNotification('Please select a CSV file', 'error');
                 return;
             }
 
-            // Validate that at least required fields are mapped
+            // Validate that all required fields are mapped
             const requiredFields = ['first_name', 'last_name', 'email', 'phone'];
-            const mappedFields = Object.values(columnMapping);
-            const missingRequired = requiredFields.filter(f => !mappedFields.includes(f));
+            const mappedRequiredFields = requiredFields.filter(f => columnMapping[f] && columnMapping[f].trim() !== '');
+            const missingRequired = requiredFields.filter(f => !mappedRequiredFields.includes(f));
+
+            console.log('Column mapping structure:', columnMapping);
+            console.log('Required fields:', requiredFields);
+            console.log('Mapped required fields:', mappedRequiredFields);
+            console.log('Missing required:', missingRequired);
 
             if (missingRequired.length > 0) {
                 showNotification('Please map all required fields: ' + missingRequired.join(', '), 'error');
@@ -923,13 +1259,18 @@
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
             // Switch to step 3
-            document.getElementById('importStep2').classList.add('hidden');
-            document.getElementById('importStep3').classList.remove('hidden');
+            const step2 = document.getElementById('importStep2');
+            const step3 = document.getElementById('importStep3');
+            const footer2 = document.getElementById('step2Footer');
+            const footer3 = document.getElementById('step3Footer');
 
-            document.getElementById('step2Footer').classList.add('hidden');
-            document.getElementById('step3Footer').classList.add('hidden'); // Initially hidden
+            if (step2) step2.classList.add('hidden');
+            if (step3) step3.classList.remove('hidden');
+            if (footer2) footer2.classList.add('hidden');
+            if (footer3) footer3.classList.add('hidden'); // Initially hidden
 
-            document.getElementById('modalStepTitle').textContent = 'Step 3: Importing...';
+            // Update step indicators
+            updateStepIndicators(3);
 
             // Show and initialize progress
             const progressDiv = document.getElementById('importProgress');
@@ -938,10 +1279,10 @@
             const resultsDiv = document.getElementById('importResultsDiv');
             const resultsContent = document.getElementById('importResultsContent');
 
-            progressDiv.classList.remove('hidden');
-            resultsDiv.classList.add('hidden');
-            progressBar.style.width = '30%';
-            progressText.textContent = '📤 Uploading file...';
+            if (progressDiv) progressDiv.classList.remove('hidden');
+            if (resultsDiv) resultsDiv.classList.add('hidden');
+            if (progressBar) progressBar.style.width = '30%';
+            if (progressText) progressText.textContent = '📤 Uploading file...';
 
             fetch('{{ route('admin.doctors.import-csv') }}', {
                     method: 'POST',
@@ -953,48 +1294,53 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    progressBar.style.width = '90%';
-                    progressText.textContent = '✔️ Finalizing...';
+                    if (progressBar) progressBar.style.width = '90%';
+                    if (progressText) progressText.textContent = '✔️ Finalizing...';
 
                     if (!data.success) {
                         throw new Error(data.message || 'Import failed');
                     }
 
                     // Success
-                    progressBar.style.width = '100%';
-                    progressBar.classList.add('bg-green-600');
-                    progressText.textContent = `✅ ${data.message}`;
+                    if (progressBar) {
+                        progressBar.style.width = '100%';
+                        progressBar.classList.add('bg-green-600');
+                    }
+                    if (progressText) progressText.textContent = `✅ ${data.message}`;
 
                     // Show results
                     setTimeout(() => {
-                        resultsDiv.classList.remove('hidden');
+                        if (resultsDiv) resultsDiv.classList.remove('hidden');
                         const hasErrors = data.data.failed > 0;
-                        resultsContent.innerHTML = `
-                        <div class="${hasErrors ? 'bg-yellow-50 border-l-4 border-yellow-500' : 'bg-green-50 border-l-4 border-green-500'} p-4 rounded">
-                            <h3 class="${hasErrors ? 'font-semibold text-yellow-800 mb-2' : 'font-semibold text-green-800 mb-2'}">✓ Import Completed</h3>
-                            <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Imported:</strong> ${data.data.success} doctor(s)</p>
-                            <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Failed:</strong> ${data.data.failed}</p>
-                            ${data.data.errors.length > 0 ? `
-                                                            <div class="mt-3">
-                                                                <strong class="text-red-800">Errors (showing first 10):</strong>
-                                                                <div class="mt-2 space-y-1 max-h-40 overflow-y-auto">
-                                                                    ${data.data.errors.slice(0, 10).map(err => {
-                                                                        const match = err.match(/^\[([^\]]+)\]\s*(.*)/);
-                                                                        const field = match ? match[1] : 'General';
-                                                                        const message = match ? match[2] : err;
-                                                                        return `<div class="text-sm p-2 bg-red-100 rounded border-l-3 border-red-500 text-red-800">
-                                <span class="font-semibold text-red-900">[${field}]</span> ${message}
-                            </div>`;
-                                                                    }).join('')}
-                                                                    ${data.data.errors.length > 10 ? `<div class="text-sm p-2 bg-red-50 rounded text-red-700 font-semibold">... and ${data.data.errors.length - 10} more errors</div>` : ''}
-                                                                </div>
-                                                            </div>
-                                                        ` : ''}
-                        </div>
-                    `;
+
+                        if (resultsContent) {
+                            resultsContent.innerHTML = `
+                            <div class="${hasErrors ? 'bg-yellow-50 border-l-4 border-yellow-500' : 'bg-green-50 border-l-4 border-green-500'} p-4 rounded">
+                                <h3 class="${hasErrors ? 'font-semibold text-yellow-800 mb-2' : 'font-semibold text-green-800 mb-2'}">✓ Import Completed</h3>
+                                <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Imported:</strong> ${data.data.success} doctor(s)</p>
+                                <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Failed:</strong> ${data.data.failed}</p>
+                                ${data.data.errors.length > 0 ? `
+                                        <div class="mt-3">
+                                            <strong class="text-red-800">Errors (showing first 10):</strong>
+                                            <div class="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                                                ${data.data.errors.slice(0, 10).map(err => {
+                                                    const match = err.match(/^\[([^\]]+)\]\s*(.*)/);
+                                                    const field = match ? match[1] : 'General';
+                                                    const message = match ? match[2] : err;
+                                                    return `<div class="text-sm p-2 bg-red-100 rounded border-l-3 border-red-500 text-red-800">
+                                                    <span class="font-semibold text-red-900">[${field}]</span> ${message}
+                                                </div>`;
+                                                }).join('')}
+                                                ${data.data.errors.length > 10 ? `<div class="text-sm p-2 bg-red-50 rounded text-red-700 font-semibold">... and ${data.data.errors.length - 10} more errors</div>` : ''}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                            </div>
+                        `;
+                        }
 
                         // Show done button
-                        document.getElementById('step3Footer').classList.remove('hidden');
+                        if (footer3) footer3.classList.remove('hidden');
 
                         // Show notification and refresh
                         showNotification(data.message, 'success');
@@ -1010,134 +1356,50 @@
                 })
                 .catch(error => {
                     console.error('Import error:', error);
-                    progressBar.style.width = '100%';
-                    progressBar.classList.add('bg-red-500');
-                    progressText.textContent = `❌ Error: ${error.message}`;
+                    if (progressBar) {
+                        progressBar.style.width = '100%';
+                        progressBar.classList.add('bg-red-500');
+                    }
+                    if (progressText) progressText.textContent = `❌ Error: ${error.message}`;
 
                     // Show error in results
                     setTimeout(() => {
-                        resultsDiv.classList.remove('hidden');
-                        resultsContent.innerHTML = `
-                        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                            <h3 class="font-semibold text-red-800 mb-2">✗ Import Failed</h3>
-                            <p class="text-sm text-red-700">${error.message}</p>
-                        </div>
-                    `;
+                        if (resultsDiv) resultsDiv.classList.remove('hidden');
+                        if (resultsContent) {
+                            resultsContent.innerHTML = `
+                            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                                <h3 class="font-semibold text-red-800 mb-2">✗ Import Failed</h3>
+                                <p class="text-sm text-red-700">${error.message}</p>
+                            </div>
+                        `;
+                        }
 
                         // Show done button
-                        document.getElementById('step3Footer').classList.remove('hidden');
+                        if (footer3) footer3.classList.remove('hidden');
                     }, 800);
 
                     showNotification(`Import error: ${error.message}`, 'error');
                 });
         }
+
+        // Close import modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImportModal();
+            }
+        });
+
+        // Close import modal on backdrop click
+        const importModal = document.getElementById('importCSVModal');
+        if (importModal) {
+            importModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeImportModal();
+                }
+            });
+        }
+
+        // Initial attachment
+        document.addEventListener('DOMContentLoaded', attachDeleteHandlers);
     </script>
-
-    <!-- Import CSV Modal -->
-    <div id="importCSVModal"
-        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
-            <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-white">
-                    <span id="modalStepTitle">Import Doctors from CSV</span>
-                </h2>
-                <button onclick="closeImportModal()" class="text-white hover:text-gray-200 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="p-6 overflow-y-auto flex-1">
-                <!-- Step 1: File Upload -->
-                <div id="importStep1" class="block">
-                    <!-- Instructions -->
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                        <p class="text-sm text-blue-800">
-                            Select a CSV file with doctor data. You'll be able to map CSV columns to form fields in the next
-                            step.
-                        </p>
-                    </div>
-
-                    <!-- File Input Form -->
-                    <form id="importCSVForm" enctype="multipart/form-data">
-                        @csrf
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Select CSV File</label>
-                            <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <p class="text-xs text-gray-500 mt-1">Supported formats: CSV, TXT (max 5MB)</p>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Step 2: Field Mapping -->
-                <div id="importStep2" class="hidden">
-                    <!-- Instructions -->
-                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                        <p class="text-sm text-green-800 font-medium">Map CSV columns to form fields</p>
-                        <p class="text-xs text-green-700 mt-1">Select which CSV column should map to each doctor field</p>
-                    </div>
-
-                    <!-- Field Mapping Container -->
-                    <div id="fieldMappingContainer" class="space-y-3">
-                        <!-- Mapping rows will be inserted here by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Step 3: Progress Bar & Results -->
-                <div id="importStep3" class="hidden">
-                    <!-- Progress Bar -->
-                    <div id="importProgress" class="mb-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-700">Importing...</span>
-                            <span id="importProgressText" class="text-sm font-medium text-gray-600">0%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div id="importProgressBar" class="bg-green-600 h-2 rounded-full transition-all duration-300"
-                                style="width: 0%"></div>
-                        </div>
-                    </div>
-
-                    <!-- Import Results -->
-                    <div id="importResultsDiv" class="hidden mb-4">
-                        <div id="importResultsContent"
-                            class="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-48 overflow-y-auto"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div id="step1Footer" class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-                <button type="button" onclick="closeImportModal()"
-                    class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
-                    Cancel
-                </button>
-                <button type="button" onclick="proceedToFieldMapping()"
-                    class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
-                    Next
-                </button>
-            </div>
-
-            <div id="step2Footer" class="hidden px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-                <button type="button" onclick="backToFileUpload()"
-                    class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
-                    Back
-                </button>
-                <button type="button" onclick="submitWithMapping()"
-                    class="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors">
-                    Import
-                </button>
-            </div>
-
-            <div id="step3Footer" class="hidden px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-                <button type="button" onclick="closeImportModal()"
-                    class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
-                    Done
-                </button>
-            </div>
-        </div>
-    </div>
 @endsection

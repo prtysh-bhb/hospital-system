@@ -320,52 +320,75 @@
     <!-- Import Modal -->
     <div id="importPatientModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col"
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
             onclick="event.stopPropagation()">
             <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 flex justify-between items-center">
-                <h2 id="modalStepTitle" class="text-xl font-bold text-white">Import Patients from CSV</h2>
-                <button onclick="closeImportModal()" class="text-white hover:text-gray-200 transition-colors">
+            <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800">Import CSV</h2>
+                <button onclick="closeImportModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
+
+            <!-- Steps Indicator -->
+            <div class="px-6 py-4 flex items-center justify-between text-sm font-medium">
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
+                    <span id="step1Label" class="text-gray-900">Upload CSV</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-300 mx-3"></div>
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs">2</span>
+                    <span id="step2Label" class="text-gray-500">Map columns</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-300 mx-3"></div>
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs">3</span>
+                    <span id="step3Label" class="text-gray-500">Confirm import</span>
+                </div>
+            </div>
+
             <!-- Modal Body -->
             <div class="p-6 flex-1 overflow-auto">
                 <!-- Step 1: File Upload -->
                 <div id="importStep1" class="space-y-4">
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p class="text-sm text-blue-800">
-                            <strong>CSV Format Required:</strong><br>
-                            Your CSV file should include: First Name, Last Name, Email, Phone, Date of Birth, Gender,
-                            Address, Blood Group, Emergency Contact Name, Emergency Contact Phone, Medical History,
-                            Current Medications, Insurance Provider, Insurance Number, Status
-                        </p>
-                    </div>
-
                     <form id="importForm" enctype="multipart/form-data">
                         @csrf
-                        <div class="mb-4">
-                            <label for="csvFileInput" class="block text-sm font-medium text-gray-700 mb-2">
-                                Select CSV File
-                            </label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors cursor-pointer"
+                            onclick="document.getElementById('csvFileInput').click()">
                             <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            <p class="text-xs text-gray-500 mt-1">Max file size: 5MB</p>
+                                class="hidden" />
+
+                            <div id="fileUploadArea">
+                                <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p class="text-gray-600 mb-1">Drag and drop or click to replace</p>
+                                <p class="text-xs text-gray-500">CSV file</p>
+                            </div>
+
+                            <div id="fileSelectedArea" class="hidden">
+                                <svg class="w-8 h-8 text-green-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <p id="selectedFileName" class="text-gray-800 font-medium text-sm"></p>
+                                <p class="text-xs text-gray-500 mt-1">Drag and drop or click to replace</p>
+                            </div>
                         </div>
                     </form>
                 </div>
 
                 <!-- Step 2: Field Mapping -->
                 <div id="importStep2" class="hidden space-y-4">
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p class="text-sm text-blue-800">
-                            <strong>Step 2: Map Fields</strong><br>
-                            Select which CSV column corresponds to each patient field. Required fields are marked with *.
-                        </p>
-                    </div>
-
                     <div id="fieldMappingContainer" class="space-y-3">
                         <!-- Mapping UI will be generated here -->
                     </div>
@@ -376,6 +399,7 @@
                     <div id="importProgress" class="mb-4">
                         <div class="flex items-center justify-between mb-2">
                             <p id="importProgressText" class="text-sm font-medium text-gray-700">Importing...</p>
+                            <span id="importPercentage" class="text-sm font-medium text-gray-700">0%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-3">
                             <div id="importProgressBar"
@@ -393,37 +417,33 @@
             </div>
 
             <!-- Modal Footer - Step 1 -->
-            <div id="step1Footer" class="border-t border-gray-200 px-6 py-4 flex gap-3">
+            <div id="step1Footer" class="border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
                 <button type="button" onclick="closeImportModal()"
-                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                     Cancel
                 </button>
                 <button type="button" onclick="proceedToFieldMapping()"
-                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Prepare import
                 </button>
             </div>
 
             <!-- Modal Footer - Step 2 -->
-            <div id="step2Footer" class="hidden border-t border-gray-200 px-6 py-4 flex gap-3">
+            <div id="step2Footer" class="hidden border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
                 <button type="button" onclick="backToFileUpload()"
-                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                     Back
                 </button>
-                <button type="button" onclick="closeImportModal()"
-                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
-                    Cancel
-                </button>
                 <button type="button" onclick="submitWithMapping()"
-                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    Import
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Next
                 </button>
             </div>
 
             <!-- Modal Footer - Step 3 -->
-            <div id="step3Footer" class="hidden border-t border-gray-200 px-6 py-4">
+            <div id="step3Footer" class="hidden border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
                 <button type="button" onclick="closeImportModal()"
-                    class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
                     Close
                 </button>
             </div>
@@ -472,6 +492,9 @@
         let searchTimeout;
         let currentPage = 1;
         let patientToDeleteId = null;
+        let csvHeaders = [];
+        let formFields = {};
+        let columnMapping = {};
 
         function goToPage(page) {
             currentPage = page;
@@ -486,7 +509,7 @@
         // View Patient Details
         function viewPatient(patientId) {
             const modal = document.getElementById('viewPatientModal');
-            modal.classList.remove('hidden');
+            if (modal) modal.classList.remove('hidden');
 
             fetch(`/admin/patients/${patientId}`, {
                     method: 'GET',
@@ -497,23 +520,26 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('viewPatientContent').innerHTML = data.html;
+                    const content = document.getElementById('viewPatientContent');
+                    if (content) content.innerHTML = data.html;
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('viewPatientContent').innerHTML =
+                    const content = document.getElementById('viewPatientContent');
+                    if (content) content.innerHTML =
                         '<div class="text-center py-8 text-red-600">Failed to load patient details</div>';
                 });
         }
 
         function closePatientViewModal() {
-            document.getElementById('viewPatientModal').classList.add('hidden');
+            const modal = document.getElementById('viewPatientModal');
+            if (modal) modal.classList.add('hidden');
         }
 
         // Edit Patient
         function editPatient(patientId) {
             const modal = document.getElementById('editPatientModal');
-            modal.classList.remove('hidden');
+            if (modal) modal.classList.remove('hidden');
 
             fetch(`/admin/patients/${patientId}/edit`, {
                     method: 'GET',
@@ -524,72 +550,90 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('editPatientContent').innerHTML = data.html;
+                    const content = document.getElementById('editPatientContent');
+                    if (content) content.innerHTML = data.html;
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('editPatientContent').innerHTML =
+                    const content = document.getElementById('editPatientContent');
+                    if (content) content.innerHTML =
                         '<div class="text-center py-8 text-red-600">Failed to load edit form</div>';
                 });
         }
 
         function deletePatient(patientId) {
             patientToDeleteId = patientId;
-            document.getElementById('deletePatientModal').classList.remove('hidden');
+            const modal = document.getElementById('deletePatientModal');
+            if (modal) modal.classList.remove('hidden');
         }
 
         // Cancel delete button
-        document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
-            patientToDeleteId = null;
-            document.getElementById('deletePatientModal').classList.add('hidden');
-        });
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        if (cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', () => {
+                patientToDeleteId = null;
+                const modal = document.getElementById('deletePatientModal');
+                if (modal) modal.classList.add('hidden');
+            });
+        }
 
         // Close modal when clicking outside
-        document.getElementById('deletePatientModal').addEventListener('click', (e) => {
-            if (e.target.id === 'deletePatientModal') {
-                patientToDeleteId = null;
-                document.getElementById('deletePatientModal').classList.add('hidden');
-            }
-        });
+        const deleteModal = document.getElementById('deletePatientModal');
+        if (deleteModal) {
+            deleteModal.addEventListener('click', (e) => {
+                if (e.target.id === 'deletePatientModal') {
+                    patientToDeleteId = null;
+                    deleteModal.classList.add('hidden');
+                }
+            });
+        }
 
         // Confirm delete button
-        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-            if (!patientToDeleteId) return;
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', () => {
+                if (!patientToDeleteId) return;
 
-            const patientId = patientToDeleteId;
-            document.getElementById('deletePatientModal').classList.add('hidden');
-            patientToDeleteId = null;
+                const patientId = patientToDeleteId;
+                const modal = document.getElementById('deletePatientModal');
+                if (modal) modal.classList.add('hidden');
+                patientToDeleteId = null;
 
-            fetch(`/admin/patients/${patientId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        toastr.success(data.message || 'Patient deleted successfully!');
-                        fetchPatients(); // Refresh the patient list
-                    } else {
-                        toastr.error(data.message || 'Failed to delete patient');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('An error occurred while deleting the patient. Please try again.');
-                });
-        });
+                fetch(`/admin/patients/${patientId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            toastr.success(data.message || 'Patient deleted successfully!');
+                            fetchPatients(); // Refresh the patient list
+                        } else {
+                            toastr.error(data.message || 'Failed to delete patient');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        toastr.error('An error occurred while deleting the patient. Please try again.');
+                    });
+            });
+        }
 
         function closePatientEditModal() {
-            document.getElementById('editPatientModal').classList.add('hidden');
+            const modal = document.getElementById('editPatientModal');
+            if (modal) modal.classList.add('hidden');
         }
 
         // Save edited patient
         function savePatient(patientId) {
-            const formData = new FormData(document.getElementById('editPatientForm'));
+            const form = document.getElementById('editPatientForm');
+            if (!form) return;
+
+            const formData = new FormData(form);
 
             // Clear all previous errors
             clearFormErrors();
@@ -638,16 +682,18 @@
         }
 
         function clearFormErrors() {
+            const form = document.getElementById('editPatientForm');
+            if (!form) return;
+
             // Remove error styling from all inputs
-            const inputs = document.querySelectorAll(
-                '#editPatientForm input, #editPatientForm select, #editPatientForm textarea');
+            const inputs = form.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 input.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
                 input.classList.add('border-gray-300', 'focus:ring-sky-500', 'focus:border-transparent');
             });
 
             // Hide all error messages
-            const errorMessages = document.querySelectorAll('#editPatientForm .error-message');
+            const errorMessages = form.querySelectorAll('.error-message');
             errorMessages.forEach(msg => {
                 msg.classList.add('hidden');
                 msg.textContent = '';
@@ -655,8 +701,11 @@
         }
 
         function displayFormErrors(errors) {
+            const form = document.getElementById('editPatientForm');
+            if (!form) return;
+
             Object.keys(errors).forEach(fieldName => {
-                const input = document.querySelector(`#editPatientForm [name="${fieldName}"]`);
+                const input = form.querySelector(`[name="${fieldName}"]`);
                 if (input) {
                     // Add error styling to input
                     input.classList.remove('border-gray-300', 'focus:ring-sky-500',
@@ -666,7 +715,7 @@
                     // Show error message below input
                     const errorContainer = input.parentElement.querySelector('.error-message');
                     if (errorContainer) {
-                        errorContainer.textContent = errors[fieldName][0]; // Show first error message
+                        errorContainer.textContent = errors[fieldName][0];
                         errorContainer.classList.remove('hidden');
                     }
 
@@ -682,13 +731,21 @@
         }
 
         function fetchPatients() {
-            const search = document.getElementById('searchInput').value;
-            const blood_group = document.getElementById('bloodGroupFilter').value;
-            const status = document.getElementById('statusFilter').value;
+            const searchInput = document.getElementById('searchInput');
+            const bloodGroupFilter = document.getElementById('bloodGroupFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const tableContainer = document.querySelector('.overflow-x-auto');
+
+            if (!searchInput || !bloodGroupFilter || !statusFilter || !loadingIndicator || !tableContainer) return;
+
+            const search = searchInput.value;
+            const blood_group = bloodGroupFilter.value;
+            const status = statusFilter.value;
 
             // Show loading indicator
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            document.querySelector('.overflow-x-auto').style.opacity = '0.5';
+            loadingIndicator.classList.remove('hidden');
+            tableContainer.style.opacity = '0.5';
 
             // Build query parameters
             const params = new URLSearchParams();
@@ -707,36 +764,39 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('patientTableBody').innerHTML = data.html;
-                    document.getElementById('loadingIndicator').classList.add('hidden');
-                    document.querySelector('.overflow-x-auto').style.opacity = '1';
+                    const tableBody = document.getElementById('patientTableBody');
+                    if (tableBody) tableBody.innerHTML = data.html;
+
+                    loadingIndicator.classList.add('hidden');
+                    tableContainer.style.opacity = '1';
 
                     // Update pagination info
-                    // Prevent crash if pagination is missing
                     if (data.pagination) {
-                        document.getElementById('paginationFrom').textContent = data.pagination.from ?? 0;
-                        document.getElementById('paginationTo').textContent = data.pagination.to ?? 0;
-                        document.getElementById('paginationTotal').textContent = data.pagination.total ?? 0;
+                        const paginationFrom = document.getElementById('paginationFrom');
+                        const paginationTo = document.getElementById('paginationTo');
+                        const paginationTotal = document.getElementById('paginationTotal');
+
+                        if (paginationFrom) paginationFrom.textContent = data.pagination.from ?? 0;
+                        if (paginationTo) paginationTo.textContent = data.pagination.to ?? 0;
+                        if (paginationTotal) paginationTotal.textContent = data.pagination.total ?? 0;
 
                         updatePaginationButtons(data.pagination);
                     } else {
                         console.error("Pagination missing from response:", data);
                     }
-
-
-                    // Update pagination buttons
-                    updatePaginationButtons(data.pagination);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('loadingIndicator').classList.add('hidden');
-                    document.querySelector('.overflow-x-auto').style.opacity = '1';
-                    console.log('error->>>>', error);
+                    loadingIndicator.classList.add('hidden');
+                    if (tableContainer) tableContainer.style.opacity = '1';
                     toastr.error('An error occurred while fetching patients. Please try again.');
                 });
         }
 
         function updatePaginationButtons(pagination) {
+            const paginationButtons = document.getElementById('paginationButtons');
+            if (!paginationButtons || !pagination) return;
+
             let buttonsHtml = '';
 
             // Previous button
@@ -768,42 +828,57 @@
                     `<button onclick="goToPage(${pagination.current_page + 1})" class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Next</button>`;
             }
 
-            document.getElementById('paginationButtons').innerHTML = buttonsHtml;
+            paginationButtons.innerHTML = buttonsHtml;
         }
 
         // Search input with debounce
-        document.getElementById('searchInput').addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            currentPage = 1; // Reset to first page on search
-            searchTimeout = setTimeout(() => {
-                fetchPatients();
-            }, 500);
-        });
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                currentPage = 1; // Reset to first page on search
+                searchTimeout = setTimeout(() => {
+                    fetchPatients();
+                }, 500);
+            });
+        }
 
         // Blood group filter
-        document.getElementById('bloodGroupFilter').addEventListener('change', function() {
-            currentPage = 1; // Reset to first page on filter
-            fetchPatients();
-        });
+        const bloodGroupFilter = document.getElementById('bloodGroupFilter');
+        if (bloodGroupFilter) {
+            bloodGroupFilter.addEventListener('change', function() {
+                currentPage = 1; // Reset to first page on filter
+                fetchPatients();
+            });
+        }
 
         // Status filter
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            currentPage = 1; // Reset to first page on filter
-            fetchPatients();
-        });
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function() {
+                currentPage = 1; // Reset to first page on filter
+                fetchPatients();
+            });
+        }
 
         // Close modals when clicking outside (on the backdrop)
-        document.getElementById('editPatientModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePatientEditModal();
-            }
-        });
+        const editModal = document.getElementById('editPatientModal');
+        if (editModal) {
+            editModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePatientEditModal();
+                }
+            });
+        }
 
-        document.getElementById('viewPatientModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePatientViewModal();
-            }
-        });
+        const viewModal = document.getElementById('viewPatientModal');
+        if (viewModal) {
+            viewModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePatientViewModal();
+                }
+            });
+        }
 
         // Close modals with ESC key
         document.addEventListener('keydown', function(e) {
@@ -832,10 +907,6 @@
         // ========================================
         // IMPORT MODAL FUNCTIONS - MULTI-STEP
         // ========================================
-        let csvHeaders = [];
-        let formFields = {};
-        let columnMapping = {};
-
         function openImportModal() {
             const modal = document.getElementById('importPatientModal');
             if (modal) {
@@ -856,20 +927,35 @@
 
         function resetImportModal() {
             // Reset to step 1
-            document.getElementById('importStep1').classList.remove('hidden');
-            document.getElementById('importStep2').classList.add('hidden');
-            document.getElementById('importStep3').classList.add('hidden');
+            const step1 = document.getElementById('importStep1');
+            const step2 = document.getElementById('importStep2');
+            const step3 = document.getElementById('importStep3');
+            const footer1 = document.getElementById('step1Footer');
+            const footer2 = document.getElementById('step2Footer');
+            const footer3 = document.getElementById('step3Footer');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileSelectedArea = document.getElementById('fileSelectedArea');
+            const importProgress = document.getElementById('importProgress');
+            const importResultsDiv = document.getElementById('importResultsDiv');
 
-            document.getElementById('step1Footer').classList.remove('hidden');
-            document.getElementById('step2Footer').classList.add('hidden');
-            document.getElementById('step3Footer').classList.add('hidden');
+            if (step1) step1.classList.remove('hidden');
+            if (step2) step2.classList.add('hidden');
+            if (step3) step3.classList.add('hidden');
 
-            document.getElementById('modalStepTitle').textContent = 'Import Patients from CSV';
+            if (footer1) footer1.classList.remove('hidden');
+            if (footer2) footer2.classList.add('hidden');
+            if (footer3) footer3.classList.add('hidden');
+
+            // Reset step indicators
+            updateStepIndicators(1);
 
             // Reset form
-            document.getElementById('importForm').reset();
-            document.getElementById('importProgress').classList.remove('hidden');
-            document.getElementById('importResultsDiv').classList.add('hidden');
+            const importForm = document.getElementById('importForm');
+            if (importForm) importForm.reset();
+            if (fileUploadArea) fileUploadArea.classList.remove('hidden');
+            if (fileSelectedArea) fileSelectedArea.classList.add('hidden');
+            if (importProgress) importProgress.classList.remove('hidden');
+            if (importResultsDiv) importResultsDiv.classList.add('hidden');
 
             // Reset data
             csvHeaders = [];
@@ -877,9 +963,68 @@
             columnMapping = {};
         }
 
+        // Update step indicators
+        function updateStepIndicators(currentStep) {
+            const stepLabels = [1, 2, 3];
+
+            stepLabels.forEach((step) => {
+                // Get label element
+                const label = document.getElementById(`step${step}Label`);
+                if (!label) return;
+
+                // Get the circle span which is the previous sibling of the label
+                const container = label.parentElement;
+                const circle = container ? container.querySelector('span[class*="rounded-full"]') : null;
+
+                if (!circle) return; // Skip if element doesn't exist
+
+                if (step < currentStep) {
+                    // Previous steps - green checkmark
+                    circle.className =
+                        'w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-xs';
+                    circle.innerHTML =
+                        '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>';
+                    label.className = 'text-gray-900';
+                } else if (step === currentStep) {
+                    // Current step - blue
+                    circle.className =
+                        'w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs';
+                    circle.textContent = step;
+                    label.className = 'text-gray-900';
+                } else {
+                    // Future steps - gray
+                    circle.className =
+                        'w-6 h-6 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs';
+                    circle.textContent = step;
+                    label.className = 'text-gray-500';
+                }
+            });
+        }
+
+        // Handle file selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const csvFileInput = document.getElementById('csvFileInput');
+            const selectedFileName = document.getElementById('selectedFileName');
+            
+            if (csvFileInput && selectedFileName) {
+                csvFileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const fileName = this.files[0].name;
+                        selectedFileName.textContent = fileName;
+                        
+                        const fileUploadArea = document.getElementById('fileUploadArea');
+                        const fileSelectedArea = document.getElementById('fileSelectedArea');
+                        
+                        if (fileUploadArea) fileUploadArea.classList.add('hidden');
+                        if (fileSelectedArea) fileSelectedArea.classList.remove('hidden');
+                    }
+                });
+            }
+        });
+
         function proceedToFieldMapping() {
             const fileInput = document.getElementById('csvFileInput');
-            if (!fileInput.files || !fileInput.files[0]) {
+            if (!fileInput || !fileInput.files || !fileInput.files[0]) {
                 showNotification('Please select a CSV file', 'error');
                 return;
             }
@@ -890,8 +1035,10 @@
 
             // Show loading state
             const nextBtn = document.querySelector('#step1Footer button:last-child');
-            nextBtn.disabled = true;
-            nextBtn.textContent = 'Loading...';
+            if (nextBtn) {
+                nextBtn.disabled = true;
+                nextBtn.textContent = 'Loading...';
+            }
 
             fetch('{{ route('admin.patients.csv-headers') }}', {
                     method: 'POST',
@@ -903,8 +1050,10 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    nextBtn.disabled = false;
-                    nextBtn.textContent = 'Next';
+                    if (nextBtn) {
+                        nextBtn.disabled = false;
+                        nextBtn.textContent = 'Prepare import';
+                    }
 
                     if (!data.success) {
                         showNotification(data.message || 'Failed to read CSV headers', 'error');
@@ -923,17 +1072,24 @@
                     buildFieldMappingUI();
 
                     // Switch to step 2
-                    document.getElementById('importStep1').classList.add('hidden');
-                    document.getElementById('importStep2').classList.remove('hidden');
+                    const step1 = document.getElementById('importStep1');
+                    const step2 = document.getElementById('importStep2');
+                    const footer1 = document.getElementById('step1Footer');
+                    const footer2 = document.getElementById('step2Footer');
 
-                    document.getElementById('step1Footer').classList.add('hidden');
-                    document.getElementById('step2Footer').classList.remove('hidden');
+                    if (step1) step1.classList.add('hidden');
+                    if (step2) step2.classList.remove('hidden');
+                    if (footer1) footer1.classList.add('hidden');
+                    if (footer2) footer2.classList.remove('hidden');
 
-                    document.getElementById('modalStepTitle').textContent = 'Step 2: Map CSV Fields';
+                    // Update step indicators
+                    updateStepIndicators(2);
                 })
                 .catch(error => {
-                    nextBtn.disabled = false;
-                    nextBtn.textContent = 'Next';
+                    if (nextBtn) {
+                        nextBtn.disabled = false;
+                        nextBtn.textContent = 'Prepare import';
+                    }
                     console.error('Error:', error);
                     showNotification('Error reading CSV file: ' + error.message, 'error');
                 });
@@ -941,6 +1097,8 @@
 
         function buildFieldMappingUI() {
             const container = document.getElementById('fieldMappingContainer');
+            if (!container) return;
+
             container.innerHTML = '';
 
             const requiredFields = ['first_name', 'last_name', 'email', 'phone'];
@@ -1035,18 +1193,23 @@
         }
 
         function backToFileUpload() {
-            document.getElementById('importStep1').classList.remove('hidden');
-            document.getElementById('importStep2').classList.add('hidden');
+            const step1 = document.getElementById('importStep1');
+            const step2 = document.getElementById('importStep2');
+            const footer1 = document.getElementById('step1Footer');
+            const footer2 = document.getElementById('step2Footer');
 
-            document.getElementById('step1Footer').classList.remove('hidden');
-            document.getElementById('step2Footer').classList.add('hidden');
+            if (step1) step1.classList.remove('hidden');
+            if (step2) step2.classList.add('hidden');
+            if (footer1) footer1.classList.remove('hidden');
+            if (footer2) footer2.classList.add('hidden');
 
-            document.getElementById('modalStepTitle').textContent = 'Import Patients from CSV';
+            // Update step indicators
+            updateStepIndicators(1);
         }
 
         function submitWithMapping() {
             const fileInput = document.getElementById('csvFileInput');
-            if (!fileInput.files || !fileInput.files[0]) {
+            if (!fileInput || !fileInput.files || !fileInput.files[0]) {
                 showNotification('Please select a CSV file', 'error');
                 return;
             }
@@ -1074,13 +1237,18 @@
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
             // Switch to step 3
-            document.getElementById('importStep2').classList.add('hidden');
-            document.getElementById('importStep3').classList.remove('hidden');
+            const step2 = document.getElementById('importStep2');
+            const step3 = document.getElementById('importStep3');
+            const footer2 = document.getElementById('step2Footer');
+            const footer3 = document.getElementById('step3Footer');
 
-            document.getElementById('step2Footer').classList.add('hidden');
-            document.getElementById('step3Footer').classList.remove('hidden');
+            if (step2) step2.classList.add('hidden');
+            if (step3) step3.classList.remove('hidden');
+            if (footer2) footer2.classList.add('hidden');
+            if (footer3) footer3.classList.remove('hidden');
 
-            document.getElementById('modalStepTitle').textContent = 'Step 3: Importing...';
+            // Update step indicators
+            updateStepIndicators(3);
 
             // Start import
             performImport(formData);
@@ -1098,12 +1266,15 @@
                 .then(response => response.json())
                 .then(data => {
                     // Hide progress bar
-                    document.getElementById('importProgress').classList.add('hidden');
+                    const importProgress = document.getElementById('importProgress');
+                    if (importProgress) importProgress.classList.add('hidden');
 
                     if (data.success) {
                         // Show success results
                         const resultsDiv = document.getElementById('importResultsDiv');
-                        resultsDiv.classList.remove('hidden');
+                        const resultsContent = document.getElementById('importResultsContent');
+                        
+                        if (resultsDiv) resultsDiv.classList.remove('hidden');
 
                         let html = '<div class="p-4 bg-green-50 border border-green-200 rounded-lg">';
                         html += `<p class="text-sm font-medium text-green-800 mb-2">${data.message}</p>`;
@@ -1120,7 +1291,7 @@
 
                         html += '</div>';
 
-                        document.getElementById('importResultsContent').innerHTML = html;
+                        if (resultsContent) resultsContent.innerHTML = html;
 
                         // Auto-close after success
                         if (!data.details || data.details.failed === 0) {
@@ -1131,7 +1302,9 @@
                         }
                     } else {
                         const resultsDiv = document.getElementById('importResultsDiv');
-                        resultsDiv.classList.remove('hidden');
+                        const resultsContent = document.getElementById('importResultsContent');
+                        
+                        if (resultsDiv) resultsDiv.classList.remove('hidden');
 
                         let html = '<div class="p-4 bg-red-50 border border-red-200 rounded-lg">';
                         html += `<p class="text-sm font-medium text-red-800">${data.message}</p>`;
@@ -1147,21 +1320,24 @@
 
                         html += '</div>';
 
-                        document.getElementById('importResultsContent').innerHTML = html;
+                        if (resultsContent) resultsContent.innerHTML = html;
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
 
-                    document.getElementById('importProgress').classList.add('hidden');
+                    const importProgress = document.getElementById('importProgress');
                     const resultsDiv = document.getElementById('importResultsDiv');
-                    resultsDiv.classList.remove('hidden');
+                    const resultsContent = document.getElementById('importResultsContent');
+
+                    if (importProgress) importProgress.classList.add('hidden');
+                    if (resultsDiv) resultsDiv.classList.remove('hidden');
 
                     let html = '<div class="p-4 bg-red-50 border border-red-200 rounded-lg">';
                     html += `<p class="text-sm font-medium text-red-800">Import failed: ${error.message}</p>`;
                     html += '</div>';
 
-                    document.getElementById('importResultsContent').innerHTML = html;
+                    if (resultsContent) resultsContent.innerHTML = html;
                 });
         }
 
@@ -1173,20 +1349,24 @@
         });
 
         // Close modal when clicking outside
-        document.getElementById('importPatientModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeImportModal();
-            }
-        });
+        const importModal = document.getElementById('importPatientModal');
+        if (importModal) {
+            importModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeImportModal();
+                }
+            });
+        }
 
         function toggleDropdown() {
-            document.getElementById('actionDropdown').classList.toggle('hidden');
+            const dropdown = document.getElementById('actionDropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
         }
 
         document.addEventListener('click', function(e) {
             const dropdown = document.getElementById('actionDropdown');
             if (!e.target.closest('.relative')) {
-                dropdown.classList.add('hidden');
+                if (dropdown) dropdown.classList.add('hidden');
             }
         });
     </script>
