@@ -176,29 +176,36 @@ class PatientExportImportService
             // Normalize header for consistency
             $normalizedHeader = trim(preg_replace('/\x{FEFF}/u', '', $header));
 
-            $fieldName = null;
+            $fieldNames = [];
 
             // If custom column mapping is provided, use it
+            // NEW STRUCTURE: columnMapping has dbField -> csvColumn (not csvColumn -> dbField)
+            // Can have MULTIPLE dbFields mapping to the SAME csvColumn
             if ($columnMapping && is_array($columnMapping) && ! empty($columnMapping)) {
-                // Try exact match first with normalized headers
-                foreach ($columnMapping as $csvHeaderKey => $dbField) {
-                    $normalizedKey = trim(preg_replace('/\x{FEFF}/u', '', $csvHeaderKey));
+                // Look through the mapping to find ALL dbFields that map to this CSV column
+                foreach ($columnMapping as $dbField => $csvColumn) {
+                    if ($csvColumn) {
+                        $normalizedCsvCol = trim(preg_replace('/\x{FEFF}/u', '', $csvColumn));
 
-                    if ($normalizedKey === $normalizedHeader ||
-                        strtolower($normalizedKey) === strtolower($normalizedHeader)) {
-                        $fieldName = $dbField;
-                        break;
+                        if ($normalizedCsvCol === $normalizedHeader ||
+                            strtolower($normalizedCsvCol) === strtolower($normalizedHeader)) {
+                            // Found a mapping: this CSV column should be saved to this dbField
+                            $fieldNames[] = $dbField;
+                        }
                     }
                 }
             }
 
             // If not found in custom mapping, try default mapping
-            if (! $fieldName) {
-                $fieldName = $this->getDefaultFieldMapping($normalizedHeader);
+            if (empty($fieldNames)) {
+                $defaultField = $this->getDefaultFieldMapping($normalizedHeader);
+                if ($defaultField) {
+                    $fieldNames[] = $defaultField;
+                }
             }
 
-            // Set field value if we found a mapping
-            if ($fieldName && ! empty($fieldName)) {
+            // Set field value for ALL matching database fields
+            foreach ($fieldNames as $fieldName) {
                 $this->setFieldValue($data, $fieldName, $value);
             }
         }

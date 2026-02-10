@@ -975,21 +975,21 @@
                             <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Imported:</strong> ${data.data.success} doctor(s)</p>
                             <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Failed:</strong> ${data.data.failed}</p>
                             ${data.data.errors.length > 0 ? `
-                                                        <div class="mt-3">
-                                                            <strong class="text-red-800">Errors (showing first 10):</strong>
-                                                            <div class="mt-2 space-y-1 max-h-40 overflow-y-auto">
-                                                                ${data.data.errors.slice(0, 10).map(err => {
-                                                                    const match = err.match(/^\[([^\]]+)\]\s*(.*)/);
-                                                                    const field = match ? match[1] : 'General';
-                                                                    const message = match ? match[2] : err;
-                                                                    return `<div class="text-sm p-2 bg-red-100 rounded border-l-3 border-red-500 text-red-800">
+                                                            <div class="mt-3">
+                                                                <strong class="text-red-800">Errors (showing first 10):</strong>
+                                                                <div class="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                                                                    ${data.data.errors.slice(0, 10).map(err => {
+                                                                        const match = err.match(/^\[([^\]]+)\]\s*(.*)/);
+                                                                        const field = match ? match[1] : 'General';
+                                                                        const message = match ? match[2] : err;
+                                                                        return `<div class="text-sm p-2 bg-red-100 rounded border-l-3 border-red-500 text-red-800">
                                 <span class="font-semibold text-red-900">[${field}]</span> ${message}
                             </div>`;
-                                                                }).join('')}
-                                                                ${data.data.errors.length > 10 ? `<div class="text-sm p-2 bg-red-50 rounded text-red-700 font-semibold">... and ${data.data.errors.length - 10} more errors</div>` : ''}
+                                                                    }).join('')}
+                                                                    ${data.data.errors.length > 10 ? `<div class="text-sm p-2 bg-red-50 rounded text-red-700 font-semibold">... and ${data.data.errors.length - 10} more errors</div>` : ''}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    ` : ''}
+                                                        ` : ''}
                         </div>
                     `;
 

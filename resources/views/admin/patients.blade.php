@@ -5,25 +5,40 @@
 @section('page-title', 'Patients Management')
 
 @section('header-actions')
-    <div class="flex flex-wrap gap-2">
-        <!-- Export CSV Button -->
-        <a href="{{ route('admin.patients.export-csv') }}"
-            class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium flex items-center gap-2">
+    <div class="relative inline-block text-left">
+        <!-- Dropdown Trigger -->
+        <button type="button" onclick="toggleDropdown()"
+            class="inline-flex items-center gap-2 px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-gray-700 hover:bg-gray-800 rounded-lg font-medium">
+            Actions
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
-            Export CSV
-        </a>
-
-        <!-- Import CSV Button -->
-        <button onclick="openImportModal()"
-            class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-            Bulk Import
         </button>
+
+        <!-- Dropdown Menu -->
+        <div id="actionDropdown"
+            class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+
+            <!-- Export CSV -->
+            <a href="{{ route('admin.patients.export-csv') }}"
+                class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                Export CSV
+            </a>
+
+            <!-- Bulk Import -->
+            <button onclick="openImportModal()"
+                class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                Bulk Import
+            </button>
+        </div>
     </div>
 @endsection
 
@@ -990,27 +1005,27 @@
 
                         if (isMatch) {
                             option.selected = true;
-                            columnMapping[header] = fieldKey;
+                            // REVERSE MAPPING: dbField -> csvColumn (allows multiple db fields to use same csv column)
+                            columnMapping[fieldKey] = header;
                             autoSelected = true;
                         }
                     }
                 });
 
-                // Update mapping when selection changes
+                // Update mapping when selection changes - ALLOWS MULTIPLE DB FIELDS TO MAP TO SAME CSV COLUMN
                 select.addEventListener('change', (e) => {
                     const selectedHeader = e.target.value;
                     const fieldKey = e.target.dataset.field;
 
                     if (selectedHeader) {
-                        columnMapping[selectedHeader] = fieldKey;
+                        // Map: database field -> CSV column (allows multiple db fields to use same csv column)
+                        columnMapping[fieldKey] = selectedHeader;
                     } else {
-                        // Remove mapping for this field
-                        Object.keys(columnMapping).forEach(key => {
-                            if (columnMapping[key] === fieldKey) {
-                                delete columnMapping[key];
-                            }
-                        });
+                        // Remove mapping for this database field
+                        delete columnMapping[fieldKey];
                     }
+
+                    console.log('Updated columnMapping (dbField -> csvColumn):', columnMapping);
                 });
 
                 row.appendChild(label);
@@ -1036,10 +1051,16 @@
                 return;
             }
 
-            // Validate that at least required fields are mapped
+            console.log('Column mapping structure:', columnMapping);
+
+            // Validate that all required fields are mapped
             const requiredFields = ['first_name', 'last_name', 'email', 'phone'];
-            const mappedFields = Object.values(columnMapping);
-            const missingRequired = requiredFields.filter(f => !mappedFields.includes(f));
+            const mappedRequiredFields = requiredFields.filter(f => columnMapping[f] && columnMapping[f].trim() !== '');
+            const missingRequired = requiredFields.filter(f => !mappedRequiredFields.includes(f));
+
+            console.log('Required fields:', requiredFields);
+            console.log('Mapped required fields:', mappedRequiredFields);
+            console.log('Missing required:', missingRequired);
 
             if (missingRequired.length > 0) {
                 showNotification('Please map all required fields: ' + missingRequired.join(', '), 'error');
@@ -1155,6 +1176,17 @@
         document.getElementById('importPatientModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeImportModal();
+            }
+        });
+
+        function toggleDropdown() {
+            document.getElementById('actionDropdown').classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('actionDropdown');
+            if (!e.target.closest('.relative')) {
+                dropdown.classList.add('hidden');
             }
         });
     </script>
