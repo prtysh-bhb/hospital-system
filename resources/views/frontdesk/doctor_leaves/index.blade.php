@@ -320,26 +320,99 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 border">
-                                        @if ($leave->leave_type == 'custom')
+                                        @if ($leave->leave_type == 'full_day')
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                                — (No availability)
+                                            </span>
+                                        @elseif ($leave->leave_type == 'custom')
                                             @php
                                                 $isSingleDay = $leave->start_date == $leave->end_date;
                                             @endphp
                                             @if ($isSingleDay && $leave->start_date_type == 'half_day' && $leave->end_date_type == 'half_day')
-                                                {{ ucfirst($leave->start_half_slot) }} Half
+                                                <!-- Both start and end are half day: no other half available (impossible for single day, but handle it) -->
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                                    — (No availability)
+                                                </span>
                                             @elseif ($isSingleDay && $leave->start_date_type == 'half_day')
-                                                {{ ucfirst($leave->start_half_slot) }} Half
+                                                <!-- Single day, half day leave: opposite half is available -->
+                                                @php
+                                                    $availableSlot =
+                                                        $leave->start_half_slot === 'morning' ? 'Evening' : 'Morning';
+                                                @endphp
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    ✅ Available ({{ $availableSlot }} Half)
+                                                </span>
                                             @elseif ($isSingleDay && $leave->end_date_type == 'half_day')
-                                                {{ ucfirst($leave->end_half_slot) }} Half
+                                                <!-- Single day, half day leave: opposite half is available -->
+                                                @php
+                                                    $availableSlot =
+                                                        $leave->end_half_slot === 'morning' ? 'Evening' : 'Morning';
+                                                @endphp
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    ✅ Available ({{ $availableSlot }} Half)
+                                                </span>
                                             @else
-                                                @if ($leave->start_date_type == 'half_day')
-                                                    {{ ucfirst($leave->start_half_slot) }} Half (Start)
-                                                @endif
-                                                @if ($leave->end_date_type == 'half_day')
-                                                    {{ ucfirst($leave->end_half_slot) }} Half (End)
-                                                @endif
+                                                <!-- Multi-day leave: show available portions -->
+                                                <div class="flex flex-col gap-1">
+                                                    @if ($leave->start_date_type == 'half_day' && $leave->end_date_type == 'half_day')
+                                                        <!-- Half day on both start and end: opposite halves are available -->
+                                                        @php
+                                                            $availableStartSlot =
+                                                                $leave->start_half_slot === 'morning'
+                                                                    ? 'Evening'
+                                                                    : 'Morning';
+                                                            $availableEndSlot =
+                                                                $leave->end_half_slot === 'morning'
+                                                                    ? 'Evening'
+                                                                    : 'Morning';
+                                                        @endphp
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            ✅ {{ $availableStartSlot }} (Start)
+                                                        </span>
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            ✅ {{ $availableEndSlot }} (End)
+                                                        </span>
+                                                    @elseif ($leave->start_date_type == 'half_day')
+                                                        @php
+                                                            $availableSlot =
+                                                                $leave->start_half_slot === 'morning'
+                                                                    ? 'Evening'
+                                                                    : 'Morning';
+                                                        @endphp
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            ✅ {{ $availableSlot }} (Start)
+                                                        </span>
+                                                    @elseif ($leave->end_date_type == 'half_day')
+                                                        @php
+                                                            $availableSlot =
+                                                                $leave->end_half_slot === 'morning'
+                                                                    ? 'Evening'
+                                                                    : 'Morning';
+                                                        @endphp
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            ✅ {{ $availableSlot }} (End)
+                                                        </span>
+                                                    @else
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                                            — (No availability)
+                                                        </span>
+                                                    @endif
+                                                </div>
                                             @endif
                                         @else
-                                            -
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                -
+                                            </span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 border text-gray-700 max-w-xs truncate">{{ $leave->reason }}</td>
