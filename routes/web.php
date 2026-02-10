@@ -40,7 +40,6 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-
 // Clear all caches
 Route::get('/catch', function () {
     \Artisan::call('config:clear');
@@ -49,8 +48,6 @@ Route::get('/catch', function () {
     \Artisan::call('optimize:clear');
     dd('DONE');
 });
-
-
 
 // Authentication Routes
 Route::controller(AuthController::class)->group(function () {
@@ -113,11 +110,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('/doctors/csv-headers', [DoctorsController::class, 'getCSVHeaders'])->name('doctors.csv-headers');
 
     Route::get('/patients', [PatientController::class, 'index'])->name('patients');
-    
+
     // CSV Import/Export routes for patients (must be before parametric routes)
     Route::get('/patients/export/csv', [PatientController::class, 'exportCSV'])->name('patients.export-csv');
     Route::post('/patients/import/csv', [PatientController::class, 'importCSV'])->name('patients.import-csv');
-    
+    Route::post('/patients/csv-headers', [PatientController::class, 'getCSVHeaders'])->name('patients.csv-headers');
+
     Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patient-view');
     Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])->name('patient-edit');
     Route::post('/patients/{id}', [PatientController::class, 'update'])->name('patient-update');

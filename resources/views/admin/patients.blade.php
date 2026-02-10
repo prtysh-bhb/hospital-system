@@ -305,66 +305,112 @@
     <!-- Import Modal -->
     <div id="importPatientModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col"
             onclick="event.stopPropagation()">
-            <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                <h3 class="text-xl font-semibold text-gray-800">Import Patients from CSV</h3>
-                <button onclick="closeImportModal()" class="text-gray-400 hover:text-gray-600">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 flex justify-between items-center">
+                <h2 id="modalStepTitle" class="text-xl font-bold text-white">Import Patients from CSV</h2>
+                <button onclick="closeImportModal()" class="text-white hover:text-gray-200 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
+            <!-- Modal Body -->
             <div class="p-6 flex-1 overflow-auto">
-                <form id="importForm" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Select CSV File</label>
-                        <div class="relative">
-                            <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt" class="hidden"
-                                onchange="updateFileName()">
-                            <button type="button" onclick="document.getElementById('csvFileInput').click()"
-                                class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-gray-400 cursor-pointer transition">
-                                <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                                <p id="fileNameDisplay" class="text-sm text-gray-600">Click to select a CSV file</p>
-                            </button>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">Supported format: CSV (Max: 5MB)</p>
+                <!-- Step 1: File Upload -->
+                <div id="importStep1" class="space-y-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-sm text-blue-800">
+                            <strong>CSV Format Required:</strong><br>
+                            Your CSV file should include: First Name, Last Name, Email, Phone, Date of Birth, Gender,
+                            Address, Blood Group, Emergency Contact Name, Emergency Contact Phone, Medical History,
+                            Current Medications, Insurance Provider, Insurance Number, Status
+                        </p>
                     </div>
 
-                    <!-- Only errors section - NO success section -->
-                    <div id="importErrors" class="hidden mb-4">
-                        <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <p class="text-sm font-medium text-red-800 mb-2">Import Errors:</p>
-                            <ul id="errorsList"
-                                class="text-sm text-red-700 list-disc list-inside max-h-64 overflow-y-auto space-y-1">
-                            </ul>
+                    <form id="importForm" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-4">
+                            <label for="csvFileInput" class="block text-sm font-medium text-gray-700 mb-2">
+                                Select CSV File
+                            </label>
+                            <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            <p class="text-xs text-gray-500 mt-1">Max file size: 5MB</p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 2: Field Mapping -->
+                <div id="importStep2" class="hidden space-y-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-sm text-blue-800">
+                            <strong>Step 2: Map Fields</strong><br>
+                            Select which CSV column corresponds to each patient field. Required fields are marked with *.
+                        </p>
+                    </div>
+
+                    <div id="fieldMappingContainer" class="space-y-3">
+                        <!-- Mapping UI will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Step 3: Import Progress -->
+                <div id="importStep3" class="hidden space-y-4">
+                    <div id="importProgress" class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <p id="importProgressText" class="text-sm font-medium text-gray-700">Importing...</p>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="importProgressBar"
+                                class="bg-blue-500 h-3 rounded-full transition-all duration-300 ease-out"
+                                style="width: 0%">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="flex gap-3 mt-4">
-                        <button type="button" onclick="closeImportModal()"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">
-                            Cancel
-                        </button>
-                        <button type="submit" id="importSubmitBtn"
-                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center">
-                            <span id="importBtnText">Import</span>
-                            <svg id="importLoadingSpinner" class="hidden w-5 h-5 ml-2 text-white animate-spin"
-                                fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                        </button>
+                    <!-- Import Results -->
+                    <div id="importResultsDiv" class="hidden">
+                        <div id="importResultsContent"></div>
                     </div>
-                </form>
+                </div>
+            </div>
+
+            <!-- Modal Footer - Step 1 -->
+            <div id="step1Footer" class="border-t border-gray-200 px-6 py-4 flex gap-3">
+                <button type="button" onclick="closeImportModal()"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+                <button type="button" onclick="proceedToFieldMapping()"
+                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next
+                </button>
+            </div>
+
+            <!-- Modal Footer - Step 2 -->
+            <div id="step2Footer" class="hidden border-t border-gray-200 px-6 py-4 flex gap-3">
+                <button type="button" onclick="backToFileUpload()"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                    Back
+                </button>
+                <button type="button" onclick="closeImportModal()"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+                <button type="button" onclick="submitWithMapping()"
+                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Import
+                </button>
+            </div>
+
+            <!-- Modal Footer - Step 3 -->
+            <div id="step3Footer" class="hidden border-t border-gray-200 px-6 py-4">
+                <button type="button" onclick="closeImportModal()"
+                    class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Close
+                </button>
             </div>
         </div>
     </div>
@@ -753,159 +799,350 @@
             }
         });
 
-        // Import Modal Functions
-        function openImportModal() {
-            document.getElementById('importPatientModal').classList.remove('hidden');
-            document.getElementById('importForm').reset();
-            document.getElementById('csvFileInput').value = '';
-            document.getElementById('fileNameDisplay').textContent = 'Click to select a CSV file';
-            document.getElementById('importErrors').classList.add('hidden');
-            document.getElementById('errorsList').innerHTML = '';
+        // ========================================
+        // NOTIFICATION FUNCTION
+        // ========================================
+        function showNotification(message, type = 'success') {
+            if (typeof toastr !== 'undefined') {
+                toastr[type](message);
+            } else {
+                const alertType = type === 'error' ? 'alert' : 'log';
+                console[alertType](message);
+                if (type === 'error') {
+                    alert(message);
+                }
+            }
+        }
 
-            // Reset button state
-            const submitBtn = document.getElementById('importSubmitBtn');
-            submitBtn.disabled = false;
-            document.getElementById('importBtnText').textContent = 'Import';
-            document.getElementById('importLoadingSpinner').classList.add('hidden');
+        // ========================================
+        // IMPORT MODAL FUNCTIONS - MULTI-STEP
+        // ========================================
+        let csvHeaders = [];
+        let formFields = {};
+        let columnMapping = {};
+
+        function openImportModal() {
+            const modal = document.getElementById('importPatientModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+            resetImportModal();
         }
 
         function closeImportModal() {
-            // Check if there are visible errors before closing
-            const importErrors = document.getElementById('importErrors');
-            if (!importErrors.classList.contains('hidden')) {}
+            const modal = document.getElementById('importPatientModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            resetImportModal();
+        }
 
-            document.getElementById('importPatientModal').classList.add('hidden');
+        function resetImportModal() {
+            // Reset to step 1
+            document.getElementById('importStep1').classList.remove('hidden');
+            document.getElementById('importStep2').classList.add('hidden');
+            document.getElementById('importStep3').classList.add('hidden');
+
+            document.getElementById('step1Footer').classList.remove('hidden');
+            document.getElementById('step2Footer').classList.add('hidden');
+            document.getElementById('step3Footer').classList.add('hidden');
+
+            document.getElementById('modalStepTitle').textContent = 'Import Patients from CSV';
+
+            // Reset form
             document.getElementById('importForm').reset();
-            document.getElementById('csvFileInput').value = '';
-            document.getElementById('fileNameDisplay').textContent = 'Click to select a CSV file';
-            document.getElementById('importErrors').classList.add('hidden');
-            document.getElementById('errorsList').innerHTML = '';
+            document.getElementById('importProgress').classList.remove('hidden');
+            document.getElementById('importResultsDiv').classList.add('hidden');
+
+            // Reset data
+            csvHeaders = [];
+            formFields = {};
+            columnMapping = {};
         }
 
-        function updateFileName() {
+        function proceedToFieldMapping() {
             const fileInput = document.getElementById('csvFileInput');
-            const fileName = fileInput.files[0]?.name || 'Click to select a CSV file';
-            document.getElementById('fileNameDisplay').textContent = fileName;
-        }
-
-        function showImportError(errors) {
-            const errorsList = document.getElementById('errorsList');
-            errorsList.innerHTML = '';
-
-            if (errors && errors.length > 0) {
-                errors.forEach((error) => {
-                    const li = document.createElement('li');
-                    li.className = 'py-1';
-                    li.textContent = error;
-                    errorsList.appendChild(li);
-                });
-
-                document.getElementById('importErrors').classList.remove('hidden');
-
-                // Scroll to errors
-                setTimeout(() => {
-                    document.getElementById('importErrors').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }, 100);
-            }
-        }
-
-        document.getElementById('importForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const fileInput = document.getElementById('csvFileInput');
-            if (!fileInput.files.length) {
-                showImportError(['Please select a CSV file']);
+            if (!fileInput.files || !fileInput.files[0]) {
+                showNotification('Please select a CSV file', 'error');
                 return;
             }
 
-            const file = fileInput.files[0];
-            const allowedExtensions = ['csv', 'txt'];
-            const fileExt = file.name.split('.').pop().toLowerCase();
-
-            if (!allowedExtensions.includes(fileExt)) {
-                showImportError(['Invalid file type. Only CSV files are allowed.']);
-                return;
-            }
-
-            const formData = new FormData(this);
-            const submitBtn = document.getElementById('importSubmitBtn');
-            const btnText = document.getElementById('importBtnText');
-            const spinner = document.getElementById('importLoadingSpinner');
-
-            // Reset previous errors
-            document.getElementById('importErrors').classList.add('hidden');
-            document.getElementById('errorsList').innerHTML = '';
+            const formData = new FormData();
+            formData.append('csv_file', fileInput.files[0]);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
             // Show loading state
-            submitBtn.disabled = true;
-            btnText.textContent = 'Importing...';
-            spinner.classList.remove('hidden');
+            const nextBtn = document.querySelector('#step1Footer button:last-child');
+            nextBtn.disabled = true;
+            nextBtn.textContent = 'Loading...';
 
-            fetch('{{ route('admin.patients.import-csv') }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: formData
-            }).then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`Server error: ${response.status}`);
-                    });
-                }
-                return response.json();
-            }).then(data => {
-                if (data.success) {
+            fetch('{{ route('admin.patients.csv-headers') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = 'Next';
 
-                    // FULL SUCCESS
-                    if (data.details && data.details.failed === 0) {
-                        if (typeof toastr !== 'undefined') {
-                            toastr.success(data.message, 'Import Successful');
-                        }
-                        setTimeout(() => {
-                            closeImportModal();
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        if (data.details && data.details.errors) {
-                            showImportError(data.details.errors);
-                        }
-                        submitBtn.disabled = false;
-                        btnText.textContent = 'Import';
-                        spinner.classList.add('hidden');
+                    if (!data.success) {
+                        showNotification(data.message || 'Failed to read CSV headers', 'error');
+                        return;
                     }
 
-                } else {
-                    let errors = [];
+                    csvHeaders = data.csv_headers || [];
+                    formFields = data.form_fields || {};
 
-                    if (data.errors) {
-                        Object.values(data.errors).forEach(err => {
-                            if (Array.isArray(err)) errors.push(...err);
-                            else errors.push(err);
+                    if (csvHeaders.length === 0) {
+                        showNotification('CSV file has no headers', 'error');
+                        return;
+                    }
+
+                    // Populate field mapping UI
+                    buildFieldMappingUI();
+
+                    // Switch to step 2
+                    document.getElementById('importStep1').classList.add('hidden');
+                    document.getElementById('importStep2').classList.remove('hidden');
+
+                    document.getElementById('step1Footer').classList.add('hidden');
+                    document.getElementById('step2Footer').classList.remove('hidden');
+
+                    document.getElementById('modalStepTitle').textContent = 'Step 2: Map CSV Fields';
+                })
+                .catch(error => {
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = 'Next';
+                    console.error('Error:', error);
+                    showNotification('Error reading CSV file: ' + error.message, 'error');
+                });
+        }
+
+        function buildFieldMappingUI() {
+            const container = document.getElementById('fieldMappingContainer');
+            container.innerHTML = '';
+
+            const requiredFields = ['first_name', 'last_name', 'email', 'phone'];
+
+            // Create a mapping of common field variations for better auto-detection
+            const fieldVariations = {
+                'first_name': ['first name', 'firstname', 'fname', 'first_name'],
+                'last_name': ['last name', 'lastname', 'lname', 'surname', 'last_name'],
+                'email': ['email', 'email address', 'e-mail'],
+                'phone': ['phone', 'phone number', 'contact', 'mobile', 'telephone'],
+                'date_of_birth': ['date of birth', 'dob', 'birth date', 'birthday'],
+                'gender': ['gender', 'sex'],
+                'address': ['address', 'street address', 'home address'],
+                'blood_group': ['blood group', 'blood type', 'blood'],
+                'emergency_contact_name': ['emergency contact name', 'emergency contact'],
+                'emergency_contact_phone': ['emergency contact phone', 'emergency contact number'],
+                'medical_history': ['medical history', 'medical_history'],
+                'current_medications': ['current medications', 'medications', 'current_medications'],
+                'insurance_provider': ['insurance provider', 'insurance company', 'insurance'],
+                'insurance_number': ['insurance number', 'insurance id', 'policy number'],
+                'status': ['status']
+            };
+
+            Object.entries(formFields).forEach(([fieldKey, fieldLabel]) => {
+                const isRequired = requiredFields.includes(fieldKey);
+                const row = document.createElement('div');
+                row.className = 'flex gap-2 items-end';
+
+                const label = document.createElement('label');
+                label.className = 'text-sm font-medium text-gray-700 w-40 flex-shrink-0';
+                label.innerHTML = fieldLabel + (isRequired ? '<span class="text-red-500 ml-1">*</span>' : '');
+
+                const select = document.createElement('select');
+                select.className =
+                    'flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm';
+                select.dataset.field = fieldKey;
+
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = '-- Select CSV column --';
+                select.appendChild(defaultOption);
+
+                // Add CSV header options - try to auto-select matching ones
+                let autoSelected = false;
+                csvHeaders.forEach(header => {
+                    const option = document.createElement('option');
+                    option.value = header;
+                    option.textContent = header;
+                    select.appendChild(option);
+
+                    // Try to auto-match if not already selected
+                    if (!autoSelected) {
+                        const headerLower = header.toLowerCase().trim();
+                        const variations = fieldVariations[fieldKey] || [];
+
+                        // Check if header matches any known variations for this field
+                        const isMatch = variations.some(variation =>
+                            headerLower === variation.toLowerCase() ||
+                            headerLower.includes(variation.toLowerCase())
+                        );
+
+                        if (isMatch) {
+                            option.selected = true;
+                            columnMapping[header] = fieldKey;
+                            autoSelected = true;
+                        }
+                    }
+                });
+
+                // Update mapping when selection changes
+                select.addEventListener('change', (e) => {
+                    const selectedHeader = e.target.value;
+                    const fieldKey = e.target.dataset.field;
+
+                    if (selectedHeader) {
+                        columnMapping[selectedHeader] = fieldKey;
+                    } else {
+                        // Remove mapping for this field
+                        Object.keys(columnMapping).forEach(key => {
+                            if (columnMapping[key] === fieldKey) {
+                                delete columnMapping[key];
+                            }
                         });
-                    } else if (data.message) {
-                        errors.push(data.message);
-                    } else {
-                        errors.push('Import failed');
                     }
+                });
 
-                    showImportError(errors);
-                    submitBtn.disabled = false;
-                    btnText.textContent = 'Import';
-                    spinner.classList.add('hidden');
-                }
-            }).catch(error => {
-                console.error('Import error:', error);
-                showImportError([`An error occurred: ${error.message}`]);
-
-                submitBtn.disabled = false;
-                btnText.textContent = 'Import';
-                spinner.classList.add('hidden');
+                row.appendChild(label);
+                row.appendChild(select);
+                container.appendChild(row);
             });
-        });
+        }
+
+        function backToFileUpload() {
+            document.getElementById('importStep1').classList.remove('hidden');
+            document.getElementById('importStep2').classList.add('hidden');
+
+            document.getElementById('step1Footer').classList.remove('hidden');
+            document.getElementById('step2Footer').classList.add('hidden');
+
+            document.getElementById('modalStepTitle').textContent = 'Import Patients from CSV';
+        }
+
+        function submitWithMapping() {
+            const fileInput = document.getElementById('csvFileInput');
+            if (!fileInput.files || !fileInput.files[0]) {
+                showNotification('Please select a CSV file', 'error');
+                return;
+            }
+
+            // Validate that at least required fields are mapped
+            const requiredFields = ['first_name', 'last_name', 'email', 'phone'];
+            const mappedFields = Object.values(columnMapping);
+            const missingRequired = requiredFields.filter(f => !mappedFields.includes(f));
+
+            if (missingRequired.length > 0) {
+                showNotification('Please map all required fields: ' + missingRequired.join(', '), 'error');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('csv_file', fileInput.files[0]);
+            formData.append('column_mapping', JSON.stringify(columnMapping));
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+            // Switch to step 3
+            document.getElementById('importStep2').classList.add('hidden');
+            document.getElementById('importStep3').classList.remove('hidden');
+
+            document.getElementById('step2Footer').classList.add('hidden');
+            document.getElementById('step3Footer').classList.remove('hidden');
+
+            document.getElementById('modalStepTitle').textContent = 'Step 3: Importing...';
+
+            // Start import
+            performImport(formData);
+        }
+
+        function performImport(formData) {
+            fetch('{{ route('admin.patients.import-csv') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide progress bar
+                    document.getElementById('importProgress').classList.add('hidden');
+
+                    if (data.success) {
+                        // Show success results
+                        const resultsDiv = document.getElementById('importResultsDiv');
+                        resultsDiv.classList.remove('hidden');
+
+                        let html = '<div class="p-4 bg-green-50 border border-green-200 rounded-lg">';
+                        html += `<p class="text-sm font-medium text-green-800 mb-2">${data.message}</p>`;
+
+                        if (data.details && data.details.errors && data.details.errors.length > 0) {
+                            html += '<p class="text-xs font-medium text-red-700 mt-3 mb-2">Errors encountered:</p>';
+                            html +=
+                                '<ul class="text-xs text-red-600 list-disc list-inside space-y-1 max-h-40 overflow-y-auto">';
+                            data.details.errors.forEach(error => {
+                                html += `<li>${error}</li>`;
+                            });
+                            html += '</ul>';
+                        }
+
+                        html += '</div>';
+
+                        document.getElementById('importResultsContent').innerHTML = html;
+
+                        // Auto-close after success
+                        if (!data.details || data.details.failed === 0) {
+                            setTimeout(() => {
+                                closeImportModal();
+                                location.reload();
+                            }, 2000);
+                        }
+                    } else {
+                        const resultsDiv = document.getElementById('importResultsDiv');
+                        resultsDiv.classList.remove('hidden');
+
+                        let html = '<div class="p-4 bg-red-50 border border-red-200 rounded-lg">';
+                        html += `<p class="text-sm font-medium text-red-800">${data.message}</p>`;
+
+                        if (data.details && data.details.errors && data.details.errors.length > 0) {
+                            html +=
+                                '<ul class="text-xs text-red-600 list-disc list-inside space-y-1 mt-2 max-h-40 overflow-y-auto">';
+                            data.details.errors.forEach(error => {
+                                html += `<li>${error}</li>`;
+                            });
+                            html += '</ul>';
+                        }
+
+                        html += '</div>';
+
+                        document.getElementById('importResultsContent').innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+
+                    document.getElementById('importProgress').classList.add('hidden');
+                    const resultsDiv = document.getElementById('importResultsDiv');
+                    resultsDiv.classList.remove('hidden');
+
+                    let html = '<div class="p-4 bg-red-50 border border-red-200 rounded-lg">';
+                    html += `<p class="text-sm font-medium text-red-800">Import failed: ${error.message}</p>`;
+                    html += '</div>';
+
+                    document.getElementById('importResultsContent').innerHTML = html;
+                });
+        }
 
         // Close modals with ESC key
         document.addEventListener('keydown', function(e) {
