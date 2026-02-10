@@ -821,22 +821,34 @@
                             '<span class="text-xs sm:text-sm text-gray-500 italic">No chronic conditions recorded</span>';
                     }
 
-                    const medicationsList = document.getElementById('medications-list');
-                    if (data.patient.current_medications && data.patient.current_medications.length > 0) {
-                        medicationsList.innerHTML = data.patient.current_medications.map(med => `
-                            <li class="mb-4 p-3 border rounded">
-                                <p><strong>Date:</strong> ${med.created_at}</p>
-                                <p><strong>Name:</strong> ${med.name}</p>
-                                <p><strong>Dosage:</strong> ${med.dosage}</p>
-                                <p><strong>Frequency:</strong> ${med.frequency}</p>
-                                <p><strong>Duration:</strong> ${med.duration}</p>
-                                <p><strong>Quantity:</strong> ${med.quantity}</p>
-                            </li>
-                        `).join('');
-                    } else {
-                        medicationsList.innerHTML =
-                            '<li class="text-gray-500 italic list-none">No current medications</li>';
+                    function populateAppointmentData(data) {
+
+                        const medicationsList = document.getElementById('medications-list');
+
+                        const meds = data.patient.current_medications || [];
+
+                        const validMeds = meds.filter(med =>
+                            med.created_at || med.name || med.dosage || med.frequency || med.duration || med
+                            .quantity
+                        );
+
+                        if (validMeds.length > 0) {
+                            medicationsList.innerHTML = validMeds.map(med => `
+                                <li class="mb-4 p-3 border rounded">
+                                    ${med.created_at ? `<p><strong>Date:</strong> ${med.created_at}</p>` : ''}
+                                    ${med.name ? `<p><strong>Name:</strong> ${med.name}</p>` : ''}
+                                    ${med.dosage ? `<p><strong>Dosage:</strong> ${med.dosage}</p>` : ''}
+                                    ${med.frequency ? `<p><strong>Frequency:</strong> ${med.frequency}</p>` : ''}
+                                    ${med.duration ? `<p><strong>Duration:</strong> ${med.duration}</p>` : ''}
+                                    ${med.quantity ? `<p><strong>Quantity:</strong> ${med.quantity}</p>` : ''}
+                                </li>
+                            `).join('');
+                        } else {
+                            medicationsList.innerHTML =
+                                '<li class="text-gray-500 italic list-none">No current medications</li>';
+                        }
                     }
+
 
                     const visitsList = document.getElementById('previous-visits-list');
                     if (data.patient.previous_appointments && data.patient.previous_appointments.length > 0) {

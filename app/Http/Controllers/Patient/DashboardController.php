@@ -91,9 +91,9 @@ class DashboardController extends Controller
         $stats = (object) [
             'total' => $appointments->count(),
             'today' => $appointments->filter(fn ($a) => $a->date_raw->isSameDay($today))->count(),
-            'upcoming' => $appointments->filter(fn ($a) => $a->date_raw->gte($today) && in_array($a->status, ['pending', 'confirmed']))->count(),
-            'completed' => $appointments->where('status', 'completed')->count(),
-            'cancelled' => $appointments->where('status', 'cancelled')->count(),
+            'upcoming' => $appointments->filter(fn ($a) => $a->date_raw->gte($today) && in_array($a->status, ['Pending', 'Confirmed']))->count(),
+            'completed' => $appointments->where('status', 'Completed')->count(),
+            'cancelled' => $appointments->where('status', 'Cancelled')->count(),
         ];
 
         return view('patient.dashboard', compact('appointments', 'stats', 'doctors', 'advanceBookingDays'));

@@ -455,21 +455,18 @@
             modal.classList.remove('hidden');
 
             fetch(`/admin/patients/${patientId}/edit`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('editPatientContent').innerHTML = data.html;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('editPatientContent').innerHTML =
-                        '<div class="text-center py-8 text-red-600">Failed to load edit form</div>';
-                });
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            }).then(response => response.json()).then(data => {
+                document.getElementById('editPatientContent').innerHTML = data.html;
+            }).catch(error => {
+                console.error('Error:', error);
+                document.getElementById('editPatientContent').innerHTML =
+                    '<div class="text-center py-8 text-red-600">Failed to load edit form</div>';
+            });
         }
 
         function deletePatient(patientId) {
@@ -500,26 +497,23 @@
             patientToDeleteId = null;
 
             fetch(`/admin/patients/${patientId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        toastr.success(data.message || 'Patient deleted successfully!');
-                        fetchPatients(); // Refresh the patient list
-                    } else {
-                        toastr.error(data.message || 'Failed to delete patient');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('An error occurred while deleting the patient. Please try again.');
-                });
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    toastr.success(data.message || 'Patient deleted successfully!');
+                    fetchPatients(); // Refresh the patient list
+                } else {
+                    toastr.error(data.message || 'Failed to delete patient');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred while deleting the patient. Please try again.');
+            });
         });
 
         function closePatientEditModal() {
@@ -534,46 +528,43 @@
             clearFormErrors();
 
             fetch(`/admin/patients/${patientId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            throw {
-                                status: response.status,
-                                data: data
-                            };
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        closePatientEditModal();
-                        fetchPatients();
-                        toastr.success(data.message);
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData
+            }).then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw {
+                            status: response.status,
+                            data: data
+                        };
+                    });
+                }
+                return response.json();
+            }).then(data => {
+                if (data.success) {
+                    fetchPatients();
+                    closePatientEditModal();
+                    toastr.success(data.message);
 
-                    } else {
-                        toastr.error(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                } else {
+                    toastr.error(data.message);
+                }
+            }).catch(error => {
+                console.error('Error:', error);
 
-                    if (error.status === 422 && error.data.errors) {
-                        // Display inline validation errors
-                        displayFormErrors(error.data.errors);
-                    } else if (error.data && error.data.message) {
-                        toastr.error(error.data.message);
-                    } else {
-                        toastr.error('An error occurred while saving. Please try again.');
-                    }
-                });
+                if (error.status === 422 && error.data.errors) {
+                    // Display inline validation errors
+                    displayFormErrors(error.data.errors);
+                } else if (error.data && error.data.message) {
+                    toastr.error(error.data.message);
+                } else {
+                    toastr.error('An error occurred while saving. Please try again.');
+                }
+            });
         }
 
         function clearFormErrors() {
@@ -638,41 +629,37 @@
 
             // Make AJAX request
             fetch(`{{ route('admin.patients') }}?${params.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('patientTableBody').innerHTML = data.html;
-                    document.getElementById('loadingIndicator').classList.add('hidden');
-                    document.querySelector('.overflow-x-auto').style.opacity = '1';
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            }).then(response => response.json()).then(data => {
+                document.getElementById('patientTableBody').innerHTML = data.html;
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.querySelector('.overflow-x-auto').style.opacity = '1';
 
-                    // Update pagination info
-                    // Prevent crash if pagination is missing
-                    if (data.pagination) {
-                        document.getElementById('paginationFrom').textContent = data.pagination.from ?? 0;
-                        document.getElementById('paginationTo').textContent = data.pagination.to ?? 0;
-                        document.getElementById('paginationTotal').textContent = data.pagination.total ?? 0;
+                // Update pagination info
+                // Prevent crash if pagination is missing
+                if (data.pagination) {
+                    document.getElementById('paginationFrom').textContent = data.pagination.from ?? 0;
+                    document.getElementById('paginationTo').textContent = data.pagination.to ?? 0;
+                    document.getElementById('paginationTotal').textContent = data.pagination.total ?? 0;
 
-                        updatePaginationButtons(data.pagination);
-                    } else {
-                        console.error("Pagination missing from response:", data);
-                    }
-
-
-                    // Update pagination buttons
                     updatePaginationButtons(data.pagination);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('loadingIndicator').classList.add('hidden');
-                    document.querySelector('.overflow-x-auto').style.opacity = '1';
-                    console.log('error->>>>', error);
-                    toastr.error('An error occurred while fetching patients. Please try again.');
-                });
+                } else {
+                    console.error("Pagination missing from response:", data);
+                }
+
+                // Update pagination buttons
+                updatePaginationButtons(data.pagination);
+            }).catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.querySelector('.overflow-x-auto').style.opacity = '1';
+                console.log('error->>>>', error);
+                toastr.error('An error occurred while fetching patients. Please try again.');
+            });
         }
 
         function updatePaginationButtons(pagination) {

@@ -89,28 +89,45 @@ class PrescriptionSeeder extends Seeder
         $numMeds = rand(1, 3);
 
         $commonMeds = [
-            ['name' => 'Amoxicillin', 'dosage' => '500mg', 'frequency' => '3 times daily', 'duration' => '7 days'],
-            ['name' => 'Ibuprofen', 'dosage' => '400mg', 'frequency' => 'As needed for pain', 'duration' => '5 days'],
-            ['name' => 'Lisinopril', 'dosage' => '10mg', 'frequency' => 'Once daily', 'duration' => '30 days'],
-            ['name' => 'Metformin', 'dosage' => '500mg', 'frequency' => 'Twice daily', 'duration' => '30 days'],
-            ['name' => 'Atorvastatin', 'dosage' => '20mg', 'frequency' => 'Once at bedtime', 'duration' => '30 days'],
-            ['name' => 'Cetirizine', 'dosage' => '10mg', 'frequency' => 'Once daily', 'duration' => '10 days'],
+            [
+                'name' => 'ACETAMINOPHEN 650 mg ORAL TABLET [DOLO - NeuroBion Acetaminophen Max Extended-Release 650 mg]',
+                'dosage' => '650 mg',
+            ],
+            [
+                'name' => 'IBUPROFEN 400 mg ORAL TABLET',
+                'dosage' => '400 mg',
+            ],
+            [
+                'name' => 'AMOXICILLIN 500 mg CAPSULE',
+                'dosage' => '500 mg',
+            ],
+            [
+                'name' => 'CETIRIZINE 10 mg ORAL TABLET',
+                'dosage' => '10 mg',
+            ],
+            [
+                'name' => 'METFORMIN 500 mg ORAL TABLET',
+                'dosage' => '500 mg',
+            ],
         ];
 
         shuffle($commonMeds);
 
         for ($i = 0; $i < $numMeds; $i++) {
-            $med = $commonMeds[$i];
-
-            $med['instructions'] = 'Take with food' . (rand(0, 1) ? ', avoid alcohol' : '');
-            $med['type'] = 'medication';
-            $med['created_at'] = now();
-
-            $medications[] = $med;
+            $medications[] = [
+                'name' => $commonMeds[$i]['name'],
+                'type' => 'medications',
+                'dosage' => $commonMeds[$i]['dosage'],
+                'duration' => (string) rand(3, 10),   // days
+                'quantity' => (string) rand(5, 20),
+                'frequency' => rand(1, 2) . '-' . rand(0, 1),
+                'created_at' => now()->toISOString(),
+            ];
         }
 
         return $medications;
     }
+
 
     private function getRandomInstructions(): string
     {

@@ -98,8 +98,25 @@
                     <div class="flex items-start justify-between mb-2">
                         <div>
                             <p class="font-medium text-gray-800 text-sm sm:text-base">{{ $appointment['patient_name'] }}</p>
-                            <p class="text-xs sm:text-sm text-gray-500">{{ $appointment['patient_age'] }} yrs •
-                                {{ $appointment['patient_gender'] }} • {{ $appointment['patient_blood_group'] }}</p>
+                            <p class="text-xs sm:text-sm text-gray-500">
+                                @if (!empty($appointment['patient_age']))
+                                    {{ $appointment['patient_age'] }} yrs
+                                @endif
+
+                                @if (!empty($appointment['patient_gender']))
+                                    @if (!empty($appointment['patient_age']))
+                                        •
+                                    @endif
+                                    {{ $appointment['patient_gender'] }}
+                                @endif
+
+                                @if (!empty($appointment['patient_blood_group']))
+                                    @if (!empty($appointment['patient_age']) || !empty($appointment['patient_gender']))
+                                        •
+                                    @endif
+                                    {{ $appointment['patient_blood_group'] }}
+                                @endif
+                            </p>
                             <p class="text-xs text-gray-400 mt-1">{{ $appointment['appointment_number'] }}</p>
                         </div>
                         <div class="text-right">

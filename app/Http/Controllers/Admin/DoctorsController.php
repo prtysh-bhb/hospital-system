@@ -23,7 +23,7 @@ class DoctorsController extends Controller
 
     public function index(Request $request)
     {
-        $specialties = Specialty::where('status', 'active')->get();
+        $specialties = Specialty::where('status', 'active')->orderBy('name', 'asc')->get();
 
         if ($request->ajax()) {
             $filters = [

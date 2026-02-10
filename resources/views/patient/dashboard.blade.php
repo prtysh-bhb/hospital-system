@@ -382,8 +382,8 @@
                 </svg>
                 <h3 class="mt-4 text-lg font-medium text-gray-900">No appointments yet</h3>
                 <p class="mt-1 text-sm text-gray-500">Get started by booking your first appointment.</p>
-                <a href="{{ route('booking') }}"
-                    class="mt-4 inline-flex items-center px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition">
+                <a
+                    class="appointment-booking cursor-pointer mt-4 inline-flex items-center px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition">
                     Book Appointment
                 </a>
             </div>

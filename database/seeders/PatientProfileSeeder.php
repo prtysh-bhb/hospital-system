@@ -34,16 +34,12 @@ class PatientProfileSeeder extends Seeder
                     'user_id' => $patient->id,
                 ],
                 [
-                    'emergency_contact_name' => 'Emergency Contact '.$patient->last_name,
+                    'emergency_contact_name' => trim(($patient?->first_name ?? '') . ' ' . ($patient?->last_name ?? '')) ?: "",
                     'emergency_contact_phone' => $this->Phonegenerator(),
                     'blood_group' => $bloodGroups[array_rand($bloodGroups)],
-                    'allergies' => $hasAllergies
-                        ? $allergies[array_rand($allergies)]
-                        : 'None',
+                    'allergies' => $hasAllergies ? $allergies[array_rand($allergies)] : '',
                     'medical_history' => $this->generateMedicalHistory(),
-                    'current_medications' => $hasMeds
-                        ? $medications[array_rand($medications)]
-                        : 'None',
+                    'current_medications' => $hasMeds ? $medications[array_rand($medications)] : '',
                     'insurance_provider' => $insuranceProviders[array_rand($insuranceProviders)],
                     'insurance_number' => 'INS-'.rand(100000, 999999),
                     'updated_at' => now(),
@@ -65,9 +61,7 @@ class PatientProfileSeeder extends Seeder
             $history[] = 'Previous surgery in '.(2010 + rand(0, 12));
         }
 
-        return empty($history)
-            ? 'No significant medical history'
-            : implode(', ', $history);
+        return empty($history) ? 'No significant medical history' : implode(', ', $history);
     }
 
     private function Phonegenerator(): string

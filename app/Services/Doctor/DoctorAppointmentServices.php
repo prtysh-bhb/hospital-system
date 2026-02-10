@@ -76,31 +76,27 @@ class DoctorAppointmentServices
      */
     public function saveConsultationNotes(int $appointmentId, int $doctorId, string $notes)
     {
-        $appointment = Appointment::where('id', $appointmentId)
-            ->where('doctor_id', $doctorId)
-            ->first();
+        $appointment = Appointment::where('id', $appointmentId)->where('doctor_id', $doctorId)->first();
 
-        if (! $appointment) {
+        if (!$appointment) {
             return false;
         }
 
+        // Always save note in appointment
         $appointment->notes = $notes;
-
         $appointment->save();
 
-        // Update or Create Prescription notes
-        Prescription::updateOrCreate(
-            [
-                'appointment_id' => $appointment->id,
-            ],
-            [
-                'patient_id' => $appointment->patient_id,
-                'doctor_id' => $doctorId,
-                'notes' => $notes,
-            ]
-        );
+        // Check if prescription already exists
+        $prescription = Prescription::where('appointment_id', $appointment->id)->first();
+
+        // Only if prescription exists → update notes there
+        if ($prescription) {
+            $prescription->notes = $notes;
+            $prescription->save();
+        }
         return true;
     }
+
 
     /**
      * Save vital signs to prescription medications field.
