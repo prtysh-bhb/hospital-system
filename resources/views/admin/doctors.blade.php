@@ -1051,7 +1051,7 @@
         function proceedToFieldMapping() {
             const fileInput = document.getElementById('csvFileInput');
             if (!fileInput || !fileInput.files || !fileInput.files[0]) {
-                showNotification('Please select a CSV file', 'error');
+                toastr.error('Please select a CSV file');
                 return;
             }
 
@@ -1067,58 +1067,55 @@
             }
 
             fetch('{{ route('admin.doctors.csv-headers') }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (nextBtn) {
-                        nextBtn.disabled = false;
-                        nextBtn.textContent = 'Prepare import';
-                    }
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.json()).then(data => {
+                if (nextBtn) {
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = 'Prepare import';
+                }
 
-                    if (!data.success) {
-                        showNotification(data.message || 'Failed to read CSV headers', 'error');
-                        return;
-                    }
+                if (!data.success) {
+                    toastr.error(data.message || 'Failed to read CSV headers');
+                    return;
+                }
 
-                    csvHeaders = data.csv_headers || [];
-                    formFields = data.form_fields || {};
+                csvHeaders = data.csv_headers || [];
+                formFields = data.form_fields || {};
 
-                    if (csvHeaders.length === 0) {
-                        showNotification('CSV file has no headers', 'error');
-                        return;
-                    }
+                if (csvHeaders.length === 0) {
+                    toastr.error('CSV file has no headers');
+                    return;
+                }
 
-                    // Populate field mapping UI
-                    buildFieldMappingUI();
+                // Populate field mapping UI
+                buildFieldMappingUI();
 
-                    // Switch to step 2
-                    const step1 = document.getElementById('importStep1');
-                    const step2 = document.getElementById('importStep2');
-                    const footer1 = document.getElementById('step1Footer');
-                    const footer2 = document.getElementById('step2Footer');
+                // Switch to step 2
+                const step1 = document.getElementById('importStep1');
+                const step2 = document.getElementById('importStep2');
+                const footer1 = document.getElementById('step1Footer');
+                const footer2 = document.getElementById('step2Footer');
 
-                    if (step1) step1.classList.add('hidden');
-                    if (step2) step2.classList.remove('hidden');
-                    if (footer1) footer1.classList.add('hidden');
-                    if (footer2) footer2.classList.remove('hidden');
+                if (step1) step1.classList.add('hidden');
+                if (step2) step2.classList.remove('hidden');
+                if (footer1) footer1.classList.add('hidden');
+                if (footer2) footer2.classList.remove('hidden');
 
-                    // Update step indicators
-                    updateStepIndicators(2);
-                })
-                .catch(error => {
-                    if (nextBtn) {
-                        nextBtn.disabled = false;
-                        nextBtn.textContent = 'Prepare import';
-                    }
-                    console.error('Error:', error);
-                    showNotification('Error reading CSV file: ' + error.message, 'error');
-                });
+                // Update step indicators
+                updateStepIndicators(2);
+            }).catch(error => {
+                if (nextBtn) {
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = 'Prepare import';
+                }
+                console.error('Error:', error);
+                toastr.error('Error reading CSV file: ' + error.message);
+            });
         }
 
         function buildFieldMappingUI() {
@@ -1285,101 +1282,94 @@
             if (progressText) progressText.textContent = '📤 Uploading file...';
 
             fetch('{{ route('admin.doctors.import-csv') }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (progressBar) progressBar.style.width = '90%';
-                    if (progressText) progressText.textContent = '✔️ Finalizing...';
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.json()).then(data => {
+                if (progressBar) progressBar.style.width = '90%';
+                if (progressText) progressText.textContent = '✔️ Finalizing...';
 
-                    if (!data.success) {
-                        throw new Error(data.message || 'Import failed');
-                    }
+                if (!data.success) {
+                    throw new Error(data.message || 'Import failed');
+                }
 
-                    // Success
-                    if (progressBar) {
-                        progressBar.style.width = '100%';
-                        progressBar.classList.add('bg-green-600');
-                    }
-                    if (progressText) progressText.textContent = `✅ ${data.message}`;
+                // Success
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                    progressBar.classList.add('bg-green-600');
+                }
+                if (progressText) progressText.textContent = `✅ ${data.message}`;
 
-                    // Show results
-                    setTimeout(() => {
-                        if (resultsDiv) resultsDiv.classList.remove('hidden');
-                        const hasErrors = data.data.failed > 0;
+                // Show results
+                setTimeout(() => {
+                    if (resultsDiv) resultsDiv.classList.remove('hidden');
+                    const hasErrors = data.data.failed > 0;
 
-                        if (resultsContent) {
-                            resultsContent.innerHTML = `
+                    if (resultsContent) {
+                        resultsContent.innerHTML = `
                             <div class="${hasErrors ? 'bg-yellow-50 border-l-4 border-yellow-500' : 'bg-green-50 border-l-4 border-green-500'} p-4 rounded">
                                 <h3 class="${hasErrors ? 'font-semibold text-yellow-800 mb-2' : 'font-semibold text-green-800 mb-2'}">✓ Import Completed</h3>
                                 <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Imported:</strong> ${data.data.success} doctor(s)</p>
                                 <p class="${hasErrors ? 'text-sm text-yellow-700' : 'text-sm text-green-700'}"><strong>Failed:</strong> ${data.data.failed}</p>
-                                ${data.data.errors.length > 0 ? `
-                                        <div class="mt-3">
-                                            <strong class="text-red-800">Errors (showing first 10):</strong>
-                                            <div class="mt-2 space-y-1 max-h-40 overflow-y-auto">
-                                                ${data.data.errors.slice(0, 10).map(err => {
-                                                    const match = err.match(/^\[([^\]]+)\]\s*(.*)/);
-                                                    const field = match ? match[1] : 'General';
-                                                    const message = match ? match[2] : err;
-                                                    return `<div class="text-sm p-2 bg-red-100 rounded border-l-3 border-red-500 text-red-800">
-                                                    <span class="font-semibold text-red-900">[${field}]</span> ${message}
-                                                </div>`;
-                                                }).join('')}
-                                                ${data.data.errors.length > 10 ? `<div class="text-sm p-2 bg-red-50 rounded text-red-700 font-semibold">... and ${data.data.errors.length - 10} more errors</div>` : ''}
-                                            </div>
-                                        </div>
-                                    ` : ''}
+                                ${data.data.errors.length > 0 ? `<div class="mt-3">
+                                    <strong class="text-red-800">Errors (showing first 10):</strong>
+                                    <div class="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                                        ${data.data.errors.slice(0, 10).map(err => {
+                                            const match = err.match(/^\[([^\]]+)\]\s*(.*)/);
+                                            const field = match ? match[1] : 'General';
+                                            const message = match ? match[2] : err;
+                                            return `<div class="text-sm p-2 bg-red-100 rounded border-l-3 border-red-500 text-red-800"> <span class="font-semibold text-red-900">[${field}]</span> ${message} </div>`;
+                                        }).join('')}
+                                        ${data.data.errors.length > 10 ? `<div class="text-sm p-2 bg-red-50 rounded text-red-700 font-semibold">... and ${data.data.errors.length - 10} more errors</div>` : ''} 
+                                    </div>
+                                </div> ` : ''}
                             </div>
                         `;
-                        }
-
-                        // Show done button
-                        if (footer3) footer3.classList.remove('hidden');
-
-                        // Show notification and refresh
-                        showNotification(data.message, 'success');
-                        fetchDoctors(); // Refresh the doctors list
-
-                        // Auto-close only if no errors
-                        if (!hasErrors) {
-                            setTimeout(() => {
-                                closeImportModal();
-                            }, 3000);
-                        }
-                    }, 800);
-                })
-                .catch(error => {
-                    console.error('Import error:', error);
-                    if (progressBar) {
-                        progressBar.style.width = '100%';
-                        progressBar.classList.add('bg-red-500');
                     }
-                    if (progressText) progressText.textContent = `❌ Error: ${error.message}`;
 
-                    // Show error in results
-                    setTimeout(() => {
-                        if (resultsDiv) resultsDiv.classList.remove('hidden');
-                        if (resultsContent) {
-                            resultsContent.innerHTML = `
+                    // Show done button
+                    if (footer3) footer3.classList.remove('hidden');
+
+                    // Show notification and refresh
+                    showNotification(data.message, 'success');
+                    fetchDoctors(); // Refresh the doctors list
+
+                    // Auto-close only if no errors
+                    if (!hasErrors) {
+                        setTimeout(() => {
+                            closeImportModal();
+                        }, 3000);
+                    }
+                }, 800);
+            }).catch(error => {
+                console.error('Import error:', error);
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                    progressBar.classList.add('bg-red-500');
+                }
+                if (progressText) progressText.textContent = `❌ Error: ${error.message}`;
+
+                // Show error in results
+                setTimeout(() => {
+                    if (resultsDiv) resultsDiv.classList.remove('hidden');
+                    if (resultsContent) {
+                        resultsContent.innerHTML = `
                             <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
                                 <h3 class="font-semibold text-red-800 mb-2">✗ Import Failed</h3>
                                 <p class="text-sm text-red-700">${error.message}</p>
                             </div>
                         `;
-                        }
+                    }
 
-                        // Show done button
-                        if (footer3) footer3.classList.remove('hidden');
-                    }, 800);
+                    // Show done button
+                    if (footer3) footer3.classList.remove('hidden');
+                }, 800);
 
-                    showNotification(`Import error: ${error.message}`, 'error');
-                });
+                showNotification(`Import error: ${error.message}`, 'error');
+            });
         }
 
         // Close import modal on escape key

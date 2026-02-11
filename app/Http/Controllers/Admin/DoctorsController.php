@@ -431,33 +431,32 @@ class DoctorsController extends Controller
     public function importCSV(Request $request)
     {
         try {
-            // Validate file upload
             $validated = $request->validate([
-                'csv_file' => 'required|file|mimes:csv,txt|max:5120', // 5MB max
-                'column_mapping' => 'nullable|json', // Column mapping is optional but must be valid JSON if provided
+                'csv_file' => 'required|file|mimetypes:text/csv,text/plain,application/vnd.ms-excel|max:5120',
+                'column_mapping' => 'nullable|json',
             ], [
                 'csv_file.required' => 'Please select a CSV file',
-                'csv_file.mimes' => 'File must be a CSV file',
+                'csv_file.mimetypes' => 'File must be a CSV file. Please upload a valid CSV.',
                 'csv_file.max' => 'File size must not exceed 5MB',
             ]);
 
             $file = $request->file('csv_file');
 
-            if (! $file || ! $file->isValid()) {
+            // Extra safety: check extension
+            if ($file && strtolower($file->getClientOriginalExtension()) !== 'csv') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'csv_file' => ['File must be a CSV file. Please upload a valid CSV.'],
+                ]);
+            }
+
+            if (!$file || !$file->isValid()) {
                 throw new \Exception('File upload failed or file is invalid');
             }
 
             // Parse column mapping if provided
-            $columnMapping = null;
-            if ($request->has('column_mapping')) {
-                try {
-                    $columnMapping = json_decode($request->input('column_mapping'), true);
-                } catch (\Exception $e) {
-                    throw new \Exception('Invalid column mapping format');
-                }
-            }
+            $columnMapping = $request->input('column_mapping') ? json_decode($request->input('column_mapping'), true) : null;
 
-            // Import the CSV with optional column mapping
+            // Import CSV using your service
             $result = $this->csvService->importDoctorsFromCSV($file, $columnMapping);
 
             $message = "Import completed! Successfully imported {$result['success']} doctor(s).";
@@ -465,40 +464,27 @@ class DoctorsController extends Controller
                 $message .= " {$result['failed']} row(s) failed.";
             }
 
-            // Always return JSON for AJAX requests
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'data' => $result,
-                ], 200);
-            }
-
-            return back()->with('success', $message);
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $result,
+            ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Validation errors
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed: '.implode(', ', array_values($e->errors())[0] ?? []),
-                ], 422);
-            }
+            $firstErrorMessage = collect($e->errors())->flatten()->first();
 
-            return back()->withErrors($e->errors())->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => $firstErrorMessage,
+            ], 422);
 
         } catch (\Exception $e) {
-            // Other errors
-            \Log::error('CSV Import Error: '.$e->getMessage());
+            \Log::error('CSV Import Error: ' . $e->getMessage());
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Import failed: '.$e->getMessage(),
-                ], 422);
-            }
-
-            return back()->with('error', 'Import failed: '.$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
         }
     }
 
@@ -509,20 +495,28 @@ class DoctorsController extends Controller
     {
         try {
             $validated = $request->validate([
-                'csv_file' => 'required|file|mimes:csv,txt|max:5120',
+                'csv_file' => 'required|file|mimetypes:text/csv,text/plain,application/vnd.ms-excel|max:5120',
             ], [
                 'csv_file.required' => 'Please select a CSV file',
-                'csv_file.mimes' => 'File must be a CSV file',
+                'csv_file.file' => 'File must be a CSV file',
+                'csv_file.mimetypes' => 'File must be a CSV file. Please upload a valid CSV.',
                 'csv_file.max' => 'File size must not exceed 5MB',
             ]);
 
             $file = $request->file('csv_file');
 
-            if (! $file || ! $file->isValid()) {
+            // Extra safety: check the actual file extension
+            if ($file && strtolower($file->getClientOriginalExtension()) !== 'csv') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'csv_file' => ['File must be a CSV file. Please upload a valid CSV.'],
+                ]);
+            }
+
+            if (!$file || !$file->isValid()) {
                 throw new \Exception('File upload failed or file is invalid');
             }
 
-            // Read file and extract headers
+            // Open CSV and read headers
             $fileHandle = fopen($file->getRealPath(), 'r');
             if ($fileHandle === false) {
                 throw new \Exception('Unable to open CSV file');
@@ -535,10 +529,13 @@ class DoctorsController extends Controller
                 throw new \Exception('CSV file is empty or invalid');
             }
 
-            // Trim and clean headers
-            $headers = array_map('trim', $headers);
-            $headers = array_filter($headers); // Remove empty headers
-            $headers = array_values($headers); // Reindex array
+            // Trim headers and remove BOM
+            $headers = array_map(function ($h) {
+                return trim(preg_replace('/\x{FEFF}/u', '', $h));
+            }, $headers);
+
+            $headers = array_filter($headers); // remove empty headers
+            $headers = array_values($headers); // reindex array
 
             // Define available form fields for mapping
             $formFields = [
@@ -573,18 +570,19 @@ class DoctorsController extends Controller
             return back()->with('headers', $headers)->with('form_fields', $formFields);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            $firstErrorMessage = collect($e->errors())->flatten()->first();
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $e->errors(),
+                    'message' => $firstErrorMessage,
                 ], 422);
             }
 
             return back()->withErrors($e->errors())->withInput();
 
         } catch (\Exception $e) {
-            \Log::error('CSV Header Extraction Error: '.$e->getMessage());
+            \Log::error('CSV Header Extraction Error: ' . $e->getMessage());
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -593,7 +591,7 @@ class DoctorsController extends Controller
                 ], 422);
             }
 
-            return back()->with('error', 'Error: '.$e->getMessage());
+            return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 }
