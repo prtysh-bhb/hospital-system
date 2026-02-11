@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\DoctorSchedule;
 use App\Models\Specialty;
-use App\Services\Admin\DoctoreServices;
 use App\Services\Admin\DoctorCSVService;
+use App\Services\Admin\DoctoreServices;
 use Illuminate\Http\Request;
 
 class DoctorsController extends Controller
 {
     protected DoctoreServices $doctoreServices;
+
     protected DoctorCSVService $csvService;
 
     public function __construct(DoctoreServices $doctoreServices, DoctorCSVService $csvService)
@@ -98,9 +99,9 @@ class DoctorsController extends Controller
         ]);
 
         // Custom validation for schedule times
-        if (!empty($validated['schedules'])) {
+        if (! empty($validated['schedules'])) {
             foreach ($validated['schedules'] as $day => $schedule) {
-                if (!empty($schedule['enabled']) && isset($schedule['start_time']) && isset($schedule['end_time'])) {
+                if (! empty($schedule['enabled']) && isset($schedule['start_time']) && isset($schedule['end_time'])) {
                     if (strtotime($schedule['end_time']) <= strtotime($schedule['start_time'])) {
                         if ($request->ajax() || $request->wantsJson()) {
                             return response()->json([
@@ -123,9 +124,9 @@ class DoctorsController extends Controller
         // Handle profile image upload
         if ($request->hasFile('profile_image')) {
             $image = $request->file('profile_image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/doctors'), $imageName);
-            $validated['profile_image'] = 'uploads/doctors/' . $imageName;
+            $validated['profile_image'] = 'uploads/doctors/'.$imageName;
         }
 
         try {
@@ -161,7 +162,7 @@ class DoctorsController extends Controller
     {
         $doctor = $this->doctoreServices->getDoctorById($id);
 
-        if (!$doctor) {
+        if (! $doctor) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'Doctor not found.'], 404);
             }
@@ -237,7 +238,7 @@ class DoctorsController extends Controller
     {
         $doctor = $this->doctoreServices->getDoctorById($id);
 
-        if (!$doctor) {
+        if (! $doctor) {
             if ($request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Doctor not found.'], 404);
             }
@@ -257,8 +258,8 @@ class DoctorsController extends Controller
         $rules = [
             'first_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
             'last_name' => 'required|string|min:2|max:25|regex:/^[a-zA-Z\s]+$/',
-            'email' => 'required|email|max:50|unique:users,email,' . $id,
-            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,' . $id, 'not_regex:/^0+$/'],
+            'email' => 'required|email|max:50|unique:users,email,'.$id,
+            'phone' => ['required', 'regex:/^[0-9]{10,15}$/', 'unique:users,phone,'.$id, 'not_regex:/^0+$/'],
             'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|in:male,female,other',
             'address' => 'required|string|min:10|max:500',
@@ -312,9 +313,9 @@ class DoctorsController extends Controller
         }
 
         // Custom validation for schedule times
-        if (!empty($validated['schedules'])) {
+        if (! empty($validated['schedules'])) {
             foreach ($validated['schedules'] as $day => $schedule) {
-                if (!empty($schedule['enabled']) && $schedule['enabled'] == '1' && isset($schedule['start_time']) && isset($schedule['end_time'])) {
+                if (! empty($schedule['enabled']) && $schedule['enabled'] == '1' && isset($schedule['start_time']) && isset($schedule['end_time'])) {
                     if (strtotime($schedule['end_time']) <= strtotime($schedule['start_time'])) {
                         if ($request->ajax() || $request->wantsJson()) {
                             return response()->json([
@@ -337,15 +338,15 @@ class DoctorsController extends Controller
         // Handle profile image upload
         if ($request->hasFile('profile_image')) {
             $image = $request->file('profile_image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/doctors'), $imageName);
-            $validated['profile_image'] = 'uploads/doctors/' . $imageName;
+            $validated['profile_image'] = 'uploads/doctors/'.$imageName;
         }
 
         try {
             $doctor = $this->doctoreServices->updateDoctor($id, $validated);
 
-            \Log::info('Doctor updated successfully: ' . $id);
+            \Log::info('Doctor updated successfully: '.$id);
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -360,8 +361,8 @@ class DoctorsController extends Controller
                 ->with('success', 'Doctor updated successfully!');
 
         } catch (\Exception $e) {
-            \Log::error('Doctor update failed: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            \Log::error('Doctor update failed: '.$e->getMessage());
+            \Log::error('Stack trace: '.$e->getTraceAsString());
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -372,7 +373,7 @@ class DoctorsController extends Controller
             }
 
             return back()->withInput()
-                ->with('error', 'Failed to update doctor: ' . $e->getMessage());
+                ->with('error', 'Failed to update doctor: '.$e->getMessage());
         }
     }
 
@@ -433,45 +434,71 @@ class DoctorsController extends Controller
             // Validate file upload
             $validated = $request->validate([
                 'csv_file' => 'required|file|mimes:csv,txt|max:5120', // 5MB max
+                'column_mapping' => 'nullable|json', // Column mapping is optional but must be valid JSON if provided
             ], [
-                'csv_file.required' => 'Please select a CSV file.',
-                'csv_file.mimes' => 'File must be a CSV file.',
-                'csv_file.max' => 'File size must not exceed 5MB.',
+                'csv_file.required' => 'Please select a CSV file',
+                'csv_file.mimes' => 'File must be a CSV file',
+                'csv_file.max' => 'File size must not exceed 5MB',
             ]);
 
             $file = $request->file('csv_file');
 
-            if (!$file || !$file->isValid()) {
-                throw new \Exception('File upload failed or file is invalid.');
+            if (! $file || ! $file->isValid()) {
+                throw new \Exception('File upload failed or file is invalid');
             }
 
-            // Import the CSV
-            $result = $this->csvService->importDoctorsFromCSV($file);
+            // Parse column mapping if provided
+            $columnMapping = null;
+            if ($request->has('column_mapping')) {
+                try {
+                    $columnMapping = json_decode($request->input('column_mapping'), true);
+                } catch (\Exception $e) {
+                    throw new \Exception('Invalid column mapping format');
+                }
+            }
 
-            $message = "Successfully imported {$result['success']} doctor(s).";
+            // Import the CSV with optional column mapping
+            $result = $this->csvService->importDoctorsFromCSV($file, $columnMapping);
+
+            $message = "Import completed! Successfully imported {$result['success']} doctor(s).";
             if ($result['failed'] > 0) {
-                $message .= " {$result['failed']} row(s) failed kkk.";
+                $message .= " {$result['failed']} row(s) failed.";
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => $message,
-                'data' => $result,
-            ], 200);
+            // Always return JSON for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'data' => $result,
+                ], 200);
+            }
+
+            return back()->with('success', $message);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => implode(', ', array_values($e->errors())[0] ?? []),
-            ], 422);
+            // Validation errors
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed: '.implode(', ', array_values($e->errors())[0] ?? []),
+                ], 422);
+            }
+
+            return back()->withErrors($e->errors())->withInput();
 
         } catch (\Exception $e) {
-            \Log::error('CSV Import Error: ' . $e->getMessage());
+            // Other errors
+            \Log::error('CSV Import Error: '.$e->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Import failed: '.$e->getMessage(),
+                ], 422);
+            }
+
+            return back()->with('error', 'Import failed: '.$e->getMessage());
         }
     }
 
@@ -491,7 +518,7 @@ class DoctorsController extends Controller
 
             $file = $request->file('csv_file');
 
-            if (!$file || !$file->isValid()) {
+            if (! $file || ! $file->isValid()) {
                 throw new \Exception('File upload failed or file is invalid');
             }
 
@@ -537,7 +564,7 @@ class DoctorsController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'msg' => 'CSV headers retrieved successfully',
+                    'message' => 'CSV headers retrieved successfully',
                     'csv_headers' => $headers,
                     'form_fields' => $formFields,
                 ], 200);
@@ -553,10 +580,11 @@ class DoctorsController extends Controller
                     'errors' => $e->errors(),
                 ], 422);
             }
+
             return back()->withErrors($e->errors())->withInput();
 
         } catch (\Exception $e) {
-            \Log::error('CSV Header Extraction Error: ' . $e->getMessage());
+            \Log::error('CSV Header Extraction Error: '.$e->getMessage());
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -565,7 +593,7 @@ class DoctorsController extends Controller
                 ], 422);
             }
 
-            return back()->with('error', 'Error: ' . $e->getMessage());
+            return back()->with('error', 'Error: '.$e->getMessage());
         }
     }
 }

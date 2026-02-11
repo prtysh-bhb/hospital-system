@@ -449,21 +449,50 @@
                                                 $isSingleDay = $leave->start_date == $leave->end_date;
                                             @endphp
                                             @if ($isSingleDay && $leave->start_date_type == 'half_day' && $leave->end_date_type == 'half_day')
-                                                {{ ucfirst($leave->start_half_slot) }} Half
+                                                — (No availability)
                                             @elseif ($isSingleDay && $leave->start_date_type == 'half_day')
-                                                {{ ucfirst($leave->start_half_slot) }} Half
+                                                @php
+                                                    $availableSlot =
+                                                        $leave->start_half_slot === 'morning' ? 'Evening' : 'Morning';
+                                                @endphp
+                                                ✅ {{ $availableSlot }} Half
                                             @elseif ($isSingleDay && $leave->end_date_type == 'half_day')
-                                                {{ ucfirst($leave->end_half_slot) }} Half
+                                                @php
+                                                    $availableSlot =
+                                                        $leave->end_half_slot === 'morning' ? 'Evening' : 'Morning';
+                                                @endphp
+                                                ✅ {{ $availableSlot }} Half
                                             @else
-                                                @if ($leave->start_date_type == 'half_day')
-                                                    {{ ucfirst($leave->start_half_slot) }} Half (Start)
-                                                @endif
-                                                @if ($leave->end_date_type == 'half_day')
-                                                    {{ ucfirst($leave->end_half_slot) }} Half (End)
+                                                @if ($leave->start_date_type == 'half_day' && $leave->end_date_type == 'half_day')
+                                                    @php
+                                                        $availableStartSlot =
+                                                            $leave->start_half_slot === 'morning'
+                                                                ? 'Evening'
+                                                                : 'Morning';
+                                                        $availableEndSlot =
+                                                            $leave->end_half_slot === 'morning' ? 'Evening' : 'Morning';
+                                                    @endphp
+                                                    ✅ {{ $availableStartSlot }} (Start) / {{ $availableEndSlot }} (End)
+                                                @elseif ($leave->start_date_type == 'half_day')
+                                                    @php
+                                                        $availableSlot =
+                                                            $leave->start_half_slot === 'morning'
+                                                                ? 'Evening'
+                                                                : 'Morning';
+                                                    @endphp
+                                                    ✅ {{ $availableSlot }} (Start)
+                                                @elseif ($leave->end_date_type == 'half_day')
+                                                    @php
+                                                        $availableSlot =
+                                                            $leave->end_half_slot === 'morning' ? 'Evening' : 'Morning';
+                                                    @endphp
+                                                    ✅ {{ $availableSlot }} (End)
+                                                @else
+                                                    — (No availability)
                                                 @endif
                                             @endif
                                         @else
-                                            -
+                                            — (No availability)
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">

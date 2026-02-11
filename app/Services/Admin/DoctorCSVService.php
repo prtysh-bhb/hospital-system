@@ -22,7 +22,7 @@ class DoctorCSVService
     public function exportDoctorsToCSV()
     {
         try {
-            $fileName = 'doctors_' . now()->format('Y-m-d_H-i-s') . '.csv';
+            $fileName = 'doctors_'.now()->format('Y-m-d_H-i-s').'.csv';
 
             return response()->streamDownload(function () {
                 $file = fopen('php://output', 'w');
@@ -113,16 +113,15 @@ class DoctorCSVService
                 'Cache-Control' => 'no-cache, no-store, must-revalidate',
             ]);
         } catch (Exception $e) {
-            \Log::error('CSV Export Error: ' . $e->getMessage());
-            throw new Exception('Failed to export doctors: ' . $e->getMessage());
+            \Log::error('CSV Export Error: '.$e->getMessage());
+            throw new Exception('Failed to export doctors: '.$e->getMessage());
         }
     }
 
     /**
      * Import doctors from CSV file
      *
-     * @param $file
-     * @param array|null $columnMapping - Optional mapping of CSV columns to database fields
+     * @param  array|null  $columnMapping  - Optional mapping of CSV columns to database fields
      * @return array ['success' => count, 'failed' => count, 'errors' => []]
      */
     public function importDoctorsFromCSV($file, $columnMapping = null)
@@ -135,7 +134,7 @@ class DoctorCSVService
 
         try {
             // Check if file exists and is readable
-            if (!file_exists($file->getRealPath())) {
+            if (! file_exists($file->getRealPath())) {
                 throw new Exception('File does not exist or is not readable.');
             }
 
@@ -164,6 +163,7 @@ class DoctorCSVService
                         })) === 0
                     ) {
                         $rowNumber++;
+
                         continue;
                     }
 
@@ -177,10 +177,10 @@ class DoctorCSVService
 
                     // Validate required fields
                     $validation = $this->validateDoctorData($data);
-                    if (!empty($validation['errors'])) {
+                    if (! empty($validation['errors'])) {
                         throw new Exception(implode(', ', $validation['errors']));
                     }
-                    
+
                     // Use updated data from validation (includes parsed dates)
                     $data = $validation['data'] ?? $data;
 
@@ -190,7 +190,7 @@ class DoctorCSVService
                     $results['success']++;
                 } catch (Exception $e) {
                     $results['failed']++;
-                    $results['errors'][] = "Row {$rowNumber}: " . $e->getMessage();
+                    $results['errors'][] = "Row {$rowNumber}: ".$e->getMessage();
                 }
 
                 $rowNumber++;
@@ -198,7 +198,7 @@ class DoctorCSVService
 
             fclose($fileHandle);
         } catch (Exception $e) {
-            $results['errors'][] = 'File Error: ' . $e->getMessage();
+            $results['errors'][] = 'File Error: '.$e->getMessage();
         }
 
         return $results;
@@ -207,9 +207,9 @@ class DoctorCSVService
     /**
      * Map CSV row to data array
      *
-     * @param array $row
-     * @param array $headers
-     * @param array|null $columnMapping - Optional custom mapping of CSV columns to database fields
+     * @param  array  $row
+     * @param  array  $headers
+     * @param  array|null  $columnMapping  - Optional custom mapping of CSV columns to database fields
      * @return array
      */
     private function mapCSVRowToData($row, $headers, $columnMapping = null)
@@ -246,7 +246,7 @@ class DoctorCSVService
     /**
      * Get default field name from CSV header
      *
-     * @param string $header
+     * @param  string  $header
      * @return string|null
      */
     private function getDefaultFieldMapping($header)
@@ -277,9 +277,9 @@ class DoctorCSVService
     /**
      * Set field value in data array with proper type conversion
      *
-     * @param array $data
-     * @param string $fieldName
-     * @param string $value
+     * @param  array  $data
+     * @param  string  $fieldName
+     * @param  string  $value
      */
     private function setFieldValue(&$data, $fieldName, $value)
     {
@@ -300,7 +300,7 @@ class DoctorCSVService
                 $data['consultation_fee'] = is_numeric($value) ? (float) $value : 0.0;
                 break;
             case 'status':
-                $data['status'] = !empty($value) ? strtolower($value) : 'active';
+                $data['status'] = ! empty($value) ? strtolower($value) : 'active';
                 break;
             case 'available_for_booking':
                 $data['available_for_booking'] = strtolower($value) === 'yes' || strtolower($value) === '1';
@@ -317,7 +317,7 @@ class DoctorCSVService
     /**
      * Validate doctor data
      *
-     * @param array $data
+     * @param  array  $data
      * @return array ['errors' => []]
      */
     private function validateDoctorData($data)
@@ -333,8 +333,8 @@ class DoctorCSVService
         }
         if (empty($data['email'])) {
             $errors[] = '[Email] Email is required';
-        } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = '[Email] Invalid email format (received: ' . $data['email'] . ')';
+        } elseif (! filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors[] = '[Email] Invalid email format (received: '.$data['email'].')';
         }
         if (empty($data['phone'])) {
             $errors[] = '[Phone] Phone is required';
@@ -347,7 +347,7 @@ class DoctorCSVService
             }
 
             // Also validate the cleaned phone has only digits
-            if (!preg_match('/^[0-9]+$/', $phoneDigits)) {
+            if (! preg_match('/^[0-9]+$/', $phoneDigits)) {
                 $errors[] = '[Phone] Phone must contain only digits';
             }
 
@@ -360,20 +360,20 @@ class DoctorCSVService
         if (empty($data['qualification'])) {
             $errors[] = '[Qualification] Qualification is required';
         }
-        if (!isset($data['experience_years']) || $data['experience_years'] < 0) {
+        if (! isset($data['experience_years']) || $data['experience_years'] < 0) {
             $errors[] = '[Experience Years] Experience years must be a positive number';
         }
         if (empty($data['license_number'])) {
             $errors[] = '[License Number] License number is required';
         }
-        if (!isset($data['consultation_fee']) || $data['consultation_fee'] < 0) {
+        if (! isset($data['consultation_fee']) || $data['consultation_fee'] < 0) {
             $errors[] = '[Consultation Fee] Consultation fee must be a positive number';
         }
         if (empty($data['address'])) {
             $errors[] = '[Address] Address is required';
         }
-        if (empty($data['gender']) || !in_array($data['gender'], ['male', 'female', 'other'])) {
-            $errors[] = '[Gender] Gender must be male, female, or other (received: ' . ($data['gender'] ?? 'empty') . ')';
+        if (empty($data['gender']) || ! in_array($data['gender'], ['male', 'female', 'other'])) {
+            $errors[] = '[Gender] Gender must be male, female, or other (received: '.($data['gender'] ?? 'empty').')';
         }
         if (empty($data['date_of_birth'])) {
             $errors[] = '[Date of Birth] Date of birth is required';
@@ -387,7 +387,7 @@ class DoctorCSVService
                 // Update data with standardized format
                 $data['date_of_birth'] = $dob->format('Y-m-d');
             } catch (Exception $e) {
-                $errors[] = '[Date of Birth] Invalid date format. Use DD-MM-YYYY, MM-DD-YYYY, or YYYY-MM-DD (received: ' . $data['date_of_birth'] . ')';
+                $errors[] = '[Date of Birth] Invalid date format. Use DD-MM-YYYY, MM-DD-YYYY, or YYYY-MM-DD (received: '.$data['date_of_birth'].')';
             }
         }
 
@@ -397,7 +397,8 @@ class DoctorCSVService
     /**
      * Create or update doctor
      *
-     * @param array $data
+     * @param  array  $data
+     *
      * @throws Exception
      */
     private function createOrUpdateDoctor($data)
@@ -405,19 +406,6 @@ class DoctorCSVService
         DB::beginTransaction();
 
         try {
-
-            // Check if a user exists with the given email or phone
-            $existingUser = User::where('email', $data['email'])->orWhere('phone', $data['phone'])->first();
-
-            if ($existingUser) {
-                if ($existingUser->email === $data['email'] && $existingUser->id != ($user->id ?? 0)) {
-                    throw new Exception('This email is already taken.');
-                }
-                if ($existingUser->phone === $data['phone'] && $existingUser->id != ($user->id ?? 0)) {
-                    throw new Exception('This phone number is already taken.');
-                }
-            }
-
             // Check if user already exists by email
             $user = User::where('email', $data['email'])->first();
 
@@ -433,15 +421,24 @@ class DoctorCSVService
                     'status' => $data['status'] ?? 'active',
                 ]);
             } else {
+                // Generate username if not provided
+                $username = $data['username'] ?? $this->generateUsername($data['first_name'], $data['last_name']);
+
+                // Check if username already exists
+                $usernameCount = User::where('username', $username)->count();
+                if ($usernameCount > 0) {
+                    $username = $username.($usernameCount + 1);
+                }
+
                 // Create new user
                 $user = User::create([
                     'role' => 'doctor',
                     'first_name' => $data['first_name'],
                     'last_name' => $data['last_name'],
-                    'username' => $data['email'],
+                    'username' => $username,
                     'email' => $data['email'],
                     'phone' => $data['phone'],
-                    'password' => Hash::make($data['phone']),
+                    'password' => Hash::make($data['phone']), // Default password is phone number
                     'date_of_birth' => Carbon::parse($data['date_of_birth'])->format('Y-m-d'),
                     'gender' => $data['gender'],
                     'address' => $data['address'],
@@ -451,10 +448,10 @@ class DoctorCSVService
 
             // Get or create specialty
             $specialty = Specialty::where('name', $data['specialty_name'])->first();
-            if (!$specialty) {
+            if (! $specialty) {
                 $specialty = Specialty::create([
                     'name' => $data['specialty_name'],
-                    'description' => "Auto-created from CSV import",
+                    'description' => 'Auto-created from CSV import',
                     'status' => 'active',
                 ]);
             }
@@ -486,14 +483,14 @@ class DoctorCSVService
             }
 
             // Handle working days schedule if provided
-            if (!empty($data['working_days'])) {
+            if (! empty($data['working_days'])) {
                 $this->createScheduleFromWorkingDays($user->id, $data['working_days']);
             }
 
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            throw new Exception('Failed to create/update doctor: ' . $e->getMessage());
+            throw new Exception('Failed to create/update doctor: '.$e->getMessage());
         }
     }
 
@@ -502,8 +499,8 @@ class DoctorCSVService
      * Format: "Monday 09:00-17:00, Wednesday 10:00-18:00"
      * Uses updateOrCreate to handle existing schedules without constraint violations
      *
-     * @param int $userId
-     * @param string $workingDaysString
+     * @param  int  $userId
+     * @param  string  $workingDaysString
      */
     private function createScheduleFromWorkingDays($userId, $workingDaysString)
     {
@@ -522,7 +519,7 @@ class DoctorCSVService
             // Parse format: "Monday 09:00-17:00" or "Monday 9:00-17:00"
             preg_match('/^(\w+)\s+(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/', $schedule, $matches);
 
-            if (!$matches) {
+            if (! $matches) {
                 continue;
             }
 
@@ -532,7 +529,7 @@ class DoctorCSVService
             $endHour = str_pad($matches[4], 2, '0', STR_PAD_LEFT);
             $endMin = $matches[5];
 
-            if (!isset($dayMap[$dayName])) {
+            if (! isset($dayMap[$dayName])) {
                 continue;
             }
 
@@ -560,7 +557,7 @@ class DoctorCSVService
     /**
      * Get working days string from doctor schedules
      *
-     * @param DoctorProfile $doctor
+     * @param  DoctorProfile  $doctor
      * @return string
      */
     private function getWorkingDaysString($doctor)
@@ -597,7 +594,7 @@ class DoctorCSVService
      * Removes spaces, dashes, parentheses, and other common formatting
      * Keeps only digits
      *
-     * @param string $phone
+     * @param  string  $phone
      * @return string
      */
     private function cleanPhoneNumber($phone)
@@ -613,12 +610,11 @@ class DoctorCSVService
         return preg_replace('/[^0-9]/', '', $phone);
     }
 
-
     /**
      * Generate username from first and last name
      *
-     * @param string $firstName
-     * @param string $lastName
+     * @param  string  $firstName
+     * @param  string  $lastName
      * @return string
      */
     private function generateUsername($firstName, $lastName)
@@ -630,15 +626,16 @@ class DoctorCSVService
             return $firstName;
         }
 
-        return $firstName . '.' . $lastName;
+        return $firstName.'.'.$lastName;
     }
 
     /**
      * Parse date in multiple formats
      * Supports: DD-MM-YYYY, DD-MM-YY, MM-DD-YYYY, MM-DD-YY, YYYY-MM-DD, DD/MM/YYYY, MM/DD/YYYY, etc.
      *
-     * @param string $dateString
+     * @param  string  $dateString
      * @return Carbon
+     *
      * @throws Exception
      */
     private function parseDate($dateString)

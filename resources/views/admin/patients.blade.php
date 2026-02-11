@@ -5,25 +5,40 @@
 @section('page-title', 'Patients Management')
 
 @section('header-actions')
-    <div class="flex flex-wrap gap-2">
-        <!-- Export CSV Button -->
-        <a href="{{ route('admin.patients.export-csv') }}"
-            class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium flex items-center gap-2">
+    <div class="relative inline-block text-left">
+        <!-- Dropdown Trigger -->
+        <button type="button" onclick="toggleDropdown()"
+            class="inline-flex items-center gap-2 px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-gray-700 hover:bg-gray-800 rounded-lg font-medium">
+            Actions
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
-            Export CSV
-        </a>
-
-        <!-- Import CSV Button -->
-        <button onclick="openImportModal()"
-            class="px-4 sm:px-6 py-2 text-sm sm:text-base text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-            Bulk Import
         </button>
+
+        <!-- Dropdown Menu -->
+        <div id="actionDropdown"
+            class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+
+            <!-- Export CSV -->
+            <a href="{{ route('admin.patients.export-csv') }}"
+                class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                Export CSV
+            </a>
+
+            <!-- Bulk Import -->
+            <button onclick="openImportModal()"
+                class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                Bulk Import
+            </button>
+        </div>
     </div>
 @endsection
 
@@ -305,66 +320,132 @@
     <!-- Import Modal -->
     <div id="importPatientModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
             onclick="event.stopPropagation()">
-            <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                <h3 class="text-xl font-semibold text-gray-800">Import Patients from CSV</h3>
-                <button onclick="closeImportModal()" class="text-gray-400 hover:text-gray-600">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800">Import CSV</h2>
+                <button onclick="closeImportModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
+
+            <!-- Steps Indicator -->
+            <div class="px-6 py-4 flex items-center justify-between text-sm font-medium">
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
+                    <span id="step1Label" class="text-gray-900">Upload CSV</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-300 mx-3"></div>
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs">2</span>
+                    <span id="step2Label" class="text-gray-500">Map columns</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-300 mx-3"></div>
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs">3</span>
+                    <span id="step3Label" class="text-gray-500">Confirm import</span>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
             <div class="p-6 flex-1 overflow-auto">
-                <form id="importForm" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Select CSV File</label>
-                        <div class="relative">
-                            <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt" class="hidden"
-                                onchange="updateFileName()">
-                            <button type="button" onclick="document.getElementById('csvFileInput').click()"
-                                class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-gray-400 cursor-pointer transition">
-                                <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor"
+                <!-- Step 1: File Upload -->
+                <div id="importStep1" class="space-y-4">
+                    <form id="importForm" enctype="multipart/form-data">
+                        @csrf
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors cursor-pointer"
+                            onclick="document.getElementById('csvFileInput').click()">
+                            <input type="file" id="csvFileInput" name="csv_file" accept=".csv,.txt" required
+                                class="hidden" />
+
+                            <div id="fileUploadArea">
+                                <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <p id="fileNameDisplay" class="text-sm text-gray-600">Click to select a CSV file</p>
-                            </button>
+                                <p class="text-gray-600 mb-1">Drag and drop or click to replace</p>
+                                <p class="text-xs text-gray-500">CSV file</p>
+                            </div>
+
+                            <div id="fileSelectedArea" class="hidden">
+                                <svg class="w-8 h-8 text-green-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <p id="selectedFileName" class="text-gray-800 font-medium text-sm"></p>
+                                <p class="text-xs text-gray-500 mt-1">Drag and drop or click to replace</p>
+                            </div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-2">Supported format: CSV (Max: 5MB)</p>
+                    </form>
+                </div>
+
+                <!-- Step 2: Field Mapping -->
+                <div id="importStep2" class="hidden space-y-4">
+                    <div id="fieldMappingContainer" class="space-y-3">
+                        <!-- Mapping UI will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Step 3: Import Progress -->
+                <div id="importStep3" class="hidden space-y-4">
+                    <div id="importProgress" class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <p id="importProgressText" class="text-sm font-medium text-gray-700">Importing...</p>
+                            <span id="importPercentage" class="text-sm font-medium text-gray-700">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="importProgressBar"
+                                class="bg-blue-500 h-3 rounded-full transition-all duration-300 ease-out"
+                                style="width: 0%">
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Only errors section - NO success section -->
-                    <div id="importErrors" class="hidden mb-4">
-                        <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <p class="text-sm font-medium text-red-800 mb-2">Import Errors:</p>
-                            <ul id="errorsList"
-                                class="text-sm text-red-700 list-disc list-inside max-h-64 overflow-y-auto space-y-1">
-                            </ul>
-                        </div>
+                    <!-- Import Results -->
+                    <div id="importResultsDiv" class="hidden">
+                        <div id="importResultsContent"></div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="flex gap-3 mt-4">
-                        <button type="button" onclick="closeImportModal()"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">
-                            Cancel
-                        </button>
-                        <button type="submit" id="importSubmitBtn"
-                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center">
-                            <span id="importBtnText">Import</span>
-                            <svg id="importLoadingSpinner" class="hidden w-5 h-5 ml-2 text-white animate-spin"
-                                fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                        </button>
-                    </div>
-                </form>
+            <!-- Modal Footer - Step 1 -->
+            <div id="step1Footer" class="border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
+                <button type="button" onclick="closeImportModal()"
+                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    Cancel
+                </button>
+                <button type="button" onclick="proceedToFieldMapping()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Prepare import
+                </button>
+            </div>
+
+            <!-- Modal Footer - Step 2 -->
+            <div id="step2Footer" class="hidden border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
+                <button type="button" onclick="backToFileUpload()"
+                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    Back
+                </button>
+                <button type="button" onclick="submitWithMapping()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Next
+                </button>
+            </div>
+
+            <!-- Modal Footer - Step 3 -->
+            <div id="step3Footer" class="hidden border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
+                <button type="button" onclick="closeImportModal()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Close
+                </button>
             </div>
         </div>
     </div>
@@ -411,6 +492,9 @@
         let searchTimeout;
         let currentPage = 1;
         let patientToDeleteId = null;
+        let csvHeaders = [];
+        let formFields = {};
+        let columnMapping = {};
 
         function goToPage(page) {
             currentPage = page;
@@ -425,7 +509,7 @@
         // View Patient Details
         function viewPatient(patientId) {
             const modal = document.getElementById('viewPatientModal');
-            modal.classList.remove('hidden');
+            if (modal) modal.classList.remove('hidden');
 
             fetch(`/admin/patients/${patientId}`, {
                     method: 'GET',
@@ -436,93 +520,120 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('viewPatientContent').innerHTML = data.html;
+                    const content = document.getElementById('viewPatientContent');
+                    if (content) content.innerHTML = data.html;
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('viewPatientContent').innerHTML =
+                    const content = document.getElementById('viewPatientContent');
+                    if (content) content.innerHTML =
                         '<div class="text-center py-8 text-red-600">Failed to load patient details</div>';
                 });
         }
 
         function closePatientViewModal() {
-            document.getElementById('viewPatientModal').classList.add('hidden');
+            const modal = document.getElementById('viewPatientModal');
+            if (modal) modal.classList.add('hidden');
         }
 
         // Edit Patient
         function editPatient(patientId) {
             const modal = document.getElementById('editPatientModal');
-            modal.classList.remove('hidden');
+            if (modal) modal.classList.remove('hidden');
 
             fetch(`/admin/patients/${patientId}/edit`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            }).then(response => response.json()).then(data => {
-                document.getElementById('editPatientContent').innerHTML = data.html;
-            }).catch(error => {
-                console.error('Error:', error);
-                document.getElementById('editPatientContent').innerHTML =
-                    '<div class="text-center py-8 text-red-600">Failed to load edit form</div>';
-            });
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const content = document.getElementById('editPatientContent');
+                    if (content) content.innerHTML = data.html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const content = document.getElementById('editPatientContent');
+                    if (content) content.innerHTML =
+                        '<div class="text-center py-8 text-red-600">Failed to load edit form</div>';
+                });
         }
 
         function deletePatient(patientId) {
             patientToDeleteId = patientId;
-            document.getElementById('deletePatientModal').classList.remove('hidden');
+            const modal = document.getElementById('deletePatientModal');
+            if (modal) modal.classList.remove('hidden');
         }
 
         // Cancel delete button
-        document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
-            patientToDeleteId = null;
-            document.getElementById('deletePatientModal').classList.add('hidden');
-        });
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        if (cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', () => {
+                patientToDeleteId = null;
+                const modal = document.getElementById('deletePatientModal');
+                if (modal) modal.classList.add('hidden');
+            });
+        }
 
         // Close modal when clicking outside
-        document.getElementById('deletePatientModal').addEventListener('click', (e) => {
-            if (e.target.id === 'deletePatientModal') {
-                patientToDeleteId = null;
-                document.getElementById('deletePatientModal').classList.add('hidden');
-            }
-        });
+        const deleteModal = document.getElementById('deletePatientModal');
+        if (deleteModal) {
+            deleteModal.addEventListener('click', (e) => {
+                if (e.target.id === 'deletePatientModal') {
+                    patientToDeleteId = null;
+                    deleteModal.classList.add('hidden');
+                }
+            });
+        }
 
         // Confirm delete button
-        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-            if (!patientToDeleteId) return;
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', () => {
+                if (!patientToDeleteId) return;
 
-            const patientId = patientToDeleteId;
-            document.getElementById('deletePatientModal').classList.add('hidden');
-            patientToDeleteId = null;
+                const patientId = patientToDeleteId;
+                const modal = document.getElementById('deletePatientModal');
+                if (modal) modal.classList.add('hidden');
+                patientToDeleteId = null;
 
-            fetch(`/admin/patients/${patientId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                }
-            }).then(response => response.json()).then(data => {
-                if (data.success) {
-                    toastr.success(data.message || 'Patient deleted successfully!');
-                    fetchPatients(); // Refresh the patient list
-                } else {
-                    toastr.error(data.message || 'Failed to delete patient');
-                }
-            }).catch(error => {
-                console.error('Error:', error);
-                toastr.error('An error occurred while deleting the patient. Please try again.');
+                fetch(`/admin/patients/${patientId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            toastr.success(data.message || 'Patient deleted successfully!');
+                            fetchPatients(); // Refresh the patient list
+                        } else {
+                            toastr.error(data.message || 'Failed to delete patient');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        toastr.error('An error occurred while deleting the patient. Please try again.');
+                    });
             });
-        });
+        }
 
         function closePatientEditModal() {
-            document.getElementById('editPatientModal').classList.add('hidden');
+            const modal = document.getElementById('editPatientModal');
+            if (modal) modal.classList.add('hidden');
         }
 
         // Save edited patient
         function savePatient(patientId) {
-            const formData = new FormData(document.getElementById('editPatientForm'));
+            const form = document.getElementById('editPatientForm');
+            if (!form) return;
+
+            const formData = new FormData(form);
 
             // Clear all previous errors
             clearFormErrors();
@@ -568,16 +679,18 @@
         }
 
         function clearFormErrors() {
+            const form = document.getElementById('editPatientForm');
+            if (!form) return;
+
             // Remove error styling from all inputs
-            const inputs = document.querySelectorAll(
-                '#editPatientForm input, #editPatientForm select, #editPatientForm textarea');
+            const inputs = form.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 input.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
                 input.classList.add('border-gray-300', 'focus:ring-sky-500', 'focus:border-transparent');
             });
 
             // Hide all error messages
-            const errorMessages = document.querySelectorAll('#editPatientForm .error-message');
+            const errorMessages = form.querySelectorAll('.error-message');
             errorMessages.forEach(msg => {
                 msg.classList.add('hidden');
                 msg.textContent = '';
@@ -585,8 +698,11 @@
         }
 
         function displayFormErrors(errors) {
+            const form = document.getElementById('editPatientForm');
+            if (!form) return;
+
             Object.keys(errors).forEach(fieldName => {
-                const input = document.querySelector(`#editPatientForm [name="${fieldName}"]`);
+                const input = form.querySelector(`[name="${fieldName}"]`);
                 if (input) {
                     // Add error styling to input
                     input.classList.remove('border-gray-300', 'focus:ring-sky-500',
@@ -596,7 +712,7 @@
                     // Show error message below input
                     const errorContainer = input.parentElement.querySelector('.error-message');
                     if (errorContainer) {
-                        errorContainer.textContent = errors[fieldName][0]; // Show first error message
+                        errorContainer.textContent = errors[fieldName][0];
                         errorContainer.classList.remove('hidden');
                     }
 
@@ -612,13 +728,21 @@
         }
 
         function fetchPatients() {
-            const search = document.getElementById('searchInput').value;
-            const blood_group = document.getElementById('bloodGroupFilter').value;
-            const status = document.getElementById('statusFilter').value;
+            const searchInput = document.getElementById('searchInput');
+            const bloodGroupFilter = document.getElementById('bloodGroupFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const tableContainer = document.querySelector('.overflow-x-auto');
+
+            if (!searchInput || !bloodGroupFilter || !statusFilter || !loadingIndicator || !tableContainer) return;
+
+            const search = searchInput.value;
+            const blood_group = bloodGroupFilter.value;
+            const status = statusFilter.value;
 
             // Show loading indicator
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            document.querySelector('.overflow-x-auto').style.opacity = '0.5';
+            loadingIndicator.classList.remove('hidden');
+            tableContainer.style.opacity = '0.5';
 
             // Build query parameters
             const params = new URLSearchParams();
@@ -629,40 +753,47 @@
 
             // Make AJAX request
             fetch(`{{ route('admin.patients') }}?${params.toString()}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            }).then(response => response.json()).then(data => {
-                document.getElementById('patientTableBody').innerHTML = data.html;
-                document.getElementById('loadingIndicator').classList.add('hidden');
-                document.querySelector('.overflow-x-auto').style.opacity = '1';
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('patientTableBody');
+                    if (tableBody) tableBody.innerHTML = data.html;
 
-                // Update pagination info
-                // Prevent crash if pagination is missing
-                if (data.pagination) {
-                    document.getElementById('paginationFrom').textContent = data.pagination.from ?? 0;
-                    document.getElementById('paginationTo').textContent = data.pagination.to ?? 0;
-                    document.getElementById('paginationTotal').textContent = data.pagination.total ?? 0;
+                    loadingIndicator.classList.add('hidden');
+                    tableContainer.style.opacity = '1';
 
-                    updatePaginationButtons(data.pagination);
-                } else {
-                    console.error("Pagination missing from response:", data);
-                }
+                    // Update pagination info
+                    if (data.pagination) {
+                        const paginationFrom = document.getElementById('paginationFrom');
+                        const paginationTo = document.getElementById('paginationTo');
+                        const paginationTotal = document.getElementById('paginationTotal');
 
-                // Update pagination buttons
-                updatePaginationButtons(data.pagination);
-            }).catch(error => {
-                console.error('Error:', error);
-                document.getElementById('loadingIndicator').classList.add('hidden');
-                document.querySelector('.overflow-x-auto').style.opacity = '1';
-                console.log('error->>>>', error);
-                toastr.error('An error occurred while fetching patients. Please try again.');
-            });
+                        if (paginationFrom) paginationFrom.textContent = data.pagination.from ?? 0;
+                        if (paginationTo) paginationTo.textContent = data.pagination.to ?? 0;
+                        if (paginationTotal) paginationTotal.textContent = data.pagination.total ?? 0;
+
+                        updatePaginationButtons(data.pagination);
+                    } else {
+                        console.error("Pagination missing from response:", data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingIndicator.classList.add('hidden');
+                    if (tableContainer) tableContainer.style.opacity = '1';
+                    toastr.error('An error occurred while fetching patients. Please try again.');
+                });
         }
 
         function updatePaginationButtons(pagination) {
+            const paginationButtons = document.getElementById('paginationButtons');
+            if (!paginationButtons || !pagination) return;
+
             let buttonsHtml = '';
 
             // Previous button
@@ -694,42 +825,57 @@
                     `<button onclick="goToPage(${pagination.current_page + 1})" class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Next</button>`;
             }
 
-            document.getElementById('paginationButtons').innerHTML = buttonsHtml;
+            paginationButtons.innerHTML = buttonsHtml;
         }
 
         // Search input with debounce
-        document.getElementById('searchInput').addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            currentPage = 1; // Reset to first page on search
-            searchTimeout = setTimeout(() => {
-                fetchPatients();
-            }, 500);
-        });
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                currentPage = 1; // Reset to first page on search
+                searchTimeout = setTimeout(() => {
+                    fetchPatients();
+                }, 500);
+            });
+        }
 
         // Blood group filter
-        document.getElementById('bloodGroupFilter').addEventListener('change', function() {
-            currentPage = 1; // Reset to first page on filter
-            fetchPatients();
-        });
+        const bloodGroupFilter = document.getElementById('bloodGroupFilter');
+        if (bloodGroupFilter) {
+            bloodGroupFilter.addEventListener('change', function() {
+                currentPage = 1; // Reset to first page on filter
+                fetchPatients();
+            });
+        }
 
         // Status filter
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            currentPage = 1; // Reset to first page on filter
-            fetchPatients();
-        });
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function() {
+                currentPage = 1; // Reset to first page on filter
+                fetchPatients();
+            });
+        }
 
         // Close modals when clicking outside (on the backdrop)
-        document.getElementById('editPatientModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePatientEditModal();
-            }
-        });
+        const editModal = document.getElementById('editPatientModal');
+        if (editModal) {
+            editModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePatientEditModal();
+                }
+            });
+        }
 
-        document.getElementById('viewPatientModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePatientViewModal();
-            }
-        });
+        const viewModal = document.getElementById('viewPatientModal');
+        if (viewModal) {
+            viewModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePatientViewModal();
+                }
+            });
+        }
 
         // Close modals with ESC key
         document.addEventListener('keydown', function(e) {
@@ -740,159 +886,457 @@
             }
         });
 
-        // Import Modal Functions
-        function openImportModal() {
-            document.getElementById('importPatientModal').classList.remove('hidden');
-            document.getElementById('importForm').reset();
-            document.getElementById('csvFileInput').value = '';
-            document.getElementById('fileNameDisplay').textContent = 'Click to select a CSV file';
-            document.getElementById('importErrors').classList.add('hidden');
-            document.getElementById('errorsList').innerHTML = '';
+        // ========================================
+        // NOTIFICATION FUNCTION
+        // ========================================
+        function showNotification(message, type = 'success') {
+            if (typeof toastr !== 'undefined') {
+                toastr[type](message);
+            } else {
+                const alertType = type === 'error' ? 'alert' : 'log';
+                console[alertType](message);
+                if (type === 'error') {
+                    alert(message);
+                }
+            }
+        }
 
-            // Reset button state
-            const submitBtn = document.getElementById('importSubmitBtn');
-            submitBtn.disabled = false;
-            document.getElementById('importBtnText').textContent = 'Import';
-            document.getElementById('importLoadingSpinner').classList.add('hidden');
+        // ========================================
+        // IMPORT MODAL FUNCTIONS - MULTI-STEP
+        // ========================================
+        function openImportModal() {
+            const modal = document.getElementById('importPatientModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+            resetImportModal();
         }
 
         function closeImportModal() {
-            // Check if there are visible errors before closing
-            const importErrors = document.getElementById('importErrors');
-            if (!importErrors.classList.contains('hidden')) {}
-
-            document.getElementById('importPatientModal').classList.add('hidden');
-            document.getElementById('importForm').reset();
-            document.getElementById('csvFileInput').value = '';
-            document.getElementById('fileNameDisplay').textContent = 'Click to select a CSV file';
-            document.getElementById('importErrors').classList.add('hidden');
-            document.getElementById('errorsList').innerHTML = '';
+            const modal = document.getElementById('importPatientModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            resetImportModal();
         }
 
-        function updateFileName() {
-            const fileInput = document.getElementById('csvFileInput');
-            const fileName = fileInput.files[0]?.name || 'Click to select a CSV file';
-            document.getElementById('fileNameDisplay').textContent = fileName;
+        function resetImportModal() {
+            // Reset to step 1
+            const step1 = document.getElementById('importStep1');
+            const step2 = document.getElementById('importStep2');
+            const step3 = document.getElementById('importStep3');
+            const footer1 = document.getElementById('step1Footer');
+            const footer2 = document.getElementById('step2Footer');
+            const footer3 = document.getElementById('step3Footer');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileSelectedArea = document.getElementById('fileSelectedArea');
+            const importProgress = document.getElementById('importProgress');
+            const importResultsDiv = document.getElementById('importResultsDiv');
+
+            if (step1) step1.classList.remove('hidden');
+            if (step2) step2.classList.add('hidden');
+            if (step3) step3.classList.add('hidden');
+
+            if (footer1) footer1.classList.remove('hidden');
+            if (footer2) footer2.classList.add('hidden');
+            if (footer3) footer3.classList.add('hidden');
+
+            // Reset step indicators
+            updateStepIndicators(1);
+
+            // Reset form
+            const importForm = document.getElementById('importForm');
+            if (importForm) importForm.reset();
+            if (fileUploadArea) fileUploadArea.classList.remove('hidden');
+            if (fileSelectedArea) fileSelectedArea.classList.add('hidden');
+            if (importProgress) importProgress.classList.remove('hidden');
+            if (importResultsDiv) importResultsDiv.classList.add('hidden');
+
+            // Reset data
+            csvHeaders = [];
+            formFields = {};
+            columnMapping = {};
         }
 
-        function showImportError(errors) {
-            const errorsList = document.getElementById('errorsList');
-            errorsList.innerHTML = '';
+        // Update step indicators
+        function updateStepIndicators(currentStep) {
+            const stepLabels = [1, 2, 3];
 
-            if (errors && errors.length > 0) {
-                errors.forEach((error) => {
-                    const li = document.createElement('li');
-                    li.className = 'py-1';
-                    li.textContent = error;
-                    errorsList.appendChild(li);
+            stepLabels.forEach((step) => {
+                // Get label element
+                const label = document.getElementById(`step${step}Label`);
+                if (!label) return;
+
+                // Get the circle span which is the previous sibling of the label
+                const container = label.parentElement;
+                const circle = container ? container.querySelector('span[class*="rounded-full"]') : null;
+
+                if (!circle) return; // Skip if element doesn't exist
+
+                if (step < currentStep) {
+                    // Previous steps - green checkmark
+                    circle.className =
+                        'w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-xs';
+                    circle.innerHTML =
+                        '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>';
+                    label.className = 'text-gray-900';
+                } else if (step === currentStep) {
+                    // Current step - blue
+                    circle.className =
+                        'w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs';
+                    circle.textContent = step;
+                    label.className = 'text-gray-900';
+                } else {
+                    // Future steps - gray
+                    circle.className =
+                        'w-6 h-6 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs';
+                    circle.textContent = step;
+                    label.className = 'text-gray-500';
+                }
+            });
+        }
+
+        // Handle file selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const csvFileInput = document.getElementById('csvFileInput');
+            const selectedFileName = document.getElementById('selectedFileName');
+
+            if (csvFileInput && selectedFileName) {
+                csvFileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const fileName = this.files[0].name;
+                        selectedFileName.textContent = fileName;
+
+                        const fileUploadArea = document.getElementById('fileUploadArea');
+                        const fileSelectedArea = document.getElementById('fileSelectedArea');
+
+                        if (fileUploadArea) fileUploadArea.classList.add('hidden');
+                        if (fileSelectedArea) fileSelectedArea.classList.remove('hidden');
+                    }
                 });
-
-                document.getElementById('importErrors').classList.remove('hidden');
-
-                // Scroll to errors
-                setTimeout(() => {
-                    document.getElementById('importErrors').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }, 100);
             }
-        }
+        });
 
-        document.getElementById('importForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
+        function proceedToFieldMapping() {
             const fileInput = document.getElementById('csvFileInput');
-            if (!fileInput.files.length) {
-                showImportError(['Please select a CSV file']);
+            if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+                showNotification('Please select a CSV file', 'error');
                 return;
             }
 
-            const file = fileInput.files[0];
-            const allowedExtensions = ['csv', 'txt'];
-            const fileExt = file.name.split('.').pop().toLowerCase();
-
-            if (!allowedExtensions.includes(fileExt)) {
-                showImportError(['Invalid file type. Only CSV files are allowed.']);
-                return;
-            }
-
-            const formData = new FormData(this);
-            const submitBtn = document.getElementById('importSubmitBtn');
-            const btnText = document.getElementById('importBtnText');
-            const spinner = document.getElementById('importLoadingSpinner');
-
-            // Reset previous errors
-            document.getElementById('importErrors').classList.add('hidden');
-            document.getElementById('errorsList').innerHTML = '';
+            const formData = new FormData();
+            formData.append('csv_file', fileInput.files[0]);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
             // Show loading state
-            submitBtn.disabled = true;
-            btnText.textContent = 'Importing...';
-            spinner.classList.remove('hidden');
+            const nextBtn = document.querySelector('#step1Footer button:last-child');
+            if (nextBtn) {
+                nextBtn.disabled = true;
+                nextBtn.textContent = 'Loading...';
+            }
 
-            fetch('{{ route('admin.patients.import-csv') }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: formData
-            }).then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`Server error: ${response.status}`);
-                    });
-                }
-                return response.json();
-            }).then(data => {
-                if (data.success) {
-
-                    // FULL SUCCESS
-                    if (data.details && data.details.failed === 0) {
-                        if (typeof toastr !== 'undefined') {
-                            toastr.success(data.message, 'Import Successful');
-                        }
-                        setTimeout(() => {
-                            closeImportModal();
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        if (data.details && data.details.errors) {
-                            showImportError(data.details.errors);
-                        }
-                        submitBtn.disabled = false;
-                        btnText.textContent = 'Import';
-                        spinner.classList.add('hidden');
+            fetch('{{ route('admin.patients.csv-headers') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (nextBtn) {
+                        nextBtn.disabled = false;
+                        nextBtn.textContent = 'Prepare import';
                     }
 
-                } else {
-                    let errors = [];
-
-                    if (data.errors) {
-                        Object.values(data.errors).forEach(err => {
-                            if (Array.isArray(err)) errors.push(...err);
-                            else errors.push(err);
-                        });
-                    } else if (data.message) {
-                        errors.push(data.message);
-                    } else {
-                        errors.push('Import failed');
+                    if (!data.success) {
+                        showNotification(data.message || 'Failed to read CSV headers', 'error');
+                        return;
                     }
 
-                    showImportError(errors);
-                    submitBtn.disabled = false;
-                    btnText.textContent = 'Import';
-                    spinner.classList.add('hidden');
-                }
-            }).catch(error => {
-                console.error('Import error:', error);
-                showImportError([`An error occurred: ${error.message}`]);
+                    csvHeaders = data.csv_headers || [];
+                    formFields = data.form_fields || {};
 
-                submitBtn.disabled = false;
-                btnText.textContent = 'Import';
-                spinner.classList.add('hidden');
+                    if (csvHeaders.length === 0) {
+                        showNotification('CSV file has no headers', 'error');
+                        return;
+                    }
+
+                    // Populate field mapping UI
+                    buildFieldMappingUI();
+
+                    // Switch to step 2
+                    const step1 = document.getElementById('importStep1');
+                    const step2 = document.getElementById('importStep2');
+                    const footer1 = document.getElementById('step1Footer');
+                    const footer2 = document.getElementById('step2Footer');
+
+                    if (step1) step1.classList.add('hidden');
+                    if (step2) step2.classList.remove('hidden');
+                    if (footer1) footer1.classList.add('hidden');
+                    if (footer2) footer2.classList.remove('hidden');
+
+                    // Update step indicators
+                    updateStepIndicators(2);
+                })
+                .catch(error => {
+                    if (nextBtn) {
+                        nextBtn.disabled = false;
+                        nextBtn.textContent = 'Prepare import';
+                    }
+                    console.error('Error:', error);
+                    showNotification('Error reading CSV file: ' + error.message, 'error');
+                });
+        }
+
+        function buildFieldMappingUI() {
+            const container = document.getElementById('fieldMappingContainer');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            const requiredFields = ['first_name', 'last_name', 'email', 'phone'];
+
+            // Create a mapping of common field variations for better auto-detection
+            const fieldVariations = {
+                'first_name': ['first name', 'firstname', 'fname', 'first_name'],
+                'last_name': ['last name', 'lastname', 'lname', 'surname', 'last_name'],
+                'email': ['email', 'email address', 'e-mail'],
+                'phone': ['phone', 'phone number', 'contact', 'mobile', 'telephone'],
+                'date_of_birth': ['date of birth', 'dob', 'birth date', 'birthday'],
+                'gender': ['gender', 'sex'],
+                'address': ['address', 'street address', 'home address'],
+                'blood_group': ['blood group', 'blood type', 'blood'],
+                'emergency_contact_name': ['emergency contact name', 'emergency contact'],
+                'emergency_contact_phone': ['emergency contact phone', 'emergency contact number'],
+                'medical_history': ['medical history', 'medical_history'],
+                'current_medications': ['current medications', 'medications', 'current_medications'],
+                'insurance_provider': ['insurance provider', 'insurance company', 'insurance'],
+                'insurance_number': ['insurance number', 'insurance id', 'policy number'],
+                'status': ['status']
+            };
+
+            Object.entries(formFields).forEach(([fieldKey, fieldLabel]) => {
+                const isRequired = requiredFields.includes(fieldKey);
+                const row = document.createElement('div');
+                row.className = 'flex gap-2 items-end';
+
+                const label = document.createElement('label');
+                label.className = 'text-sm font-medium text-gray-700 w-40 flex-shrink-0';
+                label.innerHTML = fieldLabel + (isRequired ? '<span class="text-red-500 ml-1">*</span>' : '');
+
+                const select = document.createElement('select');
+                select.className =
+                    'flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm';
+                select.dataset.field = fieldKey;
+
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = '-- Select CSV column --';
+                select.appendChild(defaultOption);
+
+                // Add CSV header options - try to auto-select matching ones
+                let autoSelected = false;
+                csvHeaders.forEach(header => {
+                    const option = document.createElement('option');
+                    option.value = header;
+                    option.textContent = header;
+                    select.appendChild(option);
+
+                    // Try to auto-match if not already selected
+                    if (!autoSelected) {
+                        const headerLower = header.toLowerCase().trim();
+                        const variations = fieldVariations[fieldKey] || [];
+
+                        // Check if header matches any known variations for this field
+                        const isMatch = variations.some(variation =>
+                            headerLower === variation.toLowerCase() ||
+                            headerLower.includes(variation.toLowerCase())
+                        );
+
+                        if (isMatch) {
+                            option.selected = true;
+                            // REVERSE MAPPING: dbField -> csvColumn (allows multiple db fields to use same csv column)
+                            columnMapping[fieldKey] = header;
+                            autoSelected = true;
+                        }
+                    }
+                });
+
+                // Update mapping when selection changes - ALLOWS MULTIPLE DB FIELDS TO MAP TO SAME CSV COLUMN
+                select.addEventListener('change', (e) => {
+                    const selectedHeader = e.target.value;
+                    const fieldKey = e.target.dataset.field;
+
+                    if (selectedHeader) {
+                        // Map: database field -> CSV column (allows multiple db fields to use same csv column)
+                        columnMapping[fieldKey] = selectedHeader;
+                    } else {
+                        // Remove mapping for this database field
+                        delete columnMapping[fieldKey];
+                    }
+
+                    console.log('Updated columnMapping (dbField -> csvColumn):', columnMapping);
+                });
+
+                row.appendChild(label);
+                row.appendChild(select);
+                container.appendChild(row);
             });
-        });
+        }
+
+        function backToFileUpload() {
+            const step1 = document.getElementById('importStep1');
+            const step2 = document.getElementById('importStep2');
+            const footer1 = document.getElementById('step1Footer');
+            const footer2 = document.getElementById('step2Footer');
+
+            if (step1) step1.classList.remove('hidden');
+            if (step2) step2.classList.add('hidden');
+            if (footer1) footer1.classList.remove('hidden');
+            if (footer2) footer2.classList.add('hidden');
+
+            // Update step indicators
+            updateStepIndicators(1);
+        }
+
+        function submitWithMapping() {
+            const fileInput = document.getElementById('csvFileInput');
+            if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+                showNotification('Please select a CSV file', 'error');
+                return;
+            }
+
+            console.log('Column mapping structure:', columnMapping);
+
+            // Validate that all required fields are mapped
+            const requiredFields = ['first_name', 'last_name', 'email', 'phone'];
+            const mappedRequiredFields = requiredFields.filter(f => columnMapping[f] && columnMapping[f].trim() !== '');
+            const missingRequired = requiredFields.filter(f => !mappedRequiredFields.includes(f));
+
+            console.log('Required fields:', requiredFields);
+            console.log('Mapped required fields:', mappedRequiredFields);
+            console.log('Missing required:', missingRequired);
+
+            if (missingRequired.length > 0) {
+                showNotification('Please map all required fields: ' + missingRequired.join(', '), 'error');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('csv_file', fileInput.files[0]);
+            formData.append('column_mapping', JSON.stringify(columnMapping));
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+            // Switch to step 3
+            const step2 = document.getElementById('importStep2');
+            const step3 = document.getElementById('importStep3');
+            const footer2 = document.getElementById('step2Footer');
+            const footer3 = document.getElementById('step3Footer');
+
+            if (step2) step2.classList.add('hidden');
+            if (step3) step3.classList.remove('hidden');
+            if (footer2) footer2.classList.add('hidden');
+            if (footer3) footer3.classList.remove('hidden');
+
+            // Update step indicators
+            updateStepIndicators(3);
+
+            // Start import
+            performImport(formData);
+        }
+
+        function performImport(formData) {
+            fetch('{{ route('admin.patients.import-csv') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide progress bar
+                    const importProgress = document.getElementById('importProgress');
+                    if (importProgress) importProgress.classList.add('hidden');
+
+                    if (data.success) {
+                        // Show success results
+                        const resultsDiv = document.getElementById('importResultsDiv');
+                        const resultsContent = document.getElementById('importResultsContent');
+
+                        if (resultsDiv) resultsDiv.classList.remove('hidden');
+
+                        let html = '<div class="p-4 bg-green-50 border border-green-200 rounded-lg">';
+                        html += `<p class="text-sm font-medium text-green-800 mb-2">${data.message}</p>`;
+
+                        if (data.details && data.details.errors && data.details.errors.length > 0) {
+                            html += '<p class="text-xs font-medium text-red-700 mt-3 mb-2">Errors encountered:</p>';
+                            html +=
+                                '<ul class="text-xs text-red-600 list-disc list-inside space-y-1 max-h-40 overflow-y-auto">';
+                            data.details.errors.forEach(error => {
+                                html += `<li>${error}</li>`;
+                            });
+                            html += '</ul>';
+                        }
+
+                        html += '</div>';
+
+                        if (resultsContent) resultsContent.innerHTML = html;
+
+                        // Auto-close after success
+                        if (!data.details || data.details.failed === 0) {
+                            setTimeout(() => {
+                                closeImportModal();
+                                location.reload();
+                            }, 2000);
+                        }
+                    } else {
+                        const resultsDiv = document.getElementById('importResultsDiv');
+                        const resultsContent = document.getElementById('importResultsContent');
+
+                        if (resultsDiv) resultsDiv.classList.remove('hidden');
+
+                        let html = '<div class="p-4 bg-red-50 border border-red-200 rounded-lg">';
+                        html += `<p class="text-sm font-medium text-red-800">${data.message}</p>`;
+
+                        if (data.details && data.details.errors && data.details.errors.length > 0) {
+                            html +=
+                                '<ul class="text-xs text-red-600 list-disc list-inside space-y-1 mt-2 max-h-40 overflow-y-auto">';
+                            data.details.errors.forEach(error => {
+                                html += `<li>${error}</li>`;
+                            });
+                            html += '</ul>';
+                        }
+
+                        html += '</div>';
+
+                        if (resultsContent) resultsContent.innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+
+                    const importProgress = document.getElementById('importProgress');
+                    const resultsDiv = document.getElementById('importResultsDiv');
+                    const resultsContent = document.getElementById('importResultsContent');
+
+                    if (importProgress) importProgress.classList.add('hidden');
+                    if (resultsDiv) resultsDiv.classList.remove('hidden');
+
+                    let html = '<div class="p-4 bg-red-50 border border-red-200 rounded-lg">';
+                    html += `<p class="text-sm font-medium text-red-800">Import failed: ${error.message}</p>`;
+                    html += '</div>';
+
+                    if (resultsContent) resultsContent.innerHTML = html;
+                });
+        }
 
         // Close modals with ESC key
         document.addEventListener('keydown', function(e) {
@@ -902,9 +1346,24 @@
         });
 
         // Close modal when clicking outside
-        document.getElementById('importPatientModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeImportModal();
+        const importModal = document.getElementById('importPatientModal');
+        if (importModal) {
+            importModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeImportModal();
+                }
+            });
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('actionDropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('actionDropdown');
+            if (!e.target.closest('.relative')) {
+                if (dropdown) dropdown.classList.add('hidden');
             }
         });
     </script>

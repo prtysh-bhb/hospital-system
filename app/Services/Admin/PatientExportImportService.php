@@ -19,7 +19,7 @@ class PatientExportImportService
      */
     public function exportPatientsToCSV(): StreamedResponse
     {
-        $fileName = 'patients_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $fileName = 'patients_'.now()->format('Y-m-d_H-i-s').'.csv';
 
         return response()->streamDownload(function () {
             $file = fopen('php://output', 'w');
@@ -53,14 +53,14 @@ class PatientExportImportService
                         $profile = $patient->patientProfile;
 
                         // Excel-safe values
-                        $phone = $patient->phone ? "'" . $patient->phone : '';
+                        $phone = $patient->phone ? "'".$patient->phone : '';
                         $emergencyPhone = $profile?->emergency_contact_phone
-                            ? "'" . $profile->emergency_contact_phone
+                            ? "'".$profile->emergency_contact_phone
                             : '';
 
                         // DOB as TEXT to avoid Excel auto-format
                         $dob = $patient->date_of_birth
-                            ? "'" . Carbon::parse($patient->date_of_birth)->format('d-m-Y')
+                            ? "'".Carbon::parse($patient->date_of_birth)->format('d-m-Y')
                             : '';
 
                         fputcsv($file, [
@@ -95,7 +95,7 @@ class PatientExportImportService
      * IMPORT PATIENTS FROM CSV
      * =========================
      */
-    public function importPatientsFromCSV($file): array
+    public function importPatientsFromCSV($file, $columnMapping = null): array
     {
         $result = [
             'success' => 0,
@@ -104,17 +104,22 @@ class PatientExportImportService
             'total' => 0,
         ];
 
+        \Log::info('=== Starting Patient Import ===');
+        \Log::info('Column Mapping:', ['mapping' => $columnMapping]);
+
         $handle = fopen($file->getRealPath(), 'r');
 
         // Read & clean headers ONLY ONCE
         $headers = fgetcsv($handle);
-        if (!$headers) {
+        if (! $headers) {
             throw new Exception('CSV is empty');
         }
 
         $headers = array_map(function ($h) {
-            return strtolower(trim(preg_replace('/\x{FEFF}/u', '', $h)));
+            return trim(preg_replace('/\x{FEFF}/u', '', $h));
         }, $headers);
+
+        \Log::info('CSV Headers Found:', ['headers' => $headers]);
 
         $rowNumber = 1; // actual CSV data row (not header)
 
@@ -129,109 +134,209 @@ class PatientExportImportService
             $result['total']++;
 
             try {
-                $data = $this->mapRow($headers, $row);
+                $data = $this->mapCSVRowToData($row, $headers, $columnMapping);
+
+                \Log::info("Row {$rowNumber} mapped data:", $data);
+
                 $data = $this->validateAndFormat($data);
                 $this->createPatient($data);
                 $result['success']++;
             } catch (Exception $e) {
                 $result['failed']++;
-                $result['errors'][] = "Row {$rowNumber}: " . $e->getMessage();
+                $result['errors'][] = "Row {$rowNumber}: ".$e->getMessage();
+                \Log::error("Row {$rowNumber} error: ".$e->getMessage());
             }
         }
 
         fclose($handle);
+
+        \Log::info('=== Import Complete ===', ['result' => $result]);
+
         return $result;
     }
 
     /**
      * =========================
-     * MAP CSV ROW
+     * MAP CSV ROW TO DATA
      * =========================
      */
-    private function mapRow(array $headers, array $row): array
+    private function mapCSVRowToData(array $row, array $headers, $columnMapping = null): array
     {
         $data = [];
 
-        foreach ($headers as $i => $header) {
+        foreach ($headers as $index => $header) {
+            $value = (string) ($row[$index] ?? '');
+            $value = trim($value);
 
-            // Normalize header
-            $header = trim($header);
-            $header = preg_replace('/\x{FEFF}/u', '', $header); // remove BOM
-            $header = strtolower($header);
-
-            // Normalize value
-            $value = trim($row[$i] ?? '');
+            // Strip leading apostrophe (Excel formatting)
             if (str_starts_with($value, "'")) {
                 $value = substr($value, 1);
             }
 
-            switch ($header) {
-                case 'first name':
-                    $data['first_name'] = $value;
-                    break;
+            // Normalize header for consistency
+            $normalizedHeader = trim(preg_replace('/\x{FEFF}/u', '', $header));
 
-                case 'last name':
-                    $data['last_name'] = $value;
-                    break;
+            $fieldNames = [];
 
-                case 'email':
-                    $data['email'] = strtolower($value);
-                    break;
+            // If custom column mapping is provided, use it
+            // NEW STRUCTURE: columnMapping has dbField -> csvColumn (not csvColumn -> dbField)
+            // Can have MULTIPLE dbFields mapping to the SAME csvColumn
+            if ($columnMapping && is_array($columnMapping) && ! empty($columnMapping)) {
+                // Look through the mapping to find ALL dbFields that map to this CSV column
+                foreach ($columnMapping as $dbField => $csvColumn) {
+                    if ($csvColumn) {
+                        $normalizedCsvCol = trim(preg_replace('/\x{FEFF}/u', '', $csvColumn));
 
-                case 'phone':
-                    $data['phone'] = $this->digits($value);
-                    break;
+                        if ($normalizedCsvCol === $normalizedHeader ||
+                            strtolower($normalizedCsvCol) === strtolower($normalizedHeader)) {
+                            // Found a mapping: this CSV column should be saved to this dbField
+                            $fieldNames[] = $dbField;
+                        }
+                    }
+                }
+            }
 
-                case 'date of birth':
-                case 'date of birth (dd-mm-yyyy)':
-                    $data['date_of_birth'] = $value;
-                    break;
+            // If not found in custom mapping, try default mapping
+            if (empty($fieldNames)) {
+                $defaultField = $this->getDefaultFieldMapping($normalizedHeader);
+                if ($defaultField) {
+                    $fieldNames[] = $defaultField;
+                }
+            }
 
-                case 'gender':
-                    $data['gender'] = strtolower($value);
-                    break;
-
-                case 'address':
-                    $data['address'] = $value;
-                    break;
-
-                case 'blood group':
-                    $data['blood_group'] = strtoupper($value);
-                    break;
-
-                case 'emergency contact name':
-                    $data['emergency_contact_name'] = $value;
-                    break;
-
-                case 'emergency contact phone':
-                    $data['emergency_contact_phone'] = $this->digits($value);
-                    break;
-
-                case 'medical history':
-                    $data['medical_history'] = $value;
-                    break;
-
-                case 'current medications':
-                    $data['current_medications'] = $value;
-                    break;
-
-                case 'insurance provider':
-                    $data['insurance_provider'] = $value;
-                    break;
-
-                case 'insurance number':
-                    $data['insurance_number'] = $value;
-                    break;
-
-                case 'status':
-                    $data['status'] = $value ?: 'active';
-                    break;
+            // Set field value for ALL matching database fields
+            foreach ($fieldNames as $fieldName) {
+                $this->setFieldValue($data, $fieldName, $value);
             }
         }
 
         return $data;
     }
 
+    /**
+     * =========================
+     * MAP ROW (LEGACY)
+     * =========================
+     */
+    private function mapRow(array $headers, array $row): array
+    {
+        return $this->mapCSVRowToData($row, $headers, null);
+    }
+
+    /**
+     * =========================
+     * GET DEFAULT FIELD MAPPING
+     * =========================
+     */
+    private function getDefaultFieldMapping($header)
+    {
+        // Normalize header for comparison
+        $normalized = strtolower(trim($header));
+
+        // Primary mappings
+        $mapping = [
+            'first name' => 'first_name',
+            'firstname' => 'first_name',
+            'first_name' => 'first_name',
+            'fname' => 'first_name',
+
+            'last name' => 'last_name',
+            'lastname' => 'last_name',
+            'last_name' => 'last_name',
+            'lname' => 'last_name',
+            'surname' => 'last_name',
+
+            'email' => 'email',
+            'email address' => 'email',
+            'e-mail' => 'email',
+
+            'phone' => 'phone',
+            'phone number' => 'phone',
+            'contact' => 'phone',
+            'contact number' => 'phone',
+            'mobile' => 'phone',
+            'mobile number' => 'phone',
+            'telephone' => 'phone',
+
+            'date of birth' => 'date_of_birth',
+            'dob' => 'date_of_birth',
+            'birth date' => 'date_of_birth',
+            'birthday' => 'date_of_birth',
+
+            'gender' => 'gender',
+            'sex' => 'gender',
+            'gender identity' => 'gender',
+
+            'address' => 'address',
+            'street address' => 'address',
+            'home address' => 'address',
+
+            'blood group' => 'blood_group',
+            'blood type' => 'blood_group',
+            'blood' => 'blood_group',
+            'blood_group' => 'blood_group',
+
+            'emergency contact name' => 'emergency_contact_name',
+            'emergency contact' => 'emergency_contact_name',
+            'emergency contact person' => 'emergency_contact_name',
+
+            'emergency contact phone' => 'emergency_contact_phone',
+            'emergency contact number' => 'emergency_contact_phone',
+
+            'medical history' => 'medical_history',
+            'past medical history' => 'medical_history',
+            'medical_history' => 'medical_history',
+            'pmh' => 'medical_history',
+
+            'current medications' => 'current_medications',
+            'current drugs' => 'current_medications',
+            'medications' => 'current_medications',
+            'current_medications' => 'current_medications',
+
+            'insurance provider' => 'insurance_provider',
+            'insurance company' => 'insurance_provider',
+            'insurance' => 'insurance_provider',
+
+            'insurance number' => 'insurance_number',
+            'insurance id' => 'insurance_number',
+            'policy number' => 'insurance_number',
+
+            'status' => 'status',
+            'active' => 'status',
+        ];
+
+        return $mapping[$normalized] ?? null;
+    }
+
+    /**
+     * =========================
+     * SET FIELD VALUE
+     * =========================
+     */
+    private function setFieldValue(&$data, $fieldName, $value)
+    {
+        switch ($fieldName) {
+            case 'email':
+                $data['email'] = strtolower($value);
+                break;
+            case 'phone':
+            case 'emergency_contact_phone':
+                $data[$fieldName] = $this->digits($value);
+                break;
+            case 'gender':
+                $data['gender'] = strtolower($value);
+                break;
+            case 'blood_group':
+                $data['blood_group'] = strtoupper($value);
+                break;
+            case 'status':
+                $data['status'] = ! empty($value) ? strtolower($value) : 'active';
+                break;
+            default:
+                $data[$fieldName] = $value;
+                break;
+        }
+    }
 
     /**
      * =========================
@@ -240,22 +345,29 @@ class PatientExportImportService
      */
     private function validateAndFormat(array $data): array
     {
-        if (empty($data['first_name']) || empty($data['last_name'])) {
-            throw new Exception('First & Last name required');
+        if (empty($data['first_name'])) {
+            throw new Exception('First name is required');
         }
 
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new Exception('Invalid email');
+        if (empty($data['last_name'])) {
+            throw new Exception('Last name is required');
         }
 
-        //  Email already used by another role
-        $existingUser = User::where('email', $data['email'])->first();
-        if ($existingUser && $existingUser->role !== 'patient') {
-            throw new Exception('Email already used by another user');
+        if (! filter_var($data['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
+            throw new Exception('Invalid email: '.($data['email'] ?? 'empty'));
+        }
+
+        // Email must be unique across all users
+        if (User::where('email', $data['email'])->exists()) {
+            throw new Exception('Email already exists in the system');
+        }
+
+        if (empty($data['phone'])) {
+            throw new Exception('Phone number is required');
         }
 
         if (strlen($data['phone']) < 10) {
-            throw new Exception('Invalid phone number');
+            throw new Exception('Invalid phone number (must be at least 10 digits)');
         }
 
         if (User::where('phone', $data['phone'])->exists()) {
@@ -263,16 +375,17 @@ class PatientExportImportService
         }
 
         if (empty($data['date_of_birth'])) {
-            throw new Exception('Date of birth required');
+            throw new Exception('Date of birth is required');
         }
 
         $dob = $this->parseDate($data['date_of_birth']);
 
         if ($dob->isFuture() || $dob->year < 1900) {
-            throw new Exception('Invalid date of birth');
+            throw new Exception('Invalid date of birth (must be a past date after 1900)');
         }
 
         $data['date_of_birth'] = $dob->format('Y-m-d');
+
         return $data;
     }
 
@@ -285,24 +398,31 @@ class PatientExportImportService
     {
         $value = trim($value);
 
-        // Excel numeric date
         if (is_numeric($value)) {
             return Carbon::createFromTimestampUTC(((int) $value - 25569) * 86400);
         }
 
-        // Reject ONLY pure 2-digit year
-        if (preg_match('/^\d{2}-\d{2}-\d{2}$/', $value)) {
-            throw new Exception('Use 4-digit year (DD-MM-YYYY)');
+        if (preg_match('/^(\d{2}-\d{2})-(\d{2})$/', $value, $m)) {
+            $year = (int) $m[2];
+            $century = $year >= 50 ? '19' : '20';
+            $value = $m[1].'-'.$century.$year;
         }
 
-        foreach (['d-m-Y', 'Y-m-d', 'd/m/Y'] as $format) {
-            try {
-                return Carbon::createFromFormat($format, $value);
-            } catch (Exception $e) {
+        $formats = [
+            'd-m-Y',
+            'Y-m-d',
+            'd/m/Y',
+            'd.m.Y',
+        ];
+
+        foreach ($formats as $format) {
+            $dt = Carbon::createFromFormat($format, $value, null, true);
+            if ($dt !== false) {
+                return $dt;
             }
         }
 
-        throw new Exception('Invalid DOB format');
+        throw new Exception("Invalid date format: {$value}. Use DD-MM-YYYY");
     }
 
     /**
@@ -310,15 +430,14 @@ class PatientExportImportService
      * CREATE PATIENT
      * =========================
      */
-
     private function createPatient(array $data): void
     {
         DB::transaction(function () use ($data) {
 
-            if (User::where('email', $data['email'])->exists()) {
-                throw new Exception('Email already exists');
+            // Double-check before creating
+            if (User::where('email', $data['email'])->orWhere('username', $data['email'])->exists()) {
+                throw new Exception('This email is already registered in the system');
             }
-
 
             if (User::where('phone', $data['phone'])->exists()) {
                 throw new Exception('Phone number already exists, record skipped');
@@ -326,7 +445,7 @@ class PatientExportImportService
 
             $user = User::create([
                 'role' => 'patient',
-                'username' => $data['email'],
+                // 'username' => $data['email'],
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
@@ -353,6 +472,24 @@ class PatientExportImportService
 
     private function digits(string $value): string
     {
-        return preg_replace('/\D/', '', $value);
+        return $this->cleanPhoneNumber($value);
+    }
+
+    /**
+     * =========================
+     * CLEAN PHONE NUMBER
+     * =========================
+     */
+    private function cleanPhoneNumber($phone)
+    {
+        $phone = trim($phone);
+
+        // If scientific notation (e.g. 7.90E+09)
+        if (stripos($phone, 'e') !== false) {
+            $phone = number_format((float) $phone, 0, '', '');
+        }
+
+        // Remove non-digits
+        return preg_replace('/[^0-9]/', '', $phone);
     }
 }
