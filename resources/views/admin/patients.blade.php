@@ -639,43 +639,46 @@
             clearFormErrors();
 
             fetch(`/admin/patients/${patientId}`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: formData
-            }).then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw {
-                            status: response.status,
-                            data: data
-                        };
-                    });
-                }
-                return response.json();
-            }).then(data => {
-                if (data.success) {
-                    fetchPatients();
-                    closePatientEditModal();
-                    toastr.success(data.message);
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw {
+                                status: response.status,
+                                data: data
+                            };
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        closePatientEditModal();
+                        fetchPatients();
+                        toastr.success(data.message);
 
-                } else {
-                    toastr.error(data.message);
-                }
-            }).catch(error => {
-                console.error('Error:', error);
+                    } else {
+                        toastr.error(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
 
-                if (error.status === 422 && error.data.errors) {
-                    // Display inline validation errors
-                    displayFormErrors(error.data.errors);
-                } else if (error.data && error.data.message) {
-                    toastr.error(error.data.message);
-                } else {
-                    toastr.error('An error occurred while saving. Please try again.');
-                }
-            });
+                    if (error.status === 422 && error.data.errors) {
+                        // Display inline validation errors
+                        displayFormErrors(error.data.errors);
+                    } else if (error.data && error.data.message) {
+                        toastr.error(error.data.message);
+                    } else {
+                        toastr.error('An error occurred while saving. Please try again.');
+                    }
+                });
         }
 
         function clearFormErrors() {
