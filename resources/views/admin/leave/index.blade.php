@@ -302,54 +302,48 @@
                         let availabilityHTML = '';
                         if (item.leave_type === 'full_day') {
                             availabilityHTML =
-                                `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300">Full Day</span>`;
+                                `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-700 border-gray-300">— (No availability)</span>`;
                         } else if (item.leave_type === 'custom') {
-                            // Custom leave with half days
+                            // Custom leave with half days - show AVAILABLE portions (opposite halves)
                             let availabilityParts = [];
+                            let startDate = new Date(item.start_date);
+                            let endDate = new Date(item.end_date);
+                            let isSingleDay = startDate.toDateString() === endDate
+                            .toDateString();
 
-                            // Start date
-                            if (item.start_date_type === 'half_day') {
-                                availabilityParts.push(
-                                    `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.start_half_slot)} Half (${startDate})</span>`
-                                );
-                            } else if (item.start_date_type === 'full_day') {
-                                availabilityParts.push(
-                                    `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${startDate})</span>`
-                                );
-                            }
-
-                            // Middle dates (if any)
-                            let start = new Date(item.start_date);
-                            let end = new Date(item.end_date);
-                            let daysDiff = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-
-                            if (daysDiff > 1) {
-                                let middleStart = new Date(start);
-                                middleStart.setDate(middleStart.getDate() + 1);
-                                let middleEnd = new Date(end);
-                                middleEnd.setDate(middleEnd.getDate() - 1);
-
-                                if (middleStart <= middleEnd) {
-                                    let middleStartStr = formatDate(middleStart.toISOString()
-                                        .split('T')[0]);
-                                    let middleEndStr = formatDate(middleEnd.toISOString().split(
-                                        'T')[0]);
+                            if (isSingleDay) {
+                                // Single day: show opposite half as available
+                                if (item.start_date_type === 'half_day') {
+                                    let availableSlot = item.start_half_slot === 'morning' ?
+                                        'Evening' : 'Morning';
                                     availabilityParts.push(
-                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${middleStartStr} to ${middleEndStr})</span>`
+                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-green-100 text-green-700 border-green-300 mb-1">✅ Available (${availableSlot} Half)</span>`
                                     );
                                 }
-                            }
+                            } else {
+                                // Multi-day: show available halves
+                                if (item.start_date_type === 'half_day') {
+                                    let availableSlot = item.start_half_slot === 'morning' ?
+                                        'Evening' : 'Morning';
+                                    let formattedStartDate = formatDate(item.start_date);
+                                    availabilityParts.push(
+                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-green-100 text-green-700 border-green-300 mb-1">✅ ${availableSlot} (Start - ${formattedStartDate})</span>`
+                                    );
+                                }
 
-                            // End date (if different from start)
-                            if (item.end_date !== item.start_date) {
                                 if (item.end_date_type === 'half_day') {
+                                    let availableSlot = item.end_half_slot === 'morning' ?
+                                        'Evening' : 'Morning';
+                                    let formattedEndDate = formatDate(item.end_date);
                                     availabilityParts.push(
-                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-orange-100 text-orange-700 border-orange-300 mb-1">${capitalize(item.end_half_slot)} Half (${endDate})</span>`
+                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-green-100 text-green-700 border-green-300 mb-1">✅ ${availableSlot} (End - ${formattedEndDate})</span>`
                                     );
-                                } else if (item.end_date_type === 'full_day') {
+                                }
+
+                                if (availabilityParts.length === 0) {
                                     availabilityParts.push(
-                                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full border bg-red-100 text-red-700 border-red-300 mb-1">Full Day (${endDate})</span>`
-                                    );
+                                        `<span class="px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-700 border-gray-300">— (No availability)</span>`
+                                        );
                                 }
                             }
 

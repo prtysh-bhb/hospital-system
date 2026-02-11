@@ -211,8 +211,15 @@ class PatientController extends Controller
                 ], 422);
             }
 
+            // Get optional column mapping from request
+            $columnMapping = null;
+            if ($request->has('column_mapping')) {
+                $mappingJson = $request->input('column_mapping');
+                $columnMapping = json_decode($mappingJson, true);
+            }
+
             // Call your CSV service
-            $result = $this->csvService->importPatientsFromCSV($file);
+            $result = $this->csvService->importPatientsFromCSV($file, $columnMapping);
 
             $message = "Import completed! Successfully imported {$result['success']} patient(s).";
 
@@ -241,6 +248,100 @@ class PatientController extends Controller
                 'message' => 'Import failed: ' . $e->getMessage(),
                 'errors' => ['csv_file' => [$e->getMessage()]],
             ], 422);
+        }
+    }
+
+    /**
+     * Get CSV headers for field mapping
+     */
+    public function getCSVHeaders(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'csv_file' => 'required|file|mimes:csv,txt|max:5120',
+            ], [
+                'csv_file.required' => 'Please select a CSV file',
+                'csv_file.mimes' => 'File must be a CSV file',
+                'csv_file.max' => 'File size must not exceed 5MB',
+            ]);
+
+            $file = $request->file('csv_file');
+
+            if (!$file || !$file->isValid()) {
+                throw new \Exception('File upload failed or file is invalid');
+            }
+
+            // Read file and extract headers
+            $fileHandle = fopen($file->getRealPath(), 'r');
+            if ($fileHandle === false) {
+                throw new \Exception('Unable to open CSV file');
+            }
+
+            $headers = fgetcsv($fileHandle);
+            fclose($fileHandle);
+
+            if ($headers === false || empty($headers)) {
+                throw new \Exception('CSV file is empty or invalid');
+            }
+
+            // Normalize headers: trim, remove BOM, and filter
+            $headers = array_map(function ($h) {
+                return trim(preg_replace('/\x{FEFF}/u', '', $h));
+            }, $headers);
+            $headers = array_filter($headers); // Remove empty headers
+            $headers = array_values($headers); // Reindex array
+
+            // Define available form fields for mapping
+            $formFields = [
+                'first_name' => 'First Name',
+                'last_name' => 'Last Name',
+                'email' => 'Email',
+                'phone' => 'Phone',
+                'date_of_birth' => 'Date of Birth',
+                'gender' => 'Gender',
+                'address' => 'Address',
+                'blood_group' => 'Blood Group',
+                'emergency_contact_name' => 'Emergency Contact Name',
+                'emergency_contact_phone' => 'Emergency Contact Phone',
+                'medical_history' => 'Medical History',
+                'current_medications' => 'Current Medications',
+                'insurance_provider' => 'Insurance Provider',
+                'insurance_number' => 'Insurance Number',
+                'status' => 'Status',
+            ];
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'CSV headers retrieved successfully',
+                    'csv_headers' => $headers,
+                    'form_fields' => $formFields,
+                ], 200);
+            }
+
+            return back()->with('headers', $headers)->with('form_fields', $formFields);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+            return back()->withErrors($e->errors())->withInput();
+
+        } catch (\Exception $e) {
+            \Log::error('CSV Header Extraction Error: ' . $e->getMessage());
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 
